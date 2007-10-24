@@ -32,7 +32,7 @@ wts_RobDist(X, intercept, covFun)
 %                test.vec = "resid", wt.method = "inv.var")
 
 %% for nlrob
-  print.nlrob(x, ...)
+\method{print}{nlrob}(x, \dots)
 
 %% for modsel.* aka anova.glmrob():
 psi.bisquare(u, c = 4.685, deriv = 0, rho = FALSE)
