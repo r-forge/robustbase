@@ -1,5 +1,5 @@
 
-R version 2.4.1 Patched (2007-03-25 r40912)
+R version 2.6.0 Patched (2007-10-19 r43219)
 Copyright (C) 2007 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
@@ -898,10 +898,11 @@ IN69  -136.67     5.695     7.54   124.32   -63.67    -9.829   522   136.67
 > try(## error: with "old default tolerance:
 +   covMcd(mm, control= rrcov.control(tol = 1e-10))
 + )
-Error in solve.default(cov, ...) : system is computationally singular: reciprocal condition number = 4.85293e-11
+Error in solve.default(cov, ...) : 
+  system is computationally singular: reciprocal condition number = 4.85293e-11
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  2.764 0.268 4.108 0 0 
+Time elapsed:  4.772 0.064 4.856 0 0 
 > 
 > ## Now, some small sample cases:
 > 
@@ -952,7 +953,8 @@ Robust Estimate of Covariance:
 [2,]  -9.24  364.90  -37.94
 [3,]   0.99  -37.94    4.45
 Warning message:
-n < 2 * p, i.e., possibly too small sample size in: covMcd(X, use.correction = FALSE) 
+In covMcd(X, use.correction = FALSE) :
+  n < 2 * p, i.e., possibly too small sample size
 > str(cc) ## best = 2 3 4 5
 List of 18
  $ method     : chr "Minimum Covariance Determinant Estimator."
@@ -1003,7 +1005,8 @@ Robust Estimate of Covariance:
 [3,]  -98.8  -0.894  151.352  -18.04
 [4,]  123.5  -1.049  -18.043   68.41
 Warning message:
-n < 2 * p, i.e., possibly too small sample size in: covMcd(X, use.correction = FALSE) 
+In covMcd(X, use.correction = FALSE) :
+  n < 2 * p, i.e., possibly too small sample size
 > str(cc) ## best = 1 2 4 5 6 7
 List of 18
  $ method     : chr "Minimum Covariance Determinant Estimator."
@@ -1050,7 +1053,8 @@ Robust Estimate of Covariance:
 [3,]  -95.3   21.4  197.7  -20.7
 [4,]  143.9  -14.8  -20.7   90.0
 Warning message:
-n < 2 * p, i.e., possibly too small sample size in: covMcd(X, use.correction = FALSE) 
+In covMcd(X, use.correction = FALSE) :
+  n < 2 * p, i.e., possibly too small sample size
 > mcc <- MASS::cov.mcd(X)
 > stopifnot(cc$best == mcc$best,
 +           all.equal(cc$center, mcc$center, tol = 1e-10),
@@ -1058,5 +1062,5 @@ n < 2 * p, i.e., possibly too small sample size in: covMcd(X, use.correction = F
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  2.816 0.276 4.163 0 0 
+Time elapsed:  4.84 0.072 4.931 0 0 
 > 

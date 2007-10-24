@@ -1,5 +1,5 @@
 
-R version 2.5.0 alpha (2007-04-05 r41063)
+R version 2.6.0 Patched (2007-10-19 r43219)
 Copyright (C) 2007 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
@@ -229,7 +229,8 @@ x            -0.2504843  0.5394659
 > 
 > rg0 <-  glmrob(cbind(k0, n0-k0) ~ x, family = binomial)
 Warning message:
-fitted probabilities numerically 0 or 1 occurred in: switch(family$family, binomial = { 
+In switch(family$family, binomial = { :
+  fitted probabilities numerically 0 or 1 occurred
 > ## --> warning..
 > rg0. <- glmrob(cbind(k0, n0-k0) ~ x, family = binomial, subset = n0 > 0)
 > 
@@ -361,5 +362,5 @@ test.acc
 +                     rg3.15  [no.comp], tol = 1e-13))
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  0.885 0.047 1.326 0 0 
+Time elapsed:  1.192 0.04 1.352 0 0 
 > 

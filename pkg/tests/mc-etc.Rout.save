@@ -1,5 +1,5 @@
 
-R version 2.5.1 Patched (2007-08-02 r42400)
+R version 2.6.0 Patched (2007-10-19 r43219)
 Copyright (C) 2007 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
@@ -561,7 +561,7 @@ Median = 0 (not at the border)
      it=15, whimed(n=  5)= 0.333333 sum_(p,q)= (66,66); sum_p >= kn
 maximal number of iterations (15 =? 15) reached prematurely
 Error in mc.default(x3, doRefl = FALSE, maxit = 15, trace = 3) : 
-	mc(): not 'converged' in 15 iterations
+  mc(): not 'converged' in 15 iterations
 > str(robustbase:::mcComp(-x3, doRefl = FALSE, maxit = 15, trace = 4))
 Median = -0 (not at the border)
  x[] is rescaled (* 1/s) with s = 8
@@ -820,5 +820,7 @@ try-error
  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 > 
 > 
+> cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
+Time elapsed:  1.004 0.036 1.033 0 0 
 > 
 > quit('no')
