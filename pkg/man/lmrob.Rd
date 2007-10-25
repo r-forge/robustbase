@@ -126,6 +126,10 @@ plot(starsCYG)
 abline(lmST, col = "red")
 abline(RlmST, col = "blue")
 summary(RlmST)
+vcov(RlmST)
+stopifnot(all.equal(fitted(RlmST),
+                    predict(RlmST, newdata = starsCYG),
+                    tol = 1e-14))
 }
 \keyword{robust}
 \keyword{regression}

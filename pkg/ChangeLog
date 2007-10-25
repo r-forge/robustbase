@@ -1,3 +1,22 @@
+2007-10-25  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* man/pulpfiber.Rd:   New data set (p=8 = 4 + 4)
+	* data/pulpfiber.tab: from "Robust Multivariate Regression (2004)".
+
+	* tests/lmrob-ex12.R: use versions of predict[.lmrob]()
+
+2007-10-24  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* man/condroz.Rd: set latin1 encoding (and fix typo)
+
+	* R/lmrob.R (predict.lmrob): define predict() and model.matrix()
+	methods, working via "lm" methods.
+
+	* NAMESPACE: export vcov(<lmrob>)
+
+	* man/summary.lmrob.Rd: some docu of new methods
+
+
 2007-08-02  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/adjoutlyingness.R (adjOutlyingness): small improvements,

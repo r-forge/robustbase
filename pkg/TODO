@@ -101,8 +101,6 @@ o more tests in	tests/
 
 o fully implement and test the multivariate case (y = matrix with > 1 col.)
 
-o predict.lmrob() __NEEDED__
-
 o anova.lmrob() __NEEDED__ {tau-test; deviance as in glm; ?? }
 			    S+ : "RWald" & "RF" (= rob. F)
 o src/lmrob.c :

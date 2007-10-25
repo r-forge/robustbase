@@ -40,9 +40,9 @@ lmrob <-
 
     if (is.empty.model(mt)) {
 	x <- NULL
-	z <- list(coefficients = if (is.matrix(y))
-		    matrix(,0,3) else numeric(0), residuals = y,
-		  fitted.values = 0 * y, weights = w, rank = 0,
+	z <- list(coefficients = if (is.matrix(y)) matrix(,0,3) else numeric(0),
+                  residuals = y, fitted.values = 0 * y,
+                  cov = matrix(,0,0), weights = w, rank = 0,
 		  df.residual = NROW(y), converged = TRUE)
 	if(!is.null(offset)) z$fitted.values <- offset
     }
@@ -55,6 +55,8 @@ lmrob <-
 	if(!is.null(offset))
 	    stop("'offset' not yet implemented for this estimator")
 	z <- lmrob.fit.MM(x, y, control = control)
+        nc <- names(z$coef)
+        dimnames(z$cov) <- list(nc,nc)
     }
 
     class(z) <- "lmrob"
@@ -102,6 +104,23 @@ print.lmrob <- function(x, digits = max(3, getOption("digits") - 3), ...)
 
 
 vcov.lmrob <- function (object, ...) { object$cov }
+
+## residuals.default works for "lmrob"  {unless we'd allow re-weighted residuals
+## fitted.default works for "lmrob"
+
+## This seems to work - via lm
+model.matrix.lmrob <- function (object, ...) {
+    stats::model.matrix.lm(object, ...)
+}
+
+## learned from MASS::rlm() : via "lm" as well
+predict.lmrob <- function (object, newdata = NULL, scale = NULL, ...)
+{
+    class(object) <- c(class(object), "lm")
+    object$qr <- qr(sqrt(object$weights) * object$x)
+    predict.lm(object, newdata = newdata, scale = object$s, ...)
+}
+
 
 summary.lmrob <- function(object, correlation = FALSE, symbolic.cor = FALSE, ...)
 {
