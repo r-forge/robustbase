@@ -1,6 +1,5 @@
 /*
- *  R : A Computer Language for Statistical Data Analysis
- *  Copyright (C) 2002	the R Development Core Team
+ *  Copyright (C) 2005--2007	Martin Maechler, ETH Zurich
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -52,6 +51,13 @@ licence it under the GNU Public Licence.
 
 See also ../inst/Copyrights
 */
+#include <inttypes.h>
+/*        ^^^^^^^^^^ is supposedly more common and standard than
+ * #include <stdint.h>
+ * or #include <sys/types.h> */
+/* --> int64_t ; if people don't have the above, they can forget about it.. */
+/* #include "int64.h" */
+
 #include <R.h>
 #include <Rmath.h> /* -> <math.h> and much more */
 
