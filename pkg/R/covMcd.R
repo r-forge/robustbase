@@ -368,6 +368,10 @@ covMcd <- function(x,
     ans$raw.cnp2 <- raw.cnp2
     ans$cnp2 <- cnp2
     class(ans) <- "mcd"
+    ## even when not 'trace': say if we have singularity!
+    if(is.list(ans$singularity))
+        cat(strwrap(singularityMsg(ans$singularity, ans$n.obs)), sep ="\n")
+
     return(ans)
 }
 
@@ -421,7 +425,8 @@ singularityMsg <- function(singList, n.obs)
                           paste(obsMsg(count, n.obs), "hyperplane with equation ",
                                 "a_1*(x_i1 - m_1) + ... + a_p*(x_ip - m_p) = 0",
                                 " with (m_1,...,m_p) the mean of these observations",
-                                " and coefficients a_i from the vector   a <- ", astring)
+                                " and coefficients a_i from the vector   a <- ",
+                                paste(astring, collapse="\n "))
                       }))
        },
        ## Otherwise

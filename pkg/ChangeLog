@@ -1,3 +1,11 @@
+2007-11-07  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/covMcd.R (covMcd): if we have singularity, also say so, even
+	if trace is FALSE.
+
+	* R/covMcd.R (singularityMsg): for "on.hyperplane", concatenate
+	long coefficient vector.
+
 2007-10-25  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* man/pulpfiber.Rd:   New data set (p=8 = 4 + 4)
@@ -212,7 +220,7 @@
     * src/rffastmcd.f: ditto
 
     * inst/test_MCD.R (mortality, mort3): add example {near singular}
-    * tests/tmcd.R: thest "near singular" example, using new tolSolve:
+    * tests/tmcd.R: test "near singular" example, using new tolSolve:
 
     * R/rrcov.control.R (rrcov.control): new tolSolve = 1e-14
 

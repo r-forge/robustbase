@@ -91,9 +91,8 @@ o summary.nlrob() is currently a "no-op" -- printing it should summarize
 
 ------
 
-o Add data sets from the MMY-book  -- try to use the same variable names as
-  in the book [for that, need to wait for the book; to look at outputs or
-  S-plus scripts].
+o Add data sets from the MMY-book -- mostly done {do we have *all* ?}
+
 
 --- lmrob --- --- --- --- ---
 
@@ -101,8 +100,6 @@ o more tests in	tests/
 
 o fully implement and test the multivariate case (y = matrix with > 1 col.)
 
-o anova.lmrob() __NEEDED__ {tau-test; deviance as in glm; ?? }
-			    S+ : "RWald" & "RF" (= rob. F)
 o src/lmrob.c :
 
    Things to fix:
