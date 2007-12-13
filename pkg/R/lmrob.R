@@ -290,21 +290,23 @@ summarizeRobWeights <-
 	    if(n1 > 0)
 		cat0(ngettext(n1, "one weight is",
 			     sprintf("%s%d weights are",
-				     if(n1 == n)"All " else '', n1)), "~= 1;")
+				     if(n1 == n)"All " else '', n1)), "~= 1.")
 	    n.rem <- n - n0 - n1
-	    if(n.rem <= 0) # < 0 possible if w0 & w1 overlap
+	    if(n.rem <= 0) { # < 0 possible if w0 & w1 overlap
+		if(n1 > 0) cat("\n")
 		return(invisible())
-	    cat0("the remaining",
-		 ngettext(n.rem, "one", sprintf("%d ones", n.rem)))
+	    }
+	    cat0("The remaining",
+		 ngettext(n.rem, "one", sprintf("%d ones", n.rem)), "are")
 	    if(is.null(names(w)))
 		names(w) <- as.character(seq(along = w))
 	    w <- w[!w1 & !w0]
 	    if(n.rem <= 10) {
-		cat(":\n")
+		cat("\n")
 		print(w, digits = digits, ...)
 		return(invisible())
 	    }
-	    else cat(" are summarized as\n")
+	    else cat(" summarized as\n")
 	}
 	print(summary(w, digits = digits), digits = digits, ...)
     }

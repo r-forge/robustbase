@@ -1,5 +1,5 @@
 
-R version 2.5.1 Patched (2007-07-11 r42192)
+R version 2.6.1 Patched (2007-12-12 r43668)
 Copyright (C) 2007 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
@@ -44,7 +44,7 @@ Convergence in 11 IRWLS iterations
 
 Robustness weights: 
  observation 16 is an outlier with |weight| = 0 ( < 0.0036); 
- 2 weights are ~= 1; the remaining 25 ones are summarized as
+ 2 weights are ~= 1. The remaining 25 ones are summarized as
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
  0.5335  0.8269  0.9760  0.9112  0.9952  0.9989 
 Algorithmic parameters: 
@@ -156,7 +156,7 @@ Convergence in 11 IRWLS iterations
 
 Robustness weights: 
  observation 18 is an outlier with |weight| = 0 ( < 0.005); 
- the remaining 19 ones are summarized as
+ The remaining 19 ones are summarized as
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
  0.1491  0.9412  0.9847  0.9279  0.9947  0.9982 
 Algorithmic parameters: 
@@ -200,7 +200,7 @@ Convergence in 15 IRWLS iterations
 
 Robustness weights: 
  4 observations c(11,20,30,34) are outliers with |weight| = 0 ( < 0.0021); 
- 4 weights are ~= 1; the remaining 39 ones are summarized as
+ 4 weights are ~= 1. The remaining 39 ones are summarized as
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
  0.6533  0.9171  0.9593  0.9318  0.9848  0.9986 
 Algorithmic parameters: 
@@ -240,7 +240,7 @@ Convergence in 9 IRWLS iterations
 Robustness weights: 
  10 observations c(1,2,3,4,5,6,7,8,9,10)
 	 are outliers with |weight| = 0 ( < 0.0013); 
- 7 weights are ~= 1; the remaining 58 ones are summarized as
+ 7 weights are ~= 1. The remaining 58 ones are summarized as
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
  0.8549  0.9281  0.9630  0.9540  0.9868  0.9987 
 Algorithmic parameters: 
@@ -273,7 +273,7 @@ Robust residual standard error: 2.591
 Convergence in 36 IRWLS iterations
 
 Robustness weights: 
- 3 weights are ~= 1; the remaining 9 ones:
+ 3 weights are ~= 1. The remaining 9 ones are
      2      3      4      5      6      7      8      9     11 
 0.9887 0.9301 0.9608 0.9082 0.9262 0.9963 0.1140 0.9666 0.6149 
 Algorithmic parameters: 
@@ -313,7 +313,7 @@ Convergence in 17 IRWLS iterations
 
 Robustness weights: 
  observation 21 is an outlier with |weight| = 0 ( < 0.0048); 
- 2 weights are ~= 1; the remaining 18 ones are summarized as
+ 2 weights are ~= 1. The remaining 18 ones are summarized as
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
  0.1215  0.8757  0.9428  0.8721  0.9797  0.9978 
 Algorithmic parameters: 
@@ -327,5 +327,5 @@ seed : int(0)
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # "stats"
-Time elapsed:  1.324 0.06 1.391 0 0 
+Time elapsed:  0.688 0.046 0.956 0 0 
 > 
