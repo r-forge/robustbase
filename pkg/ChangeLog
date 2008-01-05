@@ -1,9 +1,18 @@
+2008-01-05  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* man/ambientNOxCH.Rd: new data set from René Locher,
+	* data/ambientNOxCH.rda: showing some lmrob-nonconvergence
+
+2007-12-22  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/lmrob.c (rwls): if (trace_lev >= 3)  show beta vector.
+
 2007-12-13  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* man/summarizeRobWeights.Rd: add toy example
 
 	* R/lmrob.R (summarizeRobWeights): cosmetic change; notably
-	finishing line when weights were practically 0/1).
+	finishing line when weights were practically 0/1.
 
 	* tests/MCD-specials.Rout.save {adapt from change of 11-07}
 

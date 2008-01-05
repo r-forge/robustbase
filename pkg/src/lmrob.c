@@ -635,8 +635,16 @@ int rwls(double **a, int n, int p,
 #endif /*lambda iterations */
 
 	d_beta = norm1_diff(beta1,beta2, p);
-	if(trace_lev >= 2)
+	if(trace_lev >= 2) {
+	    if(trace_lev >= 3) {
+		Rprintf("\n  b2 = (");
+		for(j=0; j < p; j++)
+		    Rprintf("%s%11g", (j > 0)? ", " : "", beta0[j]);
+		Rprintf(");");
+	    }
 	    Rprintf(" ||b1 - b2||_1 = %g\n", d_beta);
+	}
+
 
 #ifdef LAMBDA_Iterations_remnant_no_longer_needed
 	converged = d_beta <= epsilon * fmax2(epsilon, norm1(beta0, p));
