@@ -126,14 +126,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       subroutine rffastmcd(dat,n,nvar,nhalff,krep,initcov,initmean,
-c     ------ nhalff = quan = h(alpha)
+c     ------ nhalff = quan = h(alpha);  krep == nsamp
      *     inbest,det,weight,fit,coeff,kount,adcov,
      *     iseed,
      *     temp, index1, index2, nmahad, ndist, am, am2, slutn,
      *     med, mad, sd, means, bmeans, w, fv1, fv2,
      *     rec, sscp1, cova1, corr1, cinv1, cova2, cinv2, z,
      *     cstock, mstock, c1stock, m1stock, dath,
-     *     cutoff, chimed)
+     *     cutoff, chimed, i_trace)
 
 cc	VT::10.10.2005 - a DATA operator was used for computing the
 cc		median and the 0.975 quantile of the chisq distribution
@@ -167,6 +167,7 @@ c	related to "stock" !
 cc
 cc  krep := the total number of trial subsamples
 cc          to be drawn when n exceeds 2*nmini;
+c           krep = 0  :<==>  "exact"  <==>  all possible subsamples
 cc  	was hardcoded krep := 500; now an *argument*
 cc
 
@@ -260,7 +261,9 @@ cc	 data faclts/2.6477,2.5092,2.3826,2.2662,2.1587,
 cc.	*  2.0589,1.9660,1.879,1.7973,1.7203,1.6473/
 
 
-C     CALL INTPR('Entering RFFASTMCD - KREP: ',-1,KREP,1)
+      if(i_trace .ge. 2) then
+         call intpr('Entering rffastmcd() - krep: ',-1,krep,1)
+      endif
 
       call rndstart
 C     -------- == GetRNGstate() in C
@@ -357,8 +360,8 @@ cc    ngroup = number of subdatasets
 cc    part = logical value, true if the dataset is split up
 cc    fine = logical value, becomes true when the subsets are merged
 cc    final = logical value, to indicate the final stage of the algorithm
-cc    all = logical value, true for small n, if all (p+1)-subsets out of
-cc	    n can be drawn
+cc    all = logical value, true if all (p+1)-subsets out of should be drawn;
+cc	    always true for (very) small n, but also when krep=0 (special value)
 cc    subdat = matrix with a first row containing indices of observations
 cc	       and a second row indicating the corresponding subdataset
 cc
@@ -385,7 +388,7 @@ c MM(FIXME):  The following code depends crucially on  kmini == 5
       do 22 i=1,kmini
          mini(i)=0
  22   continue
-      if(n.gt.(2*nmini-1)) then
+      if(krep.gt.0 .and. n.gt.(2*nmini-1)) then
          kstep=k1
          part=.true.
          ngroup=int(n/(nmini*1.D0))
@@ -448,12 +451,18 @@ c              n > (5*nmini-1) :
          minigr=mini(1)+mini(2)+mini(3)+mini(4)+mini(5)
          call rfrdraw(subdat,n,seed,minigr,mini,ngroup,kmini)
       else
+c          krep == 0  or   n <= (2*nmini-1) = 599
+
          minigr=n
          nhalf=nhalff
          kstep=k1
-         if(n.le.replow(nsel)) then
+         if(krep.eq.0 .or. n.le.replow(nsel)) then
 c             use all combinations; happens iff  nsel = nvar+1 = p+1 <= 6
             nrep=rfncomb(nsel,n)
+            if(i_trace .ge. 2) then
+               call intpr('will use *all* combinations: ',-1,nrep,1)
+            endif
+
          else
 C VT::02.09.2004 - remove the hardcoded 500 for nrep
 C            nrep=500
@@ -599,7 +608,9 @@ cc
       tottimes=0
  5555 object=10.D25
 
-C     CALL INTPR('MAIN LOOP - NUMBER of TRIALS NREP: ',-1,NREP,1)
+      if(i_trace .ge. 2) then
+         call intpr('Main loop - number of trials nrep: ',-1,nrep,1)
+      endif
 
       if(.not. part .or. final) then
          nn=n
@@ -1361,16 +1372,18 @@ cc******** end { Main Loop } ************** --------------------------------
          temp(j)=inbest(j)
  261  continue
       call rfishsort(temp,nhalf)
-
-C     CALL INTPR('BEST SUBSAMPLE (SORTED): ',-1,TEMP,NHALF)
+      if(i_trace .ge. 2) then
+         call intpr('Best subsample (sorted): ',-1,temp,nhalf)
+      endif
 
       do 271,j=1,nvar
          means(j)=bmeans(j)*mad(j)+med(j)
  271  continue
       call rfcovcopy(means,initmean,nvar,1)
+      if(i_trace .ge. 2) then
+         call dblepr('Center: ',-1,initmean,nvar)
+      endif
 
-C     CALL DBLEPR('CENTER: ',-1,initmean,nvar)
-cc
       do 9145 i=1,nvar
          do 9147 j=1,nvar
             cova1((i-1)*nvar+j)=cova2((i-1)*nvar+j)*mad(i)*mad(j)

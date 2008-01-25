@@ -1,3 +1,15 @@
+2008-01-25  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/covMcd.R (.fastmcd): fix nsamp="exact" to use "all"
+	* src/rffastmcd.f: krep=0 <==> nsamp="exact" : all := TRUE;
+		new argument i_trace; and use intpr() and dblepr()
+	* man/covMcd.Rd: pass 'trace' to .fastmcd() and Fortran
+	* src/rf-common.f (rfncomb): give "error" message for very
+		large 'comb'
+
+	* tests/tmcd.R: add test for nsmap = "exact"
+
+
 2008-01-05  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* man/ambientNOxCH.Rd: new data set from René Locher,

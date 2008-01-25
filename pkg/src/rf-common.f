@@ -161,7 +161,7 @@ c
       end
 ccccc
 ccccc
-      function rfncomb(k,n)
+      integer function rfncomb(k,n)
 cc
 cc  Computes the number of combinations of k out of n.
 cc  (To avoid integer overflow during the computation,
@@ -171,7 +171,7 @@ cc  to be put in the integer 'rfncomb', but the main program
 cc  only calls this function for small enough n and k.
 cc
       implicit none
-      integer rfncomb,k,n
+      integer k,n
 c
       double precision comb,fact
       integer j
@@ -181,6 +181,14 @@ c
          fact=(dble(n-j+1.0))/(dble(k-j+1.0))
          comb=comb*fact
  10   continue
+c     Should give error now instead of integer overflow!
+c     Don't know how to get .Machine$integer.max in Fortran, portably
+      if(comb .gt. 2147483647) then
+         comb=2147483647.
+         call
+     +    dblepr('** too many combinations; using max.integer instead:',
+     +           -1,comb,1)
+      endif
       rfncomb=int(comb+0.5D0)
       return
       end
