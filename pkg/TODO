@@ -118,7 +118,6 @@ o Alternative version of covOGK() for correlation-only
 o package 'riv' (author @ epfl.ch!) has 'slc()'  ~=  cov.S(.)  -- in pure R code
   doesn't Valentin have a version too?
   otherwise: test this, ask author for "donation" to robustbase
-  [NB:
 
 o adjOutlyingness() :
     typo-bug is corrected; and I have made it more pretty.
