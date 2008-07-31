@@ -1,3 +1,8 @@
+2008-07-31  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.4-0: finally release to CRAN after 6
+	months of no change!
+
 2008-01-25  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/covMcd.R (.fastmcd): fix nsamp="exact" to use "all"
