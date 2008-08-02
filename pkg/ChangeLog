@@ -1,5 +1,7 @@
 2008-08-02  Martin Maechler  <maechler@stat.math.ethz.ch>
 
+	* DESCRIPTION (Version): 0.4-1 ready for release to CRAN.
+
 	* R/ltsReg.R (ltsReg.default): don't add artificial "Y" y-name
 
 	* src/lmrob.c (rwls): first call to sum_rho() is only needed for
@@ -12,11 +14,6 @@
 
 	* man/CrohnD.Rd: new data example robust poisson regression
 	* data/CrohnD.rda:
-
-2008-07-31  Martin Maechler  <maechler@stat.math.ethz.ch>
-
-	* DESCRIPTION (Version): 0.4-0: finally release to CRAN after 6
-	months of no change!
 
 2008-01-25  Martin Maechler  <maechler@stat.math.ethz.ch>
 
