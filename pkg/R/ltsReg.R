@@ -176,7 +176,9 @@ ltsReg.default <-
     dimny <- dimnames(y)
     rownames <- dimny[[1]]
     yn <- if(!is.null(yname))
-	yname else if(!is.null(dimny[[2]])) dimny[[2]] else "Y"
+	yname else if(!is.null(dimny[[2]])) dimny[[2]]
+    has.yn <- !is.null(yn)
+    if(!has.yn) yn <- "Y"
     storage.mode(y) <- "double"
     storage.mode(x) <- "double"
     if (!oneD) {
@@ -265,7 +267,8 @@ ltsReg.default <-
 	ans$resid <- resid/ans$scale
 	ans$rsquared <- 0
 	ans$intercept <- intercept
-	names(ans$coefficients) <- names(ans$raw.coefficients) <- yn
+        if(has.yn)
+            names(ans$coefficients) <- names(ans$raw.coefficients) <- yn
 
     } ## end {all(x == 1)} --
 
@@ -463,8 +466,10 @@ ltsReg.default <-
 
     names(ans$fitted.values) <- names(ans$residuals) <- names(ans$lts.wt) <-
 	rownames
-    names(ans$scale) <- names(ans$raw.scale) <- yn
-    names(ans$rsquared) <- names(ans$crit) <- yn
+    if(has.yn) { ## non-sense otherwise:
+	names(ans$scale) <- names(ans$raw.scale) <- yn
+	names(ans$rsquared) <- names(ans$crit) <- yn
+    }
     ans$Y <- y
     ans$X <- if(p > 1 && intercept) x[, c(p, 1:(p - 1))] else x
     dimnames(ans$X) <- list(rownames[ok], names(ans$coefficients))
