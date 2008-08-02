@@ -36,7 +36,7 @@ export(Sn, Qn,
        tukeyChi, tukeyPsi1, # <- used by lmrob.*()
 
        lmrob,
-       lmrob.fit.MM, lmrob.MM,
+       lmrob.fit.MM, lmrob..M..fit,
        lmrob.S,
        lmrob.control,
 

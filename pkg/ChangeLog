@@ -1,5 +1,10 @@
 2008-08-02  Martin Maechler  <maechler@stat.math.ethz.ch>
 
+	* R/ltsReg.R (ltsReg.default): don't add artificial "Y" y-name
+
+	* src/lmrob.c (rwls): first call to sum_rho() is only needed for
+	tracing (was used for lambda iterations).
+
 	* R/glmrob.R (glmrob),
 	* R/glmrobMqle.R (glmrobMqle): introduce 'trace' option to trace
 	the robustness iterations {*not* part of control: does *not*
