@@ -22,7 +22,7 @@ glm.cr <- glmrob(y ~ X., family = "poisson", tcc = Inf.)
 (scr <- summary(glm.cr))
 
 ## c = 2.0
-g2 <- glmrob(y ~ X., family = "poisson", tcc = 2.0)
+g2 <- glmrob(y ~ X., family = "poisson", tcc = 2.0, trace=TRUE)
 summary(g2)
 
 ## c = 1.6

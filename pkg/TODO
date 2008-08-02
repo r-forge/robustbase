@@ -96,6 +96,12 @@ o Add data sets from the MMY-book -- mostly done {do we have *all* ?}
 
 --- lmrob --- --- --- --- ---
 
+o URGENT:  Allow simple (Huber) M-estimator
+  	   by simply allowing  LS- instead of S-estimator as starting value
+
+   ==> lmrob.fit.MM should be renamed to ....fit.M (it *does* M, from a start)
+   --> lmrob.MM     should be renamed to something like lmrob.M.fitter
+
 o more tests in	tests/
 
 o fully implement and test the multivariate case (y = matrix with > 1 col.)

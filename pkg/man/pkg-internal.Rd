@@ -13,7 +13,7 @@
 
 glmrobMqle(X, y, weights = NULL, start = NULL, offset = NULL,
            family, weights.on.x = "none",
-           control = glmrobMqle.control(), intercept = TRUE)
+           control = glmrobMqle.control(), intercept = TRUE, trace = FALSE)
 % glmrobMqleEpsiB     (mu, Vmu, ni, H, K, tcc)
 % glmrobMqleEpsiPois  (mu, Vmu, ni, H, K, tcc)
 % glmrobMqleEpsiSB    (mu, Vmu, ni, H, K, tcc)
