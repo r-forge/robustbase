@@ -1,3 +1,14 @@
+2008-08-04  Martin Maechler  <maechler@stat.math.ethz.ch>, really from
+
+	    Valentin Todorov  <valentin.todorov@chello.at>
+
+	* R/ltsReg.R (ltReg.default): if(mcd) call covMcd() with correct alpha
+
+	* R/covMcd.R (covMcd): drop (n-1)/n correction, as cov.wt()
+	contains that per default (in R, not in S-plus!).
+
+	* R/tolEllipse.R (tolEllipsePlot): no text() for id.n == 0
+
 2008-08-04  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* src/wgt_himed.c: renamed  wgt_himed.c_templ  to

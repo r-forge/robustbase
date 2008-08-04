@@ -1,6 +1,6 @@
 
-R version 2.6.1 Patched (2007-12-12 r43668)
-Copyright (C) 2007 The R Foundation for Statistical Computing
+R version 2.7.1 Patched (2008-08-02 r46219)
+Copyright (C) 2008 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -34,12 +34,12 @@ Robust Estimate of Location:
 0.1922  
 Robust Estimate of Covariance:
         x
-x  0.7642
+x  0.7483
 > str(r1)
 List of 14
  $ method    : chr "Univariate location and scale estimation."
  $ call      : language covMcd(x = x)
- $ cov       : num [1, 1] 0.764
+ $ cov       : num [1, 1] 0.748
   ..- attr(*, "dimnames")=List of 2
   .. ..$ : chr "x"
   .. ..$ : chr "x"
@@ -75,7 +75,7 @@ Robust Estimate of Location:
 0.1922  
 Robust Estimate of Covariance:
         x
-x  0.7642
+x  0.7483
 > ## with alpha = 1
 > (r1.1 <- covMcd(x, alpha = 1))
 Minimum Covariance Determinant (MCD) estimator.
@@ -91,12 +91,12 @@ Robust Estimate of Location:
 2.059  
 Robust Estimate of Covariance:
        x
-x  228.4
+x  223.9
 > str(r1.1)
 List of 14
  $ method    : chr "Minimum Covariance Determinant Estimator. \nThe minimum covariance determinant estimates based on 52 observations \nare equal t"| __truncated__
  $ call      : language covMcd(x = x, alpha = 1)
- $ cov       : num [1, 1] 228
+ $ cov       : num [1, 1] 224
   ..- attr(*, "dimnames")=List of 2
   .. ..$ : chr "x"
   .. ..$ : chr "x"
@@ -134,7 +134,7 @@ Robust Estimate of Location:
 2.059  
 Robust Estimate of Covariance:
        x
-x  228.4
+x  223.9
 > 
 > ### 1b) p = 1, constant scale
 > (rc <- covMcd(rep(1,12)))
@@ -362,5 +362,5 @@ Robust Estimate of Covariance:
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  0.576 0.035 0.738 0 0 
+Time elapsed:  0.562 0.04 0.631 0 0 
 > 

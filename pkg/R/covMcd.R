@@ -140,7 +140,7 @@ covMcd <- function(x,
             weights <- as.numeric(mah < quantiel) # 0/1
             sum.w <- sum(weights)
             ans <- c(ans, cov.wt(x, wt = weights, cor = cor))
-            ans$cov <- sum.w/(sum.w - 1) * ans$cov
+            ## ans$cov <- sum.w/(sum.w - 1) * ans$cov
 
             ## Consistency factor for reweighted MCD
             if(sum.w != n) {
@@ -221,7 +221,7 @@ covMcd <- function(x,
             weights <- as.numeric(((x - center)/scale)^2 < quantiel) # 0/1
             sum.w <- sum(weights)
             ans <- c(ans, cov.wt(x, wt = weights, cor = cor))
-            ans$cov <- sum.w/(sum.w - 1) * ans$cov
+            ## ans$cov <- sum.w/(sum.w - 1) * ans$cov
 
             ## Apply the correction factor for the reweighted cov
             if(sum.w == n) {
@@ -320,7 +320,7 @@ covMcd <- function(x,
         }
 
         ans <- c(ans, cov.wt(x, wt = weights, cor))
-        ans$cov <- sum.w/(sum.w - 1) * ans$cov
+        ## ans$cov <- sum.w/(sum.w - 1) * ans$cov
         ans$cov <- ans$cov * cdelta.rew * correct.rew
 
         ##vt:: add also the best found subsample to the result list
