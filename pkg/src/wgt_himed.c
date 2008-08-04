@@ -37,10 +37,10 @@
 #include "robustbase.h"
 
 #define _i_whimed_
-#include "wgt_himed.c_templ"
+#include "wgt_himed_templ.h"
 
 #define _d_whimed_
-#include "wgt_himed.c_templ"
+#include "wgt_himed_templ.h"
 
 
 void wgt_himed_i(double *x, Sint *n, Sint *iw, double *res)
