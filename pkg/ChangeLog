@@ -1,3 +1,7 @@
+2008-08-09  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* NAMESPACE: import stats::cov {since others hide it!}
+
 2008-08-05  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/huber.R (huberM): replace `s' by 's' in errors and warnings.
