@@ -1,3 +1,10 @@
+2008-08-29  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.4-3  for CRAN release
+
+	* tests/mc-strict.R: define 'isMac' and tweak the tests;
+	thanks to reports from Rory Winston.
+
 2008-08-09  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* NAMESPACE: import stats::cov {since others hide it!}
