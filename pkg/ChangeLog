@@ -1,3 +1,7 @@
+2008-10-01  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/wgt_himed_templ.h: fix leading comment
+
 2008-08-29  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.4-3  for CRAN release
