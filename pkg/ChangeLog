@@ -1,3 +1,8 @@
+2008-11-28  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/OGK.R (covOGK): also return n.iter and weight.fn.
+	* man/covOGK.Rd: note about the "silly" weight.fn
+
 2008-10-15  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/lmrob.MM.R (lmrob.S): fix error message s/larger/smaller/
