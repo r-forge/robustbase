@@ -1,3 +1,7 @@
+2009-01-10  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* man/exAM.Rd, man/possumDiv.Rd, ...: Rd_parse fixes
+
 2008-11-28  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/OGK.R (covOGK): also return n.iter and weight.fn.
