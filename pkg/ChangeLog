@@ -1,5 +1,10 @@
 2009-01-10  Martin Maechler  <maechler@stat.math.ethz.ch>
 
+	* src/rf-common.f (rfrangen): drop unused 'seed' argument
+	(rfrdraw): ditto
+
+	* src/rffastmcd.f: get rid of TABs (gfortran -Wall  complains)
+
 	* man/exAM.Rd, man/possumDiv.Rd, ...: Rd_parse fixes
 
 2008-11-28  Martin Maechler  <maechler@stat.math.ethz.ch>
