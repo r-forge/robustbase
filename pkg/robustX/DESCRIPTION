@@ -1,0 +1,11 @@
+Package: robustX
+Type: Package
+Title: eXperimental eXtraneous eXtraordinary ... Functionality for Robust Statistics
+Version: 1.0-0
+Date: 2008-12-17
+Author: Werner Stahel, Martin Maechler and potentially others
+Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
+Description: More about what it does (maybe more than one line)
+Depends: robustbase
+License: GPL (>= 2)
+

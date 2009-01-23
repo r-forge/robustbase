@@ -1,0 +1,27 @@
+From: Werner Stahel <stahel@stat.math.ethz.ch>
+To: Martin Maechler <maechler@stat.math.ethz.ch>
+Subject: Re: Comment
+Date: Sat, 27 Dec 2008 13:55:52 +0100
+
+Lieber Martin
+
+Ich hoffe ja, dass Du das erst im neuen Jahr liest.
+
+Wir sollten die web page möglichst bald zu füllen beginnen.
+Ein Beitrag von mir besteht aus
+/u/stahel/proj/covcomp/paper/m-barrowwheel.tex
+
+Könntest Du in robustMisc gelegentlich:
+
+a. bitte  rwheelb  in  rbwheel  umbenennen
+
+b. im Resultat den Komponenten  $X  und $X0  anständige
+   colnames  verpassen  (paste('X',1:p,sep='')
+
+Dann muss jemand von uns das index.html schreiben.
+
+So, dann lass ich das auch mal ruhen bis im neuen Jahr.
+Guete Rutsch und bis dann...
+
+Werner
+
