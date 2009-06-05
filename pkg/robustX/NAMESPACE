@@ -1,0 +1,4 @@
+export(Qrot, rbwheel,
+       mvBACON, BACON, # but not ".lmBACON"
+       L1median, optimMethods , nlminbMethods)
+

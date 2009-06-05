@@ -48,7 +48,7 @@ rbwheel(n, p, frac = 1/p, sig1 = 0.05, sig2 = 1/10,
   \item{n1}{the number of \dQuote{good} observations, see above.}
   \item{n2}{the number of \dQuote{outlying} observations, \eqn{n2 = n - n1}.}
 }
-\references{\url{http://stat.ethz.ch/research/....}% <<- FIXME
+\references{\url{http://stat.ethz.ch/research/areas/robustness}
 }
 \author{Werner Stahel and Martin Maechler}
 % \seealso{ %............
@@ -94,5 +94,3 @@ if(require("ICS")) {
 }
 \keyword{distribution}
 \keyword{robust}
-
-

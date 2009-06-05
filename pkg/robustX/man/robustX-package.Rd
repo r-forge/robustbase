@@ -14,8 +14,8 @@
 \details{
  \tabular{ll}{
   Package: \tab robustX\cr
+  Date: \tab 2008-12-17, was the first, R-forge only  \cr
   Version: \tab 1.0-0\cr
-  Date: \tab 2008-12-17\cr
   Depends: \tab robustbase\cr
   License: \tab GPL (>= 2)\cr
  }
@@ -25,6 +25,10 @@ Index:
 Qrot             Rotation Matrix to Specific Direction
 rbwheel          Multivariate Barrow Wheel Distribution
                  Random Vectors
+L1median	 Compute the Multivariate L1-Median
+BACON		 BACON for Regression or Multivariate Covariance Estimation
+mvBACON		 BACON: Blocked Adaptive
+			Computationally-Efficient Outlier Nominators
 }
 }
 \author{
