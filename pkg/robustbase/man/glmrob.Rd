@@ -239,13 +239,17 @@ ro1.7 <- glmrob(lot1 ~ log(u), data=clotM1.7, family=Gamma)
 with(ro1.7, cbind(w.x, w.r))## no robustness here ....
 ro1.7. <- glmrob(lot1 ~ log(u), data=clotM1.7, family=Gamma,
                  weights.on.x = "covMcd")
-with(ro1.7., cbind(w.x, w.r))## not ok either
+with(ro1.7., cbind(w.x, w.r))# x[1] is down-weighted, NOT ok either!
 
 ## a "regular outlier" in the middle :
 clotM4.3 <- within(clotting, { lot1[4] <- 1000 })
 ## .. not even this one works : ... need *robust* start ?!
 try(cl4.3 <- glm   (lot1 ~ log(u), data=clotM4.3, family=Gamma))
 try(ro4.3 <- glmrob(lot1 ~ log(u), data=clotM4.3, family=Gamma))
+
+ro4.3 <- glmrob(lot1 ~ log(u), data=clotM4.3, family=Gamma,
+                start = "lmrobMM")
+summary(ro4.3)
 
 %% TODO the "same" with lot2 :
 %% summary(glm(lot2 ~ log(u), data=clotting, family=Gamma))

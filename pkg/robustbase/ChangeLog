@@ -1,3 +1,9 @@
+2009-06-05  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/glmrob.R (glmrob): add the option  start = "lmrobMM", using
+	a *robust* start for {essentially} glm().
+	* man/glmrob.Rd: add an example for that
+
 2009-06-04  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.5-0; CRAN-released on ....
