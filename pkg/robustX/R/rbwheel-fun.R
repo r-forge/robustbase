@@ -29,11 +29,11 @@ rbwheel <- function(n,		# observations
 		    p,		# variables
 		    frac = 1/p, # proportion of outliers
 		    sig1 = .05, # thickness of the 'wheel' = sigma(good[,1])
-		    sig2 = 1/10,# thickness of the 'axis' (compared to 1)
+		    sig2 = 1/10,# diameter of the 'axle' (compared to 1)
                     rGood = rnorm,# generator for "good" observations
                     rOut = function(n)sqrt(rchisq(n,p-1))*sign(runif(n,-1,1)),
 		    U1 = rep(1, p), ## Vector to which (1,0,...,0) is rotated
-		    scale = TRUE,
+		    spherize = FALSE, scale = TRUE, scaleAfter = FALSE,
 		    fullResult = FALSE)
 {
     ## Purpose: simulate data according to the 'wheel' distribution
@@ -43,8 +43,21 @@ rbwheel <- function(n,		# observations
     ## Author: Werner Stahel, Martin Maechler, Date: 28 Nov 2008, 15:27
     stopifnot(is.numeric(frac), 0 <= frac, frac < 1,
 	      n >= 1, p >= 2)
+
+    ## a simplified version of scale.default :
+    scale.simply <- function(x) {
+        center <- colMeans(x, na.rm = TRUE)
+        x <- sweep(x, 2, center, check.margin = FALSE)
+        scale <- apply(x, 2,
+                       function(v) {
+                           v <- v[!is.na(v)]
+                           sqrt(sum(v^2)/max(1, length(v) - 1L))
+                       })
+        sweep(x, 2, scale, "/", check.margin = FALSE)
+    }
+
     n1 <- pmax(0, pmin(n, round((1-frac)*n)))
-    n2 <- n-n1				     ## ~= frac * n
+    n2 <- n-n1 ## ~= frac * n
     i <- if(n1 < n) (n1+1):n else integer(0) # index of n2 "outliers"
 
     d0 <- matrix(0, n,p)
@@ -53,17 +66,22 @@ rbwheel <- function(n,		# observations
     d0[-i, 1] <- sig1 * rGood(n1)
     d0[ i, 1] <- rOut(n2)
 
+    d1 <- {
+	if(spherize) { # use Chol(), such that X_1 remains unchanged:
+            d. <- scale.simply(d0)
+            t(backsolve(chol(cov(d.)), t(d.)))
+        }
+	else if(scale)
+	    scale.simply(d0)
+	else d0
+    }
 
-    if(scale)
-	d0 <- scale(d0)
-
+    maybeScale <- function(x) if(scaleAfter) scale.simply(x) else x
     if(fullResult) { ## just for didactical reasons, see example
 	A <- Qrot(p, u = U1)
-	if(scale) ## drop undesired attributes
-	    attributes(d0) <- list(dim = dim(d0))
-	list(X = d0 %*% A, X0 = d0, A = A, n1 = n1, n2 = n2)
+	list(X = maybeScale(d1 %*% A), X0 = d0, A = A, n1 = n1, n2 = n2)
     }
     else ## by default
-	structure(d0 %*% Qrot(p, u = U1), n1 = n1) # 'n1' as attribute
+	structure(maybeScale(d1 %*% Qrot(p, u = U1)), n1 = n1) # 'n1' as attribute
 }
 

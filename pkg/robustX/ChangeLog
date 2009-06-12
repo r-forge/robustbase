@@ -1,3 +1,14 @@
+2009-06-12  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 1.1-0
+
+	* demo/rbwheel-d.R: start adding ICS demos (using lattice in order
+	to *combine* scatter plot matrices.
+
+	* R/rbwheel-fun.R (rbwheel): add 'spherize' and 'scaleAfter'
+	options, defaulting to FALSE.
+	* man/rbwheel.Rd: dito
+
 2009-05-29  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/L1medians.R (L1median): newly added, subsuming my code

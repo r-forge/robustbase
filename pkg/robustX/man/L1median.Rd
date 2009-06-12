@@ -7,8 +7,8 @@
 \description{
   Compute the multivariate \eqn{L_1}{L1}-median \eqn{m}, i.e., the
   minimizer of
-  \deqn{\sum_{i=1}^n \|| x_i - m \||,}{sum(i = 1:n; || x[i] - m ||),}
-  where \eqn{\|| u \|| = \sqrt{\sum_{j=1}^p u_j^2}}{%
+  \deqn{\sum_{i=1}^n \| x_i - m \|,}{sum(i = 1:n; || x[i] - m ||),}
+  where \eqn{\|u\| = \sqrt{\sum_{j=1}^p u_j^2}}{%
       || u || = sqrt(sum(j = 1:p; u[j]^2))}.
 
   As a convex problem, there's always a global minimizer, computable not
@@ -18,8 +18,7 @@
 }
 \usage{
 L1median(X, m.init = apply(X, 2, median), weights = NULL,
-	method = c("nlm", "HoCrJo", "VardiZhang",
-			optimMethods , nlminbMethods),
+	method = c("nlm", "HoCrJo", "VardiZhang", optimMethods, nlminbMethods),
 	pscale = apply(abs(centr(X, m.init)), 2, mean, trim = 0.40),
 	tol = 1e-08, maxit = 200, trace = FALSE,
 	zero.tol = 1e-15, \dots)
@@ -71,7 +70,7 @@ L1median(X, m.init = apply(X, 2, median), weights = NULL,
 }
 \author{
   Martin Maechler.  Method \code{"HoCrJo"} is mostly based on Kristel
-  Joosen's function.
+  Joossens' function, implementing Hossjer and Croux (1995).
 }
 \seealso{
   \code{\link{median}}, \code{\link[robustbase]{covMcd}}
