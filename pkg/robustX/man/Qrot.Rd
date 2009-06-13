@@ -4,7 +4,7 @@
 \description{
   Construct the \eqn{p \times p}{p x p} rotation matrix that rotates the
   unit vector (1,0,....0), i.e., the \eqn{x_1}-axis,
-  onto (1,1,1,...1)/\eqn{\sqrt(p)}, or more generally to
+  onto (1,1,1,...1)/\eqn{\sqrt{p}}{sqrt(p)}, or more generally to
   \eqn{u/{\left\|u\right\|}}{u / ||u||}  (\eqn{u :=}\code{unit.image}).
 }
 \usage{
