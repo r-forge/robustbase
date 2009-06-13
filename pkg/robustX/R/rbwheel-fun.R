@@ -33,7 +33,7 @@ rbwheel <- function(n,		# observations
                     rGood = rnorm,# generator for "good" observations
                     rOut = function(n)sqrt(rchisq(n,p-1))*sign(runif(n,-1,1)),
 		    U1 = rep(1, p), ## Vector to which (1,0,...,0) is rotated
-		    spherize = FALSE, scale = TRUE, scaleAfter = FALSE,
+                    scaleAfter = TRUE, scaleBefore = FALSE, spherize = FALSE,
 		    fullResult = FALSE)
 {
     ## Purpose: simulate data according to the 'wheel' distribution
@@ -43,17 +43,22 @@ rbwheel <- function(n,		# observations
     ## Author: Werner Stahel, Martin Maechler, Date: 28 Nov 2008, 15:27
     stopifnot(is.numeric(frac), 0 <= frac, frac < 1,
 	      n >= 1, p >= 2)
+    ## compatibility-warning -- at most once per session :
+    if(missing(scaleAfter) &&
+       (is.null(w <- getOption("rbwheel.warn.scaleA")) || isTRUE(w))) {
+        if(is.null(w)) options( rbwheel.warn.scaleA = FALSE)
+        warning("Note that rbwheel() now as default scaleAfter = TRUE")
+    }
 
     ## a simplified version of scale.default :
     scale.simply <- function(x) {
-        center <- colMeans(x, na.rm = TRUE)
-        x <- sweep(x, 2, center, check.margin = FALSE)
-        scale <- apply(x, 2,
+        x <- sweep(x, 2, colMeans(x, na.rm = TRUE), check.margin = FALSE)
+        sdev <- apply(x, 2,
                        function(v) {
                            v <- v[!is.na(v)]
                            sqrt(sum(v^2)/max(1, length(v) - 1L))
                        })
-        sweep(x, 2, scale, "/", check.margin = FALSE)
+        sweep(x, 2, sdev, "/", check.margin = FALSE)
     }
 
     n1 <- pmax(0, pmin(n, round((1-frac)*n)))
@@ -71,15 +76,16 @@ rbwheel <- function(n,		# observations
             d. <- scale.simply(d0)
             t(backsolve(chol(cov(d.)), t(d.)))
         }
-	else if(scale)
+	else if(scaleBefore)
 	    scale.simply(d0)
 	else d0
     }
 
     maybeScale <- function(x) if(scaleAfter) scale.simply(x) else x
-    if(fullResult) { ## just for didactical reasons, see example
+    if(fullResult) { ## for didactical reasons mainly, see example
 	A <- Qrot(p, u = U1)
-	list(X = maybeScale(d1 %*% A), X0 = d0, A = A, n1 = n1, n2 = n2)
+	list(X = maybeScale(d1 %*% A), X0 = d0, A = A, n1 = n1, n2 = n2,
+             scale = c(before=scaleBefore, after=scaleAfter, spherize=spherize))
     }
     else ## by default
 	structure(maybeScale(d1 %*% Qrot(p, u = U1)), n1 = n1) # 'n1' as attribute

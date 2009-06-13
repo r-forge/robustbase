@@ -1,8 +1,13 @@
+2009-06-13  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/rbwheel-fun.R (rbwheel): scaleAfter = TRUE becomes default, as
+	this is what was always intended.
+
 2009-06-12  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 1.1-0
 
-	* demo/rbwheel-d.R: start adding ICS demos (using lattice in order
+	* demo/rbwheel_ics.R: start adding ICS demos (using lattice in order
 	to *combine* scatter plot matrices.
 
 	* R/rbwheel-fun.R (rbwheel): add 'spherize' and 'scaleAfter'

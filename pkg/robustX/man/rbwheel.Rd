@@ -10,7 +10,7 @@ rbwheel(n, p, frac = 1/p, sig1 = 0.05, sig2 = 1/10,
         rGood = rnorm,
         rOut = function(n) sqrt(rchisq(n, p - 1)) * sign(runif(n, -1, 1)),
         U1 = rep(1, p),
-        spherize = FALSE, scale = TRUE, scaleAfter = FALSE,
+        scaleAfter = TRUE, scaleBefore = FALSE, spherize = FALSE,
         fullResult = FALSE)
 }
 \arguments{
@@ -25,14 +25,15 @@ rbwheel(n, p, frac = 1/p, sig1 = 0.05, sig2 = 1/10,
   \item{rGood}{function; the generator for \dQuote{good} observations.}
   \item{rOut}{function, generating the outlier observations.}
   \item{U1}{p-vector to which \eqn{(1,0,\dots,0)} is rotated.}
+  \item{scaleAfter}{logical indicating if the matrix is re-scaled \emph{after}
+    rotation (via \code{\link{scale}()})..  Default \code{TRUE}; note
+    that this used to be false by default in the first public version.}
+  \item{scaleBefore}{logical indicating if the matrix is re-scaled before
+    rotation (via \code{\link{scale}()}).}
   \item{spherize}{logical indicating if the matrix is to be
     \dQuote{spherized}, i.e., rotated and scaled to have empirical
     covariance \eqn{I_p}.  This means that the principal components are
     used (before rotation).}
-  \item{scale}{logical indicating if the matrix is re-scaled after
-    rotation (via \code{\link{scale}()}).}
-  \item{scaleAfter}{logical indicating if the matrix is re-scaled \emph{after}
-    rotation (via \code{\link{scale}()}).}
   \item{fullResult}{logical indicating if in addition to the \eqn{n
       \times p}{n x p} matrix, some intermediate quantities are returned as
     well.}
@@ -63,10 +64,10 @@ rbwheel(n, p, frac = 1/p, sig1 = 0.05, sig2 = 1/10,
 % }
 \examples{
 set.seed(17)
-rX8 <- rbwheel(1000,8, fullResult = TRUE)
-str(rX8)
-with(rX8, { print(round(cor(X, X0 \%*\% A),    2)) # very similar, up to scale()
-            print(round(cor(X0, X \%*\% t(A)), 2)) })
+rX8 <- rbwheel(1000,8, fullResult = TRUE, scaleAfter=FALSE)
+with(rX8, stopifnot(all.equal(X, X0 \%*\% A,    tol = 1e-15),
+                    all.equal(X0, X \%*\% t(A), tol = 1e-15)))
+##--> here, don't need to keep X0 (nor A, since that is Qrot(p))
 
 ## for n = 100,  you  don't see "it", but may guess .. :
 n <- 100
@@ -99,7 +100,7 @@ if(require("ICS")) {
   plot(X.paM.)# ditto
   plot(X.paR)# very clear
 }
-## Many experiments: --->  demo(rbwheel)
+## Similar such experiments --->  demo(rbwheel)
 }
 \keyword{distribution}
 \keyword{robust}
