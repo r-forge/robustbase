@@ -46,8 +46,8 @@ rbwheel <- function(n,		# observations
     ## compatibility-warning -- at most once per session :
     if(missing(scaleAfter) &&
        (is.null(w <- getOption("rbwheel.warn.scaleA")) || isTRUE(w))) {
-        if(is.null(w)) options( rbwheel.warn.scaleA = FALSE)
-        warning("Note that rbwheel() now as default scaleAfter = TRUE")
+	if(is.null(w)) options( rbwheel.warn.scaleA = FALSE)
+	warning("Note: rbwheel() now uses scaleAfter = TRUE  by default")
     }
 
     ## a simplified version of scale.default :
