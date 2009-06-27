@@ -48,6 +48,14 @@
 data(wagnerGrowth)
 ## maybe
 str(wagnerGrowth)
-pairs(wagnerGrowth[,-1], col = wagnerGrowth[,1])
+
+
+require(lattice)
+(xyplot(y ~ Period | Region, data = wagnerGrowth,
+         main = "wagnerGrowth: 21 regions @ Hannover"))
+
+(dotplot(y ~ reorder(Region,y,median), data = wagnerGrowth,
+         main = "wagnerGrowth",
+         xlab = "Region [ordered by  median(y | Region) ]"))
 }
 \keyword{datasets}
