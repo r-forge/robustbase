@@ -1,12 +1,17 @@
+2009-06-27  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* data/wagnerGrowth.rda: add the "wagner data" (continuous + categorical)
+	* man/wagnerGrowth.Rd: ditto
+
 2009-06-05  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/glmrob.R (glmrob): add the option  start = "lmrobMM", using
 	a *robust* start for {essentially} glm().
-	* man/glmrob.Rd: add an example for that
+	* man/glmrob.Rd: add an example for that   <<<<<______________ FIXME
 
 2009-06-04  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 0.5-0; CRAN-released on ....
+	* DESCRIPTION (Version): 0.5-0; *not* released
 
 	* tests/glmrob-1.R: more glmrob() examples
 

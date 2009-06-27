@@ -247,9 +247,12 @@ clotM4.3 <- within(clotting, { lot1[4] <- 1000 })
 try(cl4.3 <- glm   (lot1 ~ log(u), data=clotM4.3, family=Gamma))
 try(ro4.3 <- glmrob(lot1 ~ log(u), data=clotM4.3, family=Gamma))
 
+## The new option to start from "lmrobMM" --- not yet ok either
+try(
 ro4.3 <- glmrob(lot1 ~ log(u), data=clotM4.3, family=Gamma,
                 start = "lmrobMM")
-summary(ro4.3)
+)
+## summary(ro4.3)
 
 %% TODO the "same" with lot2 :
 %% summary(glm(lot2 ~ log(u), data=clotting, family=Gamma))
