@@ -118,8 +118,7 @@ summary.glmrob <- function(object, correlation=FALSE, symbolic.cor=FALSE, ...)
     if(any(aliased))
 	coefs <- coefs[!aliased]
     covmat <- object$cov
-    var.cf <- diag(covmat)
-    s.err <- sqrt(var.cf)
+    s.err <- sqrt(diag(covmat))
     zvalue <- coefs/s.err
     pvalue <- 2 * pnorm(-abs(zvalue))
     coef.table <- cbind("Estimate" = coefs, "Std. Error" = s.err,
@@ -133,7 +132,7 @@ summary.glmrob <- function(object, correlation=FALSE, symbolic.cor=FALSE, ...)
 		  df.null= NULL, df= NULL, ## (because of 0 weights; hmm,...)
 		  aliased = aliased,
 		  coefficients = coef.table, dispersion = dispersion,
-		  cov.unscaled = covmat))
+		  cov.scaled = covmat))
     if (correlation) {
 	ans$correlation <- cov2cor(covmat)
 	ans$symbolic.cor <- symbolic.cor
@@ -146,7 +145,9 @@ summary.glmrob <- function(object, correlation=FALSE, symbolic.cor=FALSE, ...)
 vcov.glmrob <- function (object, ...)
 {
     so <- summary(object, corr = FALSE, ...)
-    so$dispersion * so$cov.unscaled
+    ## so$dispersion * so$cov.unscaled
+    ## chanced from cov.unscaled to cov.scaled
+    so$cov.scaled
 }
 
 

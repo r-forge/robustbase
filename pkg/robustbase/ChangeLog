@@ -1,3 +1,7 @@
+2009-11-11  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/glmrobMqle.R: do use getRversion() !
+
 2009-06-27  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* data/wagnerGrowth.rda: add the "wagner data" (continuous + categorical)

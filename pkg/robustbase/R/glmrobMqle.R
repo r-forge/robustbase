@@ -77,12 +77,6 @@ glmrobMqle <-
     ##
     switch(family$family,
 	   "binomial" = {
-               if(paste(R.version$major, R.version$minor, sep=".") < 2.3)
-                   ## pbinom(., size=0) wrongly gave NaN
-                   pbinom <- function (q, size, prob,
-                                       lower.tail = TRUE, log.p = FALSE) {
-                       stats::pbinom(q, pmax2(1,size), prob, lower.tail, log.p)
-                   }
 	       Epsi.init <- EpsiBin.init
 	       Epsi <- EpsiBin
 	       EpsiS <- EpsiSBin
@@ -113,7 +107,7 @@ glmrobMqle <-
 	Vmu <- variance(mu)
 	if (any(is.na(Vmu)))  stop("NAs in V(mu)")
 	if (any(Vmu == 0))    stop("0s in V(mu)")
-	sVF <- sqrt(Vmu)   # variance function
+	sVF <- sqrt(Vmu)   # square root of variance function
 	residP <- (y - mu)* sni/sVF  # Pearson residuals
     })
 
@@ -214,7 +208,7 @@ glmrobMqle <-
     if(ncoef) {
 	eval(comp.Epsi.init)
 	alpha <- colMeans(eval(Epsi) * w.x * sni/sV * dmu.deta * X)
-	DiagA <- eval(Epsi2) / (ni*Vmu)* w.x^2* (ni*dmu.deta)^2
+	DiagA <- eval(Epsi2) / (ni*sV^2)* w.x^2* (ni*dmu.deta)^2
 	matQ  <- crossprod(X, DiagA*X)/nobs - tcrossprod(alpha, alpha)
 
 	DiagB <- eval(EpsiS) / (sni*sV)* w.x * (ni*dmu.deta)^2
