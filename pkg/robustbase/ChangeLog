@@ -1,5 +1,8 @@
 2009-11-11  Martin Maechler  <maechler@stat.math.ethz.ch>
 
+	* tests/glmrob-1.R: add moe explicit glmrob() tests;
+	including the simple puzzling 1-outlier problem.
+
 	* R/glmrobMqle.R: do use getRversion() !
 
 2009-06-27  Martin Maechler  <maechler@stat.math.ethz.ch>
