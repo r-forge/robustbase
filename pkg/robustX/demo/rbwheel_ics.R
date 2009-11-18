@@ -11,7 +11,7 @@ rbw.ics <- function(n, p, frac = 1/p,
     call <- match.call()
     call[[1]] <- as.name("rbwheel")
     Lab <- paste("X <-", deparse(call, width.cutoff= 200))
-    X <- rbwheel(n=n, p=p, frac=frac, ...)
+    X <- rbwheel(n=n, p=p, frac=frac, sig1 = 0.05, sig2 = 1/10, ...)
     X.paM <- ics(X, S1=cov, S2= function(.) cov.trob(., nu=2)$cov, stdKurt=FALSE)
     X.paM.<- ics(X, S1=cov, S2= function(.) tM(., df=2)$V, stdKurt = FALSE)
     X.paR <- ics(X, S1=cov, S2= function(.) covMcd(.)$cov, stdKurt = FALSE)
