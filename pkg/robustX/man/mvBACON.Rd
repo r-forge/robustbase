@@ -76,7 +76,7 @@ mvBACON(x, collect = 4, m = min(collect * p, n * 0.5), alpha = 0.95,
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-  \code{\link[robustbase]{covMCD}} for a high-breakdown (but more computer
+  \code{\link[robustbase]{covMcd}} for a high-breakdown (but more computer
   intensive) method;
   \code{\link{BACON}} for a \dQuote{generalization}, notably to
   \emph{regression}.

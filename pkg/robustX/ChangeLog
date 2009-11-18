@@ -1,3 +1,7 @@
+2009-11-18  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* man/mvBACON.Rd: typo in \link{}
+
 2009-06-13  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/rbwheel-fun.R (rbwheel): scaleAfter = TRUE becomes default, as
@@ -5,7 +9,7 @@
 
 2009-06-12  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 1.1-0
+	* DESCRIPTION (Version): 1.1-0, CRAN-released 2009-06-14
 
 	* demo/rbwheel_ics.R: start adding ICS demos (using lattice in order
 	to *combine* scatter plot matrices.
@@ -28,19 +32,19 @@
 
 	* R/BACON-alg.R (mvBACON, BACON): newly added
 
-2009-12-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+2008-12-17  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 1.0-0, on R-forge *and* available
 	from http://stat.ethz.ch/research/areas/robustness
 
 	* R/rbwheel-fun.R: documented, tested ...
 
-2009-11-28  Martin Maechler  <maechler@stat.math.ethz.ch>
+2008-11-28  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/rbwheel-fun.R: use my Qrot() [from Dec 2005] to generalize
 	Werner's construction; create a function, add arguments; more
 	tests lead to the 'scale = TRUE' enhancement.
 
-2009-11-27  Werner Stahel  <stahel@stat.math.ethz.ch>
+2008-11-27  Werner Stahel  <stahel@stat.math.ethz.ch>
 
 	* sends an R script implementing the barrowwheel idea in 3D
