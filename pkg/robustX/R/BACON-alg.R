@@ -234,15 +234,12 @@ mvBACON <-
             sep = "", fill = TRUE)
     }
 
-
     GiveTis <- function(x, y, subset, ordered.x, ordered.y, m = 0, check.rank = FALSE)
     {
 	## This function calculates the t(i)s
 	## for each observation of the data set y ~ x.
-	## tis = resid / [sigmahatm * sqrt(1 - PP)]
-	##   for tis belonging to the subset
-	## tis = resid / [sigmahatm * sqrt(1 + PP)]
-	##   for tis belonging to the rest
+	## tis = resid / [sigmahatm * sqrt(1 - PP)]  for tis \in the subset
+	## tis = resid / [sigmahatm * sqrt(1 + PP)]  for tis \in the rest
 	## with PP = xiT(xmTxm)-1xiT
 	## resid = yi - xiTbetahatm
 	##
@@ -297,7 +294,7 @@ mvBACON <-
 	sqroot <- 1 + ifelse(subset, -1, 1) * hiim
 
 	tis <- resid / (rep(sigmahatm, n) * sqrt(sqroot))
-	return(m, tis)
+	list(m = m, tis = tis)
     }
 
 

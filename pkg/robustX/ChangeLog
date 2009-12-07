@@ -1,3 +1,7 @@
+2009-12-07  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/BACON-alg.R (GiveTis): remove multi-argument return() legacy
+
 2009-11-18  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* man/mvBACON.Rd: typo in \link{}
