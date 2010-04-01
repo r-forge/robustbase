@@ -1,8 +1,24 @@
+2010-04-01  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.5-1
+
+2009-11-19  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/covMcd.R (.fastmcd): nLarge = 100'000 (instead of previous 5000),
+	for now.  nsamp <= integer.max  is asserted now.
+
+	* R/covMcd.R (covMcd): nmini = 300 is now an optional argument.
+	* R/rrcov.control.R (rrcov.control): 'nmini = 300' ...
+	* R/ltsReg.R (ltsReg.default): .fastmcd(..., nmini = 300)
+
+	* src/rffastmcd.f (rffastmcd):  new argument  nmini
+
 2009-11-18  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 0.5-0_1
+	* DESCRIPTION (Version): 0.5-0-1, released to CRAN
 
 	* tests/mc-strict.R: don't use the longmemo example for now.
+		(platform dependence !)
 
 2009-11-11  Martin Maechler  <maechler@stat.math.ethz.ch>
 
