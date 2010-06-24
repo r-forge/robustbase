@@ -1,3 +1,20 @@
+2010-06-24  Manuel Koller  <koller@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.5-1.1
+
+	* tests/lmrob-psifns.R: added Hampel psi function example and
+	updated coefficients of ggw.
+
+	* src/lmrob.c: replaced "gws" with "ggw" in function names, "gwgt"
+	with "welsh", replaced pow() with R_pow(), implemented support for
+	coefficient vectors. Fixed problem with "ggw" on 32-bit machines.
+
+	* R/lmrob.MM.R: changed the way coefficients for psi functions are
+	handled: coefficient vectors are now supported.
+
+	* R/lmrob.MM.R (lmrob..M..fit): class attribute for init entry in
+	lmrob..M..fit was missing.
+
 2010-06-23  Manuel Koller  <koller@stat.math.ethz.ch>
 
 	* tests/lmrob-methods.R: tests for compatibility between manual
@@ -5,7 +22,7 @@
 	in lmrob.
 	* tests/lmrob-methods.Rout.save: expected results
 	* tests/lmrob-psifns.R: tests for the support of different psi
-	functions. 
+	functions.
 	* tests/lmrob-psifns.Rout.save: expected results
 	* tests/lmrob-data.Rout.save: updated results to reflect slightly
 	modified summary output (more options)

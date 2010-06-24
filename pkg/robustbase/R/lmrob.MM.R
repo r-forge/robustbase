@@ -13,16 +13,16 @@ lmrob.control <- function  (seed = NULL, nResample = 500,
         tuning.chi <- switch(psi,
                              'bisquare' = 1.54764,
                              'welsh' = 0.5773502,
-                             'ggw' = 5.5,
+                             'ggw' = c(-0.5, 1.5, NA, .5), ## min slope, b, eff, bp
                              'optimal' = 0.4047,
-                             'hampel' = 0.2119163)
+                             'hampel' = c(1.5, 3.5, 8) * 0.2119163) ## a, b, c
     if (missing(tuning.psi) || is.null(tuning.psi))
         tuning.psi <- switch(psi,
                              'bisquare' = 4.685061,
                              'welsh' = 2.11,
-                             'ggw' = 5.95,
+                             'ggw' = c(-0.5, 1.5, .95, NA), ## min slope, b, eff, bp
                              'optimal' = 1.060158,
-                             'hampel' = 0.9014)
+                             'hampel' = c(1.5, 3.5, 8) * 0.9016085) ## a, b, c
 
     if (!method %in% c('SM', 'MM')) cov <- '.vcov.w'
 
@@ -134,15 +134,15 @@ lmrob.fit <- function(x, y, control) {
     }
     if (is.null(x))  x <- model.matrix(obj)
     if (cov.resid == 'initial') {
-        c.psi <- obj$control$tuning.chi
         psi <- obj$control$psi
+        c.psi <- obj$control$tuning.chi
         if (is.null(psi)) stop('parameter psi is not defined')
         if (!is.numeric(c.psi)) stop('parameter tuning.psi is not numeric')
     } else {
         ## set psi and c.psi
-        c.psi <- if (obj$control$method %in% c('S', 'SD'))
-            obj$control$tuning.chi else obj$control$tuning.psi 
         psi <- obj$control$psi
+        c.psi <- if (obj$control$method %in% c('S', 'SD'))
+            obj$control$tuning.chi else obj$control$tuning.psi
         if (is.null(psi)) stop('parameter psi is not defined')
         if (!is.numeric(c.psi)) stop('parameter tuning.psi is not numeric')
     }
@@ -249,12 +249,12 @@ lmrob.fit <- function(x, y, control) {
     ## this works only for MM (SM) estimates
     if (!is.null(obj$control$method) && !obj$control$method %in% c('SM', 'MM'))
         stop('.vcov.avar1: this function supports only MM estimates')
-    ## set psi and chi constants
-    c.chi <- obj$control$tuning.chi
-    c.psi <- if (obj$control$method %in% c('S', 'SD'))
-        obj$control$tuning.chi else obj$control$tuning.psi 
+    ## set psi and chi constants 
     psi <- chi <- obj$control$psi
     if (is.null(psi)) stop('.vcov.avar1: parameter psi is not defined')
+    c.chi <- obj$control$tuning.chi
+    c.psi <- if (obj$control$method %in% c('S', 'SD'))
+        obj$control$tuning.chi else obj$control$tuning.psi
     if (!is.numeric(c.psi)) stop('.vcov.avar1: parameter tuning.psi is not numeric')
     if (!is.numeric(c.chi)) stop('.vcov.avar1: parameter tuning.chi is not numeric')
     
@@ -314,7 +314,7 @@ lmrob.fit <- function(x, y, control) {
 lmrob..M..fit <- function (x=obj$x, y=obj$y, beta.initial=obj$coef,
                            scale=obj$scale, control=obj$control, obj)
 {
-    c.psi <- control$tuning.psi
+    c.psi <- lmrob.conv.cc(control$psi, control$tuning.psi)
     ipsi <- lmrob.psi2ipsi(control$psi)
     stopifnot(is.matrix(x))
     n <- nrow(x)
@@ -335,7 +335,7 @@ lmrob..M..fit <- function (x=obj$x, y=obj$y, beta.initial=obj$coef,
               coefficients = double(p),
               residuals = double(n), 
               iter = as.integer(control$max.it),
-              c.psi = c.psi,
+              c.psi = as.double(c.psi),
               ipsi = as.integer(ipsi),
               loss = double(1),
               rel.tol = as.double(control$rel.tol),
@@ -344,7 +344,7 @@ lmrob..M..fit <- function (x=obj$x, y=obj$y, beta.initial=obj$coef,
               )[c("coefficients",  "scale", "residuals", "loss", "converged", "iter")]
     ## FIXME?: Should rather warn *here* in case of non-convergence
     names(ret$coefficients) <- colnames(x)
-    ret$weights <- lmrob.wgtfun(ret$residuals / scale, c.psi, control$psi)
+    ret$weights <- lmrob.wgtfun(ret$residuals / scale, control$tuning.psi, control$psi)
     ret$fitted.values <- drop(x %*% ret$coefficients)
     if (!grepl('M$', control$method)) {
         ## update control$method if it's not there already
@@ -365,6 +365,7 @@ lmrob..M..fit <- function (x=obj$x, y=obj$y, beta.initial=obj$coef,
                                                "fitted.values", "control", "init.S", "init",
                                                "kappa", "tau"),
                                              names(obj)))]]
+            class(ret$init) <- 'lmrob'
             ret <- c(ret,
                      obj[names(obj)[na.omit(match(c("df.residual", "degree.freedom",
                                                     "xlevels", "terms", "model", "x", "y",
@@ -415,7 +416,7 @@ lmrob.S <- function (x, y, control, trace.lev = 0)
     }
     
     bb <- as.double(control$bb)
-    c.chi <- as.double(control$tuning.chi)
+    c.chi <- lmrob.conv.cc(control$psi, control$tuning.chi)
     best.r <- as.integer(control$best.r.s)
     stopifnot(length(c.chi) > 0, c.chi >= 0, length(bb) > 0, 
               length(best.r) > 0, best.r >= 1, length(y) == n)
@@ -450,7 +451,7 @@ lmrob.S <- function (x, y, control, trace.lev = 0)
     b$fitted.values <- x %*% b$coef
     b$residuals <- drop(y - b$fitted.values)
     ## robustness weights
-    b$weights <- lmrob.wgtfun(b$residuals / b$scale, c.chi, control$psi)
+    b$weights <- lmrob.wgtfun(b$residuals / b$scale, control$tuning.chi, control$psi)
     ## set method argument in control
     control$method = 'S'
     b$control <- control
@@ -467,10 +468,10 @@ lmrob..D..fit <- function(obj, x=obj$x, control = obj$control)
     if (is.null(w)) stop('lmrob..D..fit: robustness weights undefined')
     if (is.null(obj$residuals)) stop('lmrob..D..fit: residuals undefined')
     r <- obj$residuals
-    c.psi <- if (control$method %in% c('S', 'SD'))
-        control$tuning.chi else control$tuning.psi 
     psi <- control$psi
     if (is.null(psi)) stop('lmrob..D..fit: parameter psi is not defined')
+    c.psi <- lmrob.conv.cc(psi, if (control$method %in% c('S', 'SD'))
+                           control$tuning.chi else control$tuning.psi)
     if (!is.numeric(c.psi)) stop('lmrob..D..fit: parameter tuning.psi is not numeric')
     
     obj$init <- obj[names(obj)[na.omit(match(c("coefficients","scale", "residuals",
@@ -530,9 +531,7 @@ lmrob..D..fit <- function(obj, x=obj$x, control = obj$control)
 lmrob.kappa <- function(obj, control = obj$control)
 {
     if (is.null(control)) stop('control is missing')
-    if (is.null(control$psi)) stop('parameter psi is unknown')
     if (control$method %in% c('S', 'SD')) control$tuning.psi <- control$tuning.chi
-    if (is.null(control$tuning.psi)) stop('parameter tuning.psi is unknown')
     
     fun.min <- function(kappa) lmrob.E(psi(r)*r - kappa*wgt(r), control = control)
     uniroot(fun.min, c(0.1, 1))$root
@@ -548,26 +547,26 @@ lmrob.tau <- function(obj,x=obj$x, control = obj$control,
         c.psi <- control$tuning.psi
         tfact <- tcorr <- NA
         switch(control$psi,
-               optimal = if (c.psi == 1.060158) {
+               optimal = if (isTRUE(all.equal(c.psi, 1.060158))) {
                    tfact <- 0.9473588
                    tcorr <- -0.09490937
                },
-               bisquare = if (c.psi == 4.685061) {
+               bisquare = if (isTRUE(all.equal(c.psi, 4.685061))) {
                    tfact <- 0.9473684 
                    tcorr <- -0.08994435 
                },
-               welsh = if (c.psi == 2.11) {
+               welsh = if (isTRUE(all.equal(c.psi, 2.11))) {
                    tfact <- 0.9473295
                    tcorr <- -0.0756352 
                },
-               ggw = if (c.psi == 0.95) {
+               ggw = if (isTRUE(all.equal(c.psi, c(-.5, 1.0, 0.95, NA)))) {
                    tfact <- 0.9473787
                    tcorr <- -0.1134984
-               } else if (c.psi == 5.95) {
+               } else if (isTRUE(all.equal(c.psi, c(-.5, 1.5, 0.95, NA)))) {
                    tfact <- 0.9474104
                    tcorr <- -0.08410794
                },
-               hampel = if (c.psi == 0.9014) {
+               hampel = if (isTRUE(all.equal(c.psi, c(1.352413, 3.155630, 7.212868)))) {
                    tfact <- 0.9473604
                    tcorr <- -0.04204119 
                },
@@ -583,10 +582,10 @@ lmrob.tau <- function(obj,x=obj$x, control = obj$control,
     ## local variables
     n <- length(h)
     ## set psi and c.psi
-    c.psi <- if (control$method %in% c('S', 'SD'))
-        control$tuning.chi else control$tuning.psi 
     psi <- control$psi
     if (is.null(psi)) stop('parameter psi is not defined')
+    c.psi <- if (control$method %in% c('S', 'SD'))
+        control$tuning.chi else control$tuning.psi
     if (!is.numeric(c.psi)) stop('parameter tuning.psi is not numeric')
 
     ## constant for stderr of u_{-i} part and other constants
@@ -666,14 +665,43 @@ lmrob.psi2ipsi <- function(psi)
            stop('lmrob.psi2ipsiL unknown psi function'))
 }
 
+lmrob.conv.cc <- function(psi, cc)
+{
+    switch(casefold(psi),
+           'ggw' = {
+               ## 4 parameters:
+               ## minimal slope, b, efficiency, breakdown point
+               if (isTRUE(all.equal(cc, c(-.5, 1, 0.95, NA)))) return(1)
+               else if (isTRUE(all.equal(cc, c(-.5, 1, 0.85, NA)))) return(2)
+               else if (isTRUE(all.equal(cc, c(-.5, 1.0, NA, 0.5)))) return(3)
+               else if (isTRUE(all.equal(cc, c(-.5, 1.5, 0.95, NA)))) return(4)
+               else if (isTRUE(all.equal(cc, c(-.5, 1.5, 0.85, NA)))) return(5)
+               else if (isTRUE(all.equal(cc, c(-.5, 1.5, NA, 0.5)))) return(6)
+               else stop('Coefficients for ',cc,' not implemented yet.')
+           },
+           'hampel' = {
+               ## just check length of coefficients
+               if (length(cc) != 3)
+                   stop('Coef. for Hampel psi function not of length 3')
+           }, {
+               ## otherwise: should have length 1
+               if (length(cc) != 1)
+                   stop('Coef. for psi function not of lenght 1')
+           })
+    
+    return(cc)
+}
+
 lmrob.psifun <- function(x, cc, psi, deriv=0)
 {
     if (missing(x) || length(x) == 0)
         stop('x missing')  
-    if (missing(cc) || length(cc) != 1)
+    if (missing(cc))
         stop('tuning constant not correct')
     if (missing(psi) || length(psi) != 1)
         stop('parameter psi missing')
+
+    cc <- lmrob.conv.cc(psi, cc)
 
     ## catch NAs
     idx <- !is.na(x)
@@ -689,14 +717,16 @@ lmrob.chifun <- function(x, cc, psi, deriv=0)
 {
     if (missing(x) || length(x) == 0)
         stop('x missing')  
-    if (missing(cc) || length(cc) != 1)
+    if (missing(cc))
         stop('tuning constant not correct')
     if (missing(psi) || length(psi) != 1)
         stop('parameter psi missing')
 
+    cc <- lmrob.conv.cc(psi, cc)
+    
     ## catch NAs
     idx <- !is.na(x)
-
+    
     if (any(idx)) 
         x[idx] <- .C(R_chifun, x = as.double(x[idx]), cc = as.double(cc),
                      ipsi = as.integer(lmrob.psi2ipsi(psi)),
@@ -708,10 +738,12 @@ lmrob.wgtfun <- function(x, cc, psi)
 {
     if (missing(x) || length(x) == 0)
         stop('x missing')  
-    if (missing(cc) || length(cc) != 1)
+    if (missing(cc))
         stop('tuning constant not correct')
     if (missing(psi) || length(psi) != 1)
         stop('parameter psi missing')
+    
+    cc <- lmrob.conv.cc(psi, cc)
 
     ## catch NAs
     idx <- !is.na(x)
@@ -734,10 +766,10 @@ lmrob.E <- function(expr, control, dfun = dnorm, use.integrate = FALSE, obj)
         control <- obj$control
     }
 
-    c.psi <- if (control$method %in% c('S', 'SD'))
-        control$tuning.chi else control$tuning.psi 
     psi <- control$psi
     if (is.null(psi)) stop('parameter psi is not defined')
+    c.psi <- if (control$method %in% c('S', 'SD'))
+        control$tuning.chi else control$tuning.psi
     if (!is.numeric(c.psi)) stop('parameter tuning.psi is not numeric')
     
     lpsi <- function(r, deriv = 0) lmrob.psifun(r, c.psi, psi, deriv)
