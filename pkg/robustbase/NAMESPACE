@@ -35,10 +35,11 @@ export(Sn, Qn,
 ##     tukeyPsi, # = biweight / bisquare
        tukeyChi, tukeyPsi1, # <- used by lmrob.*()
 
-       lmrob,
-       lmrob.fit.MM, lmrob..M..fit,
+       lmrob, lmrob.fit,
+       lmrob.fit.MM, lmrob..M..fit, lmrob..D..fit,
        lmrob.S,
        lmrob.control,
+       lmrob.control.sfs,
 
        mc, # Mia Hubers's medcouple
        adjbox,

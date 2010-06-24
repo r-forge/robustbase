@@ -15,51 +15,49 @@
 ### The first part of lmrob()  much cut'n'paste from lm() - on purpose!
 lmrob <-
     function(formula, data, subset, weights, na.action,
-	     model = TRUE, x = !control$compute.rd, y = FALSE,
-	     singular.ok = TRUE, contrasts = NULL, offset = NULL,
-	     control = lmrob.control(...), ...)
+             model = TRUE, x = !control$compute.rd, y = FALSE,
+             singular.ok = TRUE, contrasts = NULL, offset = NULL,
+             control = lmrob.control(...), ...)
 {
     ret.x <- x
     ret.y <- y
     cl <- match.call()
     mf <- match.call(expand.dots = FALSE)
     m <- match(c("formula", "data", "subset", "weights", "na.action", "offset"),
-	       names(mf), 0)
+               names(mf), 0)
     mf <- mf[c(1, m)]
     mf$drop.unused.levels <- TRUE
     mf[[1]] <- as.name("model.frame")
     mf <- eval(mf, parent.frame())
-
+    
     mt <- attr(mf, "terms") # allow model.frame to update it
     y <- model.response(mf, "numeric")
     w <- model.weights(mf)
     offset <- model.offset(mf)
     if(!is.null(offset) && length(offset) != NROW(y))
-	stop(gettextf("number of offsets is %d, should equal %d (number of observations)",
-		      length(offset), NROW(y)), domain = NA)
-
-    if (is.empty.model(mt)) {
-	x <- NULL
-	z <- list(coefficients = if (is.matrix(y)) matrix(,0,3) else numeric(0),
+        stop(gettextf("number of offsets is %d, should equal %d (number of observations)",
+                      length(offset), NROW(y)), domain = NA)
+    
+    if (is.empty.model(mt)) {  
+        x <- NULL
+        z <- list(coefficients = if (is.matrix(y)) matrix(,0,3) else numeric(0),
                   residuals = y, fitted.values = 0 * y,
                   cov = matrix(,0,0), weights = w, rank = 0,
-		  df.residual = NROW(y), converged = TRUE)
-	if(!is.null(offset)) z$fitted.values <- offset
+                  df.residual = NROW(y), converged = TRUE)
+        if(!is.null(offset)) z$fitted.values <- offset
     }
-    else {
-	x <- model.matrix(mt, mf, contrasts)
-	if (!singular.ok)
-	    warning("only 'singular.ok = TRUE' is currently implemented.")
-	if (!is.null(w))
-	    stop("Weights are not yet implemented for this estimator")
-	if(!is.null(offset))
-	    stop("'offset' not yet implemented for this estimator")
-	z <- lmrob.fit.MM(x, y, control = control)
-        nc <- names(z$coef)
-        dimnames(z$cov) <- list(nc,nc)
+    else {  
+        x <- model.matrix(mt, mf, contrasts)
+        if (!singular.ok)
+            warning("only 'singular.ok = TRUE' is currently implemented.")
+        if (!is.null(w))
+            stop("Weights are not yet implemented for this estimator")
+        if(!is.null(offset))
+            stop("'offset' not yet implemented for this estimator")
+        
+        z <- lmrob.fit(x, y, control)
     }
-
-    class(z) <- "lmrob"
+    
     z$na.action <- attr(mf, "na.action")
     z$offset <- offset
     z$contrasts <- attr(x, "contrasts")
@@ -69,12 +67,12 @@ lmrob <-
     if(control$compute.rd && !is.null(x))
         z$MD <- robMD(x, attr(mt, "intercept"))
     if (model)
-	z$model <- mf
+        z$model <- mf
     if (ret.x)
-	z$x <- x
+        z$x <- x
     if (ret.y)
-	z$y <- y
-    z$control <- control
+        z$y <- y
+    z$control <- control   
     z
 }
 
@@ -217,6 +215,7 @@ print.summary.lmrob <-
 
     } else cat("\nNo Coefficients\n")
 
+    if (x$control$method == 'SM') x$control$method <- 'MM'
     printControl(x$control, digits = digits)
 
     invisible(x)

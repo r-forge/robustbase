@@ -1,3 +1,54 @@
+2010-06-23  Manuel Koller  <koller@stat.math.ethz.ch>
+
+	* tests/lmrob-methods.R: tests for compatibility between manual
+	construction of different methods with specifying method argument
+	in lmrob.
+	* tests/lmrob-methods.Rout.save: expected results
+	* tests/lmrob-psifns.R: tests for the support of different psi
+	functions. 
+	* tests/lmrob-psifns.Rout.save: expected results
+	* tests/lmrob-data.Rout.save: updated results to reflect slightly
+	modified summary output (more options)
+
+	* man/lmrob.Rd: updated to reflect changes in options
+	* man/lmrob..D..fit.Rd: added documentation
+	* man/lmrob..M..fit.Rd: updated example
+	* man/lmrob.control.Rd: updated to reflect changes in options
+	* man/lmrob.fit.Rd: updated from lmrob.fit.MM to reflect changes in
+	options
+	* man/lmrob.fit.MM.Rd: moved to lmrob.fit.Rd
+	* man/lmrob.S.Rd: coef -> coefficients in example
+
+	* R/anova.lmrob.R (length.tl, anovaLmrobPair, anovaLmrobList):
+	Added checks to ensure soundness of result for methods other than
+	"MM".
+
+
+2010-06-21  Manuel Koller  <koller@stat.math.ethz.ch>
+
+	* R/lmrob.MM.R (lmrob.control, lmrob.control.sfs, lmrob.fit.MM)
+	(.vcov.w, .vcov.avar1, lmrob..M..fit, lmrob.S, lmrob..D..fit)
+	(lmrob.kappa, lmrob.tau, lmrob.hatmatrix, lmrob.leverages)
+	(lmrob.psi2ipsi, lmrob.psifun, lmrob.chifun, lmrob.wgtfun)
+	(residuals.lmrob.S, lmrob.E, ghq): Support for psi functions
+	other than bisquare as well as SMDM estimates.
+
+	* R/lmrob.R (lmrob): Support for psi functions other than bisquare
+	as well as SMDM estimates. Replaced lmrob.fit.MM by lmrob.fit.
+
+	* src/robustbase.h: declarations of new functions in lmrob.c
+	* src/init.c: definitions of new functions in lmrob.c
+	* src/lmrob.c: added support for psi functions other than
+	bisquare, including vectorized accessor functions ("R_psifun",
+	"R_chifun" and "R_wgtfun"). "wgt" is now always used to calculate
+	robustness weights. Function to calculate scale estimate
+	iteratively ("R_find_D_scale").
+
+	* NAMESPACE: added lmrob.fit, lmrob..D..fit and lmrob.control.sfs
+	to export.
+
+	* DESCRIPTION: added my name to the list.
+
 2010-04-01  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.5-1

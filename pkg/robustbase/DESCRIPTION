@@ -8,6 +8,7 @@ Author: Original code by many authors, notably
 	Andreas Ruckstuhl <andreas.ruckstuhl@zhaw.ch>,
 	Matias Salibian-Barrera <matias@stat.ubc.ca>,
 	Tobias Verbeke <tobias.verbeke@businessdecision.com>,
+	Manuel Koller <koller@stat.math.ethz.ch>,
 	Martin Maechler
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 NOTE: SEVERAL PARTS ARE STILL PRELIMINARY AND MAY BE CHANGED IN THE FUTURE.

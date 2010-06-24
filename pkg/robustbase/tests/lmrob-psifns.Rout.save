@@ -1,0 +1,257 @@
+
+R version 2.11.1 (2010-05-31)
+Copyright (C) 2010 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ### tests psi und tuning.psi, tuning.chi argument of lmrob.control
+> 
+> library(robustbase)
+> 
+> data(aircraft)
+> 
+> set.seed(1)
+> summary(mp0 <- lmrob(Y ~ ., data = aircraft, psi = 'bisquare', method = 'SMDM'))
+
+Call:
+lmrob(formula = Y ~ ., data = aircraft, psi = "bisquare", method = "SMDM")
+
+Weighted Residuals:
+    Min      1Q  Median      3Q     Max 
+-8.5550 -1.8394 -0.2113  2.8205 46.6316 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  6.8788153  6.5580833   1.049 0.308101    
+X1          -3.2192167  1.0951206  -2.940 0.008762 ** 
+X2           1.5876382  0.7471644   2.125 0.047702 *  
+X3           0.0018265  0.0004310   4.238 0.000495 ***
+X4          -0.0008677  0.0003699  -2.345 0.030664 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+
+Robust residual standard error: 5.335 
+Convergence in 22 IRWLS iterations
+
+Robustness weights: 
+ observation 22 is an outlier with |weight| = 0 ( < 0.0043); 
+ 3 weights are ~= 1. The remaining 19 ones are summarized as
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.3957  0.8772  0.9738  0.9139  0.9892  0.9972 
+Algorithmic parameters: 
+tuning.chi         bb tuning.psi refine.tol    rel.tol 
+ 1.5476400  0.5000000  4.6850610  0.0000001  0.0000001 
+ nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
+       500         50          5        400          2          1        200 
+ trace.lev compute.rd  numpoints 
+         0          0         10 
+       psi     method        cov 
+"bisquare"     "SMDM"  ".vcov.w" 
+seed : int(0) 
+> 
+> set.seed(2)
+> summary(mp1 <- update(mp0, psi = 'optimal'))
+
+Call:
+lmrob(formula = Y ~ ., data = aircraft, psi = "optimal", method = "SMDM")
+
+Weighted Residuals:
+    Min      1Q  Median      3Q     Max 
+-6.6691 -2.4291  0.2249  3.8876 54.2841 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)   
+(Intercept)  9.5007403  5.6135731   1.692  0.10780   
+X1          -3.0487969  0.9250865  -3.296  0.00402 **
+X2           1.2100330  0.6534250   1.852  0.08053 . 
+X3           0.0013810  0.0003949   3.497  0.00258 **
+X4          -0.0005549  0.0003302  -1.680  0.11015   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+
+Robust residual standard error: 4.546 
+Convergence in 1 IRWLS iterations
+
+Robustness weights: 
+ 2 observations c(16,22) are outliers with |weight| = 0 ( < 0.0043); 
+ 21 weights are ~= 1.
+Algorithmic parameters: 
+tuning.chi         bb tuning.psi refine.tol    rel.tol 
+ 0.4047000  0.5000000  1.0601580  0.0000001  0.0000001 
+ nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
+       500         50          5        400          2          1        200 
+ trace.lev compute.rd  numpoints 
+         0          0         10 
+      psi    method       cov 
+"optimal"    "SMDM" ".vcov.w" 
+seed : int(0) 
+> 
+> set.seed(3)
+> summary(mp2 <- update(mp0, psi = 'ggw'))
+
+Call:
+lmrob(formula = Y ~ ., data = aircraft, psi = "ggw", method = "SMDM")
+
+Weighted Residuals:
+    Min      1Q  Median      3Q     Max 
+-8.4356 -1.7965 -0.1700  2.8469 47.1162 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  6.8301837  6.5602735   1.041 0.311592    
+X1          -3.1715712  1.0962677  -2.893 0.009689 ** 
+X2           1.5693034  0.7575098   2.072 0.052942 .  
+X3           0.0017968  0.0004338   4.142 0.000613 ***
+X4          -0.0008424  0.0003723  -2.263 0.036264 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+
+Robust residual standard error: 5.36 
+Convergence in 20 IRWLS iterations
+
+Robustness weights: 
+ observation 22 is an outlier with |weight| <= 0.00043 ( < 0.0043); 
+ 16 weights are ~= 1. The remaining 6 ones are
+     3      4     12     16     17     19 
+0.9890 0.9888 0.8767 0.4119 0.9796 0.9835 
+Algorithmic parameters: 
+tuning.chi         bb tuning.psi refine.tol    rel.tol 
+  5.50e+00   5.00e-01   5.95e+00   1.00e-07   1.00e-07 
+ nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
+       500         50          5        400          2          1        200 
+ trace.lev compute.rd  numpoints 
+         0          0         10 
+      psi    method       cov 
+    "ggw"    "SMDM" ".vcov.w" 
+seed : int(0) 
+> 
+> set.seed(4)
+> summary(mp3 <- update(mp0, psi = 'welsh'))
+
+Call:
+lmrob(formula = Y ~ ., data = aircraft, psi = "welsh", method = "SMDM")
+
+Weighted Residuals:
+    Min      1Q  Median      3Q     Max 
+-8.7243 -1.9199 -0.2471  2.8060 45.9436 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  6.6405293  6.5824954   1.009 0.326432    
+X1          -3.2329190  1.1000586  -2.939 0.008776 ** 
+X2           1.6174811  0.7474204   2.164 0.044149 *  
+X3           0.0018656  0.0004297   4.342 0.000393 ***
+X4          -0.0008941  0.0003695  -2.420 0.026345 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+
+Robust residual standard error: 5.408 
+Convergence in 18 IRWLS iterations
+
+Robustness weights: 
+ observation 22 is an outlier with |weight| <= 0.0003 ( < 0.0043); 
+ 2 weights are ~= 1. The remaining 20 ones are summarized as
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.4284  0.8583  0.9701  0.9112  0.9874  0.9985 
+Algorithmic parameters: 
+tuning.chi         bb tuning.psi refine.tol    rel.tol 
+ 0.5773502  0.5000000  2.1100000  0.0000001  0.0000001 
+ nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
+       500         50          5        400          2          1        200 
+ trace.lev compute.rd  numpoints 
+         0          0         10 
+      psi    method       cov 
+  "welsh"    "SMDM" ".vcov.w" 
+seed : int(0) 
+> 
+> set.seed(5)
+> summary(mp4 <- update(mp0, psi = 'ggw', tuning.psi = 5.85, tuning.chi = 5.5))
+
+Call:
+lmrob(formula = Y ~ ., data = aircraft, psi = "ggw", method = "SMDM", 
+    tuning.psi = 5.85, tuning.chi = 5.5)
+
+Weighted Residuals:
+    Min      1Q  Median      3Q     Max 
+-7.0342 -2.2942  0.4474  3.7782 52.9943 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)   
+(Intercept)  9.5893400  6.6809216   1.435  0.16834   
+X1          -3.1667628  1.1014155  -2.875  0.01007 * 
+X2           1.2942945  0.7729809   1.674  0.11133   
+X3           0.0014790  0.0004672   3.166  0.00535 **
+X4          -0.0006489  0.0003937  -1.648  0.11666   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+
+Robust residual standard error: 5.109 
+Convergence in 12 IRWLS iterations
+
+Robustness weights: 
+ observation 22 is an outlier with |weight| <= 1.1e-09 ( < 0.0043); 
+ 17 weights are ~= 1. The remaining 5 ones are
+     3      4     12     16     19 
+0.9494 0.8744 0.8149 0.0423 0.8048 
+Algorithmic parameters: 
+tuning.chi         bb tuning.psi refine.tol    rel.tol 
+  5.50e+00   5.00e-01   5.85e+00   1.00e-07   1.00e-07 
+ nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
+       500         50          5        400          2          1        200 
+ trace.lev compute.rd  numpoints 
+         0          0         10 
+      psi    method       cov 
+    "ggw"    "SMDM" ".vcov.w" 
+seed : int(0) 
+> 
+> set.seed(6)
+> summary(mp5 <- update(mp0, psi = 'ggw', tuning.psi = 0.95, tuning.chi = 0.5))
+
+Call:
+lmrob(formula = Y ~ ., data = aircraft, psi = "ggw", method = "SMDM", 
+    tuning.psi = 0.95, tuning.chi = 0.5)
+
+Weighted Residuals:
+    Min      1Q  Median      3Q     Max 
+-8.4231 -1.7470 -0.1331  2.8733 47.0173 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  6.7481358  6.1367851   1.100 0.285987    
+X1          -3.1771658  1.0272509  -3.093 0.006276 ** 
+X2           1.5766293  0.7102019   2.220 0.039502 *  
+X3           0.0018016  0.0004032   4.468 0.000297 ***
+X4          -0.0008440  0.0003471  -2.432 0.025696 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+
+Robust residual standard error: 5.506 
+Convergence in 19 IRWLS iterations
+
+Robustness weights: 
+ 21 weights are ~= 1. The remaining 2 ones are
+      16       22 
+0.425045 0.005082 
+Algorithmic parameters: 
+tuning.chi         bb tuning.psi refine.tol    rel.tol 
+   5.0e-01    5.0e-01    9.5e-01    1.0e-07    1.0e-07 
+ nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
+       500         50          5        400          2          1        200 
+ trace.lev compute.rd  numpoints 
+         0          0         10 
+      psi    method       cov 
+    "ggw"    "SMDM" ".vcov.w" 
+seed : int(0) 
+> 
+> 
