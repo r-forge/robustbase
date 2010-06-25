@@ -14,10 +14,10 @@
 
 ### The first part of lmrob()  much cut'n'paste from lm() - on purpose!
 lmrob <-
-    function(formula, data, subset, weights, na.action,
+    function(formula, data, subset, weights, na.action, method = 'MM',
              model = TRUE, x = !control$compute.rd, y = FALSE,
              singular.ok = TRUE, contrasts = NULL, offset = NULL,
-             control = lmrob.control(...), ...)
+             control = lmrob.control(method = method, ...), ...)
 {
     ret.x <- x
     ret.y <- y
@@ -37,6 +37,11 @@ lmrob <-
     if(!is.null(offset) && length(offset) != NROW(y))
         stop(gettextf("number of offsets is %d, should equal %d (number of observations)",
                       length(offset), NROW(y)), domain = NA)
+
+    if (!missing(control) && !missing(method) && method != control$method) 
+      warning("Methods argument set by method is different from method in control\n",
+              "Using method = ", method)
+    control$method <- method
     
     if (is.empty.model(mt)) {  
         x <- NULL

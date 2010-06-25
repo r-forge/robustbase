@@ -25,7 +25,7 @@ Type 'q()' to quit R.
 > summary(mp0 <- lmrob(Y ~ ., data = aircraft, psi = 'bisquare', method = 'SMDM'))
 
 Call:
-lmrob(formula = Y ~ ., data = aircraft, psi = "bisquare", method = "SMDM")
+lmrob(formula = Y ~ ., data = aircraft, method = "SMDM", psi = "bisquare")
 
 Weighted Residuals:
     Min      1Q  Median      3Q     Max 
@@ -64,7 +64,7 @@ seed : int(0)
 > summary(mp1 <- update(mp0, psi = 'optimal'))
 
 Call:
-lmrob(formula = Y ~ ., data = aircraft, psi = "optimal", method = "SMDM")
+lmrob(formula = Y ~ ., data = aircraft, method = "SMDM", psi = "optimal")
 
 Weighted Residuals:
     Min      1Q  Median      3Q     Max 
@@ -101,7 +101,7 @@ seed : int(0)
 > summary(mp2 <- update(mp0, psi = 'ggw'))
 
 Call:
-lmrob(formula = Y ~ ., data = aircraft, psi = "ggw", method = "SMDM")
+lmrob(formula = Y ~ ., data = aircraft, method = "SMDM", psi = "ggw")
 
 Weighted Residuals:
     Min      1Q  Median      3Q     Max 
@@ -142,7 +142,7 @@ seed : int(0)
 > summary(mp3 <- update(mp0, psi = 'welsh'))
 
 Call:
-lmrob(formula = Y ~ ., data = aircraft, psi = "welsh", method = "SMDM")
+lmrob(formula = Y ~ ., data = aircraft, method = "SMDM", psi = "welsh")
 
 Weighted Residuals:
     Min      1Q  Median      3Q     Max 
@@ -182,7 +182,7 @@ seed : int(0)
 +                       tuning.chi = c(-0.5, 1.5, NA, 0.5)))
 
 Call:
-lmrob(formula = Y ~ ., data = aircraft, psi = "ggw", method = "SMDM", 
+lmrob(formula = Y ~ ., data = aircraft, method = "SMDM", psi = "ggw", 
     tuning.psi = c(-0.5, 1.5, 0.85, NA), tuning.chi = c(-0.5, 
         1.5, NA, 0.5))
 
@@ -226,7 +226,7 @@ seed : int(0)
 +                       tuning.chi = c(-0.5, 1.0, NA, 0.5)))
 
 Call:
-lmrob(formula = Y ~ ., data = aircraft, psi = "ggw", method = "SMDM", 
+lmrob(formula = Y ~ ., data = aircraft, method = "SMDM", psi = "ggw", 
     tuning.psi = c(-0.5, 1, 0.95, NA), tuning.chi = c(-0.5, 1, 
         NA, 0.5))
 
@@ -268,7 +268,7 @@ seed : int(0)
 > summary(mp5 <- update(mp0, psi = 'hampel'))
 
 Call:
-lmrob(formula = Y ~ ., data = aircraft, psi = "hampel", method = "SMDM")
+lmrob(formula = Y ~ ., data = aircraft, method = "SMDM", psi = "hampel")
 
 Weighted Residuals:
    Min     1Q Median     3Q    Max 

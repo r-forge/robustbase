@@ -5,10 +5,10 @@
   Computes fast MM-type estimators for linear (regression) models.
 }
 \usage{
-lmrob(formula, data, subset, weights, na.action,
+lmrob(formula, data, subset, weights, na.action, method = "MM",
       model = TRUE, x = !control$compute.rd, y = FALSE,
       singular.ok = TRUE, contrasts = NULL, offset = NULL,
-      control = lmrob.control(...), ...)
+      control = lmrob.control(method = method, ...), ...)
 }
 \arguments{
   \item{formula}{a symbolic description of the model to be fit.  See
@@ -35,6 +35,9 @@ lmrob(formula, data, subset, weights, na.action,
     default is \code{\link{na.omit}}.  Another possible value is
     \code{NULL}, no action.  Value \code{\link{na.exclude}} can be useful.}
 
+  \item{method}{string specifying the estimator-chain. \code{MM}
+    is interpreted as \code{SM}. See \emph{Details}.}
+  
   \item{model, x, y}{logicals.  If \code{TRUE} the corresponding
     components of the fit (the model frame, the model matrix, the
     response) are returned.}
@@ -75,7 +78,8 @@ lmrob(formula, data, subset, weights, na.action,
   \code{method} argument takes a string that specifies the estimates to
   be calculated as a chain. Setting \code{method=SMD} will result in an
   intial S-estimate, followed by an M-estimate and finally a Design
-  Adapted Scale estimate.
+  Adapted Scale estimate. For methods involving a \code{D}-step, the
+  default psi value of psi is changed to \code{ggw}.
 
   By default, standard errors are computed using the formulas of Croux,
   Dhaene and Hoorelbeke (2003) (\code{\link{lmrob.control}} option

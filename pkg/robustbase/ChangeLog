@@ -1,5 +1,22 @@
 2010-06-25  Manuel Koller  <koller@stat.math.ethz.ch>
 
+	* DESCRIPTION (Version): 0.6-0
+
+	* NAMESPACE: dropped lmrob.control.sfs
+
+	* R/lmrob.R (lmrob): "method" argument
+	* man/lmrob.Rd: "method" argument
+
+	* R/lmrob.MM.R (lmrob.control, lmrob.control.sfs): argument
+	setting="KS2010" replaces lmrob.control.sfs. Setting a method
+	involving a D step, sets default psi to ggw.
+
+	* man/lmrob.control.Rd: "setting" argument
+
+	* tests/lmrob-methods.R: "methods" and "psi" argument
+	* tests/lmrob-methods.Rout.save: call output in summary changed
+	* tests/lmrob-psifns.Rout.save: call output in summary changed
+
 	* man/lmrob.control.Rd: Documentation details for tuning constants
 	and alternative constants for .85 efficiency at the normal.
 

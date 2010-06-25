@@ -28,7 +28,7 @@ m3 <- update(m0, method = "SM", cov = '.vcov.w')
 
 ## SMD
 set.seed(0)
-summary(m4 <- lmrob(stack.loss ~ ., data = stackloss, method = "SMD"))
+summary(m4 <- lmrob(stack.loss ~ ., data = stackloss, method = "SMD", psi = 'bisquare'))
 summary(m4a <- lmrob..D..fit(m3))
 
 ## rearrange m4a and update call
@@ -40,7 +40,7 @@ all.equal(m4, m4a)
 
 ## SMDM
 set.seed(0)
-summary(m5 <- lmrob(stack.loss ~ ., data = stackloss, method = "SMDM"))
+summary(m5 <- lmrob(stack.loss ~ ., data = stackloss, method = "SMDM", psi = 'bisquare'))
 summary(m5a <- lmrob..M..fit(obj=m4))
 
 ## rearrange m5a

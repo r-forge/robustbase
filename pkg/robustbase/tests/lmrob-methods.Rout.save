@@ -104,10 +104,11 @@ seed : int(0)
 > 
 > ## SMD
 > set.seed(0)
-> summary(m4 <- lmrob(stack.loss ~ ., data = stackloss, method = "SMD"))
+> summary(m4 <- lmrob(stack.loss ~ ., data = stackloss, method = "SMD", psi = 'bisquare'))
 
 Call:
-lmrob(formula = stack.loss ~ ., data = stackloss, method = "SMD")
+lmrob(formula = stack.loss ~ ., data = stackloss, method = "SMD", 
+    psi = "bisquare")
 
 Weighted Residuals:
       Min        1Q    Median        3Q       Max 
@@ -189,10 +190,11 @@ seed : int(0)
 > 
 > ## SMDM
 > set.seed(0)
-> summary(m5 <- lmrob(stack.loss ~ ., data = stackloss, method = "SMDM"))
+> summary(m5 <- lmrob(stack.loss ~ ., data = stackloss, method = "SMDM", psi = 'bisquare'))
 
 Call:
-lmrob(formula = stack.loss ~ ., data = stackloss, method = "SMDM")
+lmrob(formula = stack.loss ~ ., data = stackloss, method = "SMDM", 
+    psi = "bisquare")
 
 Weighted Residuals:
     Min      1Q  Median      3Q     Max 
@@ -227,7 +229,8 @@ seed : int(0)
 > summary(m5a <- lmrob..M..fit(obj=m4))
 
 Call:
-lmrob(formula = stack.loss ~ ., data = stackloss, method = "SMDM")
+lmrob(formula = stack.loss ~ ., data = stackloss, method = "SMDM", 
+    psi = "bisquare")
 
 Weighted Residuals:
     Min      1Q  Median      3Q     Max 

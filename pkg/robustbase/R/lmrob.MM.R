@@ -1,4 +1,4 @@
-lmrob.control <- function  (seed = NULL, nResample = 500,
+lmrob.control <- function  (setting, seed = NULL, nResample = 500,
                             tuning.chi = NULL,  bb = 0.5,
                             tuning.psi = NULL, max.it = 50,
                             groups = 5, n.group = 400, k.fast.s = 1, best.r.s = 2,
@@ -8,7 +8,20 @@ lmrob.control <- function  (seed = NULL, nResample = 500,
                             psi = c('bisquare', 'ggw', 'welsh', 'optimal', 'hampel'),
                             numpoints = 10, cov = '.vcov.avar1', ...) 
 {
-    psi <- match.arg(psi)
+    if (!missing(setting)) {
+        if (setting == 'KS2010') {
+            if (missing(psi)) psi <- 'ggw'
+            if (missing(max.it)) max.it <- 500
+            if (missing(k.max)) k.max <- 2000
+            if (missing(cov)) cov <- '.vcov.w'
+        } else {
+            warning("Unknown setting. Using defaults.")
+        }
+    } else {
+        psi <- if (missing(psi) && grepl('D', method)) 'ggw' else match.arg(psi)
+        if (missing(cov) && !method %in% c('SM', 'MM')) cov <- '.vcov.w'
+    }  
+    
     if (missing(tuning.chi) || is.null(tuning.chi))
         tuning.chi <- switch(psi,
                              'bisquare' = 1.54764,
@@ -24,8 +37,6 @@ lmrob.control <- function  (seed = NULL, nResample = 500,
                              'optimal' = 1.060158,
                              'hampel' = c(1.5, 3.5, 8) * 0.9016085) ## a, b, c
 
-    if (!method %in% c('SM', 'MM')) cov <- '.vcov.w'
-
     c(list(seed = as.integer(seed), nResample = nResample, psi = psi,
            tuning.chi = tuning.chi, bb = bb, tuning.psi = tuning.psi,
            max.it = max.it, groups = groups, n.group = n.group,
@@ -34,13 +45,6 @@ lmrob.control <- function  (seed = NULL, nResample = 500,
            trace.lev = trace.lev, compute.rd = compute.rd,
            method = method, numpoints = numpoints, cov = cov),
       list(...))
-}
-
-lmrob.control.sfs <- function  (..., max.it = 500, k.max = 2000, method = 'SMDM',
-                                psi = 'ggw', cov = '.vcov.w')
-{
-    lmrob.control(max.it = max.it, k.max = k.max, method = method,
-                  psi = psi, cov = cov, ...)
 }
 
 lmrob.fit.MM <- function(x, y, control) ## deprecated
