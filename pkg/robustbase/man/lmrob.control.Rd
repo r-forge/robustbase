@@ -32,14 +32,14 @@ lmrob.control.sfs(..., max.it = 500, k.max = 2000,
   \item{nResample}{number of re-sampling candidates to be
     used to find the initial S-estimator.  Currently defaults to 500
     which works well in most situations (see references).}
-  \item{tuning.chi}{tuning constant for the S-estimator.
+  \item{tuning.chi}{tuning constant vector for the S-estimator.
     Sensible defaults are set according to \code{psi} to yield a 50\%
     breakdown estimator. See \emph{Details}.} 
   \item{bb}{expected value under the normal model of the
     \dQuote{chi} (rather \eqn{\rho (rho)}{rho}) function with tuning
     constant equal to \code{tuning.chi}.  This is used to compute the
     S-estimator.}
-  \item{tuning.psi}{tuning constant for the re-descending M-estimator.
+  \item{tuning.psi}{tuning constant vector for the re-descending M-estimator.
     Depending on the value of \code{psi} this constant is set to yield
     an estimator with asymptotic efficiency of 95\% for normal errors.
     See \emph{Details}.}
@@ -83,15 +83,44 @@ lmrob.control.sfs(..., max.it = 500, k.max = 2000,
     \code{\link{lmrob}}.}
   \item{...}{Further arguments are added to the control list.}
 }
-\details{The default values set for \code{tuning.chi} and
-  \code{tuning.psi} are:
+\details{By default, \code{tuning.chi} and \code{tuning.psi} are set to
+  yield an MM-estimate with break-down point \eqn{0.5} and efficiency of
+  \eqn{95\%}  at the normal. They are:
   \tabular{rll}{
     \code{psi} \tab \code{tuning.chi} \tab \code{tuning.psi} \cr
     \code{bisquare} \tab \code{1.54764} \tab \code{4.685061} \cr
     \code{welsh} \tab \code{0.5773502} \tab \code{2.11} \cr
-    \code{ggw} \tab \code{5.5} \tab \code{5.95} \cr
+    \code{ggw} \tab \code{c(-0.5, 1.5, NA, 0.5)} \tab
+    \code{c(-0.5, 1.5, 0.95, NA)} \cr
     \code{optimal} \tab \code{0.4047} \tab \code{1.060158} \cr
-    \code{hampel} \tab \code{0.2119163} \tab \code{0.9014}
+    \code{hampel} \tab \code{c(1.5, 3.5, 8)*0.2119163} \tab
+    \code{c(1.5, 3.5, 8)*0.9014}
+  }
+  The values for the tuning constant for the \code{ggw} psi function are
+  hard coded. The constants vector has four elements: minimal slope, b
+  (controlling the bend at the maximum of the curve), efficiency,
+  break-down point. Use \code{NA} for an unspecified value, see examples
+  in the tables.
+
+  The constants for the \code{hampel} psi function are chosen to have a
+  redescending slope of \eqn{-1/3}. Constants for a slope of \eqn{-1/2}
+  would be
+  \tabular{rll}{
+    \code{psi} \tab \code{tuning.chi} \tab \code{tuning.psi} \cr
+    \code{hampel} \tab \code{c(2, 4, 8)*0.1981319} \tab
+    \code{c(2, 4, 8)*0.690794}
+  }
+
+  Alternative coefficients for an efficiency of \eqn{85\%} at the normal
+  are given in the table below.
+  \tabular{rl}{
+    \code{psi} \tab \code{tuning.psi} \cr
+    \code{bisquare} \tab \code{3.443689} \cr
+    \code{welsh} \tab \code{1.456} \cr
+    \code{ggw} \tab \code{c(-0.5, 1.5, 0.85, NA)} \cr
+    \code{optimal} \tab \code{0.8684} \cr
+    \code{hampel} (-1/3) \tab \code{c(1.5, 3.5, 8)*0.5704545} \cr
+    \code{hampel} (-1/2) \tab \code{c(2, 4, 8)*0.4769578}
   }
 }\references{
   Koller, M. and Stahel, W.A. (2010, tbp)

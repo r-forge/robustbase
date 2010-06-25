@@ -1,3 +1,8 @@
+2010-06-25  Manuel Koller  <koller@stat.math.ethz.ch>
+
+	* man/lmrob.control.Rd: Documentation details for tuning constants
+	and alternative constants for .85 efficiency at the normal.
+
 2010-06-24  Manuel Koller  <koller@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.5-1.1
