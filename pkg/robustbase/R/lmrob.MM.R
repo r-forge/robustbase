@@ -37,6 +37,12 @@ lmrob.control <- function  (setting, seed = NULL, nResample = 500,
                              'optimal' = 1.060158,
                              'hampel' = c(1.5, 3.5, 8) * 0.9016085) ## a, b, c
 
+    ## is ggw tuning.psi is non-standard, calculate coefficients
+    if (psi == 'ggw') {
+        tuning.psi <- lmrob.ggw.const(tuning.psi)
+        tuning.chi <- lmrob.ggw.const(tuning.chi)
+    }
+    
     c(list(seed = as.integer(seed), nResample = nResample, psi = psi,
            tuning.chi = tuning.chi, bb = bb, tuning.psi = tuning.psi,
            max.it = max.it, groups = groups, n.group = n.group,
@@ -172,11 +178,11 @@ lmrob.fit <- function(x, y, control) {
         ## precalculated default values if applicable
         corrfact <-
             if (psi == 'ggw') {
-                if (c.psi == 0.95) 1.052619
-                else if (c.psi == 5.95) 1.052581
-                else if (c.psi == 0.85) 1.176258
-                else if (c.psi == 5.85) 1.176525
-                else stop(':.vcov.w: unsupported c.psi for ggw psi-function')
+                if (isTRUE(all.equal(c.psi, c(-.5, 1.0, 0.95, NA)))) 1.052619
+                else if (isTRUE(all.equal(c.psi, c(-.5, 1.5, 0.95, NA)))) 1.052581
+                else if (isTRUE(all.equal(c.psi, c(-.5, 1.5, 0.85, NA)))) 1.176464
+                else if (isTRUE(all.equal(c.psi, c(-.5, 1.5, 0.85, NA)))) 1.176479
+                else lmrob.E(psi(r)^2, obj=obj) / lmrob.E(psi(r,1), obj=obj)^2
             } else if (c.psi == lmrob.control(psi = psi)$tuning.psi) {
                 switch(psi,
                        bisquare = 1.052632, welsh = 1.052670,
@@ -220,11 +226,11 @@ lmrob.fit <- function(x, y, control) {
         ## if hybrid: replace B (= mpp2) by asymptotic value
         if (cov.corrfact == 'hybrid') {
             mpp2 <- if (psi == 'ggw') {
-                if (c.psi == 0.95) 0.7598857
-                else if (c.psi == 5.95) 0.6817983
-                else if (c.psi == 0.85) 0.501644
-                else if (c.psi == 5.85) 0.4550632
-                else stop(':.vcov.w: unsupported c.psi for ggw psi-function')
+                if (isTRUE(all.equal(c.psi, c(-.5, 1.0, 0.95, NA)))) 0.7598857
+                else if (isTRUE(all.equal(c.psi, c(-.5, 1.5, 0.95, NA)))) 0.6817983
+                else if (isTRUE(all.equal(c.psi, c(-.5, 1.0, 0.85, NA)))) 0.4811596
+                else if (isTRUE(all.equal(c.psi, c(-.5, 1.5, 0.85, NA)))) 0.411581
+                else lmrob.E(psi(r, 1), obj=obj)^2
             } else if (c.psi == lmrob.control(psi = psi)$tuning.psi)
                 switch(psi,
                        bisquare = 0.5742327, welsh = 0.5445068,
@@ -681,7 +687,12 @@ lmrob.conv.cc <- function(psi, cc)
                else if (isTRUE(all.equal(cc, c(-.5, 1.5, 0.95, NA)))) return(4)
                else if (isTRUE(all.equal(cc, c(-.5, 1.5, 0.85, NA)))) return(5)
                else if (isTRUE(all.equal(cc, c(-.5, 1.5, NA, 0.5)))) return(6)
-               else stop('Coefficients for ',cc,' not implemented yet.')
+               else if (cc[1] == 0 && length(cc) == 5) return(cc)
+               else if (!is.null(attr(cc, 'constants')) &&
+                        length(attr(cc, 'constants') == 5))
+                   return(attr(cc, 'constants'))
+               else stop('Coefficients for ',paste(cc),' incorrectly specified.\n',
+                         'Use c(minimal slope, b, efficiency, breakdown point)')
            },
            'hampel' = {
                ## just check length of coefficients
@@ -693,6 +704,64 @@ lmrob.conv.cc <- function(psi, cc)
                    stop('Coef. for psi function not of lenght 1')
            })
     
+    return(cc)
+}
+
+lmrob.ggw.mx <- function(a, b, c) ## find x with minimal slope
+    optimize(lmrob.psifun, c(c, max(a+b+2*c, 0.5)),
+             cc=c(0, a, b, c, 1), psi = 'ggw', deriv = 1)[[1]]
+
+lmrob.ggw.ms <- function(a, b, c) ## find minimal slope
+    lmrob.psifun(lmrob.ggw.mx(a, b, c), c(0, a, b, c, 1), 'ggw', 1)
+
+lmrob.ggw.finda <- function(ms, b, c) ## find a constant
+{
+    val <- uniroot(function(a) lmrob.ggw.ms(1/a, b, c) - ms,
+                   c(200, if (b > 1.4) 1/400 else if (b > 1.3) 1/50 else 1/20))
+    1/val$root
+}
+
+lmrob.ggw.ac <- function(a, b, c) ## calculate asymptotic efficiency
+{
+    lmrob.E(lmrob.psifun(r, c(0, a, b, c, 1), 'ggw', 1), use.integrate = TRUE)^2 /
+        lmrob.E(lmrob.psifun(r, c(0, a, b, c, 1), 'ggw')^2, use.integrate = TRUE)
+}
+
+lmrob.ggw.bp <- function(a, b, c) { ## calculate kappa
+    nc <- integrate(function(x) lmrob.psifun(x, c(0, a, b, c, 1), 'ggw'), 0, Inf)$value
+    lmrob.E(lmrob.chifun(r, c(0, a, b, c, nc), 'ggw'), use.integrate = TRUE)
+}
+
+lmrob.ggw.findc <- function(ms, b, eff = NA, bp = NA) {
+    ## find c by eff for bp
+    c <- if (!is.na(eff)) {
+        if (!is.na(bp))
+            warning('tuning constants for ggw psi: both eff and bp specified, ignoring bp')
+        ## find c by eff
+        uniroot(function(x) lmrob.ggw.ac(lmrob.ggw.finda(ms, b, x), b, x) - eff,
+                c(0.15, if (b > 1.61) 1.4 else 1.9))$root
+    } else {
+        ## find c by bp
+        uniroot(function(x) lmrob.ggw.bp(lmrob.ggw.finda(ms, b, x), b, x) - bp,
+                c(0.08, if (ms < -0.4) 0.6 else 0.4))$root
+    }
+
+    a <- lmrob.ggw.finda(ms, b, c)
+    nc <- integrate(function(x) lmrob.psifun(x, c(0, a, b, c, 1), 'ggw'), 0, Inf)$value
+    return(c(0, a, b, c, nc))
+}
+
+lmrob.ggw.const <- function(cc)
+{
+    ## only calculate for non-standard coefficients
+    if (!(isTRUE(all.equal(cc, c(-.5, 1, 0.95, NA))) ||
+          isTRUE(all.equal(cc, c(-.5, 1, 0.85, NA))) ||
+          isTRUE(all.equal(cc, c(-.5, 1.0, NA, 0.5))) ||
+          isTRUE(all.equal(cc, c(-.5, 1.5, 0.95, NA))) ||
+          isTRUE(all.equal(cc, c(-.5, 1.5, 0.85, NA))) ||
+          isTRUE(all.equal(cc, c(-.5, 1.5, NA, 0.5))))) {
+        attr(cc, 'constants') <- lmrob.ggw.findc(cc[1],cc[2],cc[3],cc[4])
+    }
     return(cc)
 }
 
@@ -770,20 +839,23 @@ lmrob.E <- function(expr, control, dfun = dnorm, use.integrate = FALSE, obj)
         control <- obj$control
     }
 
-    psi <- control$psi
-    if (is.null(psi)) stop('parameter psi is not defined')
-    c.psi <- if (control$method %in% c('S', 'SD'))
-        control$tuning.chi else control$tuning.psi
-    if (!is.numeric(c.psi)) stop('parameter tuning.psi is not numeric')
-    
-    lpsi <- function(r, deriv = 0) lmrob.psifun(r, c.psi, psi, deriv)
-    lchi <- function(r, deriv = 0) lmrob.chifun(r, c.psi, psi, deriv) ## change?
-    lwgt <- function(r) lmrob.wgtfun(r, c.psi, psi) ## change?
-    
+    if (!missing(control)) {
+        psi <- control$psi
+        if (is.null(psi)) stop('parameter psi is not defined')
+        c.psi <- if (control$method %in% c('S', 'SD'))
+            control$tuning.chi else control$tuning.psi
+        if (!is.numeric(c.psi)) stop('parameter tuning.psi is not numeric')
+        
+        lpsi <- function(r, deriv = 0) lmrob.psifun(r, c.psi, psi, deriv)
+        lchi <- function(r, deriv = 0) lmrob.chifun(r, c.psi, psi, deriv) ## change?
+        lwgt <- function(r) lmrob.wgtfun(r, c.psi, psi) ## change?
+        lenvir <- list(psi = lpsi, chi = lchi, wgt = lwgt)
+    } else lenvir <- list()
+        
     if (use.integrate) {
         pf <- parent.frame()
         integrate(function(r)
-                  eval(expr, envir = list(r = r, psi = lpsi, chi = lchi, wgt = lwgt),
+                  eval(expr, envir = c(list(r = r), lenvir),
                        enclos = pf)*dfun(r),-Inf,Inf)$value
     } else {
         ## initialize Gauss-Hermite Integration
@@ -791,7 +863,7 @@ lmrob.E <- function(expr, control, dfun = dnorm, use.integrate = FALSE, obj)
         ghz <- gh$nodes
         ghw <- gh$weights
         ## integrate
-        sum(eval(expr, envir = list(r = ghz, psi = lpsi, chi = lchi, wgt = lwgt),
+        sum(eval(expr, envir = c(list(r = ghz), lenvir),
                  enclos = parent.frame())*dfun(ghz)*ghw)
     }
 }

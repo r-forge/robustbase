@@ -39,7 +39,7 @@ export(Sn, Qn,
        lmrob.fit.MM, lmrob..M..fit, lmrob..D..fit,
        lmrob.S,
        lmrob.control,
-
+       
        mc, # Mia Hubers's medcouple
        adjbox,
        adjboxStats,

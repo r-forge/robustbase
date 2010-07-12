@@ -25,5 +25,12 @@ summary(mp5 <- update(mp0, psi = 'ggw', tuning.psi = c(-.5, 1.0, 0.95, NA),
                       tuning.chi = c(-0.5, 1.0, NA, 0.5)))
 
 set.seed(7)
-summary(mp5 <- update(mp0, psi = 'hampel'))
+summary(mp6 <- update(mp0, psi = 'hampel'))
+
+set.seed(8)
+ctrl <- lmrob.control(psi = 'ggw', tuning.psi = c(-.3, 1.4, 0.95, NA),
+                      tuning.chi = c(-0.3, 1.4, NA, 0.5))
+ctrl$tuning.psi
+ctrl$tuning.chi
+summary(mp7 <-lmrob(Y ~ ., data = aircraft, control = ctrl))
 
