@@ -34,3 +34,12 @@ ctrl$tuning.psi
 ctrl$tuning.chi
 summary(mp7 <-lmrob(Y ~ ., data = aircraft, control = ctrl))
 
+set.seed(9)
+summary(mp8 <- update(mp0, psi = 'lgw'))
+
+set.seed(10)
+ctrl <- lmrob.control(psi = 'lgw', tuning.psi = c(-.3, 1.4, 0.95, NA),
+                      tuning.chi = c(-0.3, 1.4, NA, 0.5))
+ctrl$tuning.psi
+ctrl$tuning.chi
+summary(mp7 <-lmrob(Y ~ ., data = aircraft, control = ctrl))

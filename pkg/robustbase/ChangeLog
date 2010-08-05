@@ -1,3 +1,31 @@
+2010-08-05  Manuel Koller  <koller@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.6-2
+
+	* R/lmrob.MM.R (lmrob.const): replaced lmrob.ggw.const by
+	lmrob.const, which now supports ggw and lgw.
+	(lmrob.control, lmrob.lgw.findc, lmrob.conv.cc, lmrob.psi2ipsi):
+	support for lgw psi function.
+	(lmrob.efficiency, lmrob.bp): functions to calculate the efficiency
+	and breakdown point of an M-estimator.
+	(lmrob.tau, lmrob.tau.fast.coefs): Updated constants in all.equal
+	check for Hampel psi function. Updated constants for all the
+	supported psi functions.
+	(lmrob..D..fit): switched order of updating covariance matrix and
+	updating control$method. This caused the correction factors to be
+	set incorrectly in some cases.
+
+	* src/lmrob.c (normcnst, rho_lin, psi_lin, psip_lin, wgt_lin)
+	(rho, psi, psip): Added support lgw psi function.
+	* man/lmrob.control.Rd: updated to account for lgw.
+
+	* tests/lmrob-psifns.R: added tests lgw psi function
+	* tests/lmrob-psifns.Rout.save: updated accordingly
+
+	* tests/lmrob-methods.Rout.save: updated, since constants for
+	calculation of taus changed slightly
+
+
 2010-07-12  Manuel Koller  <koller@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.6-1
@@ -19,7 +47,7 @@
 
 	* experi-psi-rho-funs.R: added ggwPsi function, standardized
 	s.t. Dpsi(0) = 1. Putting this into R/psi-rho-funs.R results in an
-	error while "preparing for lazy-loading". 
+	error while "preparing for lazy-loading".
 
 2010-06-25  Manuel Koller  <koller@stat.math.ethz.ch>
 

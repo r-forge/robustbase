@@ -108,6 +108,11 @@ double psi_ggw(double x, double *c);
 double psip_ggw(double x, double *c);
 double wgt_ggw(double x, double *c);
 
+double rho_lin(double x, double *c);
+double psi_lin(double x, double *c);
+double psip_lin(double x, double *c);
+double wgt_lin(double x, double *c);
+
 double sum_rho	(double *x, int n, double *c, int ipsi);
 double sum_rho_sc(double *r, double scale, int n, int p, double *c, int ipsi);
 
@@ -403,7 +408,9 @@ double normcnst(double *k, int ipsi) {
     case 4: return(1./4.779906); break;
     case 5: return(1./2.446574); break;
     case 6: return(1./0.4007054); break;
-    }
+    };
+  case 6: // lin psip
+      return((6*(k[2]-1))/(k[2]*k[1]*(3*k[1]+2*k[0])+(k[0]+k[1])*(k[0]+k[1])));
   }
 }
 
@@ -421,6 +428,7 @@ double rho(double x, double *c, int ipsi)
   case 3: return(rho_opt(x, c)); // Optimal
   case 4: return(rho_hmpl(x, c)); // Hampel
   case 5: return(rho_ggw(x, c)); // GGW
+  case 6: return(rho_lin(x, c)); // lin psip
   }
 }
 
@@ -437,6 +445,7 @@ double psi(double x, double *c, int ipsi)
   case 3: return(psi_opt(x, c)); // Optimal
   case 4: return(psi_hmpl(x, c)); // Hampel
   case 5: return(psi_ggw(x, c)); // GGW
+  case 6: return(psi_lin(x, c)); // lin psip
   }
 }
 
@@ -453,6 +462,7 @@ double psip(double x, double *c, int ipsi)
   case 3: return(psip_opt(x, c)); // Optimal
   case 4: return(psip_hmpl(x, c)); // Hampel
   case 5: return(psip_ggw(x, c)); // GGW
+  case 6: return(psip_lin(x, c)); // lin psip
   }
 }
 
@@ -469,6 +479,7 @@ double wgt(double x, double *c, int ipsi)
   case 3: return(wgt_opt(x, c)); // Optimal
   case 4: return(wgt_hmpl(x, c)); // Hampel
   case 5: return(wgt_ggw(x, c)); // GGW
+  case 6: return(wgt_lin(x, c)); // lin psip
   }
 }
 
@@ -928,6 +939,114 @@ double wgt_ggw(double x, double *k)
     return(1);
   else 
     return(exp(-1*R_pow(ax-c,b)/2/a));
+}
+
+double psip_lin (double x, double *c)
+{
+  if (fabs(x) <= c[1])
+    return(0.1e1);
+  else if (c[1] < fabs(x) && fabs(x) <= c[0] + c[1])
+    return((0.1e1 - c[2]) * (fabs(x) - c[1]) / c[0] - (fabs(x) - c[0] - c[1]) / c[0]);
+  else if (c[0] + c[1] < fabs(x) && fabs(x) < c[1] + c[0] - 
+	   (-0.2e1 * c[0] - 0.2e1 * c[1] + c[0] * c[2]) / (c[2] - 0.1e1))
+    return(-pow(c[2] - 0.1e1, 0.2e1) * 
+	   (fabs(x) - c[1] - c[0] + (-0.2e1 * c[0] - 0.2e1 * c[1] + c[0] * c[2]) / 
+	    (c[2] - 0.1e1)) / (-0.2e1 * c[0] - 0.2e1 * c[1] + c[0] * c[2]));
+  else
+    return(0.0e0);
+}
+
+double psi_lin (double x, double *c)
+{
+  if (fabs(x) <= c[1])
+    return(x);
+  else if (fabs(x) <= c[0] + c[1])
+    return((double) (x>0 ? 1 : (x<0 ? -1 : 0)) * 
+	   (fabs(x) - c[2] * pow(fabs(x) - c[1], 0.2e1) / c[0] / 0.2e1));
+  else if (c[0] + c[1] < fabs(x) && fabs(x) < c[1] + c[0] - 
+	   (-0.2e1 * c[1] + c[0] * c[2] - 0.2e1 * c[0]) / (c[2] - 0.1e1))
+    return((double) (x>0 ? 1 : -1) * 
+	   (c[1] + c[0] - c[0] * c[2] / 0.2e1 - pow(c[2] - 0.1e1, 0.2e1) / 
+	    (-0.2e1 * c[1] + c[0] * c[2] - 0.2e1 * c[0]) * 
+	    (pow(fabs(x) - c[0] - c[1], 0.2e1) / 0.2e1 + 
+	     (-0.2e1 * c[1] + c[0] * c[2] - 0.2e1 * c[0]) / (c[2] - 0.1e1) * 
+	     (fabs(x) - c[0] - c[1]))));
+  else
+    return(0.0e0);
+}
+
+double rho_lin (double x, double *c)
+{
+  double s0;
+  double s1;
+  if (fabs(x) <= c[1])
+    return((0.3e1 * c[2] - 0.3e1) / 
+	   (c[2] * c[1] * (0.3e1 * c[1] + 0.2e1 * c[0]) + 
+	    pow(c[0] + c[1], 0.2e1)) * x * x);
+  else if (c[1] < fabs(x) && fabs(x) <= c[0] + c[1])
+  {
+    s0 = fabs(x) - c[1];
+    return((0.6e1 * c[2] - 0.6e1) / 
+	   (c[2] * c[1] * (0.3e1 * c[1] + 0.2e1 * c[0]) + 
+	    pow(c[0] + c[1], 0.2e1)) * 
+	   (x * x / 0.2e1 - c[2] / c[0] * pow(s0, 0.3e1) / 0.6e1));
+  }
+  else if (c[0] + c[1] < fabs(x) && fabs(x) < c[1] + c[0] - 
+	   (-0.2e1 * c[0] - 0.2e1 * c[1] + c[0] * c[2]) / (c[2] - 0.1e1))
+  {
+    s1 = fabs(x) - c[0] - c[1];
+    return((0.6e1 * c[2] - 0.6e1) / 
+	   (c[2] * c[1] * (0.3e1 * c[1] + 0.2e1 * c[0]) + 
+	    pow(c[0] + c[1], 0.2e1)) * 
+	   (pow(c[0] + c[1], 0.2e1) / 0.2e1 - c[2] * c[0] * c[0] / 0.6e1 + 
+	    (c[1] + c[0] - c[0] * c[2] / 0.2e1) * (fabs(x) - c[0] - c[1]) + 
+	    (0.1e1 / 0.2e1 - c[2] / 0.2e1) * s1 * s1 + (-c[2] / 0.6e1 + 0.1e1 / 0.6e1) / 
+	    (-0.2e1 * c[0] - 0.2e1 * c[1] + c[0] * c[2]) * 
+	    (c[2] - 0.1e1) * pow(s1, 0.3e1)));
+  }
+  else
+    return(0.1e1);
+}
+
+double wgt_lin (double x, double *k)
+{
+  double s0;
+  double s1;
+  double s10;
+  double s2;
+  double s3;
+  double s4;
+  double s5;
+  double s6;
+  double s7;
+  double s8;
+  double s9;
+  if (fabs(x) <= k[1])
+    return(0.1e1);
+  else if (fabs(x) <= k[0] + k[1])
+  {
+    s0 = fabs(x) - k[1];
+    s1 = fabs(x);
+    s2 = k[2] * s0 * s0;
+    s3 = 0.1e1 / s1 / k[0];
+    return(0.1e1 - s2 * s3 / 0.2e1);
+  }
+  else if (fabs(x) < k[1] + k[0] - 
+	   (-0.2e1 * k[0] - 0.2e1 * k[1] + k[0] * k[2]) / (k[2] - 0.1e1))
+  {
+    s4 = fabs(x);
+    s5 = k[2] - 0.1e1;
+    s6 = -0.2e1 * k[0] - 0.2e1 * k[1] + k[0] * k[2];
+    s7 = s4 - k[0] - k[1];
+    s8 = k[2] - 0.1e1;
+    s9 = 0.1e1 / s8 * (s4 - k[0] - k[1]);
+    s10 = s5 * s5 / s6;
+    return(0.1e1 / s4 * (k[1] + k[0] - k[0] * k[2] / 0.2e1 - s10 * 
+			 (s7 * s7 / 0.2e1 + s9 * 
+			  (-0.2e1 * k[0] - 0.2e1 * k[1] + k[0] * k[2]))));
+  }
+  else
+    return(0.0e0);
 }
 
 /* this function finds the k-th place in the

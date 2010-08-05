@@ -15,8 +15,8 @@ lmrob.control(setting, seed = NULL, nResample = 500,
               k.fast.s = 1, best.r.s = 2, k.max = 200,
               refine.tol = 1e-7, rel.tol = 1e-7, trace.lev = 0,
               compute.rd = FALSE, method = 'MM',
-              psi = c('bisquare', 'ggw', 'welsh', 'optimal', 'hampel'),
-              numpoints = 10, cov = '.vcov.avar1', ...)
+              psi = c('bisquare', 'ggw', 'welsh', 'optimal', 'hampel',
+              'lgw'), numpoints = 10, cov = '.vcov.avar1', ...)
 }
 \arguments{
   \item{setting}{a string specifying alternative default values. Leave
@@ -92,6 +92,8 @@ lmrob.control(setting, seed = NULL, nResample = 500,
     \code{bisquare} \tab \code{1.54764} \tab \code{4.685061} \cr
     \code{welsh} \tab \code{0.5773502} \tab \code{2.11} \cr
     \code{ggw} \tab \code{c(-0.5, 1.5, NA, 0.5)} \tab
+    \code{c(-0.5, 1.5, 0.95, NA)} \cr
+    \code{lgw} \tab \code{c(-0.5, 1.5, NA, 0.5)} \tab
     \code{c(-0.5, 1.5, 0.95, NA)} \cr
     \code{optimal} \tab \code{0.4047} \tab \code{1.060158} \cr
     \code{hampel} \tab \code{c(1.5, 3.5, 8)*0.2119163} \tab

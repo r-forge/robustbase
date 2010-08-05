@@ -116,10 +116,10 @@ Weighted Residuals:
 
 Coefficients:
             Estimate Std. Error t value Pr(>|t|)    
-(Intercept) -41.5246     8.8546  -4.690 0.000211 ***
+(Intercept) -41.5246     8.8552  -4.689 0.000211 ***
 Air.Flow      0.9388     0.1162   8.078  3.2e-07 ***
-Water.Temp    0.5796     0.3164   1.832 0.084594 .  
-Acid.Conc.   -0.1129     0.1163  -0.971 0.345352    
+Water.Temp    0.5796     0.3164   1.831 0.084610 .  
+Acid.Conc.   -0.1129     0.1163  -0.971 0.345380    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
 
@@ -153,10 +153,10 @@ Weighted Residuals:
 
 Coefficients:
             Estimate Std. Error t value Pr(>|t|)    
-(Intercept) -41.5246     9.3672  -4.433 0.000364 ***
-Air.Flow      0.9388     0.1229   7.636 6.84e-07 ***
-Water.Temp    0.5796     0.3347   1.731 0.101493    
-Acid.Conc.   -0.1129     0.1231  -0.917 0.371718    
+(Intercept) -41.5246     8.8552  -4.689 0.000211 ***
+Air.Flow      0.9388     0.1162   8.078  3.2e-07 ***
+Water.Temp    0.5796     0.3164   1.831 0.084610 .  
+Acid.Conc.   -0.1129     0.1163  -0.971 0.345380    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
 
@@ -185,8 +185,7 @@ seed : int(0)
 > m4a$call <- m4$call
 > 
 > all.equal(m4, m4a)
-[1] "Component 15: Attributes: < Component 4: Mean relative difference: 0.2352941 >"
-[2] "Component 15: Mean relative difference: 0.1191311"                             
+[1] TRUE
 > 
 > ## SMDM
 > set.seed(0)
@@ -198,14 +197,14 @@ lmrob(formula = stack.loss ~ ., data = stackloss, method = "SMDM",
 
 Weighted Residuals:
     Min      1Q  Median      3Q     Max 
--9.6755 -1.7722  0.1342  1.2036  6.6083 
+-9.6746 -1.7721  0.1346  1.2041  6.6080 
 
 Coefficients:
             Estimate Std. Error t value Pr(>|t|)    
-(Intercept) -41.9405     9.6471  -4.347 0.000438 ***
-Air.Flow      0.8748     0.1215   7.199 1.49e-06 ***
-Water.Temp    0.8098     0.3320   2.439 0.025994 *  
-Acid.Conc.   -0.1188     0.1268  -0.937 0.361678    
+(Intercept) -41.9398     9.6482  -4.347 0.000438 ***
+Air.Flow      0.8747     0.1215   7.198 1.49e-06 ***
+Water.Temp    0.8099     0.3320   2.439 0.025977 *  
+Acid.Conc.   -0.1188     0.1268  -0.937 0.361693    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
 
@@ -215,7 +214,7 @@ Convergence in 17 IRWLS iterations
 Robustness weights: 
  2 weights are ~= 1. The remaining 19 ones are summarized as
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
- 0.1544  0.9139  0.9597  0.8874  0.9866  0.9966 
+ 0.1546  0.9139  0.9597  0.8874  0.9866  0.9966 
 Algorithmic parameters: 
 tuning.chi         bb tuning.psi refine.tol    rel.tol 
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001 
@@ -234,14 +233,14 @@ lmrob(formula = stack.loss ~ ., data = stackloss, method = "SMDM",
 
 Weighted Residuals:
     Min      1Q  Median      3Q     Max 
--9.6755 -1.7722  0.1342  1.2036  6.6083 
+-9.6746 -1.7721  0.1346  1.2041  6.6080 
 
 Coefficients:
             Estimate Std. Error t value Pr(>|t|)    
-(Intercept) -41.9405     9.6471  -4.347 0.000438 ***
-Air.Flow      0.8748     0.1215   7.199 1.49e-06 ***
-Water.Temp    0.8098     0.3320   2.439 0.025994 *  
-Acid.Conc.   -0.1188     0.1268  -0.937 0.361678    
+(Intercept) -41.9398     9.6482  -4.347 0.000438 ***
+Air.Flow      0.8747     0.1215   7.198 1.49e-06 ***
+Water.Temp    0.8099     0.3320   2.439 0.025977 *  
+Acid.Conc.   -0.1188     0.1268  -0.937 0.361693    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
 
@@ -251,7 +250,7 @@ Convergence in 17 IRWLS iterations
 Robustness weights: 
  2 weights are ~= 1. The remaining 19 ones are summarized as
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
- 0.1544  0.9139  0.9597  0.8874  0.9866  0.9966 
+ 0.1546  0.9139  0.9597  0.8874  0.9866  0.9966 
 Algorithmic parameters: 
 tuning.chi         bb tuning.psi refine.tol    rel.tol 
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001 
