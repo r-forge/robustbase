@@ -106,7 +106,17 @@ print.lmrob <- function(x, digits = max(3, getOption("digits") - 3), ...)
 }
 
 
-vcov.lmrob <- function (object, ...) { object$cov }
+vcov.lmrob <- function (object, cov=object$control$cov, ...) {
+  if (!is.null(object$cov) && identical(cov, object$control$cov))
+    return(object$cov)
+  else {
+    lf.cov <- if (!is.function(cov)) 
+      get(cov, mode = "function")
+    else cov
+    lf.cov(object, ...)
+  }
+}
+
 
 ## residuals.default works for "lmrob"  {unless we'd allow re-weighted residuals
 ## fitted.default works for "lmrob"

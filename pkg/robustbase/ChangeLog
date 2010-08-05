@@ -25,6 +25,8 @@
 	* tests/lmrob-methods.Rout.save: updated, since constants for
 	calculation of taus changed slightly
 
+	* R/lmrob.R (vcov.lmrob): added possibility to calculate covariance
+	matrix with another estimation method.
 
 2010-07-12  Manuel Koller  <koller@stat.math.ethz.ch>
 
