@@ -337,18 +337,16 @@ void R_psifun(double *xx, double *cc, int *iipsi, int *dderiv, int *llength) {
    * deriv 0: psi
    * deriv 1: psip (psip(0) = 1)
    */
+  double nc = normcnst(cc, *iipsi);
 
-  int i;
-  double nc;
-  nc = normcnst(cc, *iipsi);
+// put the for() loop *inside* the switch (--> speed for llength >> 1) :
+#define for_i_llength  for(int i = 0; i < *llength; i++)
 
-  for(i = 0; i < *llength; i++) {
-    switch(*dderiv) {
-    case -1: xx[i] = rho(xx[i], cc, *iipsi) / nc; break;
+  switch(*dderiv) {
+    case -1: for_i_llength xx[i] = rho(xx[i], cc, *iipsi) / nc; break;
     default:
-    case 0: xx[i] = psi(xx[i], cc, *iipsi); break;
-    case 1: xx[i] = psip(xx[i], cc, *iipsi); break;
-    }
+    case 0: for_i_llength xx[i] = psi (xx[i], cc, *iipsi); break;
+    case 1: for_i_llength xx[i] = psip(xx[i], cc, *iipsi); break;
   }
 }
 
@@ -359,18 +357,13 @@ void R_chifun(double *xx, double *cc, int *iipsi, int *dderiv, int *llength) {
    * deriv 1: chi'
    * deriv 2: chi''
    */
+  double nc = normcnst(cc, *iipsi);
 
-  int i;
-  double nc;
-  nc = normcnst(cc, *iipsi);
-
-  for(i = 0; i < *llength; i++) {
-    switch(*dderiv) {
+  switch(*dderiv) {
     default:
-    case 0: xx[i] = rho(xx[i], cc, *iipsi); break;
-    case 1: xx[i] = psi(xx[i], cc, *iipsi) * nc; break;
-    case 2: xx[i] = psip(xx[i], cc, *iipsi) * nc; break;
-    }
+    case 0: for_i_llength xx[i] = rho (xx[i], cc, *iipsi); break;
+    case 1: for_i_llength xx[i] = psi (xx[i], cc, *iipsi) * nc; break;
+    case 2: for_i_llength xx[i] = psip(xx[i], cc, *iipsi) * nc; break;
   }
 }
 
@@ -378,12 +371,9 @@ void R_wgtfun(double *xx, double *cc, int *iipsi, int *llength) {
   /*
    * Calculate wgt for vectorized x
    */
-
-  int i;
-
-  for(i = 0; i < *llength; i++)
-    xx[i] = wgt(xx[i], cc, *iipsi);
+  for_i_llength xx[i] = wgt(xx[i], cc, *iipsi);
 }
+#undef for_i_llength
 
 double normcnst(double *k, int ipsi) {
   /*
