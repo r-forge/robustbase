@@ -142,7 +142,7 @@ summary( m1 <- lmrob(Y ~ ., data=coleman) )
 data(starsCYG, package = "robustbase")
 ## Plot simple data and fitted lines
 plot(starsCYG)
- lmST <-    lm(log.light ~ log.Te, data = starsCYG)
+  lmST <-    lm(log.light ~ log.Te, data = starsCYG)
 (RlmST <- lmrob(log.light ~ log.Te, data = starsCYG))
 abline(lmST, col = "red")
 abline(RlmST, col = "blue")

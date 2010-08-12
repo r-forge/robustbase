@@ -216,10 +216,10 @@ void R_lmrob_S(double *X, double *y, int *n, int *P,
   /* best_r = 't' of Salibian-Barrera_Yohai(2006),
    *	      = no. of best candidates to be iterated further
    *		("refined") */
-  
+
   /* Rprintf("R_lmrob_s %d\n", *iipsi); */
-  
-  if ( *nRes > 0) { 
+
+  if ( *nRes > 0) {
     if( *n > 2000 )
       fast_s_large_n(X, y, n, P, nRes,
 		     Groups, N_group,
@@ -328,15 +328,16 @@ int lu(double **a, int *P, double *x)
     return(0);
 }
 
+/*----------------------------------------------------------------------------*/
 
 void R_psifun(double *xx, double *cc, int *iipsi, int *dderiv, int *llength) {
-  /* 
+  /*
    * Calculate psi for vectorized x with psip(0) = 1
    * deriv -1: rho (not normalized)
    * deriv 0: psi
    * deriv 1: psip (psip(0) = 1)
    */
-  
+
   int i;
   double nc;
   nc = normcnst(cc, *iipsi);
@@ -348,17 +349,17 @@ void R_psifun(double *xx, double *cc, int *iipsi, int *dderiv, int *llength) {
     case 0: xx[i] = psi(xx[i], cc, *iipsi); break;
     case 1: xx[i] = psip(xx[i], cc, *iipsi); break;
     }
-  }  
+  }
 }
 
 void R_chifun(double *xx, double *cc, int *iipsi, int *dderiv, int *llength) {
-  /* 
+  /*
    * Calculate chi for vectorized x with rho(inf) = 1
    * deriv 0: chi (normalized)
    * deriv 1: chi'
    * deriv 2: chi''
    */
-  
+
   int i;
   double nc;
   nc = normcnst(cc, *iipsi);
@@ -370,27 +371,26 @@ void R_chifun(double *xx, double *cc, int *iipsi, int *dderiv, int *llength) {
     case 1: xx[i] = psi(xx[i], cc, *iipsi) * nc; break;
     case 2: xx[i] = psip(xx[i], cc, *iipsi) * nc; break;
     }
-  }  
+  }
 }
 
 void R_wgtfun(double *xx, double *cc, int *iipsi, int *llength) {
-  /* 
-   * Calculate wgt for vectorized x 
+  /*
+   * Calculate wgt for vectorized x
    */
-  
+
   int i;
 
-  for(i = 0; i < *llength; i++) 
+  for(i = 0; i < *llength; i++)
     xx[i] = wgt(xx[i], cc, *iipsi);
 }
 
 double normcnst(double *k, int ipsi) {
-  /* 
+  /*
    * return normalizing constant for psi functions
    */
 
-  double c;
-  c = *k;
+  double c = *k;
 
   switch(ipsi) {
   default:
@@ -398,7 +398,7 @@ double normcnst(double *k, int ipsi) {
   case 2: return(1./(c*c)); // GaussWeight
   case 3: return(1./3.25/(c*c)); // Optimal
   case 4: return(2./(k[0]*(k[1]+k[2]-k[0]))); // Hampel
-  case 5: 
+  case 5:
     switch((int)c) {
     default:
     case 0: return(1./k[4]); break;
@@ -415,9 +415,9 @@ double normcnst(double *k, int ipsi) {
 }
 
 
-double rho(double x, double *c, int ipsi) 
+double rho(double x, double *c, int ipsi)
 {
-  /* 
+  /*
    * return the correct rho according to ipsi
    * this is normalized to 1
    */
@@ -432,9 +432,9 @@ double rho(double x, double *c, int ipsi)
   }
 }
 
-double psi(double x, double *c, int ipsi) 
+double psi(double x, double *c, int ipsi)
 {
-  /* 
+  /*
    * return the correct psi according to ipsi
    * this is actually rho' and not psi
    */
@@ -449,9 +449,9 @@ double psi(double x, double *c, int ipsi)
   }
 }
 
-double psip(double x, double *c, int ipsi) 
+double psip(double x, double *c, int ipsi)
 {
-  /* 
+  /*
    * return the correct ppsi according to ipsi
    * this is actually rho'' and not psip
    */
@@ -466,9 +466,9 @@ double psip(double x, double *c, int ipsi)
   }
 }
 
-double wgt(double x, double *c, int ipsi) 
+double wgt(double x, double *c, int ipsi)
 {
-  /* 
+  /*
    * return the correct wgt according to ipsi
    * wgt: rho'(x) / x
    */
@@ -491,8 +491,7 @@ double rho_biwgt(double x, double *c)
     if (fabs(x) > (*c))
 	return(1.);
     else {
-	double t;
-	t = x / (*c);
+	double t = x / (*c);
 	t *= t; /* = t^2 */
 	return( t*(3. + t*(-3. + t)) );
     }
@@ -506,9 +505,8 @@ double psi_biwgt(double x, double *c)
     if (fabs(x) > (*c))
 	return(0.);
     else {
-      double a, u;
-      a = x / (*c);
-      u = 1. - a*a;
+      double a = x / (*c),
+	     u = 1. - a*a;
       return( x * u * u );
     }
 }
@@ -536,8 +534,7 @@ double wgt_biwgt(double x, double *c)
   if( fabs(x) > *c )
     return(0.);
   else {
-    double a;
-    a = x / (*c);
+    double a = x / (*c);
     a = (1. - a)*(1. + a);
     return( a * a );
   }
@@ -545,7 +542,7 @@ double wgt_biwgt(double x, double *c)
 
 double rho_gwgt(double x, double *c)
 {
-  /* 
+  /*
    * Gauss Weight Loss function
    */
   double ac;
@@ -556,40 +553,37 @@ double rho_gwgt(double x, double *c)
 
 double psi_gwgt(double x, double *c)
 {
-  /* 
+  /*
    * Gauss Weight Loss function
    */
-  double a, ac;
-  a = x / (*c);
-  ac = a*a; 
+  double a = x / (*c), ac = a*a;
   return(x*exp(-1*ac/2));
 }
 
 double psip_gwgt(double x, double *c)
 {
-  /* 
+  /*
    * Gauss Weight Loss function
    */
   double ac;
   x /= (*c);
-  ac = x*x; 
+  ac = x*x;
   return(exp(-1*ac/2) * (1 - ac));
 }
 
 double wgt_gwgt(double x, double *c)
 {
-  /* 
+  /*
    * Gauss Weight Loss function
    */
-  double ac;
-  ac = x / (*c);
+  double ac = x / (*c);
   ac *= ac; // ac^2
   return(exp(-1*ac/2));
 }
 
-double rho_opt(double x, double *c) 
+double rho_opt(double x, double *c)
 {
-  /* 
+  /*
    * Optimal psi Function, thank you robust package
    */
   double R1 = -1.944/2., R2 = 1.728/4., R3 = -0.312/6., R4 = 0.016/8.;
@@ -605,9 +599,9 @@ double rho_opt(double x, double *c)
     return(ac*ac/6.5); // rlRHOm2=S2/2.D0
 }
 
-double psi_opt(double x, double *c) 
+double psi_opt(double x, double *c)
 {
-  /* 
+  /*
    * Optimal psi Function, thank you robust package
    */
   double R1 = -1.944, R2 = 1.728, R3 = -0.312, R4 = 0.016;
@@ -618,136 +612,131 @@ double psi_opt(double x, double *c)
     return(0); // rlPSIm2=0.D0
   else if (ax > 2.) { //  ELSE IF(AX .GT. 2.D0) THEN
     if (ac > 0.) //     IF (AX .GT. 0.D0) THEN
-      return(fmax2(0., (*c)*(R4*R_pow(ac,7)+R3*R_pow(ac,5)+R2*R_pow(ac,3)+R1*ac))); 
+      return(fmax2(0., (*c)*(R4*R_pow(ac,7)+R3*R_pow(ac,5)+R2*R_pow(ac,3)+R1*ac)));
     // rlPSIm2=DMAX1(0.D0,XK*(R4*AX**7+R3*AX**5+R2*AX**3+R1*AX))
     else // ELSE
-      return(-1*fabs((*c)*(R4*R_pow(ac,7)+R3*R_pow(ac,5)+R2*R_pow(ac,3)+R1*ac))); 
+      return(-1*fabs((*c)*(R4*R_pow(ac,7)+R3*R_pow(ac,5)+R2*R_pow(ac,3)+R1*ac)));
     //  rlPSIm2=-DABS(XK*(R4*AX**7+R3*AX**5+R2*AX**3+R1*AX))
   } // ENDIF
-  else // ELSE
-    return(x); // rlPSIm2=S 
+  else
+    return(x); // rlPSIm2=S
 }
 
-double psip_opt(double x, double *c) 
+double psip_opt(double x, double *c)
 {
-  /* 
+  /*
    * Optimal psip Function, thank you robust package
    */
   double R1 = -1.944, R2 = 1.728, R3 = -0.312, R4 = 0.016;
   double ax, ac;
-  ac = x / (*c); 
-  ax = fabs(ac); 
-  if (ax > 3.) 
-    return(0); 
-  else if (ax > 2.) 
-    return(7*R4*R_pow(ax,6)+5*R3*R_pow(ax,4)+3*R2*R_pow(ax,2)+R1); 
+  ac = x / (*c);
+  ax = fabs(ac);
+  if (ax > 3.)
+    return(0);
+  else if (ax > 2.)
+    return(7*R4*R_pow(ax,6)+5*R3*R_pow(ax,4)+3*R2*R_pow(ax,2)+R1);
   else
-    return(1); 
+    return(1);
 }
 
-double wgt_opt(double x, double *c) 
+double wgt_opt(double x, double *c)
 {
-  /* 
+  /*
    * Optimal psi Function, thank you robust package
    */
   double R1 = -1.944, R2 = 1.728, R3 = -0.312, R4 = 0.016;
   double ax, ac;
-  ac = x / (*c); 
-  ax = fabs(ac); 
-  if (ax > 3.) 
-    return(0.); 
+  ac = x / (*c);
+  ax = fabs(ac);
+  if (ax > 3.)
+    return(0.);
   else if (ax > 2.)
     return(fmax2(0., R4*R_pow(ac,6)+R3*R_pow(ac,4)+R2*R_pow(ac,2)+R1)); // /c/3.25
-  else 
+  else
     return(1.); //  /c/3.25
 }
 
 double rho_hmpl(double x, double *k)
-{ 
+{
   /*
    * Hampel redescending rho function
    * constants a, b, c s.t. slope of psi
    * is 1 in the center and (-)1/2 outside
    * this function is normalized s.t. rho(inf) = 1
    */
-  double nc;
-  nc = k[0]*(k[1]+k[2]-k[0])/2;
-  double u;
-  u = fabs(x);
+  double u = fabs(x),
+	nc = k[0]*(k[1]+k[2]-k[0])/2;
 
-  if (u <= k[0]) 
+  if (u <= k[0])
     return( x*x/2 / nc );
   else if (u <= k[1])
     return( ( u - k[0]/2 ) * k[0] / nc );
   else if (u <= k[2])
     return( ( k[1] - k[0]/2 + (u - k[1]) * (1 - ( u - k[1] ) / ( k[2] - k[1] ) / 2 )) * k[0] / nc);
-  else 
+  else
     return( 1 );
 }
 
 double psi_hmpl(double x, double *k)
-{ 
+{
   /*
    * Hampel redescending psi function
    * constants a, b, c s.t. slope of psi
    * is 1 in the center and (-)1/2 outside
    */
-  double u;
-  u = fabs(x);
+  double u = fabs(x);
 
-  if (u <= k[0]) 
+  if (u <= k[0])
     return( x );
   else if (u <= k[1]) {
-    if (x > 0) 
+    if (x > 0)
       return( k[0] );
-    else 
+    else
       return( -1*k[0] );
   } else if (u <= k[2]) {
     if (x > 0)
       return( k[0] * ( k[2] - u ) / ( k[2] - k[1] ) );
-    else 
+    else
       return( k[0] * ( u - k[2] ) / ( k[2] - k[1] ) );
-  } else 
+  } else
     return( 0 );
 }
 
 double psip_hmpl(double x, double *k)
-{ 
+{
   /*
    * Hampel redescending psi function
    * constants a, b, c s.t. slope of psi
    * is 1 in the center and (-)1/2 outside
    */
-  double u;
-  u = fabs(x);
+  double u = fabs(x);
 
-  if (u <= k[0]) 
+  if (u <= k[0])
     return( 1 );
-  else if (u <= k[1]) 
+  else if (u <= k[1])
       return( 0 );
-  else if (u <= k[2]) 
+  else if (u <= k[2])
     return( k[0] / ( k[1] - k[2] ) );
-  else 
+  else
     return( 0 );
 }
 
 double wgt_hmpl(double x, double* k)
-{ 
+{
   /*
    * Hampel redescending psi function
    * constants a, b, c s.t. slope of psi
    * is 1 in the center and (-)1/2 outside
    */
-  double u;
-  u = fabs(x);
+  double u = fabs(x);
 
-  if (u <= k[0]) 
+  if (u <= k[0])
     return( 1 );
   else if (u <= k[1])
     return( k[0] / u );
-  else if (u <= k[2]) 
+  else if (u <= k[2])
     return( k[0] * ( k[2] - u ) / ( k[2] - k[1] ) / u );
-  else 
+  else
     return( 0 );
 }
 
@@ -763,22 +752,22 @@ double rho_ggw(double x, double *k)
 	 1.46908724988936e-06, -0.837547853001024, 0.876392734183528,
 	 -0.184600387321924, 0.0219985685280105, -0.00156403138825785,
 	 6.16243137719362e-05, -7.478979895101e-07, -3.99563057938975e-08,
-	 1.78125589532002e-09, -2.22317669250326e-11}, 
+	 1.78125589532002e-09, -2.22317669250326e-11},
 	// 1: b = 1, 85% efficiency
-	{0.174505224068561, -0.168853188892986, 0.00579250806463694, 
-	 0.624193375180937, -0.419882092234336, 0.150011303015251, 
-	 -0.0342185249354937, 0.00504325944243195, -0.0004404209084091, 
-	 1.73268448820236e-05, -0.842160072154898, 1.19912623576069, 
-	 -0.345595777445623, 0.0566407000764478, -0.00560501531439071, 
-	 0.000319084704541442, -7.4279004383686e-06, -2.02063746721802e-07, 
+	{0.174505224068561, -0.168853188892986, 0.00579250806463694,
+	 0.624193375180937, -0.419882092234336, 0.150011303015251,
+	 -0.0342185249354937, 0.00504325944243195, -0.0004404209084091,
+	 1.73268448820236e-05, -0.842160072154898, 1.19912623576069,
+	 -0.345595777445623, 0.0566407000764478, -0.00560501531439071,
+	 0.000319084704541442, -7.4279004383686e-06, -2.02063746721802e-07,
 	 1.65716101809839e-08, -2.97536178313245e-10},
 	// 2: b = 1, bp 0.5
-	{1.41117142330711, -0.168853741371095, 0.0164713906344165, 
-	 5.04767833986545, -9.65574752971554, 9.80999125035463, 
-	 -6.36344090274658, 2.667031271863, -0.662324374141645, 
-	 0.0740982983873332, -0.84794906554363, 3.4315790970352, 
-	 -2.82958670601597, 1.33442885893807, -0.384812004961396, 
-	 0.0661359078129487, -0.00557221619221031, -5.42574872792348e-05, 
+	{1.41117142330711, -0.168853741371095, 0.0164713906344165,
+	 5.04767833986545, -9.65574752971554, 9.80999125035463,
+	 -6.36344090274658, 2.667031271863, -0.662324374141645,
+	 0.0740982983873332, -0.84794906554363, 3.4315790970352,
+	 -2.82958670601597, 1.33442885893807, -0.384812004961396,
+	 0.0661359078129487, -0.00557221619221031, -5.42574872792348e-05,
 	 4.92564168111658e-05, -2.80432020951381e-06},
 	// 3: b = 1.5, 95% efficiency
 	{0.104604570079252, 0.0626649856211545, -0.220058184826331,
@@ -789,29 +778,29 @@ double rho_ggw(double x, double *k)
 	 -0.00826237596187364, 0.0006529134641922, -3.23468516804340e-05,
 	 9.17904701930209e-07, -1.14119059405971e-08},
 	// 4: b = 1.5, 85% efficiency
-	{0.205026436642222, 0.0627464477520301, -0.308483319391091, 
-	 0.791480474953874, -0.585521414631968, 0.394979618040607, 
-	 -0.211512515412973, 0.0707208739858416, -0.0129092527174621, 
-	 0.000990938134086886, 0.629919019245325, -1.60049136444912, 
-	 1.91903069049618, -0.933285960363159, 0.256861783311473, 
-	 -0.0442133943831343, 0.00488402902512139, -0.000338084604725483, 
+	{0.205026436642222, 0.0627464477520301, -0.308483319391091,
+	 0.791480474953874, -0.585521414631968, 0.394979618040607,
+	 -0.211512515412973, 0.0707208739858416, -0.0129092527174621,
+	 0.000990938134086886, 0.629919019245325, -1.60049136444912,
+	 1.91903069049618, -0.933285960363159, 0.256861783311473,
+	 -0.0442133943831343, 0.00488402902512139, -0.000338084604725483,
 	 1.33974565571893e-05, -2.32450916247553e-07},
 	// 5: b = 1.5, bp 0.5
-	{1.35010856132000, 0.0627465630782482, -0.791613168488525, 
-	 5.21196700244212, -9.89433796586115, 17.1277266427962, 
-	 -23.5364159883776, 20.1943966645350, -9.4593988142692, 
-	 1.86332355622445, 0.62986381140768, -4.10676399816156, 
-	 12.6361433997327, -15.7697199271455, 11.1373468568838, 
-	 -4.91933095295458, 1.39443093325178, -0.247689078940725, 
+	{1.35010856132000, 0.0627465630782482, -0.791613168488525,
+	 5.21196700244212, -9.89433796586115, 17.1277266427962,
+	 -23.5364159883776, 20.1943966645350, -9.4593988142692,
+	 1.86332355622445, 0.62986381140768, -4.10676399816156,
+	 12.6361433997327, -15.7697199271455, 11.1373468568838,
+	 -4.91933095295458, 1.39443093325178, -0.247689078940725,
 	 0.0251861553415515, -0.00112130382664914}};
-    double end[6] = {18.5527638190955, 13.7587939698492, 
-		     4.89447236180905, 
-		     11.4974874371859, 8.15075376884422, 
+    double end[6] = {18.5527638190955, 13.7587939698492,
+		     4.89447236180905,
+		     11.4974874371859, 8.15075376884422,
 		     3.17587939698492};
     if (k[0] > 0) { // for hard-coded constants
 	int j;
 	double c;
-	switch((int)*k) { 
+	switch((int)*k) {
 	default: error("wgt_ggw: Case not implemented.");
 	case 1: j = 0; c = 1.694;     break;
 	case 2: j = 1; c = 1.2442567; break;
@@ -824,13 +813,13 @@ double rho_ggw(double x, double *k)
 	if (x <= c)
 	    return(C[j][0]*x*x);
 	else if (x <= 3*c)
-	    return(C[j][1] + C[j][2]*x + C[j][3]*x*x + C[j][4]*R_pow(x, 3) + 
-		   C[j][5]*R_pow(x, 4) + C[j][6]*R_pow(x, 5) + C[j][7]*R_pow(x, 6) + 
+	    return(C[j][1] + C[j][2]*x + C[j][3]*x*x + C[j][4]*R_pow(x, 3) +
+		   C[j][5]*R_pow(x, 4) + C[j][6]*R_pow(x, 5) + C[j][7]*R_pow(x, 6) +
 		   C[j][8]*R_pow(x, 7) + C[j][9]*R_pow(x, 8));
 	else if (x <= end[j])
-	    return(C[j][10] + C[j][11]*x + C[j][12]*x*x + C[j][13]*R_pow(x, 3) + 
-	       C[j][14]*R_pow(x, 4) + C[j][15]*R_pow(x, 5) + 
-		   C[j][16]*R_pow(x, 6) + C[j][17]*R_pow(x, 7) + 
+	    return(C[j][10] + C[j][11]*x + C[j][12]*x*x + C[j][13]*R_pow(x, 3) +
+	       C[j][14]*R_pow(x, 4) + C[j][15]*R_pow(x, 5) +
+		   C[j][16]*R_pow(x, 6) + C[j][17]*R_pow(x, 7) +
 		   C[j][18]*R_pow(x, 8) + C[j][19]*R_pow(x, 9));
 	else return(1.);
     } else {
@@ -848,7 +837,7 @@ double rho_ggw(double x, double *k)
 	int *iwork; double *work;
 	iwork = (int *) R_alloc(limit, sizeof(int));
 	work = (double *) R_alloc(lenw, sizeof(double));
-	Rdqags(psi_ggw_vec, k, &a, &x, &epsabs, &epsabs,
+	Rdqags(psi_ggw_vec, (void *)k, &a, &x, &epsabs, &epsabs,
 	       &result, &abserr, &neval, &ier,
 	       &limit, &lenw, &last,
 	       iwork, work);
@@ -859,7 +848,7 @@ double rho_ggw(double x, double *k)
     }
 }
 
-void psi_ggw_vec(double *x, int n, void *k) 
+void psi_ggw_vec(double *x, int n, void *k)
 {
     for (int i = 0; i<n; i++) {
 	x[i] = psi_ggw(x[i], k);
@@ -873,8 +862,8 @@ double psi_ggw(double x, double *k)
    */
   // set a,b,c
   double a, b, c;
-  switch((int)*k) { 
-  default: error("wgt_ggw: Case not implemented."); 
+  switch((int)*k) {
+  default: error("wgt_ggw: Case not implemented.");
   case 0: a = k[1]; b = k[2]; c = k[3]; break;
   case 1: a = 0.648; b = 1.; c = 1.694; break;
   case 2: a = 0.4760508; b = 1.; c = 1.2442567; break;
@@ -885,9 +874,9 @@ double psi_ggw(double x, double *k)
   }
   double ax;
   ax = fabs(x);
-  if (ax < c) 
+  if (ax < c)
     return(x);
-  else 
+  else
     return(x*exp(-1*R_pow(ax-c,b)/2/a));
 }
 
@@ -898,8 +887,8 @@ double psip_ggw(double x, double *k)
    */
   // set a,b,c
   double a, b, c;
-  switch((int)*k) { 
-  default: error("wgt_ggw: Case not implemented."); 
+  switch((int)*k) {
+  default: error("wgt_ggw: Case not implemented.");
   case 0: a = k[1]; b = k[2]; c = k[3]; break;
   case 1: a = 0.648; b = 1.; c = 1.694; break;
   case 2: a = 0.4760508; b = 1.; c = 1.2442567; break;
@@ -923,8 +912,8 @@ double wgt_ggw(double x, double *k)
    */
   // set a,b,c
   double a, b, c;
-  switch((int)*k) { 
-  default: error("wgt_ggw: Case not implemented."); 
+  switch((int)*k) {
+  default: error("wgt_ggw: Case not implemented.");
   case 0: a = k[1]; b = k[2]; c = k[3]; break;
   case 1: a = 0.648; b = 1.; c = 1.694; break;
   case 2: a = 0.4760508; b = 1.; c = 1.2442567; break;
@@ -937,7 +926,7 @@ double wgt_ggw(double x, double *k)
   ax = fabs(x);
   if (ax < c)
     return(1);
-  else 
+  else
     return(exp(-1*R_pow(ax-c,b)/2/a));
 }
 
@@ -947,10 +936,10 @@ double psip_lin (double x, double *c)
     return(0.1e1);
   else if (c[1] < fabs(x) && fabs(x) <= c[0] + c[1])
     return((0.1e1 - c[2]) * (fabs(x) - c[1]) / c[0] - (fabs(x) - c[0] - c[1]) / c[0]);
-  else if (c[0] + c[1] < fabs(x) && fabs(x) < c[1] + c[0] - 
+  else if (c[0] + c[1] < fabs(x) && fabs(x) < c[1] + c[0] -
 	   (-0.2e1 * c[0] - 0.2e1 * c[1] + c[0] * c[2]) / (c[2] - 0.1e1))
-    return(-pow(c[2] - 0.1e1, 0.2e1) * 
-	   (fabs(x) - c[1] - c[0] + (-0.2e1 * c[0] - 0.2e1 * c[1] + c[0] * c[2]) / 
+    return(-pow(c[2] - 0.1e1, 0.2e1) *
+	   (fabs(x) - c[1] - c[0] + (-0.2e1 * c[0] - 0.2e1 * c[1] + c[0] * c[2]) /
 	    (c[2] - 0.1e1)) / (-0.2e1 * c[0] - 0.2e1 * c[1] + c[0] * c[2]));
   else
     return(0.0e0);
@@ -961,15 +950,15 @@ double psi_lin (double x, double *c)
   if (fabs(x) <= c[1])
     return(x);
   else if (fabs(x) <= c[0] + c[1])
-    return((double) (x>0 ? 1 : (x<0 ? -1 : 0)) * 
+    return((double) (x>0 ? 1 : (x<0 ? -1 : 0)) *
 	   (fabs(x) - c[2] * pow(fabs(x) - c[1], 0.2e1) / c[0] / 0.2e1));
-  else if (c[0] + c[1] < fabs(x) && fabs(x) < c[1] + c[0] - 
+  else if (c[0] + c[1] < fabs(x) && fabs(x) < c[1] + c[0] -
 	   (-0.2e1 * c[1] + c[0] * c[2] - 0.2e1 * c[0]) / (c[2] - 0.1e1))
-    return((double) (x>0 ? 1 : -1) * 
-	   (c[1] + c[0] - c[0] * c[2] / 0.2e1 - pow(c[2] - 0.1e1, 0.2e1) / 
-	    (-0.2e1 * c[1] + c[0] * c[2] - 0.2e1 * c[0]) * 
-	    (pow(fabs(x) - c[0] - c[1], 0.2e1) / 0.2e1 + 
-	     (-0.2e1 * c[1] + c[0] * c[2] - 0.2e1 * c[0]) / (c[2] - 0.1e1) * 
+    return((double) (x>0 ? 1 : -1) *
+	   (c[1] + c[0] - c[0] * c[2] / 0.2e1 - pow(c[2] - 0.1e1, 0.2e1) /
+	    (-0.2e1 * c[1] + c[0] * c[2] - 0.2e1 * c[0]) *
+	    (pow(fabs(x) - c[0] - c[1], 0.2e1) / 0.2e1 +
+	     (-0.2e1 * c[1] + c[0] * c[2] - 0.2e1 * c[0]) / (c[2] - 0.1e1) *
 	     (fabs(x) - c[0] - c[1]))));
   else
     return(0.0e0);
@@ -980,28 +969,28 @@ double rho_lin (double x, double *c)
   double s0;
   double s1;
   if (fabs(x) <= c[1])
-    return((0.3e1 * c[2] - 0.3e1) / 
-	   (c[2] * c[1] * (0.3e1 * c[1] + 0.2e1 * c[0]) + 
+    return((0.3e1 * c[2] - 0.3e1) /
+	   (c[2] * c[1] * (0.3e1 * c[1] + 0.2e1 * c[0]) +
 	    pow(c[0] + c[1], 0.2e1)) * x * x);
   else if (c[1] < fabs(x) && fabs(x) <= c[0] + c[1])
   {
     s0 = fabs(x) - c[1];
-    return((0.6e1 * c[2] - 0.6e1) / 
-	   (c[2] * c[1] * (0.3e1 * c[1] + 0.2e1 * c[0]) + 
-	    pow(c[0] + c[1], 0.2e1)) * 
+    return((0.6e1 * c[2] - 0.6e1) /
+	   (c[2] * c[1] * (0.3e1 * c[1] + 0.2e1 * c[0]) +
+	    pow(c[0] + c[1], 0.2e1)) *
 	   (x * x / 0.2e1 - c[2] / c[0] * pow(s0, 0.3e1) / 0.6e1));
   }
-  else if (c[0] + c[1] < fabs(x) && fabs(x) < c[1] + c[0] - 
+  else if (c[0] + c[1] < fabs(x) && fabs(x) < c[1] + c[0] -
 	   (-0.2e1 * c[0] - 0.2e1 * c[1] + c[0] * c[2]) / (c[2] - 0.1e1))
   {
     s1 = fabs(x) - c[0] - c[1];
-    return((0.6e1 * c[2] - 0.6e1) / 
-	   (c[2] * c[1] * (0.3e1 * c[1] + 0.2e1 * c[0]) + 
-	    pow(c[0] + c[1], 0.2e1)) * 
-	   (pow(c[0] + c[1], 0.2e1) / 0.2e1 - c[2] * c[0] * c[0] / 0.6e1 + 
-	    (c[1] + c[0] - c[0] * c[2] / 0.2e1) * (fabs(x) - c[0] - c[1]) + 
-	    (0.1e1 / 0.2e1 - c[2] / 0.2e1) * s1 * s1 + (-c[2] / 0.6e1 + 0.1e1 / 0.6e1) / 
-	    (-0.2e1 * c[0] - 0.2e1 * c[1] + c[0] * c[2]) * 
+    return((0.6e1 * c[2] - 0.6e1) /
+	   (c[2] * c[1] * (0.3e1 * c[1] + 0.2e1 * c[0]) +
+	    pow(c[0] + c[1], 0.2e1)) *
+	   (pow(c[0] + c[1], 0.2e1) / 0.2e1 - c[2] * c[0] * c[0] / 0.6e1 +
+	    (c[1] + c[0] - c[0] * c[2] / 0.2e1) * (fabs(x) - c[0] - c[1]) +
+	    (0.1e1 / 0.2e1 - c[2] / 0.2e1) * s1 * s1 + (-c[2] / 0.6e1 + 0.1e1 / 0.6e1) /
+	    (-0.2e1 * c[0] - 0.2e1 * c[1] + c[0] * c[2]) *
 	    (c[2] - 0.1e1) * pow(s1, 0.3e1)));
   }
   else
@@ -1031,7 +1020,7 @@ double wgt_lin (double x, double *k)
     s3 = 0.1e1 / s1 / k[0];
     return(0.1e1 - s2 * s3 / 0.2e1);
   }
-  else if (fabs(x) < k[1] + k[0] - 
+  else if (fabs(x) < k[1] + k[0] -
 	   (-0.2e1 * k[0] - 0.2e1 * k[1] + k[0] * k[2]) / (k[2] - 0.1e1))
   {
     s4 = fabs(x);
@@ -1041,8 +1030,8 @@ double wgt_lin (double x, double *k)
     s8 = k[2] - 0.1e1;
     s9 = 0.1e1 / s8 * (s4 - k[0] - k[1]);
     s10 = s5 * s5 / s6;
-    return(0.1e1 / s4 * (k[1] + k[0] - k[0] * k[2] / 0.2e1 - s10 * 
-			 (s7 * s7 / 0.2e1 + s9 * 
+    return(0.1e1 / s4 * (k[1] + k[0] - k[0] * k[2] / 0.2e1 - s10 *
+			 (s7 * s7 / 0.2e1 + s9 *
 			  (-0.2e1 * k[0] - 0.2e1 * k[1] + k[0] * k[2]))));
   }
   else
@@ -1583,7 +1572,7 @@ void fast_s_large_n(double *X, double *y,
 	    Rprintf("sample[%3d]: before refine_(*, conv=FALSE):\n", i);
 	    Rprintf("beta_cand : "); disp_vec(best_betas[i],p);
 	    Rprintf("with scale %.15g\n", best_scales[i]);
-	    
+
 	}
 	refine_fast_s(xsamp, ysamp, weights, k, p, res,
 		      tmp, tmp2, tmp_mat, tmp_mat2, best_betas[i],
@@ -2084,7 +2073,7 @@ void get_weights_rhop(double *r, double s, int n, double *rrhoc, int ipsi,
 {
     int i;
     /* double a; */
-    for(i=0; i < n; i++) 
+    for(i=0; i < n; i++)
       w[i] = wgt(r[i] / s, rrhoc, ipsi);
       /* { */
       /* 	a = r[i] / s / rrhoc; */
@@ -2310,7 +2299,7 @@ void disp_mat(double **a, int n, int m)
     Rprintf("\n");
 }
 
-void R_find_D_scale(double *rr, double *kkappa, double *ttau, int *llength, 
+void R_find_D_scale(double *rr, double *kkappa, double *ttau, int *llength,
 		    double *sscale, double *cc, int *iipsi, int *ttype, double *rel_tol,
 		    int *max_k, int *converged)
 {
