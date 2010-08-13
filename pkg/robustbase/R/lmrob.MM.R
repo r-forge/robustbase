@@ -40,7 +40,7 @@ lmrob.control <- function  (setting, seed = NULL, nResample = 500,
                              'optimal' = 1.060158,
                              'hampel' = c(1.5, 3.5, 8) * 0.9016085) ## a, b, c
 
-    ## is ggw tuning.psi is non-standard, calculate coefficients
+    ## in ggw, lqq:  tuning.psi, *.chi  are non-standard, calculate coefficients:
     if (psi %in% c('ggw', 'lqq')) {
         tuning.psi <- lmrob.const(tuning.psi, psi)
         tuning.chi <- lmrob.const(tuning.chi, psi)
@@ -100,12 +100,13 @@ lmrob.fit <- function(x, y, control) {
         init$df <- init$degree.freedom <- NA
     } else {
         init$control <- control
-        init$cov <- if (is.null(control$cov) || control$cov == "none") NA
-        else {
-            lf.cov <- if (!is.function(control$cov))
-                get(control$cov, mode='function') else control$cov
-            lf.cov(init, x)
-        }
+        init$cov <-
+            if (is.null(control$cov) || control$cov == "none") NA
+            else {
+                lf.cov <- if (!is.function(control$cov))
+                    get(control$cov, mode='function') else control$cov
+                lf.cov(init, x)
+            }
         df <- NROW(y) - init$rank ## sum(init$weights)-init$rank
         init$degree.freedom <- init$df.residual <- df
     }
@@ -622,8 +623,8 @@ lmrob.tau <- function(obj,x=obj$x, control = obj$control,
     nu <- length(hu)
     
     ## Initialize tau vector
-    tau <- vector(length=nu) 
-    
+    tau <- numeric(length=nu)
+
     tc <- ta/tb^2
     ## --- Gauss-Hermite integration
     gh <- ghq(control$numpoints)
@@ -698,41 +699,43 @@ lmrob.psi2ipsi <- function(psi)
            'hampel' = 4L,
            'ggw' = 5L,
            'lqq' = 6L,
-           stop('lmrob.psi2ipsiL unknown psi function'))
+           stop("unknown psi function ", psi))
 }
 
 lmrob.conv.cc <- function(psi, cc)
 {
+    if (!is.character(psi) || length(psi) != 1)
+        stop("argument 'psi' must be a string (denoting a psi function)")
+    if(!is.numeric(cc))
+        stop("tuning constant 'cc' is not numeric")
+
     switch(casefold(psi),
            'ggw' = {
-               ## 4 parameters:
-               ## minimal slope, b, efficiency, breakdown point
+               ## Input: 4 parameters, (minimal slope, b, efficiency, breakdown point)
+               ## Output 'k': either k in {1:6} or  k = c(0, k[2:5])
                if (isTRUE(all.equal(cc, c(-.5, 1, 0.95, NA)))) return(1)
                else if (isTRUE(all.equal(cc, c(-.5, 1, 0.85, NA)))) return(2)
                else if (isTRUE(all.equal(cc, c(-.5, 1.0, NA, 0.5)))) return(3)
                else if (isTRUE(all.equal(cc, c(-.5, 1.5, 0.95, NA)))) return(4)
                else if (isTRUE(all.equal(cc, c(-.5, 1.5, 0.85, NA)))) return(5)
                else if (isTRUE(all.equal(cc, c(-.5, 1.5, NA, 0.5)))) return(6)
-               else if (cc[1] == 0 && length(cc) == 5) return(cc)
-               else if (!is.null(attr(cc, 'constants')) &&
-                        length(attr(cc, 'constants') == 5))
-                   return(attr(cc, 'constants'))
+               else if (length(cc) == 5 && cc[1] == 0 ||
+                        (length(cc <- attr(cc, 'constants')) == 5 && cc[1] == 0))
+                   return(cc)
                else stop('Coefficients for ',psi,' function incorrectly specified.\n',
-                         'Use c(minimal slope, b, efficiency, breakdown point)')
+                         'Use c({0, } minimal slope, b, efficiency, breakdown point)')
            },
            'lqq' = {
-               ## 4 parameters:
-               ## minimal slope, b, efficiency, breakdown point
+               ## Input: 4 parameters, (minimal slope, b, efficiency, breakdown point)
+               ## Output: k[1:3]
                if (isTRUE(all.equal(cc, c(-.5, 1.5, 0.95, NA))))
                    return(c(1.4734061, 0.9822707, 1.5))
                else if (isTRUE(all.equal(cc, c(-.5, 1.5, NA, 0.5))))
                    return(c(0.4015457, 0.2676971, 1.5))
-               else if (length(cc) == 3) return(cc)
-               else if (!is.null(attr(cc, 'constants')) &&
-                        length(attr(cc, 'constants') == 3))
-                   return(attr(cc, 'constants'))
+               else if (length(cc) == 3 || length(cc <- attr(cc, 'constants')) == 3)
+                   return(cc)
                else stop('Coefficients for ',psi,' function incorrectly specified.\n',
-                         'Use c(minimal slope, b, efficiency, breakdown point)')
+                         'Use c(minimal slope, b, efficiency, breakdown point) or k[1:3]')
            },
            'hampel' = {
                ## just check length of coefficients
@@ -741,7 +744,7 @@ lmrob.conv.cc <- function(psi, cc)
            }, {
                ## otherwise: should have length 1
                if (length(cc) != 1)
-                   stop('Coef. for psi function not of lenght 1')
+                   stop('Coef. for psi function ', psi,' not of length 1')
            })
     
     return(cc)
@@ -817,96 +820,74 @@ lmrob.lqq.findc <- function(cc) {
             lmrob.bp('lqq', c(cc[2]*c, c, 1-cc[1])) - cc[4]
     }
     c <- try(uniroot(t.fun, c(0.1, 4))$root, silent = TRUE)
-    
-    if (class(c) == 'try-error') {
+
+    if (inherits(c, 'try-error'))
         stop('lmrob.lqq.findc: unable to find constants for psi function')
-    }
     else return(c(cc[2]*c, c, 1-cc[1]))
 }
     
 lmrob.const <- function(cc, psi)
 {
     switch(psi,
-           ggw = { ## only calculate for non-standard coefficients
-               if (!(isTRUE(all.equal(cc, c(-.5, 1, 0.95, NA))) ||
-                     isTRUE(all.equal(cc, c(-.5, 1, 0.85, NA))) ||
-                     isTRUE(all.equal(cc, c(-.5, 1.0, NA, 0.5))) ||
+           "ggw" = { ## only calculate for non-standard coefficients
+               if (!(isTRUE(all.equal(cc, c(-.5, 1,   0.95, NA))) ||
+                     isTRUE(all.equal(cc, c(-.5, 1,   0.85, NA))) ||
+                     isTRUE(all.equal(cc, c(-.5, 1,   NA,  0.5))) ||
                      isTRUE(all.equal(cc, c(-.5, 1.5, 0.95, NA))) ||
                      isTRUE(all.equal(cc, c(-.5, 1.5, 0.85, NA))) ||
                      isTRUE(all.equal(cc, c(-.5, 1.5, NA, 0.5))))) {
                    attr(cc, 'constants') <- lmrob.ggw.findc(cc[1],cc[2],cc[3],cc[4])
                }
            },
-           lqq = { ## only calculate for non-standard coefficients
+           "lqq" = { ## only calculate for non-standard coefficients
                if (!(isTRUE(all.equal(cc, c(-.5, 1.5, 0.95, NA))) ||
                      isTRUE(all.equal(cc, c(-.5, 1.5, NA, 0.5))))) {
                    attr(cc, 'constants') <- lmrob.lqq.findc(cc)
                }
            },
-           stop('lmrob.const: method for psi functions not implemented'))
-    
+           stop("method for psi function ",psi, " not implemented"))
+
     return(cc)
 }
 
 lmrob.psifun <- function(x, cc, psi, deriv=0)
 {
-    if (missing(x) || length(x) == 0)
-        stop('x missing')  
-    if (missing(cc))
-        stop('tuning constant not correct')
-    if (missing(psi) || length(psi) != 1)
-        stop('parameter psi missing')
-
     cc <- lmrob.conv.cc(psi, cc)
 
     ## catch NAs
-    idx <- !is.na(x)
+    idx <- !is.na(x <- as.double(x))
 
-    if (any(idx)) 
-        x[idx] <- .C(R_psifun, x = as.double(x[idx]), cc = as.double(cc),
-                     ipsi = as.integer(lmrob.psi2ipsi(psi)),
+    if (any(idx))
+        x[idx] <- .C(R_psifun, x = x[idx], cc = as.double(cc),
+                     ipsi = as.integer(lmrob.psi2ipsi(psi)), NAOK= TRUE, # for +- Inf
                      deriv = as.integer(deriv), length = as.integer(length(x[idx])))$x
     x
 }
 
 lmrob.chifun <- function(x, cc, psi, deriv=0)
 {
-    if (missing(x) || length(x) == 0)
-        stop('x missing')  
-    if (missing(cc))
-        stop('tuning constant not correct')
-    if (missing(psi) || length(psi) != 1)
-        stop('parameter psi missing')
-
     cc <- lmrob.conv.cc(psi, cc)
     
     ## catch NAs
-    idx <- !is.na(x)
-    
-    if (any(idx)) 
-        x[idx] <- .C(R_chifun, x = as.double(x[idx]), cc = as.double(cc),
-                     ipsi = as.integer(lmrob.psi2ipsi(psi)),
+    idx <- !is.na(x <- as.double(x))
+
+    if (any(idx))
+        x[idx] <- .C(R_chifun, x = x[idx], cc = as.double(cc),
+                     ipsi = as.integer(lmrob.psi2ipsi(psi)), NAOK= TRUE, # for +- Inf
                      deriv = as.integer(deriv), length = as.integer(length(x[idx])))$x
     x
 }
 
 lmrob.wgtfun <- function(x, cc, psi)
 {
-    if (missing(x) || length(x) == 0)
-        stop('x missing')  
-    if (missing(cc))
-        stop('tuning constant not correct')
-    if (missing(psi) || length(psi) != 1)
-        stop('parameter psi missing')
-    
     cc <- lmrob.conv.cc(psi, cc)
 
     ## catch NAs
-    idx <- !is.na(x)
+    idx <- !is.na(x <- as.double(x))
 
-    if (any(idx)) 
-        x[idx] <- .C(R_wgtfun, x = as.double(x[idx]), cc = as.double(cc),
-                     ipsi = as.integer(lmrob.psi2ipsi(psi)),
+    if (any(idx))
+        x[idx] <- .C(R_wgtfun, x = x[idx], cc = as.double(cc),
+                     ipsi = as.integer(lmrob.psi2ipsi(psi)), NAOK= TRUE, # for +- Inf
                      length = as.integer(length(x[idx])))$x
     x
 }
@@ -918,23 +899,26 @@ lmrob.E <- function(expr, control, dfun = dnorm, use.integrate = FALSE, obj)
 {
     expr <- substitute(expr)
 
+## FIXME ?
+##  if (missing(control) && !missing(obj)) {
     if (!missing(obj)) {
         control <- obj$control
     }
 
-    if (!missing(control)) {
+    lenvir <-
+      if (!missing(control)) {
         psi <- control$psi
         if (is.null(psi)) stop('parameter psi is not defined')
-        c.psi <- if (control$method %in% c('S', 'SD'))
-            control$tuning.chi else control$tuning.psi
-        if (!is.numeric(c.psi)) stop('parameter tuning.psi is not numeric')
-        
-        lpsi <- function(r, deriv = 0) lmrob.psifun(r, c.psi, psi, deriv)
-        lchi <- function(r, deriv = 0) lmrob.chifun(r, c.psi, psi, deriv) ## change?
-        lwgt <- function(r) lmrob.wgtfun(r, c.psi, psi) ## change?
-        lenvir <- list(psi = lpsi, chi = lchi, wgt = lwgt)
-    } else lenvir <- list()
-        
+	c.psi <- control[[if (control$method %in% c('S', 'SD'))
+			  "tuning.chi" else "tuning.psi"]]
+        if (!is.numeric(c.psi)) stop('tuning parameter (chi/psi) is not numeric')
+
+        list(psi = function(r, deriv = 0) lmrob.psifun(r, c.psi, psi, deriv),
+             chi = function(r, deriv = 0) lmrob.chifun(r, c.psi, psi, deriv), ## change?
+             wgt = function(r) lmrob.wgtfun(r, c.psi, psi)) ## change?
+
+      } else list()
+
     if (use.integrate) {
         pf <- parent.frame()
         integrate(function(r)
@@ -944,10 +928,9 @@ lmrob.E <- function(expr, control, dfun = dnorm, use.integrate = FALSE, obj)
         ## initialize Gauss-Hermite Integration
         gh <- ghq(if (is.null(control$numpoints)) 13 else control$numpoints)
         ghz <- gh$nodes
-        ghw <- gh$weights
         ## integrate
-        sum(eval(expr, envir = c(list(r = ghz), lenvir),
-                 enclos = parent.frame())*dfun(ghz)*ghw)
+	sum(gh$weights * eval(expr, envir = c(list(r = ghz), lenvir),
+			      enclos = parent.frame()) * dfun(ghz))
     }
 }
 
@@ -959,21 +942,22 @@ ghq <- function(n = 1, modify = TRUE) {
     n <- as.integer(n)
     if(n<0) stop("need non-negative number of nodes")
     if(n==0) return(list(nodes=numeric(0), weights=numeric(0)))
-    i <- 1:n
-    i1 <- i[-n] # 1:(n-1)
-    
+    ## i <- seq_len(n) # 1 .. n
+    i1 <- seq_len(n-1L)
+
     muzero <- sqrt(pi)
-    a <- rep(0,n)
+    ## a <- numeric(n)
     b <- sqrt(i1/2)
 
-    A <- rep(0,n*n)
-    A[(n+1)*(i-1)+1] <- a
+    A <- numeric(n*n)
+    ## A[(n+1)*(i-1)+1] <- a # already 0
     A[(n+1)*(i1-1)+2] <- b
     A[(n+1)*i1] <- b
     dim(A) <- c(n,n)
     vd <- eigen(A,symmetric=TRUE)
-    w <- rev(as.vector( vd$vectors[1,] ))
+    n..1 <- n:1L
+    w <- vd$vectors[1, n..1]
     w <- muzero * w^2
-    x <- rev( vd$values )
-    list(nodes=x,weights= if (modify) w*exp(x^2) else w)
+    x <- vd$values[n..1] # = rev(..)
+    list(nodes=x, weights= if (modify) w*exp(x^2) else w)
 }

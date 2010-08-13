@@ -1,21 +1,28 @@
+2010-08-13  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.6-3
+
+	* R/lmrob.MM.R (lmrob.psifun, ..., ghq): cosmetic changes; cleaner
+	* src/lmrob.c (rho, psi, psip, ...): cleaner; partly faster; also
+	ok for x = +-Inf....
+
+	* tests/lmrob-psifns.R: test psi(), rho(), etc -- also nice plots:
+	tests/rob-psifns.pdf after .. check.
+
 2010-08-13  Manuel Koller  <koller@stat.math.ethz.ch>
 
-	* R/lmrob.MM.R: changed the naming of lgw to the more accurate lqq
+	* R/lmrob.MM.R (lmrob.S): Test for zero observations;
+	Changed the naming of lgw to the more accurate lqq
 	"linear, quadratic, quadratic" (by construction of psi prime).
 
 	* tests/lmrob-psifuns.R: changed the naming of lgw to the more
 	accurate lqq
-
-	* man/lmrob.control.Rd: changed the naming of lgw to the more
-	accurate lqq
+	* man/lmrob.control.Rd: ditto
 
 	* man/summary.lmrob.Rd: updated documentation to account for "cov"
 	argument of vcov.
 
-	* R/lmrob.MM.R (lmrob.S): Test for zero observations.
-
-	* R/lmrob.R (lmrob): warning and check for method argument
-	improved.
+	* R/lmrob.R (lmrob): warning and check for method argument improved.
 
 2010-08-05  Manuel Koller  <koller@stat.math.ethz.ch>
 
@@ -46,6 +53,7 @@
 
 	* R/lmrob.R (vcov.lmrob): added possibility to calculate covariance
 	matrix with another estimation method.
+
 
 2010-07-12  Manuel Koller  <koller@stat.math.ethz.ch>
 
