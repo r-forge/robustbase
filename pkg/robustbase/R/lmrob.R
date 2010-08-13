@@ -38,10 +38,11 @@ lmrob <-
         stop(gettextf("number of offsets is %d, should equal %d (number of observations)",
                       length(offset), NROW(y)), domain = NA)
 
-    if (!missing(control) && !missing(method) && method != control$method) 
+    if (!missing(control) && !missing(method) && method != control$method) {
       warning("Methods argument set by method is different from method in control\n",
               "Using method = ", method)
-    control$method <- method
+      control$method <- method
+    }
     
     if (is.empty.model(mt)) {  
         x <- NULL

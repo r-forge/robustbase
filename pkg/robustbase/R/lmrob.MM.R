@@ -6,7 +6,7 @@ lmrob.control <- function  (setting, seed = NULL, nResample = 500,
                             trace.lev = 0, compute.rd = FALSE,
                             method = 'MM',
                             psi = c('bisquare', 'ggw', 'welsh', 'optimal', 'hampel',
-                              'lgw'),
+                              'lqq'),
                             numpoints = 10, cov = '.vcov.avar1', ...) 
 {
     if (!missing(setting)) {
@@ -28,7 +28,7 @@ lmrob.control <- function  (setting, seed = NULL, nResample = 500,
                              'bisquare' = 1.54764,
                              'welsh' = 0.5773502,
                              'ggw' = c(-0.5, 1.5, NA, .5), ## min slope, b, eff, bp
-                             'lgw' = c(-0.5, 1.5, NA, .5), ## min slope, b, eff, bp
+                             'lqq' = c(-0.5, 1.5, NA, .5), ## min slope, b, eff, bp
                              'optimal' = 0.4047,
                              'hampel' = c(1.5, 3.5, 8) * 0.2119163) ## a, b, c
     if (missing(tuning.psi) || is.null(tuning.psi))
@@ -36,12 +36,12 @@ lmrob.control <- function  (setting, seed = NULL, nResample = 500,
                              'bisquare' = 4.685061,
                              'welsh' = 2.11,
                              'ggw' = c(-0.5, 1.5, .95, NA), ## min slope, b, eff, bp
-                             'lgw' = c(-0.5, 1.5, .95, NA), ## min slope, b, eff, bp
+                             'lqq' = c(-0.5, 1.5, .95, NA), ## min slope, b, eff, bp
                              'optimal' = 1.060158,
                              'hampel' = c(1.5, 3.5, 8) * 0.9016085) ## a, b, c
 
     ## is ggw tuning.psi is non-standard, calculate coefficients
-    if (psi %in% c('ggw', 'lgw')) {
+    if (psi %in% c('ggw', 'lqq')) {
         tuning.psi <- lmrob.const(tuning.psi, psi)
         tuning.chi <- lmrob.const(tuning.chi, psi)
     }
@@ -237,7 +237,7 @@ lmrob.fit <- function(x, y, control) {
             } else if (isTRUE(all.equal(c.psi, lmrob.control(psi = psi)$tuning.psi)))
                 switch(psi,
                        bisquare = 0.5742327, welsh = 0.5445068, optimal = 0.8598825,
-                       hampel = 0.6775217, lgw = 0.6883393,
+                       hampel = 0.6775217, lqq = 0.6883393,
                        stop(':.vcov.w: unsupported psi function'))
             else lmrob.E(psi(r,1), obj=obj)^2
         }
@@ -432,7 +432,7 @@ lmrob.S <- function (x, y, control, trace.lev = 0)
     c.chi <- lmrob.conv.cc(control$psi, control$tuning.chi)
     best.r <- as.integer(control$best.r.s)
     stopifnot(length(c.chi) > 0, c.chi >= 0, length(bb) > 0, 
-              length(best.r) > 0, best.r >= 1, length(y) == n)
+              length(best.r) > 0, best.r >= 1, length(y) == n, n > 0)
     
     b <- .C(R_lmrob_S,
             x = as.double(x),
@@ -580,7 +580,7 @@ lmrob.tau <- function(obj,x=obj$x, control = obj$control,
                    tfact <- 0.94741036
                    tcorr <- -0.08424648
                },
-               lgw = if (isTRUE(all.equal(c.psi, c(-.5, 1.5, 0.95, NA)))) {
+               lqq = if (isTRUE(all.equal(c.psi, c(-.5, 1.5, 0.95, NA)))) {
                    tfact <- 0.94736359
                    tcorr <- -0.08594805
                },
@@ -697,7 +697,7 @@ lmrob.psi2ipsi <- function(psi)
            'optimal' = 3L,
            'hampel' = 4L,
            'ggw' = 5L,
-           'lgw' = 6L,
+           'lqq' = 6L,
            stop('lmrob.psi2ipsiL unknown psi function'))
 }
 
@@ -720,7 +720,7 @@ lmrob.conv.cc <- function(psi, cc)
                else stop('Coefficients for ',psi,' function incorrectly specified.\n',
                          'Use c(minimal slope, b, efficiency, breakdown point)')
            },
-           'lgw' = {
+           'lqq' = {
                ## 4 parameters:
                ## minimal slope, b, efficiency, breakdown point
                if (isTRUE(all.equal(cc, c(-.5, 1.5, 0.95, NA))))
@@ -801,25 +801,25 @@ lmrob.efficiency <-  function(psi, cc) {
 lmrob.bp <- function(psi, cc) 
   integrate(function(x) lmrob.chifun(x, cc, psi)*dnorm(x), -Inf, Inf)$value
 
-lmrob.lgw.findc <- function(cc) {
+lmrob.lqq.findc <- function(cc) {
     ## cc = c(min slope, b, eff, bp)
     ## constants for c function: c(b*c, c, s = 1 - min slope)
     t.fun <- if (!is.na(cc[3])) {
         if (!is.na(cc[4])) 
-            warning('tuning constants for lgw psi: both eff and bp specified, ignoring bp')
+            warning('tuning constants for lqq psi: both eff and bp specified, ignoring bp')
         ## find c by b, s and eff
         function(c)
-            lmrob.efficiency('lgw', c(cc[2]*c, c, 1-cc[1])) - cc[3]
+            lmrob.efficiency('lqq', c(cc[2]*c, c, 1-cc[1])) - cc[3]
     } else {
         if (is.na(cc[4]))
             stop('Error: neither breakdown point nor efficiency specified')
         function(c)
-            lmrob.bp('lgw', c(cc[2]*c, c, 1-cc[1])) - cc[4]
+            lmrob.bp('lqq', c(cc[2]*c, c, 1-cc[1])) - cc[4]
     }
     c <- try(uniroot(t.fun, c(0.1, 4))$root, silent = TRUE)
     
     if (class(c) == 'try-error') {
-        stop('lmrob.lgw.findc: unable to find constants for psi function')
+        stop('lmrob.lqq.findc: unable to find constants for psi function')
     }
     else return(c(cc[2]*c, c, 1-cc[1]))
 }
@@ -837,10 +837,10 @@ lmrob.const <- function(cc, psi)
                    attr(cc, 'constants') <- lmrob.ggw.findc(cc[1],cc[2],cc[3],cc[4])
                }
            },
-           lgw = { ## only calculate for non-standard coefficients
+           lqq = { ## only calculate for non-standard coefficients
                if (!(isTRUE(all.equal(cc, c(-.5, 1.5, 0.95, NA))) ||
                      isTRUE(all.equal(cc, c(-.5, 1.5, NA, 0.5))))) {
-                   attr(cc, 'constants') <- lmrob.lgw.findc(cc)
+                   attr(cc, 'constants') <- lmrob.lqq.findc(cc)
                }
            },
            stop('lmrob.const: method for psi functions not implemented'))

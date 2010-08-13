@@ -24,7 +24,7 @@
       symbolic.cor= x$symbolic.cor,
       signif.stars = getOption("show.signif.stars"), \dots)
 
-\method{vcov}{lmrob}(object, \dots)
+\method{vcov}{lmrob}(object, cov = object$control$cov, \dots)
 \method{model.matrix}{lmrob}(object, \dots)
 
 \method{predict}{lmrob}(object, newdata = NULL, scale = NULL, \dots)
@@ -44,9 +44,11 @@
   \item{signif.stars}{logical variable indicating
     whether to use stars to display different levels of
     significance in the individual t-tests.}
+  \item{cov}{covariance estimation function to use.}
   \item{newdata}{data.frame with \dQuote{new} data values at which
     prediction should be done; see \code{\link{predict}}.}
-  \item{scale}{scale (estimate) to be used; see \code{\link{predict.lm}}.}
+  \item{scale}{scale (estimate) to be used; see
+    \code{\link{predict.lm}}.}
   \item{\dots}{potentially more arguments passed to methods.}
 }
 \seealso{\code{\link{lmrob}}, \code{\link{summary.lm}},
