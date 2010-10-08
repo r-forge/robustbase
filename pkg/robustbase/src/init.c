@@ -63,6 +63,11 @@ static R_NativePrimitiveArgType R_find_D_scale_t[] = {
     /* max_k */ INTSXP, INTSXP
 };
 
+static R_NativePrimitiveArgType R_calc_fitted_t[] = {
+    REALSXP, REALSXP, REALSXP, INTSXP, INTSXP, INTSXP, 
+    INTSXP, INTSXP
+};
+
 static const R_CMethodDef CEntries[]  = {
     CDEF(Qn0),
     CDEF(Sn0),
@@ -75,6 +80,7 @@ static const R_CMethodDef CEntries[]  = {
     CDEF(R_chifun),
     CDEF(R_wgtfun),
     CDEF(R_find_D_scale),
+    CDEF(R_calc_fitted),
     {NULL, NULL, 0}
 };
 

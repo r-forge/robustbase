@@ -1,5 +1,33 @@
 2010-10-08  Manuel Koller  <koller@stat.math.ethz.ch>
 
+	* DESCRIPTION (Version): 0.6-5
+
+	* inst/doc: added directory.
+	* inst/doc/lmrob_simulation.Rnw: vignette containing simulation
+	study of Koller and Stahel (2010).
+	* inst/doc/lmrob_simulation.bib: bibtex file for vignette
+	* inst/doc/graphics.functions.R: R code used in vignette, graphics
+	helper functions.
+	* inst/doc/error.distributions.R: R code used in vignette, custom
+	distribution functions.
+	* inst/doc/simulation.functions.R: R code used in vignette,
+	functions used in simulations.
+	* inst/doc/estimating.functions.R: R code used in vignette, extra
+	estimating functions.
+	* inst/doc/asymptotic.max.bias.Rdata: Cache of calculations, to
+	speed up vignette making.
+	* inst/doc/aggr_results.Rdata: Cache of calculations, to
+	speed up vignette making.
+	* .Rbuildignore: Omitting temporary Sweave output files from the
+	build.
+
+	* src/init.c: added function to process simulation output (used in
+	vignette).
+	* src/lmrob.c (R_calc_fitted): ditto
+	* src/robustbase.h: ditto
+
+2010-10-08  Manuel Koller  <koller@stat.math.ethz.ch>
+
 	* DESCRIPTION (Version): 0.6-4
 
 	* inst/CITATION: Added my name.

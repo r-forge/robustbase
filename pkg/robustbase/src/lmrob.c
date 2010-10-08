@@ -2326,3 +2326,32 @@ void R_find_D_scale(double *rr, double *kkappa, double *ttau, int *llength,
     }
   }
 }
+
+/* specialized function calc_fitted */
+/* calculates fitted values from simulation output array. */
+/* this is used to process simulation output in the */
+/* lmrob_simulation vignette */
+void R_calc_fitted(double *XX, double *bbeta, double *RR, int *nn, int *pp, int *nnrep,
+		 int *nnproc, int *nnerr)
+{
+  unsigned long A, B, C, D, E;
+  A = (unsigned long)*nnerr; B = (unsigned long)*nnproc; C = (unsigned long)*nnrep; 
+  D = (unsigned long)*nn; E = (unsigned long)*pp;
+  // calculate fitted values over errstr, procstr and replicates
+  for(unsigned long a = 0; a < A; a++) { // errstr
+    for(unsigned long b = 0; b < B; b++) { // procstr
+      for(unsigned long c = 0; c < C; c++) { // replicates
+	// check for NAs
+	if (!ISNA(bbeta[c + /* 0*C + */  b*C*E + a*B*E*C])) {
+	  for(unsigned long d = 0; d < D; d++) { // observations
+	    RR[d + c*D + b*C*D + a*B*C*D] = 0; // initialize result
+	    for(unsigned long e = 0; e < E; e++) { // predictors
+	      RR[d + c*D + b*C*D + a*B*C*D] += bbeta[c + e*C + b*C*E + a*B*E*C] * 
+		XX[d + e*D + c*E*D + a*C*E*D];
+	    }
+	  }
+	}
+      }
+    }
+  }
+}
