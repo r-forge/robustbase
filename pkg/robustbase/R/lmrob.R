@@ -17,8 +17,13 @@ lmrob <-
     function(formula, data, subset, weights, na.action, method = 'MM',
              model = TRUE, x = !control$compute.rd, y = FALSE,
              singular.ok = TRUE, contrasts = NULL, offset = NULL,
-             control = lmrob.control(method = method, ...), ...)
+             control = NULL, ...)
 {
+    ## to avoid problems with setting argument
+    ## call lmrob.control here either with or without method arg. 
+    if (missing(control)) 
+        control <- if (missing(method))
+            lmrob.control(...) else lmrob.control(method = method, ...)
     ret.x <- x
     ret.y <- y
     cl <- match.call()
@@ -37,11 +42,10 @@ lmrob <-
     if(!is.null(offset) && length(offset) != NROW(y))
         stop(gettextf("number of offsets is %d, should equal %d (number of observations)",
                       length(offset), NROW(y)), domain = NA)
-
     if (!missing(control) && !missing(method) && method != control$method) {
-      warning("Methods argument set by method is different from method in control\n",
-              "Using method = ", method)
-      control$method <- method
+        warning("Methods argument set by method is different from method in control\n",
+                "Using method = ", method)
+        control$method <- method
     }
     
     if (is.empty.model(mt)) {  
@@ -77,8 +81,7 @@ lmrob <-
     if (ret.x)
         z$x <- x
     if (ret.y)
-        z$y <- y
-    z$control <- control   
+        z$y <- y 
     z
 }
 

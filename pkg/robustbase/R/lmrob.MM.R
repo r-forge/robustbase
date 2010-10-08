@@ -5,21 +5,24 @@ lmrob.control <- function  (setting, seed = NULL, nResample = 500,
                             k.max = 200, refine.tol = 1e-07, rel.tol = 1e-07,
                             trace.lev = 0, compute.rd = FALSE,
                             method = 'MM',
-                            psi = c('bisquare', 'ggw', 'welsh', 'optimal', 'hampel',
-                              'lqq'),
+                            psi = c('bisquare', 'lqq', 'welsh', 'optimal', 'hampel',
+                              'ggw'),
                             numpoints = 10, cov = '.vcov.avar1', ...) 
 {
     if (!missing(setting)) {
         if (setting == 'KS2010') {
-            if (missing(psi)) psi <- 'ggw'
+            ## FIXME? Warn if settings are overridden?
+            if (missing(method)) method <- 'SMDM'
+            if (missing(psi)) psi <- 'lqq'
             if (missing(max.it)) max.it <- 500
             if (missing(k.max)) k.max <- 2000
             if (missing(cov)) cov <- '.vcov.w'
         } else {
-            warning("Unknown setting. Using defaults.")
+            warning("Unknown setting '", setting, "'. Using defaults.")
+            psi <- match.arg(psi)
         }
     } else {
-        psi <- if (missing(psi) && grepl('D', method)) 'ggw' else match.arg(psi)
+        psi <- if (missing(psi) && grepl('D', method)) 'lqq' else match.arg(psi)
         if (missing(cov) && !method %in% c('SM', 'MM')) cov <- '.vcov.w'
     }  
     
@@ -67,6 +70,11 @@ lmrob.fit <- function(x, y, control) {
     ## old notation: MM -> SM
     if (control$method == "MM") control$method <- "SM"    
     ## --- initial S estimator
+    if (substr(control$method,1,1) != 'S') {
+      warning("Initial estimator '", substr(control$method,1,1), "' not supported",
+              " using S-estimator instead")
+      substr(control$method,1,1) <- 'S'
+    }
     init <- lmrob.S(x,y,control=control)
     stopifnot(is.numeric(init$coef), length(init$coef) == ncol(x),
 	      is.numeric(init$scale), init$scale >= 0)

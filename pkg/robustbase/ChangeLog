@@ -1,3 +1,21 @@
+2010-10-08  Manuel Koller  <koller@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.6-4
+
+	* inst/CITATION: Added my name.
+
+	* man/lmrob.control.Rd: Added more information to
+	"setting"-Argument.
+	* man/lmrob.Rd: ditto. Added example for "setting" argument.
+
+	* R/lmrob.R (lmrob): Moved call of lmrob.control to function code.
+
+	* R/lmrob.MM.R (lmrob.control): Changed setting KS2010: uses lqq
+	instead of ggw. Fixed bug when using unknown setting.
+
+	* R/lmrob.MM.R (lmrob.fit): Check for initial estimator. Issues
+	warning if neq S.
+
 2010-08-13  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.6-3
@@ -11,8 +29,7 @@
 
 2010-08-13  Manuel Koller  <koller@stat.math.ethz.ch>
 
-	* R/lmrob.MM.R (lmrob.S): Test for zero observations;
-	Changed the naming of lgw to the more accurate lqq
+	* R/lmrob.MM.R: changed the naming of lgw to the more accurate lqq
 	"linear, quadratic, quadratic" (by construction of psi prime).
 
 	* tests/lmrob-psifuns.R: changed the naming of lgw to the more

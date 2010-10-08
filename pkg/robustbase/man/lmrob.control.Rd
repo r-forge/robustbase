@@ -15,13 +15,13 @@ lmrob.control(setting, seed = NULL, nResample = 500,
               k.fast.s = 1, best.r.s = 2, k.max = 200,
               refine.tol = 1e-7, rel.tol = 1e-7, trace.lev = 0,
               compute.rd = FALSE, method = 'MM',
-              psi = c('bisquare', 'ggw', 'welsh', 'optimal', 'hampel',
-              'lqq'), numpoints = 10, cov = '.vcov.avar1', ...)
+              psi = c('bisquare', 'lqq', 'welsh', 'optimal', 'hampel',
+              'ggw'), numpoints = 10, cov = '.vcov.avar1', ...)
 }
 \arguments{
   \item{setting}{a string specifying alternative default values. Leave
     empty for the defaults or use \code{KS2010} for the defaults
-    suggested by Koller and Stahel (2010).}
+    suggested by Koller and Stahel (2010). See \emph{Details}.}
   \item{seed}{an integer vector, the seed to be used for random
     re-sampling used in obtaining candidates for the initial
     S-estimator; see \code{\link{.Random.seed}}.  The current value of
@@ -77,14 +77,19 @@ lmrob.control(setting, seed = NULL, nResample = 500,
     \code{\link{lmrob}} for a description of the possible values.}
   \item{psi}{string specifying the type \eqn{\psi}-function
     used. See \emph{Details} of \code{\link{lmrob}}. Defaults to
-    \code{bisquare} for S and MM-estimates, otherwise \code{ggw}.}
+    \code{bisquare} for S and MM-estimates, otherwise \code{lqq}.}
   \item{numpoints}{Number of points used in Gauss quadrature.}
   \item{cov}{Function or string with function name to be used to
     calculate covariance matrix estimate. See \emph{Details} of
     \code{\link{lmrob}}.}
   \item{...}{Further arguments are added to the control list.}
 }
-\details{By default, \code{tuning.chi} and \code{tuning.psi} are set to
+\details{The option \code{setting="KS2010"} alters the default
+  arguments. They are changed to \code{method = 'SMDM', psi = 'lqq',
+    max.it = 500, k.max = 2000, cov = '.vcov.w'}. The defaults of all
+  the remaining arguments are not changed.
+
+  By default, \code{tuning.chi} and \code{tuning.psi} are set to
   yield an MM-estimate with break-down point \eqn{0.5} and efficiency of
   \eqn{95\%}  at the normal. They are:
   \tabular{rll}{

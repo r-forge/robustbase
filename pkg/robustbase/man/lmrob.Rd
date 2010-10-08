@@ -8,7 +8,7 @@
 lmrob(formula, data, subset, weights, na.action, method = "MM",
       model = TRUE, x = !control$compute.rd, y = FALSE,
       singular.ok = TRUE, contrasts = NULL, offset = NULL,
-      control = lmrob.control(method = method, ...), ...)
+      control = NULL, ...)
 }
 \arguments{
   \item{formula}{a symbolic description of the model to be fit.  See
@@ -66,6 +66,11 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   highly robust and highly efficient estimator (with 50\% breakdown
   point and 95\% asymptotic efficiency for normal errors). The
   computation is carried out by a call to \code{\link{lmrob.fit}()}.
+
+  The argument \code{setting} of \code{\link{lmrob.control}} is provided
+  to set alternative defaults as suggested in Koller and Stahel (2010)
+  (use \code{setting='KS2010'}). For details, see
+  \code{\link{lmrob.control}}.
     
   As initial estimator it uses an S-estimator (Rousseeuw and Yohai,
   1984) which is computed using the Fast-S algorithm of Salibian-Barrera
@@ -76,10 +81,10 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   to the standard M-regression estimate. \code{D} stands for the Design
   Adapted Scale estimate as proposed in Koller and Stahel (2010). The
   \code{method} argument takes a string that specifies the estimates to
-  be calculated as a chain. Setting \code{method=SMD} will result in an
-  intial S-estimate, followed by an M-estimate and finally a Design
-  Adapted Scale estimate. For methods involving a \code{D}-step, the
-  default psi value of psi is changed to \code{ggw}.
+  be calculated as a chain. Setting \code{method='SMDM'} will result in
+  an intial S-estimate, followed by an M-estimate, a Design Adapted
+  Scale estimate and a final M-step. For methods involving a
+  \code{D}-step, the default psi value of psi is changed to \code{lqq}.
 
   By default, standard errors are computed using the formulas of Croux,
   Dhaene and Hoorelbeke (2003) (\code{\link{lmrob.control}} option
@@ -138,6 +143,7 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
 \examples{
 data(coleman)
 summary( m1 <- lmrob(Y ~ ., data=coleman) )
+summary( m2 <- lmrob(Y ~ ., data=coleman, setting = 'KS2010') )
 
 data(starsCYG, package = "robustbase")
 ## Plot simple data and fitted lines
