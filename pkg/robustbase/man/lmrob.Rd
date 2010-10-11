@@ -79,10 +79,10 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   argument of \code{\link{lmrob.control}}. There are currently two types
   of estimates available: \code{M} and \code{D}. The first corresponds
   to the standard M-regression estimate. \code{D} stands for the Design
-  Adapted Scale estimate as proposed in Koller and Stahel (2010). The
+  Adaptive Scale estimate as proposed in Koller and Stahel (2010). The
   \code{method} argument takes a string that specifies the estimates to
   be calculated as a chain. Setting \code{method='SMDM'} will result in
-  an intial S-estimate, followed by an M-estimate, a Design Adapted
+  an intial S-estimate, followed by an M-estimate, a Design Adaptive
   Scale estimate and a final M-step. For methods involving a
   \code{D}-step, the default psi value of psi is changed to \code{lqq}.
 

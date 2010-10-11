@@ -1,3 +1,13 @@
+2010-10-11  Manuel Koller  <koller@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.6-6
+	(Depends): Depends on R 2.9.0 (use of grepl)
+
+	* man/lmrob.Rd: Design Adapted Scale estimate renamed to Design
+	Adaptive Scale estimate
+	* man/lmrob.fit.Rd: ditto
+	* man/lmrob..D..fit.Rd: ditto
+
 2010-10-08  Manuel Koller  <koller@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.6-5

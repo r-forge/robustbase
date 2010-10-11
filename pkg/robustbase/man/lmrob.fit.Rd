@@ -6,7 +6,7 @@
   Compute MM-type estimators of regression:  An S-estimator is
   used as starting value, and an M-estimator with fixed scale and
   redescending psi-function is used from there. Optionally a D-step
-  (Design Adapted Scale estimate) as well as a second M-step is
+  (Design Adaptive Scale estimate) as well as a second M-step is
   calculated. 
 }
 \usage{

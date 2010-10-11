@@ -1,7 +1,7 @@
 \name{lmrob..D..fit}
 \alias{lmrob..D..fit}
-\title{Compute Design Adapted Scale estimate}
-\description{This function calculates a Design Adapted Scale estimate
+\title{Compute Design Adaptive Scale estimate}
+\description{This function calculates a Design Adaptive Scale estimate
   for a given MM-estimate. This is supposed to be a part of a chain of
   estimates like \code{SMD} or \code{SMDM}.
 }
@@ -21,7 +21,7 @@ lmrob..D..fit(obj, x=obj$x, control = obj$control)
   be used on its own.
 }
 \value{The given \code{lmrob}-object with the following elements updated:
-  \item{scale}{The Design Adapted Scale estimate}
+  \item{scale}{The Design Adaptive Scale estimate}
   \item{converged}{ \code{TRUE} if the scale calculation converged,
     \code{FALSE} other.}
 }
@@ -36,7 +36,7 @@ data(stackloss)
 ## Compute manual SMD-estimate:
 ## 1) MM-estimate
 m1 <- lmrob(stack.loss ~ ., data = stackloss)
-## 2) Add Design Adapted Scale estimate
+## 2) Add Design Adaptive Scale estimate
 m2 <- lmrob..D..fit(m1)
 print(c(m1$scale, m2$scale))
 
