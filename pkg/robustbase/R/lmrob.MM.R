@@ -863,10 +863,10 @@ lmrob.psifun <- function(x, cc, psi, deriv=0)
     cc <- lmrob.conv.cc(psi, cc)
 
     ## catch NAs
-    idx <- !is.na(x <- as.double(x))
+    idx <- !is.na(x)
 
     if (any(idx))
-        x[idx] <- .C(R_psifun, x = x[idx], cc = as.double(cc),
+        x[idx] <- .C(R_psifun, x = as.double(x[idx]), cc = as.double(cc),
                      ipsi = as.integer(lmrob.psi2ipsi(psi)), NAOK= TRUE, # for +- Inf
                      deriv = as.integer(deriv), length = as.integer(length(x[idx])))$x
     x
@@ -877,10 +877,10 @@ lmrob.chifun <- function(x, cc, psi, deriv=0)
     cc <- lmrob.conv.cc(psi, cc)
     
     ## catch NAs
-    idx <- !is.na(x <- as.double(x))
+    idx <- !is.na(x)
 
     if (any(idx))
-        x[idx] <- .C(R_chifun, x = x[idx], cc = as.double(cc),
+        x[idx] <- .C(R_chifun, x = as.double(x[idx]), cc = as.double(cc),
                      ipsi = as.integer(lmrob.psi2ipsi(psi)), NAOK= TRUE, # for +- Inf
                      deriv = as.integer(deriv), length = as.integer(length(x[idx])))$x
     x
@@ -891,10 +891,10 @@ lmrob.wgtfun <- function(x, cc, psi)
     cc <- lmrob.conv.cc(psi, cc)
 
     ## catch NAs
-    idx <- !is.na(x <- as.double(x))
+    idx <- !is.na(x)
 
     if (any(idx))
-        x[idx] <- .C(R_wgtfun, x = x[idx], cc = as.double(cc),
+        x[idx] <- .C(R_wgtfun, x = as.double(x[idx]), cc = as.double(cc),
                      ipsi = as.integer(lmrob.psi2ipsi(psi)), NAOK= TRUE, # for +- Inf
                      length = as.integer(length(x[idx])))$x
     x

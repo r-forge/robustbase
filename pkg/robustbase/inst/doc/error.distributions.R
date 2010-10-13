@@ -2,6 +2,34 @@
 
 require(skewt)
 
+## centered skewed t distribution
+Eskt <- function(nu, gam) {
+  M <- if (is.infinite(nu)) sqrt(2/pi) else
+       gamma((nu+1)/2)/sqrt(nu*pi)/gamma(nu/2)*2*nu/(nu-1)
+  M*(gam^2-1/gam^2)/(gam + 1/gam)
+}
+
+dcskt <- function(x, df, gamma=2) {
+  ncp <- Eskt(df, gamma)
+  dskt(x + ncp, df, gamma)
+}
+
+pcskt <- function(q, df, gamma=2) {
+  ncp <- Eskt(df, gamma)
+  pskt(q + ncp, df, gamma)
+}
+
+qcskt <- function(p, df, gamma=2) {
+  ncp <- Eskt(df, gamma)
+  qskt(p, df, gamma) - ncp
+}
+
+rcskt <- function(n, df, gamma=2) {
+  ncp <- Eskt(df, gamma)
+  rskt(n, df, gamma) - ncp
+}
+
+
 ####################################################################################
 ## contaminated normal
 ####################################################################################

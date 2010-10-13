@@ -1,3 +1,20 @@
+2010-10-13  Manuel Koller  <koller@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.6-7
+
+	* R/lmrob.MM.R (lmrob.psifun, lmrob.rhofun, lmrob.wgtfun):
+	as.double caused input to loose dimension attribute, fixed.
+
+	* inst/doc/lmrob_simulation.Rnw: Updated vignette title. Enhanced
+	aggregation procedure.
+	* inst/doc/lmrob_simulation.Bib: Fixed entry KS2010, no more
+	trouble with bibtex.
+	* inst/doc/aggr_results.Rdata: updated simulation results. n = 400
+	missing for now.
+	* inst/doc/error.distributions.R: added cskt distribution: centered
+	skewed t-distribution.
+	* inst/doc/simulation.results.R: small changes in proclist generation.
+
 2010-10-11  Manuel Koller  <koller@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.6-6

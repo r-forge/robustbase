@@ -30,7 +30,6 @@
 ## set options
 options(width=60)
 
-
 ## load required packages
 require(robustbase)
 require(ggplot2)
@@ -702,6 +701,7 @@ test.1 <- within(test.1, {
   Estimator <- f.rename.level(Estimator, 'MM.qT', 'MM(qT)')
   Estimator <- f.rename.level(Estimator, 'MM.qE', 'MM(qE)')
   Estimator <- f.rename.level(Estimator, 'MM.rob', 'MM(robust)')
+  Estimator <- f.rename.level(Estimator, 'lsq.lm', 'OLS')
   Est.Scale <- f.rename.level(Estimator, 'MM', 'sigma_S')
   Est.Scale <- f.rename.level(Est.Scale, 'MM(robust)', 'sigma_robust')
   Est.Scale <- f.rename.level(Est.Scale, 'MM(qE)', 'sigma_S*qE')
@@ -722,19 +722,18 @@ test.1 <- within(test.1, {
   method.cov <- f.rename.level(method.cov, "SMDM", "SMDM(tau)")
   method.cov <- f.rename.level(method.cov, "MM(qT)", "MM(qT,ssc)")
   method.cov <- f.rename.level(method.cov, "MM(qE)", "MM(qE,ssc)")
+  method.cov <- f.rename.level(method.cov, "OLS.Default", "OLS")
   })
 ## add desired ratios:
 test.1$ratio <- ratios[apply(abs(as.matrix(1/ratios) %*%
                                  t(as.matrix(test.1$p / test.1$n)) - 1),
                              2, which.min)]
 
-test.1 <- drop.levels(test.1[!test.1$Psi %in% c('welsh', 'ggw'),], reorder = FALSE)
-test.1$Psi <- reorder(test.1$Psi, new.order = c('optimal', 'bisquare', 'lqq', 'Hampel'))
-
 ## calculate expected values of psi^2 and psi'
 test.1$Ep2 <- test.1$Epp <- NA
 for(Procstr in levels(test.1$Procstr)) {
   args <- f.str2list(Procstr)[[1]]$args
+  if (is.null(args)) next
   lctrl <- do.call('lmrob.control',args)
   test.1$Ep2[test.1$Procstr == Procstr] <-
     robustbase:::lmrob.E(psi(r)^2, lctrl, use.integrate = TRUE)
@@ -744,7 +743,12 @@ for(Procstr in levels(test.1$Procstr)) {
 ## drop some observations, separate fixed and random designs
 test.fixed <- drop.levels(subset(test.1, n == 20), reorder = FALSE)
 test.1 <- drop.levels(subset(test.1, n != 20), reorder = FALSE)
-test.2 <- drop.levels(subset(test.1, Error == 'N(0,1)'), reorder = FALSE)
+test.lm <- drop.levels(subset(test.1, Function == 'lm'), reorder = FALSE)
+test.lm$Psi <- NULL
+test.lm.2 <- drop.levels(subset(test.lm, Error == 'N(0,1)'), reorder = FALSE)
+test.1 <- drop.levels(subset(test.1, Function != 'lm'), reorder = FALSE)
+test.2 <- drop.levels(subset(test.1, Error == 'N(0,1)' & Function != 'lm'), 
+                      reorder = FALSE)
 test.3 <- drop.levels(subset(test.2, Method != 'SMDM'), reorder = FALSE)
 test.4 <- drop.levels(subset(test.1, Method != 'SMDM'), reorder = FALSE)
 coords <- coord_cartesian(ylim = c(0.5, 1.7))
@@ -881,9 +885,12 @@ print(ggplot(test.3, aes(p/n, sdlogsigma.1*sqrt(n), color = Est.Scale)) +
       ylab(expression(sd(log(hat(sigma)))*sqrt(n))) +
       ## coord_trans(y = 'sqrt') +
       facet_wrap(~ Psi) +
+      ## geom_point(data=test.lm.2, alpha = alpha.n) + 
+      stat_summary(data=test.lm.2, aes(x=ratio), fun.y=median, 
+                   geom='line', color = 'black') + 
       scale_shape_discrete(expression(n)) +
       scale_colour_discrete("Scale Est."), legend.mod = legend.mod)
-  
+
 ## print(ggplot(test.3, aes(p/n, sdsigma.1/meansigma.1*sqrt(n), color = Est.Scale)) +
 ##       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
 ##       geom_point(aes(shape = factor(n)), alpha = alpha.n) +
@@ -910,8 +917,12 @@ print(ggplot(test.3, aes(p/n, sdlogsigma.1*sqrt(n), color = Est.Scale)) +
 print(ggplot(test.4, aes(p/n, sdlogsigma.1*sqrt(n),
                          color = Est.Scale)) +
       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
-      geom_point(aes(shape = Error), alpha = alpha.error) + facet_wrap(~ Psi) +
+      geom_point(aes(shape = Error), alpha = alpha.error) + 
       ylab(expression(sd(log(hat(sigma)))*sqrt(n))) +
+      facet_wrap(~ Psi) +
+      ## geom_point(data=test.lm, alpha = alpha.n) + 
+      stat_summary(data=test.lm, aes(x=ratio), fun.y=median, 
+                   geom='line', color = 'black') + 
       g.scale_shape() + scale_colour_discrete("Scale Est."), 
       legend.mod = legend.mod)
                          
@@ -1142,6 +1153,8 @@ print(ggplot(test.2, aes(p/n, f.truncate(emplev_1),
       scale_shape_discrete(expression(n)) +
       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
       geom_hline(yintercept = 0.05) +
+      ## geom_point(data=test.lm.2, alpha = alpha.n) + 
+      ## stat_summary(data=test.lm.2, aes(x=ratio), fun.y=median, geom='line') + 
       g.scale_y_log10_0.05() +
       scale_colour_discrete(name = "Estimator")  +
       ylab(expression(paste("empirical level ", (beta[1])))) + 
@@ -1191,8 +1204,11 @@ print(ggplot(drop.levels(subset(test.1, Psi == 'lqq' & emplev_1 != 0),
 print(ggplot(subset(test.1, n == 25),
       aes(p/n, power_1_0.2, color = method.cov)) +
       geom_point(aes(shape = Error), alpha = alpha.error) +
-      stat_summary(aes(x=p/n), fun.y=median, geom='line') + 
+      stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
       ## g.scale_y_log10_1() +
+      geom_point(data=subset(test.lm, n == 25), alpha = alpha.n) + 
+      stat_summary(data=subset(test.lm, n == 25), aes(x=ratio),
+                   fun.y=median, geom='line') + 
       g.scale_shape("Error") + 
       scale_colour_discrete(name = "Estimator (Cov. Est.)") + 
       ylab(expression(paste("empirical power ", (beta[1])))) + 
@@ -1213,8 +1229,11 @@ print(ggplot(subset(test.1, n == 25),
 print(ggplot(subset(test.1, n == 25),
       aes(p/n, power_1_0.4, color = method.cov)) +
       geom_point(aes(shape = Error), alpha = alpha.error) +
-      stat_summary(aes(x=p/n), fun.y=median, geom='line') + 
+      stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
       ## g.scale_y_log10_1() +
+      geom_point(data=subset(test.lm, n == 25), alpha = alpha.n) + 
+      stat_summary(data=subset(test.lm, n == 25), aes(x=ratio),
+                   fun.y=median, geom='line') + 
       g.scale_shape("Error") + 
       scale_colour_discrete(name = "Estimator (Cov. Est.)") + 
       ylab(expression(paste("empirical power ", (beta[1])))) + 
@@ -1235,9 +1254,12 @@ print(ggplot(subset(test.1, n == 25),
 print(ggplot(subset(test.1, n == 25),
       aes(p/n, power_1_0.6, color = method.cov)) +
       geom_point(aes(shape = Error), alpha = alpha.error) +
-      stat_summary(aes(x=p/n), fun.y=median, geom='line') + 
+      stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
       ## g.scale_y_log10_1() +
       g.scale_shape("Error") + 
+      geom_point(data=subset(test.lm, n == 25), alpha = alpha.n) + 
+      stat_summary(data=subset(test.lm, n == 25), aes(x=ratio),
+                   fun.y=median, geom='line') + 
       scale_colour_discrete(name = "Estimator (Cov. Est.)") + 
       ylab(expression(paste("empirical power ", (beta[1])))) + 
       facet_wrap(~ Psi), legend.mod = legend.mod
@@ -1257,8 +1279,11 @@ print(ggplot(subset(test.1, n == 25),
 print(ggplot(subset(test.1, n == 25),
       aes(p/n, power_1_0.8, color = method.cov)) +
       geom_point(aes(shape = Error), alpha = alpha.error) +
-      stat_summary(aes(x=p/n), fun.y=median, geom='line') + 
+      stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
       ## g.scale_y_log10_1() +
+      geom_point(data=subset(test.lm, n == 25), alpha = alpha.n) + 
+      stat_summary(data=subset(test.lm, n == 25), aes(x=ratio),
+                   fun.y=median, geom='line') + 
       g.scale_shape("Error") + 
       scale_colour_discrete(name = "Estimator (Cov. Est.)") + 
       ylab(expression(paste("empirical power ", (beta[1])))) + 
@@ -1279,8 +1304,11 @@ print(ggplot(subset(test.1, n == 25),
 print(ggplot(subset(test.1, n == 25),
       aes(p/n, power_1_1, color = method.cov)) +
       geom_point(aes(shape = Error), alpha = alpha.error) +
-      stat_summary(aes(x=p/n), fun.y=median, geom='line') + 
+      stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
       ## g.scale_y_log10_1() +
+      geom_point(data=subset(test.lm, n == 25), alpha = alpha.n) + 
+      stat_summary(data=subset(test.lm, n == 25), aes(x=ratio),
+                   fun.y=median, geom='line') + 
       g.scale_shape("Error") + 
       scale_colour_discrete(name = "Estimator (Cov. Est.)") + 
       ylab(expression(paste("empirical power ", (beta[1])))) + 

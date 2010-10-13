@@ -634,9 +634,9 @@ f.combine <- function(..., keep.list = FALSE) {
                   args = list(df = 1))
 
 ## skewed t distribution
-.errs.skt.Inf.2 <- list(err = 'skt',
+.errs.skt.Inf.2 <- list(err = 'cskt',
                          args = list(df = Inf, gamma = 2))
-.errs.skt.5.2 <- list(err = 'skt',
+.errs.skt.5.2 <- list(err = 'cskt',
                        args = list(df = 5, gamma = 2))
 ## log normal distribution
 .errs.lnrm <- list(err = 'lnorm',
@@ -659,7 +659,7 @@ f.combine <- function(..., keep.list = FALSE) {
                    )
 
 ## arguments
-.args.final <- f.combine(psi = c('optimal', 'bisquare', 'ggw', 'lqq', 'hampel'),
+.args.final <- f.combine(psi = c('optimal', 'bisquare', 'lqq', 'hampel'),
                          seed = 0,
                          max.it = 500,
                          k.max = 2000,
