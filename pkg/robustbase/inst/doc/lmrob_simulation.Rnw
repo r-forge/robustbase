@@ -30,6 +30,7 @@
 ## set options
 options(width=60)
 
+
 ## load required packages
 require(robustbase)
 require(ggplot2)
@@ -150,8 +151,8 @@ legend.mod <- list(`SMD(tau)` = expression(paste('SMD(',tau,')')),
 @ 
 
 
-\title{The choice of $\psi$: a simulation experiment with the enhanced
-  \T{lmrob}} \author{Manuel Koller}
+\title{Simulations for Wald-type Inference in Robust Regression}
+\author{Manuel Koller}
 \maketitle
 \tableofcontents
 
@@ -427,7 +428,9 @@ next section.
 
 <<results=HIDE,echo=FALSE>>=
 if (!file.exists("aggr_results.Rdata")) { 
-  res <- foreach(file = list.files('./', pattern = 'r.test.final\\.')) %dopar% {
+  files <- list.files('./', pattern = 'r.test.final\\.')
+  files <- files[!grepl('400', files)] ## drop 400s for the moment
+  res <- foreach(file = files) %dopar% {
     ## get design, load r.test, initialize other stuff
     design <- substr(file, 14, nchar(file) - 6)
     cat(design, ' ')
@@ -435,7 +438,7 @@ if (!file.exists("aggr_results.Rdata")) {
     estlist <- attr(r.test, 'estlist')
     use.intercept <- 
       if (!is.null(estlist$use.intercept)) estlist$use.intercept else TRUE
-    sel <- dimnames(r.test)[[3]][dimnames(r.test)[[3]] != "estname=lm"]
+    sel <- dimnames(r.test)[[3]] ## [dimnames(r.test)[[3]] != "estname=lm"]
     n.betas <- paste('beta',1:(NCOL(estlist$design)+use.intercept),sep='_')
     ## get design                    
     lX <- if (use.intercept)
@@ -512,28 +515,32 @@ if (!file.exists("aggr_results.Rdata")) {
         lr <- r.test[,,lcdn[1],lcdn[2]]
         ## update counter
         li <<- li + 1
-        ## convert procstr to proclst and get control list
-        largs <- f.str2list(lcdn[1])[[1]]$args
-        if (grepl('lm.robust', lcdn[1])) {
-          lctrl <- list()
-          lctrl$psi <- toupper(largs$weight2)
-          lctrl$tuning.psi <-
-            f.eff2c.psi(largs$efficiency, lctrl$psi)
-          lctrl$method <- 'MM'
-        } else {
-          lctrl <- do.call('lmrob.control',largs)
-        }
         ## transpose and normalize residuals with sigma
         lresid <- t(lresid) / lr[,'sigma']
-        ## calculate correction factors
-        ## A
-        lsp2 <- rowSums(robustbase:::lmrob.psifun(lresid,lctrl$tuning.psi,
-                                                  lctrl$psi)^2)
-        ## B
-        lspp <- rowSums(lpp <- robustbase:::lmrob.psifun(lresid,lctrl$tuning.psi,
-                                                         lctrl$psi,1))
-        ## calculate Huber\'s small sample correction factor
-        lK <- 1 + rowSums((lpp - lspp/n)^2)*NCOL(lX)/lspp^2 ## 1/n cancels
+        if (lcdn[1] != 'estname=lm') {
+          ## convert procstr to proclst and get control list
+          largs <- f.str2list(lcdn[1])[[1]]$args
+          if (grepl('lm.robust', lcdn[1])) {
+            lctrl <- list()
+            lctrl$psi <- toupper(largs$weight2)
+            lctrl$tuning.psi <-
+              f.eff2c.psi(largs$efficiency, lctrl$psi)
+            lctrl$method <- 'MM'
+          } else {
+            lctrl <- do.call('lmrob.control',largs)
+          }
+          ## calculate correction factors
+          ## A
+          lsp2 <- rowSums(robustbase:::lmrob.psifun(lresid,lctrl$tuning.psi,
+                                                    lctrl$psi)^2)
+          ## B
+          lspp <- rowSums(lpp <- robustbase:::lmrob.psifun(lresid,lctrl$tuning.psi,
+                                                           lctrl$psi,1))
+          ## calculate Huber\'s small sample correction factor
+          lK <- 1 + rowSums((lpp - lspp/n)^2)*NCOL(lX)/lspp^2 ## 1/n cancels
+        } else {
+          lK <- lspp <- lsp2 <- NA
+        }
         ## only calculate tau variants if possible
         if (grepl('args.method=\\w*(D|T)\\w*\\b', lcdn[1])) { ## SMD or SMDM
           ## calculate robustness weights
@@ -554,10 +561,10 @@ if (!file.exists("aggr_results.Rdata")) {
           lresid <- t(lresid) / lt
           ## A
           lsp2t <- colSums(robustbase:::lmrob.psifun(lresid,lctrl$tuning.psi,
-                                                   lctrl$psi)^2)
+                                                     lctrl$psi)^2)
           ## B
           lsppt <- colSums(robustbase:::lmrob.psifun(lresid,lctrl$tuning.psi,
-                                                   lctrl$psi,1))
+                                                     lctrl$psi,1))
         } else {
           lsp2t <- lsppt <- NA
         }
