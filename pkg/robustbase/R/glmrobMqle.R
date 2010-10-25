@@ -33,21 +33,28 @@ glmrobMqle <-
     if (is.null(validmu	 <- family$validmu))  validmu <-  function(mu) TRUE
 
     w.x <- if(ncoef) {
-	switch(weights.on.x,
-	       "none" = rep.int(1, nobs),
-	       "hat" = wts_HiiDist(X = X),
-	       "robCov" = wts_RobDist(X, intercept, covFun = MASS::cov.rob),
-                                        # ARu said  'method="mcd" was worse'
-	       "covMcd" = wts_RobDist(X, intercept, covFun = covMcd),
-	       stop("Weighting method", sQuote(weights.on.x),
-		    " is not implemented"))
+        if(is.character(weights.on.x)){
+            switch(weights.on.x,
+                   "none" = rep.int(1, nobs),
+                   "hat" = wts_HiiDist(X = X)^4,
+                   "robCov" = wts_RobDist(X, intercept, covFun = MASS::cov.rob),
+                                        # ARu said 'method="mcd" was worse'
+                   "covMcd" = wts_RobDist(X, intercept, covFun = covMcd),
+                   stop("Weighting method", sQuote(weights.on.x),
+                        " is not implemented"))
+        }
+        else{
+            if(length(weights.on.x) != nobs)
+                stop(gettextf("weights.on.x needs %d none negative values",
+                              nobs))
+            if(any(weights.on.x) < 0)
+                stop("All weights.on.x must be none negative")
+        }
     }
     else ## ncoef == 0
         rep.int(1,nobs)
 
-
 ### Initializations
-
     stopifnot(control$maxit >= 1, (tcc <- control$tcc) >= 0)
     ## note that 'weights' are used and set by binomial()$initialize !
     eval(family$initialize) ## --> n, mustart, y and weights (=ni)
@@ -147,6 +154,8 @@ glmrobMqle <-
     sni <- sqrt(ni)
     eval(comp.V.resid) #-> (Vmu, sVF, residP)
     phi <- eval(phiEst.cl)
+    ## Determine the range of phi values based on the distribution of |residP|
+    Rphi <- c(1e-12, 3*median(abs(residP)))^2
     conv <- FALSE
     if(ncoef) for (nit in 1:control$maxit) {
         eval(comp.scaling) #-> (sV, residPS)
@@ -421,7 +430,7 @@ phiGammaEst <- expression(
 {
     ## robust estimation of the dispersion parameter by
     ## Huber's porposal 2
-    sphi <- uniroot(Huberprop2, interval=range(residP^2),
+    sphi <- uniroot(Huberprop2, interval=Rphi,
                     ns.resid=residP, mu=mu, Vmu=Vmu, tcc=tcc)$root
 })
 
