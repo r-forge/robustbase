@@ -1,7 +1,8 @@
 
-R version 2.11.1 Patched (2010-08-09 r52715)
+R version 2.12.0 Patched (2010-10-25 r53426)
 Copyright (C) 2010 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
+Platform: x86_64-unknown-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -483,7 +484,7 @@ seed : int(0)
 > ctrl$tuning.psi
 [1] -0.30  1.40  0.95    NA
 attr(,"constants")
-[1] 1.3007171 0.9290836 1.3000000
+[1] 1.3018031 0.9298593 1.3000000
 > ctrl$tuning.chi
 [1] -0.3  1.4   NA  0.5
 attr(,"constants")
@@ -495,15 +496,15 @@ lmrob(formula = Y ~ ., data = aircraft, control = ctrl)
 
 Weighted Residuals:
      Min       1Q   Median       3Q      Max 
--10.4061  -2.6517  -0.4156   3.7945  38.6444 
+-10.4131  -2.6546  -0.4163   3.7992  38.6135 
 
 Coefficients:
               Estimate Std. Error t value Pr(>|t|)   
-(Intercept)  3.5002989 12.9625181   0.270  0.79021   
-X1          -3.2953771  0.9467914  -3.481  0.00267 **
-X2           1.8957844  0.9928096   1.910  0.07227 . 
-X3           0.0022793  0.0014340   1.589  0.12936   
-X4          -0.0011563  0.0008966  -1.290  0.21347   
+(Intercept)  3.4885360 12.9467678   0.269  0.79065   
+X1          -3.2959306  0.9474382  -3.479  0.00268 **
+X2           1.8969102  0.9908608   1.914  0.07160 . 
+X3           0.0022811  0.0014320   1.593  0.12860   
+X4          -0.0011575  0.0008954  -1.293  0.21246   
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
 
@@ -513,7 +514,7 @@ Convergence in 33 IRWLS iterations
 Robustness weights: 
  17 weights are ~= 1. The remaining 6 ones are
       3       4      12      16      17      22 
-0.97698 0.99840 0.82584 0.78662 0.91318 0.06838 
+0.97705 0.99845 0.82593 0.78812 0.91316 0.06876 
 Algorithmic parameters: 
 tuning.chi1 tuning.chi2 tuning.chi3 tuning.chi4          bb tuning.psi1 
    -3.0e-01     1.4e+00          NA     5.0e-01     5.0e-01    -3.0e-01 
@@ -529,5 +530,5 @@ seed : int(0)
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  9.611 0.174 9.816 0 0 
+Time elapsed:  17.52 0.1 17.661 0 0 
 > 

@@ -1,7 +1,8 @@
 
-R version 2.11.1 (2010-05-31)
+R version 2.12.0 Patched (2010-10-25 r53426)
 Copyright (C) 2010 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
+Platform: x86_64-unknown-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -62,7 +63,7 @@ Robust Wald Test Table
 
 Model 1: Y ~ X1 + X2 + X3
 Model 2: Y ~ X1 + X3
-Largest model fitted by lmrob(), i.e. MM
+Largest model fitted by lmrob(), i.e. SM
 
   pseudoDf Test.Stat Df Pr(>chisq)
 1       24                        
@@ -82,7 +83,7 @@ Robust Wald Test Table
 
 Model 1: Y ~ X1 + X2 + X3
 Model 2: Y ~ X1 + X3
-Largest model fitted by lmrob(), i.e. MM
+Largest model fitted by lmrob(), i.e. SM
 
   pseudoDf Test.Stat Df Pr(>chisq)
 1       24                        
@@ -94,7 +95,7 @@ Robust Deviance Table
 
 Model 1: Y ~ X1 + X2 + X3
 Model 2: Y ~ X1 + X3
-Largest model fitted by lmrob(), i.e. MM
+Largest model fitted by lmrob(), i.e. SM
 
   pseudoDf Test.Stat Df Pr(>chisq)
 1       24                        
@@ -106,7 +107,7 @@ Robust Wald Test Table
 
 Model 1: Y ~ X1 + X2 + X3
 Model 2: Y ~ X1 + X2
-Largest model fitted by lmrob(), i.e. MM
+Largest model fitted by lmrob(), i.e. SM
 
   pseudoDf Test.Stat Df Pr(>chisq)    
 1       24                            
@@ -118,7 +119,7 @@ Robust Deviance Table
 
 Model 1: Y ~ X1 + X2 + X3
 Model 2: Y ~ X1 + X2
-Largest model fitted by lmrob(), i.e. MM
+Largest model fitted by lmrob(), i.e. SM
 
   pseudoDf Test.Stat Df Pr(>chisq)    
 1       24                            
@@ -339,5 +340,5 @@ seed : int(0)
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # "stats"
-Time elapsed:  0.734 0.079 0.888 0 0 
+Time elapsed:  0.75 0.01 0.765 0 0 
 > 
