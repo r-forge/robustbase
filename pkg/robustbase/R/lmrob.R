@@ -130,6 +130,7 @@ model.matrix.lmrob <- function (object, ...) {
     stats::model.matrix.lm(object, ...)
 }
 
+if(FALSE) ## now replaced with more sophsticated in ./lmrobPredict.R 
 ## learned from MASS::rlm() : via "lm" as well
 predict.lmrob <- function (object, newdata = NULL, scale = NULL, ...)
 {

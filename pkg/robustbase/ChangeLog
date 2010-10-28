@@ -1,3 +1,15 @@
+2006-10-27  Andreas Ruckstuhl  <rks@zhwin.ch>
+	and
+2010-10-28  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.6-8
+
+	* R/lmrobPredict.R, R/glmrobPredict.R: new more careful prediction
+	methods, now documented in
+	* man/predict.lmrob.Rd,	man/predict.glmrob.Rd:
+	and no longer in
+	* man/summary.lmrob.Rd:
+
 2010-10-13  Manuel Koller  <koller@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.6-7

@@ -165,10 +165,12 @@ glmrob(formula, family, data, weights, subset, na.action,
 }
 
 \author{Andreas Ruckstuhl}
-
 %%\note{ }
 
-\seealso{\code{\link{glmrobMqle.control}}}
+\seealso{
+  \code{\link{predict.lmrob}} for prediction;
+  \code{\link{glmrobMqle.control}}
+}
 \examples{
 ## Binomial response --------------
 data(carrots)

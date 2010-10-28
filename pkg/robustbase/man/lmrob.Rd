@@ -37,7 +37,7 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
 
   \item{method}{string specifying the estimator-chain. \code{MM}
     is interpreted as \code{SM}. See \emph{Details}.}
-  
+
   \item{model, x, y}{logicals.  If \code{TRUE} the corresponding
     components of the fit (the model frame, the model matrix, the
     response) are returned.}
@@ -71,7 +71,7 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   to set alternative defaults as suggested in Koller and Stahel (2010)
   (use \code{setting='KS2010'}). For details, see
   \code{\link{lmrob.control}}.
-    
+
   As initial estimator it uses an S-estimator (Rousseeuw and Yohai,
   1984) which is computed using the Fast-S algorithm of Salibian-Barrera
   and Yohai (2006), calling the function \code{\link{lmrob.S}}. The
@@ -92,7 +92,7 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   MM-estimates. For other \code{method} arguments, the covariance matrix
   estimate used is based on the asymptotic normality of the estimated
   coefficients (\code{cov=".vcov.w"}) as described in Koller and Stahel
-  (2010). 
+  (2010).
 }
 \value{
   An object of class \code{lmrob}. A list that includes the
@@ -137,7 +137,7 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   \code{\link{lmrob.control}};
   for the algorithms \code{\link{lmrob.S}} and \code{\link{lmrob.fit}};
   and for methods,
-  \code{\link{summary.lmrob}},
+  \code{\link{predict.lmrob}}, \code{\link{summary.lmrob}},
   \code{\link{print.lmrob}}, and \code{\link{plot.lmrob}}.
 }
 \examples{

@@ -39,7 +39,7 @@ export(Sn, Qn,
        lmrob.fit.MM, lmrob..M..fit, lmrob..D..fit,
        lmrob.S,
        lmrob.control,
-       
+
        mc, # Mia Hubers's medcouple
        adjbox,
        adjboxStats,
@@ -73,6 +73,7 @@ S3method(plot, lts)
 S3method(plot, mcd)
 S3method(plot, lmrob)
 S3method(predict, lmrob)
+S3method(predict, glmrob)
 S3method(predict, nlrob)
 
 S3method(print, glmrob)
