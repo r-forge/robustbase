@@ -56,6 +56,9 @@ glmrobMqle <-
 
 ### Initializations
     stopifnot(control$maxit >= 1, (tcc <- control$tcc) >= 0)
+
+    ## note that etastart and mustart are used to make 'family$initialize' run
+    etastart <-  NULL;  mustart <- NULL
     ## note that 'weights' are used and set by binomial()$initialize !
     eval(family$initialize) ## --> n, mustart, y and weights (=ni)
     ni <- as.vector(weights)# dropping attributes for computation
@@ -97,7 +100,15 @@ glmrobMqle <-
 	       Epsi2 <- Epsi2Pois
                phiEst <- phiEst.cl <- expression({1})
 	   },
-           "Gamma" = { ## added by ARu
+           "gaussian" = {
+               Epsi.init <- EpsiGaussian.init
+               Epsi <- EpsiGaussian
+               EpsiS <- EpsiSGaussian
+               Epsi2 <- Epsi2Gaussian
+               phiEst.cl <- phiGaussianEst.cl
+               phiEst <- phiGaussianEst
+           },
+          "Gamma" = { ## added by ARu
              Epsi.init <- EpsiGamma.init
              Epsi <- EpsiGamma
              EpsiS <- EpsiSGamma
@@ -379,6 +390,30 @@ EpsiSBin <- expression(
     ## expression matrix M = (X' B X)/n
     mu/Vmu*(tcc*(pH - ifelse(ni == 1, H >= 1, pHm1)) +
 	    tcc*(pK - ifelse(ni == 1, K > 0,  pKm1))) + ifelse(ni == 0, 0, QlV / (sni*sV))
+})
+
+### --- Gaussian -- family ---
+
+EpsiGaussian.init <- expression({
+    dc <- dnorm(tcc)
+    pc <- pnorm(tcc)
+})
+
+EpsiGaussian <- expression( 0 )
+
+EpsiSGaussian <- expression( 2*pc-1 )
+
+Epsi2Gaussian <- expression( 2*tcc^2*(1-pc)-2*tcc*dc+2*pc-1 )
+
+phiGaussianEst.cl <- expression(
+{
+    ## Classical estimation of the dispersion paramter phi = sigma^2
+    sum(((y - mu)/mu)^2)/(nobs - ncoef)
+})
+
+phiGaussianEst <- expression(
+{
+    sphi <- mad(residP, center=0)^2
 })
 
 ### --- Gamma -- family ---
