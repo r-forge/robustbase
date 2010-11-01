@@ -15,16 +15,18 @@
 #  A copy of the GNU General Public License is available at
 #  http://www.r-project.org/Licenses/
 
+# Note that '# *rob' indicate adjustment for the robust case
+
 predict.lmrob <-
-    function(object, newdata, se.fit = FALSE, scale = NULL, df = NULL,
+    function(object, newdata, se.fit = FALSE, scale = NULL, df = NULL,  # *rob
 	     interval = c("none", "confidence", "prediction"),
 	     level = .95,  type = c("response", "terms"),
 	     terms = NULL, na.action = na.pass, pred.var = res.var/weights,
              weights = 1, ...)
 {
     tt <- terms(object)
-    if(!inherits(object, "lmrob"))
-	warning("calling predict.lm(<fake-lmrob-object>) ...")
+    if(!inherits(object, "lmrob")) # *rob
+	warning("calling predict.lm(<fake-lmrob-object>) ...") # *rob
     if(missing(newdata) || is.null(newdata)) {
 	mm <- X <- model.matrix.lm(object)
 	mmDone <- TRUE
@@ -45,21 +47,21 @@ predict.lmrob <-
 	mmDone <- FALSE
     }
     n <- length(object$residuals) # NROW(qr(object)$qr)
-    ## FIXME? predict.lm() here does pivoting and rank/ column selection
     p <- object$rank
-    if(is.null(p)) df <- Inf
-    if(any(is.na(beta <- object$coefficients)))
-        stop("there are NAs in the coefficients")
-    predictor <- drop(X %*% beta)
+    ## *rob: FIXME? predict.lm() here does pivoting and rank/ column selection
+    if(is.null(p)) df <- Inf   # *rob
+    if(any(is.na(beta <- object$coefficients)))   # *rob
+        stop("there are NAs in the coefficients") # *rob
+    predictor <- drop(X %*% beta)                 # *rob
     if (!is.null(offset))
 	predictor <- predictor + offset
 
     interval <- match.arg(interval)
     if (interval == "prediction") {
-        if (missing(newdata)) {
+        if (missing(newdata)) { # *rob: this and next if statement are combined
             warning("Predictions on current data refer to _future_ responses\n")
             if (missing(weights)) {
-                w <- stats:::weights.default(object)
+                w <- stats:::weights.default(object) # *rob
                 if (!is.null(w)) {
                     weights <- w
                     warning("Assuming prediction variance inversely proportional to weights used for fitting\n")
@@ -80,7 +82,7 @@ predict.lmrob <-
     }
 
     type <- match.arg(type)
-    if(se.fit || interval != "none") {
+    if(se.fit || interval != "none") {# *rob: whole 'then' statement is different
         df <- object$df.residual
 	res.var <- if (is.null(scale)) object$s^2  else scale^2
 	if(type != "terms"){
@@ -90,9 +92,12 @@ predict.lmrob <-
 
     if (type == "terms") { ## type == "terms" ------------
 
-	if(!mmDone) { mm <- model.matrix.lm(object); mmDone <- TRUE }
-	## asgn <- attrassign(mm, tt) :
-	aa <- attr(mm, "assign")
+	if(!mmDone){
+            mm <- model.matrix.lm(object) # *rob: call of model.matrix.lm
+                                        # instead of model.matrix
+            mmDone <- TRUE
+        }
+        aa <- attr(mm, "assign")
 	ll <- attr(tt, "term.labels")
 	hasintercept <- attr(tt, "intercept") > 0L
 	if (hasintercept) ll <- c("(Intercept)", ll)
@@ -100,9 +105,13 @@ predict.lmrob <-
 	asgn <- split(order(aa), aaa)
 	if (hasintercept) {
 	    asgn$"(Intercept)" <- NULL
-	    if(!mmDone) { mm <- model.matrix.lm(object); mmDone <- TRUE }
+	    if(!mmDone){
+                mm <- model.matrix.lm(object) # *rob: call of model.matrix.lm
+                                        # instead of model.matrix
+                mmDone <- TRUE
+            }
 	    avx <- colMeans(mm)
-	    termsconst <- sum(avx * beta)
+	    termsconst <- sum(avx * beta) # *rob: no column selection
 	}
 	nterms <- length(asgn)
         if(nterms > 0) {
@@ -110,13 +119,13 @@ predict.lmrob <-
             dimnames(predictor) <- list(rownames(X), names(asgn))
 
             if (se.fit || interval != "none") {
-                ip <- predictor
+                ip <- predictor # *rob: just this assignment is needed
             }
              if(hasintercept)
                 X <- sweep(X, 2L, avx, check.margin=FALSE)
             unpiv <- seq_len(NCOL(X))
-            ## Assuming there are no columns which are
-            ## completely aliased with earlier columns.
+            ## *rob: Assuming there are no columns which are
+            ##      completely aliased with earlier columns.
             for (i in seq.int(1L, nterms, length.out = nterms)) {
                 iipiv <- asgn[[i]]      # Columns of X, ith term
                 ii <- unpiv[iipiv]      # Corresponding rows of Rinv
@@ -125,7 +134,7 @@ predict.lmrob <-
                     if(any(iipiv > 0L)) X[, iipiv, drop = FALSE] %*% beta[iipiv]
                     else 0
                 if (se.fit || interval != "none"){
-                    ip[, i] <- if(any(iipiv > 0L)){
+                    ip[, i] <- if(any(iipiv > 0L)){# *rob: next steps modified
                         h.X <- X[, iipiv, drop = FALSE]
                         diag(h.X %*%object$cov[iipiv, iipiv] %*% t(h.X))
                     } else 0

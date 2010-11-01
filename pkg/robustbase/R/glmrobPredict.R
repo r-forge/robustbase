@@ -1,6 +1,6 @@
 #  File .../glmrobPredict.R
 #  Part of the R package 'robustbase', http://www.R-project.org
-#  Based on predict.glm (cf. src/library/stats/R/predict.glm.R)
+#  Based on predict.glm (cf. src/library/stats/R/)
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -14,6 +14,8 @@
 #
 #  A copy of the GNU General Public License is available at
 #  http://www.r-project.org/Licenses/
+#
+# Note that '# *rob' indicate adjustment for the robust case
 
 predict.glmrob <-
   function(object, newdata = NULL, type = c("link", "response", "terms"),
@@ -23,7 +25,7 @@ predict.glmrob <-
     type <- match.arg(type)
     na.act <- object$na.action
     object$na.action <- NULL # kill this for predict.lm calls
-    object$weights <- object$w.r  # used for predict.lmrob()
+    object$weights <- object$w.r  # *rob: used for predict.lmrob()
     if (!se.fit) {
 	## No standard errors
 	if(missing(newdata)) {
@@ -31,13 +33,15 @@ predict.glmrob <-
 			   link = object$linear.predictors,
 			   response = object$fitted.values,
                            terms = predict.lmrob(object,  se.fit=se.fit,
-                               scale = 1, type="terms", terms=terms, ...)
+                               scale = 1, type="terms", terms=terms, ...) # *rob
                            )
             if(!is.null(na.act)) pred <- napredict(na.act, pred)
 	} else {
 	    pred <- predict.lmrob(object, newdata, se.fit, scale = 1,
                                   type = ifelse(type=="link", "response", type),
-                                  terms = terms, na.action = na.action, ...)
+                                  terms = terms, na.action = na.action,
+                                  ...)    # *rob
+
 	    switch(type,
 		   response = {pred <- family(object)$linkinv(pred)},
 		   link =, terms= )
@@ -50,7 +54,7 @@ predict.glmrob <-
 	residual.scale <- as.vector(sqrt(dispersion))
 	pred <- predict.lmrob(object, newdata, se.fit, scale = residual.scale,
                               type = ifelse(type=="link", "response", type),
-                              terms = terms, na.action = na.action, ...)
+                              terms = terms, na.action = na.action, ...) # *rob
 	fit <- pred$fit
 	se.fit <- pred$se.fit
 	switch(type,
