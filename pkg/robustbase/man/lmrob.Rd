@@ -125,7 +125,7 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   Salibian-Barrera, M. and Yohai, V.J. (2006)
   A fast algorithm for S-regression estimates,
   \emph{Journal of Computational and Graphical Statistics},
-  \bold{15}, 414--427.
+  \bold{15}(2), 414--427.
 
   Yohai, V.J. (1987)
   High breakdown-point and high efficiency estimates for regression.
