@@ -1070,7 +1070,7 @@ print(ggplot(drop.levels(subset(test.1, Error != 't1'), reorder = FALSE),
       geom_hline(yintercept = 0.95) + 
       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
       ## g.scale_y_log10_1() + 
-      g.scale_shape(value=c(19,17,15,3,7,8,9,1,2,4)[-4]) +
+      g.scale_shape(value=c(16,17,15,3,7,8,9,1,2,4)[-4]) +
       facet_wrap(~ Psi) + 
       ylab(expression(paste('efficiency of ',hat(beta)))) +
       scale_colour_discrete(name = "Estimator"), legend.mod = legend.mod)

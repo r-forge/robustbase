@@ -45,6 +45,10 @@ void mc_C(double *z, int *in, double *eps, int *iter, double *out)
  *	the original code had only one 'eps' for both and hardcoded
  *	   eps =  0.0000000000001;  /.* == 1e-13 )) *./
  */
+/* MK:  eps1: used to check for over- and underflow, respectively
+ *      eps2: for "equal to zero"-checks
+ *      therefore I suggest eps1 = DBL_MIN and eps2 = DBL_EPS  
+ */
 double mc_C_d(double *z, int n, double *eps, int *iter)
 {
 /* NOTE:
@@ -56,7 +60,7 @@ double mc_C_d(double *z, int n, double *eps, int *iter)
     Rboolean IsFound = FALSE, converged = TRUE;
 
     double *work   = (double *) R_alloc(n, sizeof(double));
-    int	   *weight = (int *)	R_alloc(n, sizeof(int));
+    int	   *weight = (int *)	R_alloc(n, sizeof(int)); 
 
     /* work arrays for whimed_i() : will be allocated below : */
     double *acand, *a_srt;
@@ -89,9 +93,9 @@ double mc_C_d(double *z, int n, double *eps, int *iter)
 	xmed = (x[ind] + x[ind+1])/2;
     }
 
-    if (x[1] == xmed) {
+    if (fabs(x[1] - xmed) < eps[0] * (eps[0] + fabs(xmed))) {
 	medc = -1.; goto Finish;
-    } else if (x[n] == xmed) {
+    } else if (fabs(x[n] - xmed) < eps[0] * (eps[0] + fabs(xmed))) {
 	medc =	1.; goto Finish;
     }
     /* else : median is not at the border ------------------- */
@@ -108,11 +112,12 @@ double mc_C_d(double *z, int n, double *eps, int *iter)
     xden = -2 * fmax2(-x[1], x[n]);
     for (i = 1; i <= n; i++)
 	x[i] /= xden;
+    xmed /= xden;
     if(trace_lev >= 2)
 	Rprintf(" x[] is rescaled (* 1/s) with s = %g\n", -xden);
 
     j = 1;
-    while (x[j] > eps[0] && j <= n) {
+    while (x[j] > eps[0] * (eps[0] + fabs(xmed)) && j <= n) { /* test relative to xmed */
 	/* x1[j] = x[j]; */
 	j++;
     }
@@ -120,7 +125,7 @@ double mc_C_d(double *z, int n, double *eps, int *iter)
 	Rprintf("   x1[] := {x | x_j > eps}         has %d entries\n", j-1);
     i = 1;
     x2 = x+j-1; /* pointer -- corresponding to  x2[i] = x[j]; */
-    while (x[j] > -eps[0] && j <= n) {
+    while (x[j] > -eps[0] * (eps[0] + fabs(xmed)) && j <= n) { /* test relative to xmed */
 	/* x1[j] = x[j]; */
         /* x2[i] = x[j]; */
         j++;
@@ -159,7 +164,7 @@ double mc_C_d(double *z, int n, double *eps, int *iter)
 
     it = 0; IsFound = FALSE;
 
-    while (!IsFound && (nr-nl > n) && it < iter[0])
+    while (!IsFound && (nr-nl >= n) && it < iter[0]) /* need >= here */
     {
 	int sum_p, sum_q;
 	it++;
@@ -176,15 +181,22 @@ double mc_C_d(double *z, int n, double *eps, int *iter)
 	    Rprintf(" before whimed(): work[0:(%d-1)], weight[] :\n", j);
 	    for(i=0; i < j; i++) Rprintf(" %8g", work  [i]); Rprintf("\n");
 	    for(i=0; i < j; i++) Rprintf(" %8d", weight[i]); Rprintf("\n");
-	}
+	}		    
 	trial = whimed_i(work, weight, j, acand, a_srt, iw_cand);
 	if(trace_lev >= 3)
 	    Rprintf("%4s it=%2d, whimed(n=%3d)= %8g ", " ", it, j, trial);
 
 	j = 1;
 	for (i = h2; i >= 1; i--) {
-	    while (j <= h1 && h_kern(x[j],x2[i],j,i,h1+1,eps[1]) > trial)
+	    if (trace_lev >= 5)
+	    while (j <= h1 && h_kern(x[j],x2[i],j,i,h1+1,eps[1]) - trial > eps[0] * (eps[0] + fabs(trial))) {
+		// while (j <= h1 && h_kern(x[j],x2[i],j,i,h1+1,eps[1]) > trial) {
+		if (trace_lev >= 5)
+		    Rprintf("\nj=%3d, i=%3d, x[j]=%g, x2[i]=%g, h=%g", j, i, 
+			    x[j], x2[i],
+			    h_kern(x[j],x2[i],j,i,h1+1,eps[1]));
 		j++;
+	    }
 /* 	    for(; j <= h1; j++) { */
 /* 		register double h = h_kern(x[j],x2[i],j,i,h1+1,eps[1]); */
 /* 		if(h > trial) break; */
@@ -193,7 +205,8 @@ double mc_C_d(double *z, int n, double *eps, int *iter)
 	}
 	j = h1;
 	for (i = 1, sum_p=0, sum_q=0; i <= h2; i++) {
-	    while (j >= 1 && h_kern(x[j],x2[i],j,i,h1+1,eps[1]) < trial)
+	    while (j >= 1 && trial - h_kern(x[j],x2[i],j,i,h1+1,eps[1]) > eps[0] * (eps[0] + fabs(trial)))
+		// while (j >= 1 && h_kern(x[j],x2[i],j,i,h1+1,eps[1]) < trial)
 		j--;
 	    q[i] = j+1;
 
@@ -238,7 +251,7 @@ double mc_C_d(double *z, int n, double *eps, int *iter)
 
     converged = IsFound || (nr-nl <= n);
     if(!converged) {
-	REprintf("maximal number of iterations (%d =? %d) reached prematurely\n",
+	Rprintf("maximal number of iterations (%d =? %d) reached prematurely\n",
 		 iter[0], it);
 	/* still: */
 	medc = trial;
@@ -280,8 +293,8 @@ static
 double h_kern(double a, double b, int ai, int bi, int ab, double eps)
 {
 /*     if (fabs(a-b) <= DBL_MIN) */
-/*  if (fabs(a-b) < 2.0*eps * (eps + fabs(a+b))) */
-    if (fabs(a-b) < 2.0*eps) /* test consistent with use of 'eps' initially */
+    /* check for zero division and positive b */
+    if (fabs(a-b) < 2.0*eps || b > 0) 
 	return sign((double)(ab - (ai+bi)));
 
     /* else */

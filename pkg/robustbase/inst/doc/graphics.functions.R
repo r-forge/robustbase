@@ -47,8 +47,35 @@ g.scale_y_log10_1_l <- function(breaks = c(seq(0,.4,by=0.1), seq(0.6,1.4,by=0.2)
   ## Author: Manuel Koller, Date: 11 Nov 2009, 11:52
   scale_y_log10(breaks = breaks, minor_breaks = minor_breaks, labels = labels, ...)
 
-g.scale_shape <- function(..., value=c(19,17,15,3,7,8,9,1,2,4))
+g.scale_shape_defaults = c(16, 17, 15, 3, 7, 8)
+g.scale_shape_defaults2 = c(g.scale_shape_defaults,9,1,2,4)
+g.scale_linetype_defaults = c("solid", "22", "42", "44", "13", "1343", "73",
+  "2262", "12223242", "F282", "F4448444", "224282F2", "F1")
+
+g.scale_shape <- function(..., value=g.scale_shape_defaults2)
   scale_shape_manual(..., value = value)
+
+g.get_colors <- function(n, h=c(0,360) + 15, l=65, c=100, start=0, direction = 1) {
+  rotate <- function(x) (x + start) %% 360 * direction
+
+  if ((diff(h) %% 360) < 1) {
+    h[2] <- h[2] - 360 / n
+  }
+  
+  grDevices::hcl(h = rotate(seq(h[1], h[2], length = n)), 
+                 c = c, l = l)
+}
+
+g.get_colors_brewer <- function(n, name='Dark2') {
+  idx <- 1:n
+  if (name=='Dark2') {
+    idx <- c(6,2:5,1,7,8)[idx]
+  }
+  RColorBrewer::brewer.pal(n, name)[idx]
+}
+
+g.scale_colour <- function(..., n=8, values=g.get_colors_brewer(n=n))
+  scale_colour_manual(..., values=values)
 
 ###########################################################################
 ## some useful helper functions

@@ -13,7 +13,6 @@ DO <- function(...) system.time(stopifnot(...))
 DO(0 == sapply(1:100, function(n) mc(seq_len(n))))
 DO(0 == sapply(1:100, function(n) mc(seq_len(n), doRefl=FALSE)))
 
-
 DO(0 == sapply(1:100, function(n) mcNaive(seq_len(n), "simple")))
 DO(0 == sapply(1:100, function(n) mcNaive(seq_len(n), "h.use" )))
 
@@ -33,8 +32,8 @@ stopifnot(allEQ(1/6, mc(x2)),
 x4 <- c(1:5,7,10,15,25, 1e15) ## - bombed in orignal algo
 mcNaive(x4,"h.use") # 0.5833333
 stopifnot(allEQ( 7/12, mcNaive(x4, "h.use")),
-	  allEQ( 7/12, mc( x4, doRefl= FALSE, eps1=.Machine$double.xmin)),
-	  allEQ(-7/12, mc(-x4, doRefl= FALSE, eps1=.Machine$double.xmin)))
+	  allEQ( 7/12, mc( x4, doRefl= FALSE)),
+	  allEQ(-7/12, mc(-x4, doRefl= FALSE)))
 
 
 set.seed(17)
@@ -50,10 +49,6 @@ for(n in 3:50) {
 	cat(".")
     }
 };  cat("\n")
-
-
-DO(0 == sapply(1:100, function(n)
-   mc(seq_len(n), doRefl=FALSE, eps1=.Machine$double.xmin)))
 
 ###----  Strict tests of adjOutlyingness():
 
@@ -91,8 +86,8 @@ stopifnot(which(!a2$nonOut) == 1:14,
             4, 50, 38.5,38.5,31,  20,  7, 57, 37, 86,   34, 25, 44, 71, 74,
             21, 58,  2, 28, 32,    8, 19, 60, 61, 45,   54)
               ) <= 5
-          ## </FIXME more>
-            else TRUE,
+          ##  </FIXME more>
+          else TRUE,
 
           ## hbk (n = 75) :
           rank(a3$adjout) ==
@@ -101,7 +96,7 @@ stopifnot(which(!a2$nonOut) == 1:14,
             49, 33,  9, 54, 24,    2, 24, 50, 56, 10,   32, 41, 43, 37, 60,
             36, 61, 24, 13, 11,   48, 55, 47, 42, 17,   30, 51, 24,  7, 38,
             24, 58, 40, 24, 24,   34,  3, 53, 57,  5,    1,  8, 31, 35, 46)
-          )
+          else TRUE)
 
 
 

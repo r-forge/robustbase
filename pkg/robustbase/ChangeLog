@@ -1,3 +1,22 @@
+2010-12-02  Manuel Koller  <koller@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.6-9
+
+	* R/mc.c: fixed several bugs, consequent use of eps[0] and eps[1]
+	to avoid numerical problems, fixed memory corruption bug that
+	caused segfaults from time to time.
+
+	* tests/mc-etc.R: see below
+	* tests/mc-etc.Rout.save: see below
+	* tests/mc-strict: updated tests and results
+
+	* man/mc.Rd: see below
+	* R/mc.R (mc.default): updated eps1 and eps2 defaults.
+
+	* inst/doc/lmrob_simulation.Rnw: minor cosmetic changes
+	* inst/doc/graphics.functions.R: added some helper functions to
+	ease working with color palettes used by ggplot2.
+
 2006-10-27  Andreas Ruckstuhl  <rks@zhwin.ch>
 	and
 2010-10-28  Martin Maechler  <maechler@stat.math.ethz.ch>
