@@ -45,9 +45,9 @@ void mc_C(double *z, int *in, double *eps, int *iter, double *out)
  *	the original code had only one 'eps' for both and hardcoded
  *	   eps =  0.0000000000001;  /.* == 1e-13 )) *./
  */
-/* MK:  eps1: used to check for over- and underflow, respectively
- *      eps2: for "equal to zero"-checks
- *      therefore I suggest eps1 = DBL_MIN and eps2 = DBL_EPS  
+/* MK:  eps1: for (relative) "equality" checks
+ *      eps2: used to check for over- and underflow, respectively
+ *      therefore I suggest eps1 = DBL_EPS and eps2 = DBL_MIN
  */
 double mc_C_d(double *z, int n, double *eps, int *iter)
 {
@@ -60,7 +60,7 @@ double mc_C_d(double *z, int n, double *eps, int *iter)
     Rboolean IsFound = FALSE, converged = TRUE;
 
     double *work   = (double *) R_alloc(n, sizeof(double));
-    int	   *weight = (int *)	R_alloc(n, sizeof(int)); 
+    int	   *weight = (int *)	R_alloc(n, sizeof(int));
 
     /* work arrays for whimed_i() : will be allocated below : */
     double *acand, *a_srt;
@@ -181,18 +181,18 @@ double mc_C_d(double *z, int n, double *eps, int *iter)
 	    Rprintf(" before whimed(): work[0:(%d-1)], weight[] :\n", j);
 	    for(i=0; i < j; i++) Rprintf(" %8g", work  [i]); Rprintf("\n");
 	    for(i=0; i < j; i++) Rprintf(" %8d", weight[i]); Rprintf("\n");
-	}		    
+	}
 	trial = whimed_i(work, weight, j, acand, a_srt, iw_cand);
+	double eps_trial = eps[0] * (eps[0] + fabs(trial));
 	if(trace_lev >= 3)
 	    Rprintf("%4s it=%2d, whimed(n=%3d)= %8g ", " ", it, j, trial);
 
 	j = 1;
 	for (i = h2; i >= 1; i--) {
-	    if (trace_lev >= 5)
-	    while (j <= h1 && h_kern(x[j],x2[i],j,i,h1+1,eps[1]) - trial > eps[0] * (eps[0] + fabs(trial))) {
+	    while (j <= h1 && h_kern(x[j],x2[i],j,i,h1+1,eps[1]) - trial > eps_trial) {
 		// while (j <= h1 && h_kern(x[j],x2[i],j,i,h1+1,eps[1]) > trial) {
 		if (trace_lev >= 5)
-		    Rprintf("\nj=%3d, i=%3d, x[j]=%g, x2[i]=%g, h=%g", j, i, 
+		    Rprintf("\nj=%3d, i=%3d, x[j]=%g, x2[i]=%g, h=%g", j, i,
 			    x[j], x2[i],
 			    h_kern(x[j],x2[i],j,i,h1+1,eps[1]));
 		j++;
@@ -205,7 +205,7 @@ double mc_C_d(double *z, int n, double *eps, int *iter)
 	}
 	j = h1;
 	for (i = 1, sum_p=0, sum_q=0; i <= h2; i++) {
-	    while (j >= 1 && trial - h_kern(x[j],x2[i],j,i,h1+1,eps[1]) > eps[0] * (eps[0] + fabs(trial)))
+	    while (j >= 1 && trial - h_kern(x[j],x2[i],j,i,h1+1,eps[1]) > eps_trial)
 		// while (j >= 1 && h_kern(x[j],x2[i],j,i,h1+1,eps[1]) < trial)
 		j--;
 	    q[i] = j+1;
@@ -294,7 +294,7 @@ double h_kern(double a, double b, int ai, int bi, int ab, double eps)
 {
 /*     if (fabs(a-b) <= DBL_MIN) */
     /* check for zero division and positive b */
-    if (fabs(a-b) < 2.0*eps || b > 0) 
+    if (fabs(a-b) < 2.0*eps || b > 0)
 	return sign((double)(ab - (ai+bi)));
 
     /* else */
