@@ -91,7 +91,7 @@ static const R_CMethodDef CEntries[]  = {
 
 static R_FortranMethodDef FortEntries[] = {
     {"rffastmcd", (DL_FUNC) &F77_SUB(rffastmcd), 48},/* ./rffastmcd.f */
-    {"rfltsreg",  (DL_FUNC) &F77_SUB(rfltsreg), 41}, /* ./rfltsreg.f */
+    {"rfltsreg",  (DL_FUNC) &F77_SUB(rfltsreg), 42}, /* ./rfltsreg.f */
     {NULL, NULL, 0}
 };
 
