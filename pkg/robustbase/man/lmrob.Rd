@@ -54,8 +54,7 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
     formula instead or as well, and if both are specified their sum is used.}
 
   \item{control}{a \code{\link{list}} specifying control parameters; use
-    the function \code{\link{lmrob.control}(.)} (or
-    \code{\link{lmrob.control.sfs}(.)}) and see its help page.}
+    the function \code{\link{lmrob.control}(.)} and see its help page.}
   \item{\dots}{can be used to specify control parameters directly
     instead of via \code{control}.}
 }
@@ -102,10 +101,10 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
       MM-estimates only}}
   \item{init}{A similar list that contains the results of intermediate
   estimates (not for MM-estimates).}
-  \item{scale}{The scale as returned by S-estimator and used in the M one.}
+  \item{scale}{The scale as used in the M estimator.}
   \item{cov}{The estimated covariance matrix of the regression coefficients}
-  \item{residuals}{Residuals associated with the MM-estimator}
-  \item{fitted.values}{Fitted values associated with the MM-estimator}
+  \item{residuals}{Residuals associated with the estimator}
+  \item{fitted.values}{Fitted values associated with the estimator}
   \item{weights}{the \dQuote{robustness weights} \eqn{\psi(r_i/S) / (r_i/S)}.}
   \item{converged}{\code{TRUE} if the IRWLS iterations have converged}
 }
@@ -126,7 +125,7 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   Salibian-Barrera, M. and Yohai, V.J. (2006)
   A fast algorithm for S-regression estimates,
   \emph{Journal of Computational and Graphical Statistics},
-  in press. %%% <<< FIXME
+  \bold{15}, 414--427.
 
   Yohai, V.J. (1987)
   High breakdown-point and high efficiency estimates for regression.
