@@ -14,9 +14,8 @@ set.seed(17)
 for(n in 1:100) {
     cat(sprintf("n =%3d:\n------\n", n))
     mcval <- mc(rlnorm(n), trace=TRUE, doRefl=FALSE)
-    cat(sprintf(" --> mc(rlnorm(%d)) = %g\n", n, mcval))
+    cat(sprintf(" --> mc(rlnorm(%d)) = %.6f\n", n, mcval))
 }
-
 
 allEQ <- function(x,y) all.equal(x,y, tol = 1e-12)
 

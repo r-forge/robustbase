@@ -172,29 +172,28 @@ residuals.nlrob <- function (object, ...)
 }
 
 
-summary.nlrob <-
-    function (object, correlation = FALSE, symbolic.cor = FALSE, ...)
+summary.nlrob <- function (object, correlation = FALSE, symbolic.cor = FALSE, ...)
 {
     w <- object$w ## weights * w.r, scaled such that sum(w)=1
     n <- sum(w > 0)
     param <- coef(object)
     p <- length(param)
     rdf <- n - p
-    se <- sqrt(diag(object$cov))
-    tval <- param/se
-    ans <- object[c("formula",  "residuals", "Scale", "w", "w.r", "cov",
-                    "call", "status", "iter", "control")]
-    ans$df = c(p, rdf)
-    ans$coefficients <-
-        if(ans$status == "converged")
-            cbind(param, se, tval, 2 * pt(abs(tval), rdf, lower.tail = FALSE))
-        else cbind(param, NA, NA, NA)
-    dimnames(ans$coefficients) <-
-        list(names(param), c("Estimate", "Std. Error", "t value", "Pr(>|t|)"))
-
-    if(correlation && rdf > 0) {
-        ans$correlation <- object$cov / outer(se, se)
-        ans$symbolic.cor <- symbolic.cor
+    ans <- object[c("formula", "residuals", "Scale", "w", "w.r", "cov",
+		    "call", "status", "iter", "control")]
+    ans$df <- c(p, rdf)
+    cf <-
+	if(ans$status == "converged") {
+	    se <- sqrt(diag(object$cov))
+	    tval <- param/se
+	    cbind(param, se, tval, 2 * pt(abs(tval), rdf, lower.tail = FALSE))
+	} else cbind(param, NA, NA, NA)
+    dimnames(cf) <- list(names(param),
+			 c("Estimate", "Std. Error", "t value", "Pr(>|t|)"))
+    ans$coefficients <- cf
+    if(correlation && rdf > 0 && ans$status == "converged") {
+	ans$correlation <- object$cov / outer(se, se)
+	ans$symbolic.cor <- symbolic.cor
     }
     class(ans) <- "summary.nlrob"
     ans
@@ -211,26 +210,28 @@ print.summary.nlrob <-
     rdf <- df[2L]
     cat("\nParameters:\n")
     printCoefmat(x$coefficients, digits = digits, signif.stars = signif.stars,
-                 ...)
-    cat("\nRobust residual standard error:",
-        format(signif(x$Scale, digits)), "\n")
-    correl <- x$correlation
-    if (!is.null(correl)) {
-        p <- NCOL(correl)
-        if (p > 1) {
-            cat("\nCorrelation of Parameter Estimates:\n")
-	    if(is.logical(symbolic.cor) && symbolic.cor) {
-		print(symnum(correl, abbr.colnames = NULL))
-            } else {
-                correl <- format(round(correl, 2), nsmall = 2, digits = digits)
-                correl[!lower.tri(correl)] <- ""
-                print(correl[-1, -p, drop=FALSE], quote = FALSE)
-            }
-        }
+		 ...)
+    if(x$status == "converged") {
+	cat("\nRobust residual standard error:",
+	    format(signif(x$Scale, digits)), "\n")
+	correl <- x$correlation
+	if (!is.null(correl)) {
+	    p <- NCOL(correl)
+	    if (p > 1) {
+		cat("\nCorrelation of Parameter Estimates:\n")
+		if(is.logical(symbolic.cor) && symbolic.cor) {
+		    print(symnum(correl, abbr.colnames = NULL))
+		} else {
+		    correl <- format(round(correl, 2), nsmall = 2, digits = digits)
+		    correl[!lower.tri(correl)] <- ""
+		    print(correl[-1, -p, drop=FALSE], quote = FALSE)
+		}
+	    }
+	}
+	cat("Convergence in", x$iter, "IRWLS iterations\n\n")
+	summarizeRobWeights(x$w.r, digits = digits, ...)
     }
-
-    cat("Convergence in", x$iter, "IRWLS iterations\n")
-    cat("\n")
-    summarizeRobWeights(x$w.r, digits = digits, ...)
+    else
+	cat("** IRWLS iterations did *not* converge!\n\n")
     invisible(x)
 }

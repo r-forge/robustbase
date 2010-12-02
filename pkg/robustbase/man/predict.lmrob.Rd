@@ -32,9 +32,8 @@
     interpreted as an expression evaluated in \code{newdata}}
   \item{\dots}{further arguments passed to or from other methods.}
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+% \details{
+% }
 \value{
 %% the following is +- copy-pasted from  predict.lm.Rd:
   \code{predict.lmrob} produces a vector of predictions or a matrix of
@@ -46,15 +45,15 @@
   \item{residual.scale}{residual standard deviations}
   \item{df}{degrees of freedom for residual}
 }
-\references{
+% \references{
 
-}
+% }
 \author{Andreas Ruckstuhl}
 \seealso{
   \code{\link{lmrob}} and the (non-robust) traditional
   \code{\link{predict.lm}} method.
 }
-\examples{
-}
+% \examples{
+% }
 \keyword{robust}
 \keyword{regression}

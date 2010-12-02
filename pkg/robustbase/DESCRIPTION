@@ -1,13 +1,13 @@
 Package: robustbase
-Version: 0.6-9
-Date: 2010-10-28
+Version: 0.7-0
+Date: 2010-12-02
 Title: Basic Robust Statistics
 Author: Original code by many authors, notably
 	Peter Rousseeuw and Christophe Croux, see file 'Copyrights';
 	Valentin Todorov <valentin.todorov@chello.at>,
 	Andreas Ruckstuhl <andreas.ruckstuhl@zhaw.ch>,
 	Matias Salibian-Barrera <matias@stat.ubc.ca>,
-	Tobias Verbeke <tobias.verbeke@businessdecision.com>,
+	Tobias Verbeke <tobias.verbeke@openanalytics.eu>,
 	Manuel Koller <koller@stat.math.ethz.ch>,
 	Martin Maechler
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>

@@ -83,6 +83,7 @@ S3method(print, nlrob)
 S3method(print, lmrob)
 S3method(print, summary.glmrob)
 S3method(print, summary.lmrob)
+S3method(print, summary.nlrob)
 S3method(print, summary.lts)
 
 S3method(residuals, nlrob)

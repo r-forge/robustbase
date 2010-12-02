@@ -1,8 +1,8 @@
 
-R version 2.12.0 (2010-10-15)
+R version 2.12.0 Patched (2010-12-02 r53738)
 Copyright (C) 2010 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
-Platform: i686-pc-linux-gnu (32-bit)
+Platform: x86_64-unknown-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -32,22 +32,22 @@ Type 'q()' to quit R.
 > for(n in 1:100) {
 +     cat(sprintf("n =%3d:\n------\n", n))
 +     mcval <- mc(rlnorm(n), trace=TRUE, doRefl=FALSE)
-+     cat(sprintf(" --> mc(rlnorm(%d)) = %g\n", n, mcval))
++     cat(sprintf(" --> mc(rlnorm(%d)) = %.6f\n", n, mcval))
 + }
 n =  1:
 ------
- --> mc(rlnorm(1)) = 0
+ --> mc(rlnorm(1)) = 0.000000
 n =  2:
 ------
- --> mc(rlnorm(2)) = 0
+ --> mc(rlnorm(2)) = 0.000000
 n =  3:
 ------
 Median = 0.847375 (not at the border)
- --> mc(rlnorm(3)) = 0
+ --> mc(rlnorm(3)) = 0.000000
 n =  4:
 ------
 Median = 2.04417 (not at the border)
- --> mc(rlnorm(4)) = -1.62509e-16
+ --> mc(rlnorm(4)) = 0.000000
 n =  5:
 ------
 Median = 3.25694 (not at the border)
@@ -66,7 +66,7 @@ Median = 1.12459 (not at the border)
 n =  8:
 ------
 Median = 0.399023 (not at the border)
- --> mc(rlnorm(8)) = 0.00489829
+ --> mc(rlnorm(8)) = 0.004898
 n =  9:
 ------
 Median = 0.813573 (not at the border)
@@ -167,7 +167,7 @@ n = 29:
 ------
 Median = 0.567121 (not at the border)
   not found [it=3,  (nr,nl) = (123,107)], -> (knew-nl, j) = (6,16)
- --> mc(rlnorm(29)) = 0.61519
+ --> mc(rlnorm(29)) = 0.615190
 n = 30:
 ------
 Median = 1.19017 (not at the border)
@@ -197,7 +197,7 @@ n = 35:
 ------
 Median = 1.13929 (not at the border)
   not found [it=3,  (nr,nl) = (165,132)], -> (knew-nl, j) = (31,33)
- --> mc(rlnorm(35)) = 0.27165
+ --> mc(rlnorm(35)) = 0.271650
 n = 36:
 ------
 Median = 0.889333 (not at the border)
@@ -242,7 +242,7 @@ n = 44:
 ------
 Median = 1.03247 (not at the border)
   not found [it=4,  (nr,nl) = (258,222)], -> (knew-nl, j) = (21,36)
- --> mc(rlnorm(44)) = 0.40293
+ --> mc(rlnorm(44)) = 0.402930
 n = 45:
 ------
 Median = 1.19818 (not at the border)
@@ -302,7 +302,7 @@ n = 56:
 ------
 Median = 0.944194 (not at the border)
   not found [it=4,  (nr,nl) = (423,369)], -> (knew-nl, j) = (24,54)
- --> mc(rlnorm(56)) = 0.57353
+ --> mc(rlnorm(56)) = 0.573530
 n = 57:
 ------
 Median = 0.834438 (not at the border)
@@ -342,7 +342,7 @@ n = 64:
 ------
 Median = 1.07216 (not at the border)
   not found [it=4,  (nr,nl) = (545,491)], -> (knew-nl, j) = (22,54)
- --> mc(rlnorm(64)) = 0.35258
+ --> mc(rlnorm(64)) = 0.352580
 n = 65:
 ------
 Median = 0.98628 (not at the border)
@@ -372,7 +372,7 @@ n = 70:
 ------
 Median = 1.2122 (not at the border)
   not found [it=4,  (nr,nl) = (657,597)], -> (knew-nl, j) = (16,60)
- --> mc(rlnorm(70)) = 0.0869074
+ --> mc(rlnorm(70)) = 0.086907
 n = 71:
 ------
 Median = 0.75431 (not at the border)
@@ -387,7 +387,7 @@ n = 73:
 ------
 Median = 1.36469 (not at the border)
   not found [it=5,  (nr,nl) = (686,647)], -> (knew-nl, j) = (38,39)
- --> mc(rlnorm(73)) = 0.0724632
+ --> mc(rlnorm(73)) = 0.072463
 n = 74:
 ------
 Median = 1.19573 (not at the border)
@@ -437,7 +437,7 @@ n = 83:
 ------
 Median = 0.777859 (not at the border)
   not found [it=5,  (nr,nl) = (910,861)], -> (knew-nl, j) = (22,49)
- --> mc(rlnorm(83)) = 0.52293
+ --> mc(rlnorm(83)) = 0.522930
 n = 84:
 ------
 Median = 1.02484 (not at the border)
@@ -447,7 +447,7 @@ n = 85:
 ------
 Median = 0.733753 (not at the border)
   not found [it=5,  (nr,nl) = (956,919)], -> (knew-nl, j) = (6,37)
- --> mc(rlnorm(85)) = 0.59177
+ --> mc(rlnorm(85)) = 0.591770
 n = 86:
 ------
 Median = 1.19888 (not at the border)
@@ -511,7 +511,7 @@ n = 98:
 ------
 Median = 1.182 (not at the border)
   not found [it=5,  (nr,nl) = (1266,1199)], -> (knew-nl, j) = (2,67)
- --> mc(rlnorm(98)) = 0.0272227
+ --> mc(rlnorm(98)) = 0.027223
 n = 99:
 ------
 Median = 1.1647 (not at the border)
@@ -522,7 +522,6 @@ n =100:
 Median = 0.921319 (not at the border)
   not found [it=5,  (nr,nl) = (1312,1236)], -> (knew-nl, j) = (15,76)
  --> mc(rlnorm(100)) = 0.457971
-> 
 > 
 > allEQ <- function(x,y) all.equal(x,y, tol = 1e-12)
 > 
@@ -670,6 +669,6 @@ numeric
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  0.513 0.043 0.632 0 0 
+Time elapsed:  0.458 0.057 0.581 0 0 
 > 
 > quit('no')

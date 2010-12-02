@@ -39,7 +39,7 @@
     \code{\link{predict.lmrob}()}.}
 }
 % \details{
-% %%  ~~ If necessary, more details than the description above ~~
+% If necessary, more details than the description above ~~
 % }
 \value{
 %% the following is +- copy-pasted from  predict.glm.Rd:
@@ -51,15 +51,12 @@
   \item{residual.scale}{A scalar giving the square root of the
     dispersion used in computing the standard errors.}
 }
-\references{
-
-}
 \author{Andreas Ruckstuhl}
 \seealso{
   \code{\link{glmrob}()} fit these robust GLM models;
   \code{\link{predict.lm}()}, the method used for a non-robust fit.
 }
-\examples{
-}
+% \examples{
+% }
 \keyword{models}
 \keyword{regression}

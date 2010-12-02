@@ -8,14 +8,20 @@
   alternative to the MAD.
 }
 \usage{
-Qn(x, constant = 2.2219, finite.corr = missing(constant))
+Qn(x, constant = 2.21914, finite.corr = missing(constant))
 
 s_Qn(x, mu.too = FALSE, \dots)
 }
 \arguments{
   \item{x}{numeric vector of observations.}
   \item{constant}{number by which the result is multiplied; the default
-    achieves consisteny for normally distributed data.}
+    achieves consistency for normally distributed data.  Note that until
+    2010, \dQuote{thanks} to a typo in the very first papers, a slightly
+    wrong default constant, 2.2219, was used instead of the correct one
+    which is equal to \code{1 / (sqrt(2) * qnorm(5/8))}.
+
+    The corre
+  }
   \item{finite.corr}{logical indicating if the finite sample bias
     correction factor should be applied.  Default to \code{TRUE} unless
     \code{constant} is specified.}

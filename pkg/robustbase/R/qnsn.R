@@ -1,4 +1,10 @@
-Qn <- function(x, constant = 2.2219, finite.corr = missing(constant))
+### Note: till 2010, a slightly wrong constant = 2.2219 was in use.
+### Error reported by Peter Ruckdeschel, U.Bayreuth, 15.Juli 2010
+### correct constant == 1 / (sqrt(2) * qnorm(5/8)) == 2.219144
+### -- but wrong constant, 2.2219, is already in the the original Fortran qn.f
+Qn.corr <- 2.2219 / 2.21914
+##
+Qn <- function(x, constant = 2.21914, finite.corr = missing(constant))
 {
     ## Purpose: Rousseeuw and Croux's  Q_n() robust scale estimator
     ## Author: Martin Maechler, Date: 14 Mar 2002, 10:43
@@ -11,13 +17,13 @@ Qn <- function(x, constant = 2.2219, finite.corr = missing(constant))
     if (finite.corr)
 	(if (n <= 9) {
 	    if      (n == 2)  .399
-	    else if (n == 3)  .994
-	    else if (n == 4)  .512
-	    else if (n == 5)  .844
-	    else if (n == 6)  .611
-	    else if (n == 7)  .857
-	    else if (n == 8)  .669
-	    else if (n == 9)  .872
+	    else if (n == 3)  .995
+	    else if (n == 4)  .513
+	    else if (n == 5)  .845
+	    else if (n == 6)  .612
+	    else if (n == 7)  .858
+	    else if (n == 8)  .670
+	    else if (n == 9)  .873
 	} else {
 	    if (n %% 2) ## n odd
 		n / (n + 1.4)
@@ -27,6 +33,18 @@ Qn <- function(x, constant = 2.2219, finite.corr = missing(constant))
          ) * r
     else r
 }
+
+if(FALSE) {
+## How to correct the 9 finite sample correction factors which were from simulations
+## computed with the original wrong constant?
+## We need  [const * fc]_{new} == [const * fc]_{old}.
+## ==> fc_{new} = fc_old *  (const_{old} / const_{new}) = fc_old * Qn.corr
+Qn.fin.9.old <- ## original finite sample corrections for n = 2:9:
+    c(.399, .994, .512, .844, .611, .857, .669, .872)
+round(Qn.fin.9.old * Qn.corr, 3)
+##-> 0.399 0.995 0.513 0.845 0.612 0.858 0.670 0.873
+}
+
 
 Sn <- function(x, constant = 1.1926, finite.corr = missing(constant))
 {

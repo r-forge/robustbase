@@ -1,3 +1,18 @@
+2010-12-02  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* tests/mc-strict.R (adjOutlyingness): adapt tests to the fixed
+	mc() code; using some tolerance... still need to be tested on Win/Mac/..
+
+	* R/nlrob.R (summary.nlrob): do not compute 'se' if not converged;
+	update help page;
+	(print.summary.nlrob): print  "non-convergence"
+
+	* man/summary.nlrob.Rd, man/predict.lmrob.Rd, ..: update and
+	trivial changes.
+
+	* R/qnsn.R (Qn): fixed the consistency constant (thanks to Peter
+	Ruckdeschel), slightly adapting the finite sample factors for n = 2:9.
+
 2010-12-02  Manuel Koller  <koller@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.6-9
