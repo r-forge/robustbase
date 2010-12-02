@@ -1,3 +1,11 @@
+2010-12-02  Valentin Todorov  <valentin.todorov@chello.at>
+
+	* R/ltsReg.R, man/ltsReg.Rd, tests/LTS-specials.R: the raw weights 
+	'raw.weights' added to the returned object
+	
+	* R/ltsReg.R, src/rfltsreg.f, man/ltsReg.Rd: options nsamp="exact" 
+	and nsamp="best" fixed; Added 'trace' parameter
+
 2010-12-02  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* tests/mc-strict.R (adjOutlyingness): adapt tests to the fixed
