@@ -251,7 +251,7 @@ double mc_C_d(double *z, int n, double *eps, int *iter)
 
     converged = IsFound || (nr-nl <= n);
     if(!converged) {
-	Rprintf("maximal number of iterations (%d =? %d) reached prematurely\n",
+	REprintf("maximal number of iterations (%d =? %d) reached prematurely\n",
 		 iter[0], it);
 	/* still: */
 	medc = trial;
