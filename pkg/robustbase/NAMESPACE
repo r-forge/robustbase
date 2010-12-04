@@ -12,7 +12,7 @@ importFrom("stats", anova, coef, cov, family, fitted,
 ## we also currently use MASS::cov.rob(); but probably only temporarily
 
 ## Functions defined in this package
-export(Sn, Qn,
+export(Sn, Qn, Qn.old,
        s_Sn, s_Qn, s_mad, s_IQR,
 
        summarizeRobWeights,

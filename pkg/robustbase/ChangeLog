@@ -1,9 +1,15 @@
+2010-12-04  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/qnsn.R (Qn): even better finite sample correction,
+	from an analysis of a Qn simulation.
+	(Qn.old): provide, if needed for back-compatibility.
+
 2010-12-02  Valentin Todorov  <valentin.todorov@chello.at>
 
-	* R/ltsReg.R, man/ltsReg.Rd, tests/LTS-specials.R: the raw weights 
+	* R/ltsReg.R, man/ltsReg.Rd, tests/LTS-specials.R: the raw weights
 	'raw.weights' added to the returned object
-	
-	* R/ltsReg.R, src/rfltsreg.f, man/ltsReg.Rd: options nsamp="exact" 
+
+	* R/ltsReg.R, src/rfltsreg.f, man/ltsReg.Rd: options nsamp="exact"
 	and nsamp="best" fixed; Added 'trace' parameter
 
 2010-12-02  Martin Maechler  <maechler@stat.math.ethz.ch>
