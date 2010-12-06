@@ -68,6 +68,7 @@ predict(fm1, carrots[-i.tr, ],
         type="response", se = TRUE)# -> a list
 % FIXME: gives a "bad" error -- should rather say "not yet implemented"
 %        or implement it !
+% predict(fm1, carrots[-i.tr, ], interval = "confidence")
 % predict(fm1, carrots[-i.tr, ], interval = "prediction")
 
 data(vaso)
