@@ -14,6 +14,7 @@ Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 NOTE: SEVERAL PARTS ARE STILL PRELIMINARY AND MAY BE CHANGED IN THE FUTURE.
       THIS TYPICALLY INCLUDES ARGUMENT NAMES,
       DEFAULTS FOR ARGUMENTS AND RETURN VALUES.
+URL: http://robustbase.r-forge.r-project.org/
 Description: "Essential" Robust Statistics.  The goal is to provide
  tools allowing to analyze data with robust methods.  This includes
  regression methodology including model selections and multivariate

@@ -174,7 +174,7 @@ glmrob(formula, family, data, weights, subset, na.action,
 %%\note{ }
 
 \seealso{
-  \code{\link{predict.lmrob}} for prediction;
+  \code{\link{predict.glmrob}} for prediction;
   \code{\link{glmrobMqle.control}}
 }
 \examples{

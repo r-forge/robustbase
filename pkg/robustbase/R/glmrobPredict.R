@@ -38,7 +38,7 @@ predict.glmrob <-
             if(!is.null(na.act)) pred <- napredict(na.act, pred)
 	} else {
 	    pred <- predict.lmrob(object, newdata, se.fit, scale = 1,
-                                  type = ifelse(type=="link", "response", type),
+				  type = if(type=="link") "response" else type,
                                   terms = terms, na.action = na.action,
                                   ...)    # *rob
 
@@ -53,7 +53,7 @@ predict.glmrob <-
 	    dispersion <- summary(object, dispersion=dispersion)$dispersion
 	residual.scale <- as.vector(sqrt(dispersion))
 	pred <- predict.lmrob(object, newdata, se.fit, scale = residual.scale,
-                              type = ifelse(type=="link", "response", type),
+			      type = if(type=="link") "response" else type,
                               terms = terms, na.action = na.action, ...) # *rob
 	fit <- pred$fit
 	se.fit <- pred$se.fit

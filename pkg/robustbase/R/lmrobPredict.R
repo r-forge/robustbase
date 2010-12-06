@@ -38,7 +38,7 @@ predict.lmrob <-
                          xlev = object$xlevels)
         if(!is.null(cl <- attr(Terms, "dataClasses"))) .checkMFClasses(cl, m)
         X <- model.matrix(Terms, m, contrasts.arg = object$contrasts)
-        offset <- rep(0, nrow(X))
+        offset <- rep.int(0, nrow(X))
         if (!is.null(off.num <- attr(tt, "offset")))
             for(i in off.num)
                 offset <- offset + eval(attr(tt, "variables")[[i+1]], newdata)
@@ -79,7 +79,7 @@ predict.lmrob <-
                 newdata
             weights <- eval(weights[[2L]], d, environment(weights))
         }
-    }
+    }## "prediction" interval
 
     type <- match.arg(type)
     if(se.fit || interval != "none") {# *rob: whole 'then' statement is different
@@ -87,7 +87,7 @@ predict.lmrob <-
 	res.var <- if (is.null(scale)) object$s^2  else scale^2
 	if(type != "terms"){
              ip <- diag(X %*% object$cov %*% t(X))
-        } else ip <- rep(0, n)
+        } else ip <- rep.int(0, n)
     }
 
     if (type == "terms") { ## type == "terms" ------------

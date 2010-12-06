@@ -56,7 +56,27 @@
   \code{\link{glmrob}()} fit these robust GLM models;
   \code{\link{predict.lm}()}, the method used for a non-robust fit.
 }
-% \examples{
-% }
+\examples{
+data(carrots)
+## simplistic testing & training:
+i.tr <- sample(24, 20)
+fm1 <- glmrob(cbind(success, total-success) ~ logdose + block,
+              family = binomial, data = carrots, subset = i.tr)
+fm1
+predict(fm1, carrots[-i.tr, ]) # --> numeric vector
+predict(fm1, carrots[-i.tr, ],
+        type="response", se = TRUE)# -> a list
+% FIXME: gives a "bad" error -- should rather say "not yet implemented"
+%        or implement it !
+% predict(fm1, carrots[-i.tr, ], interval = "prediction")
+
+data(vaso)
+Vfit <- glmrob(Y ~ log(Volume) + log(Rate), family=binomial, data=vaso)
+newd <- expand.grid(Volume = (V. <- seq(.5, 4, by = 0.5)),
+                    Rate   = (R. <- seq(.25,4, by = 0.25)))
+p <- predict(Vfit, newd)
+filled.contour(V., R., matrix(p, length(V.), length(R.)),
+      main = "predict(glmrob(., data=vaso))", xlab="Volume", ylab="Rate")
+}
 \keyword{models}
 \keyword{regression}
