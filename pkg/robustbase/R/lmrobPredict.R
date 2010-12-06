@@ -25,7 +25,7 @@ predict.lmrob <-
              weights = 1, ...)
 {
     tt <- terms(object)
-    if(!inherits(object, "lmrob") && !inherits(object, "gmrob")) # *rob
+    if(!inherits(object, "lmrob") && !inherits(object, "glmrob")) # *rob
 	warning("calling predict.lm(<fake-lmrob-object>) ...") # *rob
     if(missing(newdata) || is.null(newdata)) {
 	mm <- X <- model.matrix.lm(object)
