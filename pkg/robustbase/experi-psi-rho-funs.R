@@ -183,11 +183,13 @@ tukeyPsi <- c() ##########
 ## standardized to have Dpsi(0) = 1
 ## to have rho(inf) = 1 use lmrob.chifun instead (as well as deriv + 1)
 ## using this results in an error while preparing for lazy loading:
+## (MM, MK: the error arises during the validity check)
 ## ** preparing package for lazy loading
 ## Creating a generic function from function "chgDefaults"
 ## Error in lmrob.psifun(x, k, "ggw", -1) : object 'R_psifun' not found
 ## Error : unable to load R code in package 'robustbase'
 ## ERROR: lazy loading failed for package ‘robustbase’
+## ('R_psifun' is the pointer to the C-function used in lmrob.psifun)
 ggwPsi <- psiFunc(rho = function(x, k) lmrob.psifun(x, k, 'ggw', -1),
                   psi = function(x, k) lmrob.psifun(x, k, 'ggw', 0),
                   wgt = function(x, k) lmrob.wgtfun(x, k, 'ggw'),
