@@ -923,6 +923,7 @@ print(ggplot(test.4, aes(p/n, sdlogsigma.1*sqrt(n),
       ## geom_point(data=test.lm, alpha = alpha.n) + 
       stat_summary(data=test.lm, aes(x=ratio), fun.y=median, 
                    geom='line', color = 'black') + 
+      ylim(with(test.4, range(sdlogsigma.1*sqrt(n)))) +
       g.scale_shape() + scale_colour_discrete("Scale Est."), 
       legend.mod = legend.mod)
                          
