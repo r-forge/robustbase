@@ -1,0 +1,51 @@
+
+R version 2.12.1 (2010-12-16)
+Copyright (C) 2010 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-unknown-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> require(robustbase)
+Loading required package: robustbase
+> 
+> ## Demonstrate that  one of  tukeyChi() / tukeyPsi1() is superfluous
+> 
+> EQ <- function(x,y) all.equal(x,y, tol = 1e-13)
+> 
+> x <- seq(-4,4, length=201)
+> c. <- pi
+> 
+> stopifnot(EQ(tukeyChi(x, c.),
++              6/c.^2* tukeyPsi1(x, c., deriv=-1)),
++           EQ(tukeyChi(x, c., deriv= 1),
++              6/c.^2* tukeyPsi1(x, c., deriv= 0)),
++           EQ(tukeyChi(x, c., deriv= 2),
++              6/c.^2* tukeyPsi1(x, c., deriv= 1)))
+> 
+> ## Test if default arguments are used
+> tPsi <- chgDefaults(huberPsi, k = 2)
+> 
+> stopifnot(tPsi@rho(1:10, k=2) == tPsi@rho(1:10),
++           tPsi@psi(1:10, k=2) == tPsi@psi(1:10),
++           tPsi@Dpsi(1:10, k=2) == tPsi@Dpsi(1:10),
++           tPsi@wgt(1:10, k=2) == tPsi@wgt(1:10))
+> 
+> ## FIXME: Default arguments are not used for E... slots
+> try(tPsi@Erho())
+[1] 0.4942313
+> try(tPsi@Epsi2())
+[1] 0.920537
+> try(tPsi@EDpsi())
+[1] 0.9544997
+> 
