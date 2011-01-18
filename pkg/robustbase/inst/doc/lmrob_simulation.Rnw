@@ -31,6 +31,7 @@
 options(width=60)
 
 ## load required packages
+require(xtable)
 require(robustbase)
 require(ggplot2)
 require(robust)
@@ -213,11 +214,51 @@ We compare the methods
 
 \subsection{$\psi$-functions}
 We compare \emph{bisquare}, \emph{optimal}, \emph{lqq} and \emph{Hampel}
-$\psi$-functions. They are illustrated in
-Fig.~\ref{fig:psi.functions}. Note that the \emph{Hampel} $\psi$-function
+$\psi$-functions. They are illustrated in Fig.~\ref{fig:psi.functions}. The
+tuning constants used in the simulation are compiled in
+Table~\ref{tab:psi-functions}. Note that the \emph{Hampel} $\psi$-function
 is tuned to have a downward slope of $-1/3$ instead of the originally
 proposed $-1/2$. This was set to allow for a comparison to an even slower
 descending $\psi$-function.
+
+%% generate table of tuning constants used for \psi functions
+\begin{table}[ht]
+\begin{center}
+<<tab-psi-functions, results=tex, echo=FALSE>>=
+## get list of psi functions
+lst <- lapply(estlist$procedures, function(x) {
+  if (is.null(x$args)) return(list(NULL, NULL, NULL))
+  if (!is.null(x$args$weight)) 
+    return(list(x$args$weight[2], 
+                round(f.psi2c.chi(x$args$weight[1]),3),
+                round(f.eff2c.psi(x$args$efficiency, x$args$weight[2]),3)))
+  return(list(x$args$psi, 
+              round(if (is.null(x$args$tuning.chi))
+                    lmrob.control(psi=x$args$psi)$tuning.chi else
+                    x$args$tuning.chi,3),
+              round(if (is.null(x$args$tuning.psi)) 
+                    lmrob.control(psi=x$args$psi)$tuning.psi else 
+                    x$args$tuning.psi,3)))
+})
+lst <- unique(lst)
+lst <- lst[sapply(lst, function(x) !is.null(x[[1]]))]
+## convert to table
+tbl <- do.call(rbind, lst)
+tbl[,2:3] <- apply(tbl[,2:3], 1:2, function(x) {
+  gsub('\\$NA\\$', '\\\\texttt{NA}', 
+       paste('$', unlist(x), collapse=', ', '$', sep='')) })
+tbl[,1] <- paste('\\texttt{', tbl[,1], '}', sep='')
+colnames(tbl) <- paste('\\texttt{', c('psi', 'tuning.chi', 'tuning.psi'), 
+                       '}', sep='')
+print(xtable(tbl), sanitize.text.function=identity,
+      include.rownames = FALSE, floating=FALSE)
+@ %def 
+\vspace{15pt}
+\caption{Tuning constants of $\psi$-functions used in the simulation.}
+\label{tab:psi-functions}
+\end{center}
+\end{table}
+
 
 \begin{figure}
 \begin{center}
