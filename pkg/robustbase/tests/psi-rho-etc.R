@@ -26,3 +26,10 @@ stopifnot(tPsi@rho(1:10, k=2) == tPsi@rho(1:10),
 try(tPsi@Erho())
 try(tPsi@Epsi2())
 try(tPsi@EDpsi())
+
+
+## FIXME: pmin2 / pmax2 not numerically stable
+huberPsi@psi(1, k = 1e16)
+## other problematic values: wgt might be > 1
+## 0.1591319494080224 -0.1909004029223272 -0.1836697723701616
+huberPsi@wgt(0.1591319494080224, 0.5 + 1/13) > 1
