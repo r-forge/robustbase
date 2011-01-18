@@ -1,3 +1,12 @@
+2011-01-18  Manuel Koller  <koller@stat.math.ethz.ch>
+
+	* tests/psi-rho-etc.R: added tests to document bug in psi_func
+	class and pmin2/pmax2 functions.
+	* tests/psi-rho-etc.Rout.save: results as they should be
+
+	* inst/doc/lmrob_simulation.Rnw: added table with tuning constants
+	used in simulation.
+
 2010-12-04  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/qnsn.R (Qn): even better finite sample correction,
