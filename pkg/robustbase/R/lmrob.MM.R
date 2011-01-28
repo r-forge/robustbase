@@ -10,7 +10,7 @@ lmrob.control <- function  (setting, seed = NULL, nResample = 500,
                             numpoints = 10, cov = '.vcov.avar1', ...)
 {
     if (!missing(setting)) {
-        if (setting == 'KS2010') {
+        if (setting == 'KS2011') {
             ## FIXME? Warn if settings are overridden?
             if (missing(method)) method <- 'SMDM'
             if (missing(psi)) psi <- 'lqq'

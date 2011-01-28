@@ -157,7 +157,7 @@ legend.mod <- list(`SMD(tau)` = expression(paste('SMD(',tau,')')),
 \tableofcontents
 
 \section{Introduction}
-In this vignette, we recreate the simulation study of \citet{KS2010}. This
+In this vignette, we recreate the simulation study of \citet{KS2011}. This
 vignette is supposed to complement the results presented in the above cited
 reference and render its results reproducible. Another goal is to provide
 simulation functions, that, with small changes, could also used for other
@@ -176,7 +176,7 @@ for large $n$ and $p$, computing all the replicates will take days.
 \subsection{Methods}
 We compare the methods
 \begin{itemize}
-\item MM, SMD, SMDM as described in \citet{KS2010}. These methods are
+\item MM, SMD, SMDM as described in \citet{KS2011}. These methods are
   available in the package \T{robustbase} (\T{lmrob}).
 \item MM as implemented in the package \T{robust}  (\T{lmRob}). This method
   will be denoted as \emph{MM(robust)} later on.
@@ -352,7 +352,7 @@ corrected by Huber's small sample correction as described in
 \citet{HubPR09}. The latter is also used for the variation of the MM
 estimate proposed by \citet{maronna2009correcting}. For the
 SMD and SMDM variants we use the covariance matrix estimate as described in
-\citet{KS2010}.
+\citet{KS2011}.
 
 The covariance matrix estimate consists of three parts:
 \begin{equation*}
@@ -369,7 +369,7 @@ The SMD and SMDM methods of \T{lmrob} use the following defaults.
   {\frac{1}{n}\sum_{i=1}^n\psi'\left(\frac{r_i}{\tau_i\hat\sigma}\right)}
 \end{equation*}
 where $\tau_i$ is the rescaling factor used for the D-scale estimate (see
-\citet{KS2010}). 
+\citet{KS2011}). 
 \begin{equation*}
   % \label{eq:xwx}
   \bld{\widehat V}_{\bld X} = \frac{1}{\frac{1}{n}\sum_{i=1}^n\wgt_{ii}}\bld X'\bld W
@@ -872,7 +872,7 @@ The simulated methods are compared using the following criteria.
 \subsection{Results}
 The results are given here as plots (Fig.~\ref{fig:meanscale-1} to
 Fig.~\ref{fig:cpr}). For a complete discussion of the results, we refer to
-\citet{KS2010}.
+\citet{KS2011}.
 
 The different $\psi$-functions are each plotted in a different facet,
 except for Fig.~\ref{fig:qscale-all}, Fig.~\ref{fig:Mscale-all} and

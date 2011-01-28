@@ -5,8 +5,8 @@
 \description{
   Tuning parameters for \code{\link{lmrob}}, the MM-type regression
   estimator and the associated S-, M- and D-estimators. Using
-  \code{setting="KS2010"} sets the defaults as suggested by Koller and Stahel
-  (2010).
+  \code{setting="KS2011"} sets the defaults as suggested by Koller and Stahel
+  (2011).
 }
 \usage{
 lmrob.control(setting, seed = NULL, nResample = 500,
@@ -20,8 +20,8 @@ lmrob.control(setting, seed = NULL, nResample = 500,
 }
 \arguments{
   \item{setting}{a string specifying alternative default values. Leave
-    empty for the defaults or use \code{KS2010} for the defaults
-    suggested by Koller and Stahel (2010). See \emph{Details}.}
+    empty for the defaults or use \code{KS2011} for the defaults
+    suggested by Koller and Stahel (2011). See \emph{Details}.}
   \item{seed}{an integer vector, the seed to be used for random
     re-sampling used in obtaining candidates for the initial
     S-estimator; see \code{\link{.Random.seed}}.  The current value of
@@ -84,7 +84,7 @@ lmrob.control(setting, seed = NULL, nResample = 500,
     \code{\link{lmrob}}.}
   \item{...}{Further arguments are added to the control list.}
 }
-\details{The option \code{setting="KS2010"} alters the default
+\details{The option \code{setting="KS2011"} alters the default
   arguments. They are changed to \code{method = 'SMDM', psi = 'lqq',
     max.it = 500, k.max = 2000, cov = '.vcov.w'}. The defaults of all
   the remaining arguments are not changed.
@@ -131,7 +131,9 @@ lmrob.control(setting, seed = NULL, nResample = 500,
     \code{hampel} (-1/2) \tab \code{c(2, 4, 8)*0.4769578}
   }
 }\references{
-  Koller, M. and Stahel, W.A. (2010, tbp)
+  Koller, M. and Stahel, W.A. (2011), Sharpening Wald-type inference in
+  robust regression, \emph{submitted to Computational Statistics and
+    Data Analysis}.
 }
 \author{ Matias Salibian-Barrera, Martin Maechler and Manuel Koller}
 \seealso{ \code{\link{lmrob}}, also for references and examples.

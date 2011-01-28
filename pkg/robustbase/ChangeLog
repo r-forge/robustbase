@@ -1,3 +1,14 @@
+2011-01-20  Manuel Koller  <koller@stat.math.ethz.ch>
+
+	Updated reference to Koller and Stahel 2011 paper.
+
+	* man/lmrob.control.Rd: updated reference. KS2010 -> KS2011.
+	* man/lmrob.Rd: see above
+	* inst/doc/lmrob_simulation.bib: updated ks2011 reference.
+	* inst/doc/lmrob_simulation.Rnw: see above
+	* R/lmrob.MM.R (lmrob.control): setting argument: KS2011 instead of
+	KS2010
+
 2011-01-18  Manuel Koller  <koller@stat.math.ethz.ch>
 
 	* tests/psi-rho-etc.R: added tests to document bug in psi_func

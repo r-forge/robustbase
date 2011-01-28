@@ -60,15 +60,15 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
 }
 \details{
   This function computes an MM-type regression estimator
-  as described in Yohai (1987) and Koller and Stahel (2010).  By default
+  as described in Yohai (1987) and Koller and Stahel (2011).  By default
   it uses a bi-square re-desceding score function, and it returns a
   highly robust and highly efficient estimator (with 50\% breakdown
   point and 95\% asymptotic efficiency for normal errors). The
   computation is carried out by a call to \code{\link{lmrob.fit}()}.
 
   The argument \code{setting} of \code{\link{lmrob.control}} is provided
-  to set alternative defaults as suggested in Koller and Stahel (2010)
-  (use \code{setting='KS2010'}). For details, see
+  to set alternative defaults as suggested in Koller and Stahel (2011)
+  (use \code{setting='KS2011'}). For details, see
   \code{\link{lmrob.control}}.
 
   As initial estimator it uses an S-estimator (Rousseeuw and Yohai,
@@ -78,7 +78,7 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   argument of \code{\link{lmrob.control}}. There are currently two types
   of estimates available: \code{M} and \code{D}. The first corresponds
   to the standard M-regression estimate. \code{D} stands for the Design
-  Adaptive Scale estimate as proposed in Koller and Stahel (2010). The
+  Adaptive Scale estimate as proposed in Koller and Stahel (2011). The
   \code{method} argument takes a string that specifies the estimates to
   be calculated as a chain. Setting \code{method='SMDM'} will result in
   an intial S-estimate, followed by an M-estimate, a Design Adaptive
@@ -91,7 +91,7 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   MM-estimates. For other \code{method} arguments, the covariance matrix
   estimate used is based on the asymptotic normality of the estimated
   coefficients (\code{cov=".vcov.w"}) as described in Koller and Stahel
-  (2010).
+  (2011).
 }
 \value{
   An object of class \code{lmrob}. A list that includes the
@@ -113,7 +113,9 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   \emph{Robust standard errors for robust estimators},
   Discussion Papers Series 03.16, K.U. Leuven, CES.
 
-  Koller, M. and Stahel, W.A. (2010, tbp)
+  Koller, M. and Stahel, W.A. (2011), Sharpening Wald-type inference in
+  robust regression, \emph{submitted to Computational Statistics and
+  Data Analysis}.
 
   Rousseeuw, P.J. and Yohai, V.J. (1984)
   Robust regression by means of S-estimators,
@@ -142,7 +144,7 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
 \examples{
 data(coleman)
 summary( m1 <- lmrob(Y ~ ., data=coleman) )
-summary( m2 <- lmrob(Y ~ ., data=coleman, setting = 'KS2010') )
+summary( m2 <- lmrob(Y ~ ., data=coleman, setting = 'KS2011') )
 
 data(starsCYG, package = "robustbase")
 ## Plot simple data and fitted lines
