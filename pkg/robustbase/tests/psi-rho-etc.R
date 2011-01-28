@@ -17,19 +17,18 @@ stopifnot(EQ(tukeyChi(x, c.),
 ## Test if default arguments are used
 tPsi <- chgDefaults(huberPsi, k = 2)
 
-stopifnot(tPsi@rho(1:10, k=2) == tPsi@rho(1:10),
-          tPsi@psi(1:10, k=2) == tPsi@psi(1:10),
-          tPsi@Dpsi(1:10, k=2) == tPsi@Dpsi(1:10),
-          tPsi@wgt(1:10, k=2) == tPsi@wgt(1:10))
+x <- 1:10
+stopifnot(tPsi@ rho(x, k=2) == tPsi@ rho(x),
+          tPsi@ psi(x, k=2) == tPsi@ psi(x),
+          tPsi@Dpsi(x, k=2) == tPsi@Dpsi(x),
+          tPsi@ wgt(x, k=2) == tPsi@ wgt(x))
 
 ## Test default arguments for E... slots
-tPsi@Erho()
-tPsi@Epsi2()
-tPsi@EDpsi()
+stopifnot(EQ(tPsi@Erho (), 0.49423127328548),
+          EQ(tPsi@Epsi2(), 0.920536925636323),
+          EQ(tPsi@EDpsi(), 0.954499736103642))
 
+stopifnot(EQ(1, huberPsi@psi(1, k = 1e16)),
+          huberPsi@wgt(0.1591319494080224, 0.5 + 1/13) <= 1)
+## both used to fail because of numeric instability in pmin2/pmax2
 
-## FIXME: pmin2 / pmax2 not numerically stable
-huberPsi@psi(1, k = 1e16)
-## other problematic values: wgt might be > 1
-## 0.1591319494080224 -0.1909004029223272 -0.1836697723701616
-huberPsi@wgt(0.1591319494080224, 0.5 + 1/13) > 1

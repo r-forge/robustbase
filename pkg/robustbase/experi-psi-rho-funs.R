@@ -10,7 +10,7 @@
 ##    /u/maechler/R/MM/STATISTICS/robust/wt-funs.R
 ##      ~~~~~~~~~~
 
-Hf0 <- function(x, c=1.35) pmax2(-c, pmin2(x,c))
+Hf0 <- function(x, c=1.35) pmax.int(-c, pmin.int(x,c))
 Hf <- new("functionX", Hf0)
 stopifnot(validObject(Hf)) # ok !
 
@@ -72,7 +72,7 @@ PL <- list(rho =
                 x[lrg] <- 0
                 if(any(mid))
                     x[mid] <- k[1] * sign(x[mid])*
-                        pmin2(1, (u[mid] - k[3])/(k[2] - k[3]))
+                        pmin.int(1, (u[mid] - k[3])/(k[2] - k[3]))
                 x
             },
             wgt  = function(x, k) {
@@ -84,7 +84,7 @@ PL <- list(rho =
                 x[lrg] <- 0
                 if(any(mid))
                     x[mid] <- k[1] / x[mid] *
-                        pmin2(1, (x[mid] - k[3])/(k[2] - k[3]))
+                        pmin.int(1, (x[mid] - k[3])/(k[2] - k[3]))
                 x
             }
            )
@@ -151,7 +151,7 @@ hampelPsi <-
                 x[lrg] <- 0
                 if(any(mid))
                     x[mid] <- k[1] * sign(x[mid])*
-                        pmin2(1, (u[mid] - k[3])/(k[2] - k[3]))
+                        pmin.int(1, (u[mid] - k[3])/(k[2] - k[3]))
                 x
             },
             wgt  = function(x, k) {
@@ -163,7 +163,7 @@ hampelPsi <-
                 x[lrg] <- 0
                 if(any(mid))
                     x[mid] <- k[1] / x[mid] *
-                        pmin2(1, (x[mid] - k[3])/(k[2] - k[3]))
+                        pmin.int(1, (x[mid] - k[3])/(k[2] - k[3]))
                 x
             },
             Dpsi = function(x, k) {

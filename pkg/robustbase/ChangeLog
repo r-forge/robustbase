@@ -1,3 +1,9 @@
+2011-01-28  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/glmrobMqle.R (Huberprop2, ...),
+	* R/psi-rho-funs.R (huberPsi): replace pmin2/pmax2 by
+	pmin.int()/pmax.int().
+
 2011-01-26  Manuel Koller  <koller@stat.math.ethz.ch>
 
 	* R/psi-rho-funs.R (psiFunc, chgDefaults): default arguments are

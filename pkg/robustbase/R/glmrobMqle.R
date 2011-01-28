@@ -172,7 +172,7 @@ glmrobMqle <-
         eval(comp.scaling) #-> (sV, residPS)
         eval(comp.Epsi.init)
 	## Computation of alpha and (7) using matrix column means:
-	cpsi <- pmax2(-tcc, pmin(residPS,tcc)) - eval(Epsi)
+	cpsi <- pmax.int(-tcc, pmin(residPS,tcc)) - eval(Epsi)
 	EEq <- colMeans(cpsi * w.x * sni/sV * dmu.deta * X)
 	##
 	## Solve  1/n (t(X) %*% B %*% X) %*% delta.coef	  = EEq
@@ -285,7 +285,7 @@ wts_RobDist <- function(X, intercept, covFun)
 	dist2 <- mahalanobis(X, center = rep(0,ncol(X)), cov = Mu)
     }
     ncoef <- ncol(X) ## E[chi^2_p] = p
-    1/sqrt(1+ pmax2(0, 8*(dist2 - ncoef)/sqrt(2*ncoef)))
+    1/sqrt(1+ pmax.int(0, 8*(dist2 - ncoef)/sqrt(2*ncoef)))
 }
 
 
@@ -357,10 +357,10 @@ EpsiSPois <- expression(
 EpsiBin.init <- expression({
     pK <- pbinom(K, ni, mu)
     pH <- pbinom(H, ni, mu)
-    pKm1 <- pbinom(K-1, pmax2(0, ni-1), mu)
-    pHm1 <- pbinom(H-1, pmax2(0, ni-1), mu)
-    pKm2 <- pbinom(K-2, pmax2(0, ni-2), mu)
-    pHm2 <- pbinom(H-2, pmax2(0, ni-2), mu)
+    pKm1 <- pbinom(K-1, pmax.int(0, ni-1), mu)
+    pHm1 <- pbinom(H-1, pmax.int(0, ni-1), mu)
+    pKm2 <- pbinom(K-2, pmax.int(0, ni-2), mu)
+    pHm2 <- pbinom(H-2, pmax.int(0, ni-2), mu)
 
     ## QlV = Q / V, where Q = Sum_j (j - mu_i)^2 * P[Y_i = j]
     ## i.e.  Q =	     Sum_j j(j-1)* P[.] +
@@ -481,7 +481,7 @@ Huberprop2.gehtnicht <- function(phi, ns.resid, mu, Vmu, tcc)
     compEpsi2 <- eval(Epsi2)
     ##
     ## return h :=
-    sum(pmax2(-tcc,pmin(ns.resid*snu,tcc))^2) -  nobs*compEpsi2
+    sum(pmax.int(-tcc,pmin(ns.resid*snu,tcc))^2) -  nobs*compEpsi2
 }
 
 Huberprop2 <- function(phi, ns.resid, mu, Vmu, tcc)
@@ -503,5 +503,5 @@ Huberprop2 <- function(phi, ns.resid, mu, Vmu, tcc)
     ##
     compEpsi2 <- tcc^2 + (pPtc - pMtc)*(1-tcc^2) + GLtcc - GUtcc
     ## return h :=
-    sum(pmax2(-tcc,pmin(ns.resid*snu,tcc))^2) -  nobs*compEpsi2
+    sum(pmax.int(-tcc,pmin(ns.resid*snu,tcc))^2) -  nobs*compEpsi2
 }

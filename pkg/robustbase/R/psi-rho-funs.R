@@ -146,8 +146,8 @@ huberPsi <- psiFunc(rho =
                       r[!I] <- k*(u[!I] - k / 2)
                       r
                   },
-                  psi  = function(x, k) pmin2(k, pmax2(-k, x)),
-                  wgt  = function(x, k) pmin2(1, k/abs(x)),
+                  psi  = function(x, k) pmin.int(k, pmax.int(-k, x)),
+                  wgt  = function(x, k) pmin.int(1, k/abs(x)),
                   Dpsi = function(x, k) abs(x) <= k,
                   Erho = function(k) {iP <- pnorm(k, lower=FALSE)
                                       1/2 - iP + k*(dnorm(k) - k*iP)},
@@ -181,7 +181,7 @@ hampelPsi <-
                 x[lrg] <- 0
                 if(any(mid))
                     x[mid] <- k[1] * sign(x[mid])*
-                        pmin2(1, (u[mid] - k[3])/(k[2] - k[3]))
+                        pmin.int(1, (u[mid] - k[3])/(k[2] - k[3]))
                 x
             },
             wgt  = function(x, k) {
@@ -193,7 +193,7 @@ hampelPsi <-
                 x[lrg] <- 0
                 if(any(mid))
                     x[mid] <- k[1] / x[mid] *
-                        pmin2(1, (x[mid] - k[3])/(k[2] - k[3]))
+                        pmin.int(1, (x[mid] - k[3])/(k[2] - k[3]))
                 x
             },
             Dpsi = function(x, k) {
