@@ -68,16 +68,26 @@ psiFunc <- function(rho,psi,wgt, Dpsi, Erho=NULL, Epsi2=NULL, EDpsi=NULL, ...)
     if(lent >= 1) {
         ## rho, psi,... checking: must have argument names
         argn <- c("x", nt)
-        for(fnam in list("rho", "psi", "wgt", "Dpsi")) {
+        for(fnam in list("rho", "psi", "wgt", "Dpsi",
+                         "Erho", "Epsi2", "EDpsi")) {
             f <- get(fnam, inherits = FALSE)
             ef <- environment(f)
             nf <- names(ff <- formals(f)) # "x" and "k" for Huber's
-            if(!identical(nf, argn))
-                stop("arguments of function '",fnam,"' are (",
-                     paste(nf,  collapse=","),") but should be (",
-                     paste(argn,collapse=","),").")
+            if (fnam %in% c("Erho", "Epsi2", "EDpsi")) {
+                if(!identical(nf, argn[-1]))
+                    stop("arguments of function '",fnam,"' are (",
+                         paste(nf,  collapse=","),") but should be (",
+                         paste(argn[-1],collapse=","),").")
 
-            formals(f)[-1] <- dotsargs
+                formals(f) <- dotsargs
+            } else {
+                if(!identical(nf, argn))
+                    stop("arguments of function '",fnam,"' are (",
+                         paste(nf,  collapse=","),") but should be (",
+                         paste(argn,collapse=","),").")
+
+                formals(f)[-1] <- dotsargs
+            }
             environment(f) <- ef
             assign(fnam, f, inherits = FALSE)
         }
@@ -113,10 +123,12 @@ setMethod("chgDefaults", signature("psi_func"),
                           paste(nt,    collapse=",")," instead of ",
                           paste(nf[-1],collapse=","),".")
 
-                  for(fnam in list("rho", "psi", "wgt", "Dpsi")) {
+                  for(fnam in list("rho", "psi", "wgt", "Dpsi",
+                                   "Erho", "Epsi2", "EDpsi")) {
                       f <- slot(object, fnam)
                       ef <- environment(f)
-                      formals(f)[-1] <- dotsargs
+                      if (is(f, "functionXal"))
+                          formals(f) <- dotsargs else formals(f)[-1] <- dotsargs
                       environment(f) <- ef
                       ## lowlevel {faster than}: slot(..) <- new("functionX", f)
                       slot(object, fnam)@.Data <- f

@@ -1,3 +1,10 @@
+2011-01-26  Manuel Koller  <koller@stat.math.ethz.ch>
+
+	* R/psi-rho-funs.R (psiFunc, chgDefaults): default arguments are
+	now also set for the E... slots
+	* tests/psi-rho-etc.R: updated comments
+	* tests/psi-rho-etc.Rout.save: updated accordingly
+
 2011-01-20  Manuel Koller  <koller@stat.math.ethz.ch>
 
 	Updated reference to Koller and Stahel 2011 paper.

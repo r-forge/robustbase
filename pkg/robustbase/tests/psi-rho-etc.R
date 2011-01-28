@@ -22,10 +22,10 @@ stopifnot(tPsi@rho(1:10, k=2) == tPsi@rho(1:10),
           tPsi@Dpsi(1:10, k=2) == tPsi@Dpsi(1:10),
           tPsi@wgt(1:10, k=2) == tPsi@wgt(1:10))
 
-## FIXME: Default arguments are not used for E... slots
-try(tPsi@Erho())
-try(tPsi@Epsi2())
-try(tPsi@EDpsi())
+## Test default arguments for E... slots
+tPsi@Erho()
+tPsi@Epsi2()
+tPsi@EDpsi()
 
 
 ## FIXME: pmin2 / pmax2 not numerically stable

@@ -41,12 +41,12 @@ Loading required package: robustbase
 +           tPsi@Dpsi(1:10, k=2) == tPsi@Dpsi(1:10),
 +           tPsi@wgt(1:10, k=2) == tPsi@wgt(1:10))
 > 
-> ## FIXME: Default arguments are not used for E... slots
-> try(tPsi@Erho())
+> ## Test default arguments for E... slots
+> tPsi@Erho()
 [1] 0.4942313
-> try(tPsi@Epsi2())
+> tPsi@Epsi2()
 [1] 0.920537
-> try(tPsi@EDpsi())
+> tPsi@EDpsi()
 [1] 0.9544997
 > 
 > 
