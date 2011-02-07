@@ -198,9 +198,12 @@ curves <- function(expr, from = NULL, to = NULL, n = 101, add = FALSE,
     if (is.null(dm[[2]])) dm[[2]] <- 1:NCOL(y)
     dimnames(y) <- dm
     ## restructure the output matrix to a data.frame
-    ydf <- f.a2df.2(y, value.col = NULL, procstr.col = NULL, errstr.col = NULL)
+    ydf <- melt(y)
     ## un-factor the first two columns
-    for (i in 1:2) ydf[[i]] <- f.as.numeric.vectorized(levels(ydf[[i]]))[ydf[[i]]]
+    for (i in 1:2) {
+      if (is.factor(ydf[[i]])) 
+        ydf[[i]] <- f.as.numeric.vectorized(levels(ydf[[i]]))[ydf[[i]]]
+    }
     ## add x column
     ydf$x <- rep(x, each = NROW(y))
     if (is.null(xcol)) {
@@ -218,16 +221,17 @@ curves <- function(expr, from = NULL, to = NULL, n = 101, add = FALSE,
     if (wrap) { ## use facet wrap, or assume it was used before
       ## there seems to be a bug in ggplot that requires sorting for the rows variable
       ydf <- ydf[order(ydf[,1],ydf[,2]),]
-      gl <- geom(data = ydf, aes_string(x = xcol, y = 'values'), ...)
+      gl <- geom(data = ydf, aes_string(x = xcol, y = 'value'), ...)
       ret <- if (add) gl
       else ggplot(ydf) + gl + xlab(xlab) +
         facet_wrap(substitute(~ rows, list(rows = as.name(names(dm)[1]))))
     } else {
       ## factor 'rows' again
       ydf[, 1] <- factor(ydf[, 1], levels = unique(ydf[, 1]))
-      ret <- if (add) geom(data = ydf, aes_string(x = xcol, y = 'values',
+      ret <- if (add) geom(data = ydf, aes_string(x = xcol, y = 'value',
                              color = names(dm)[1]), ...)
-      else  ggplot(ydf) + geom(aes_string(x = xcol, y = 'values', linetype = 'rows' ), ...) +
+      else  ggplot(ydf) + geom(aes_string(x = xcol, y = 'value',
+                                          linetype = names(dm)[1]), ...) +
         xlab(xlab)
     }
   }
