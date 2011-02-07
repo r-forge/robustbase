@@ -9,18 +9,19 @@
 
 \newcommand{\makeright}[2]{\ifx#1\left\right#2\else#1#2\fi}
 \newcommand{\Norm}[2][\left]{\mathcal N   #1( #2 \makeright{#1}{)}}
+\newcommand{\norm}[1]   {\| #1 \|}
 \newcommand{\bld}[1]{\boldsymbol{#1}} % shortcut for bold symbol
 \newcommand{\T}[1]      {\texttt{#1}}
 \DeclareMathOperator{\wgt}{w}
+\DeclareMathOperator{\var}{var}
 \DeclareMathOperator{\diag}{diag}
 \DeclareMathOperator{\median}{median}
 \DeclareMathOperator{\mad}{mad}
+\DeclareMathOperator{\Erw}{\mathbf{E}}
 
 
 \SweaveOpts{prefix.string=plot, eps = FALSE, pdf = TRUE, strip.white=TRUE}
 \SweaveOpts{width=6, height=4}
-
-%% \setlength{\textheight}{600pt}
 
 \begin{document}
 \setkeys{Gin}{width=\textwidth}
@@ -131,22 +132,24 @@ g.truncate.area <- annotate("rect", xmin=-Inf, xmax=Inf,
                              ymin=trunc[2], ymax=Inf,
                              fill = theme$panel.grid.major()$gp$col)
 
-legend.mod <- list(`SMD(tau)` = expression(paste('SMD(',tau,')')),
-                   `SMDM(tau)` = expression(paste('SMDM(',tau,')')),
-                   `MM(Avar1)` = expression(paste('MM(',Avar[1],')')),
-                   `MM(qT)` = expression(paste('MM(',q[T],')')),
-                   `MM(qT,ssc)` = expression(paste('MM(',q[T],',ssc)')),
-                   `MM(qE)` = expression(paste('MM(',q[E],')')),
-                   `MM(qE,ssc)` = expression(paste('MM(',q[E],',ssc)')),
+legend.mod <- list(`SMD.Wtau` = expression(paste('SMD.W',tau)),
+                   `SMDM.Wtau` = expression(paste('SMDM.W',tau)),
+                   `MM.Avar1` = expression(paste('MM.',Avar[1])),
+                   `MMqT` = expression(paste('MM',q[T])),
+                   `MMqT.Wssc` = expression(paste('MM',q[T],'.Wssc')),
+                   `MMqE` = expression(paste('MM',q[E])),
+                   `MMqE.Wssc` = expression(paste('MM',q[E],'.Wssc')),
                    `sigma_S` = expression(hat(sigma)[S]),
                    `sigma_D` = expression(hat(sigma)[D]),
                    `sigma_S*qE` = expression(q[E]*hat(sigma)[S]),
                    `sigma_S*qT` = expression(q[T]*hat(sigma)[S]),
                    `sigma_robust` = expression(hat(sigma)[robust]),
+                   `sigma_OLS` = expression(hat(sigma)[OLS]),
                    `t1` = expression(t[1]),
                    `t3` = expression(t[3]),
                    `t5` = expression(t[5]),
-                   `skt(Inf,2)` = expression(paste('skt(',infinity,',2)'))
+                   `cskt(Inf,2)` = expression(paste('skt(',infinity,',2)')),
+                   `cskt(5,2)` = expression('skt(5,2)')
                    )
 @ 
 
@@ -179,9 +182,9 @@ We compare the methods
 \item MM, SMD, SMDM as described in \citet{KS2011}. These methods are
   available in the package \T{robustbase} (\T{lmrob}).
 \item MM as implemented in the package \T{robust}  (\T{lmRob}). This method
-  will be denoted as \emph{MM(robust)} later on.
-\item MM using S-scale correction by $q_{\rm T}$ (\emph{MM(qT)}) and $q_{\rm
-    E}$ (\emph{MM(qE)}) as proposed by \citet{maronna2009correcting}.
+  will be denoted as \emph{MMrobust} later on.
+\item MM using S-scale correction by $q_{\rm T}$ and $q_{\rm E}$ as
+  proposed by \citet{maronna2009correcting}.
   
   $q_{\rm T}$ and $q_{\rm E}$ are defined as follows.
   \begin{equation*}
@@ -332,11 +335,6 @@ print(plotmatrix(rand_25_5) +
 \subsection{Error Distributions}
 We simulate the following error distributions.
 \begin{itemize}
-% this works, but looks not so nice.
-% \item  
-% <<echo=FALSE,results=tex>>=
-%   cat(paste(f.errs2str(estlist$errs),collapse='\n\\item '))
-% @
 \item Standard normal distribution,
 \item $t_5$, $t_3$, $t_1$,
 \item skewed t with $df = \infty, 5$ and $\gamma = 2$, as introduced by
@@ -346,23 +344,21 @@ We simulate the following error distributions.
 \end{itemize}
 
 \subsection{Covariance Matrix Estimators}
-For the standard MM estimator, we compare ${\rm Avar}_1$ of
-\citet{croux03} and the empirical weighted covariance matrix estimate
-corrected by Huber's small sample correction as described in
-\citet{HubPR09}. The latter is also used for the variation of the MM
-estimate proposed by \citet{maronna2009correcting}. For the
-SMD and SMDM variants we use the covariance matrix estimate as described in
-\citet{KS2011}.
+For the standard MM estimator, we compare ${\rm Avar}_1$ of \citet{croux03}
+and the empirical weighted covariance matrix estimate corrected by Huber's
+small sample correction as described in \citet{HubPR09} (denoted by
+\emph{Wssc}). The latter is also used for the variation of the MM estimate
+proposed by \citet{maronna2009correcting}. For the SMD and SMDM variants we
+use the covariance matrix estimate as described in \citet{KS2011}
+(\emph{W$\tau$}).
 
 The covariance matrix estimate consists of three parts:
 \begin{equation*}
-  % \label{eq:cov.matrix.est}
   {\rm cov}(\hat\beta) = \sigma^2\gamma\bld V_{\bld X}^{-1}.
 \end{equation*}
 
 The SMD and SMDM methods of \T{lmrob} use the following defaults.
 \begin{equation*}
-  % \label{eq:gamma}
   \gamma =
   \frac{\frac{1}{n}\sum_{i=1}^n
     \psi\left(\frac{r_i}{\tau_i\hat\sigma}\right)^2} 
@@ -371,9 +367,8 @@ The SMD and SMDM methods of \T{lmrob} use the following defaults.
 where $\tau_i$ is the rescaling factor used for the D-scale estimate (see
 \citet{KS2011}). 
 \begin{equation*}
-  % \label{eq:xwx}
-  \bld{\widehat V}_{\bld X} = \frac{1}{\frac{1}{n}\sum_{i=1}^n\wgt_{ii}}\bld X'\bld W
-  \bld X 
+  \bld{\widehat V}_{\bld X} = 
+  \frac{1}{\frac{1}{n}\sum_{i=1}^n\wgt_{ii}}\bld X^T\bld W\bld X 
 \end{equation*}
 where $\bld W = \diag\left(\wgt\left(\frac{r_1}{\hat\sigma}\right), \dots,
   \wgt\left(\frac{r_n}{\hat\sigma}\right)\right)$. The function $\wgt(r) =
@@ -716,11 +711,6 @@ if (!file.exists("aggr_results.Rdata")) {
     lres$nmpdn <- with(lres, (n-p)/n)
     lres$Design <- design
 
-    ## lres[,c('Method', 'Psi', 'Error', 'efficiency.1')]
-    ## ggplot(subset(lres, Error != 't1'), aes(Error, efficiency.1, color = Method)) + 
-    ##   geom_point() + geom_hline(yintercept = 0.95) + 
-    ##   facet_wrap(~ Psi)
-
     ## clean up
     rm(r.test, lXs, lXlevs, lresids, lerrs)
     gc()
@@ -739,16 +729,17 @@ test.1 <- within(test.1, {
   Estimator <- f.rename.level(Estimator, 'MM.S', 'MM')
   Estimator <- f.rename.level(Estimator, 'SMD.D', 'SMD')
   Estimator <- f.rename.level(Estimator, 'SMDM.D', 'SMDM')
-  Estimator <- f.rename.level(Estimator, 'MM.qT', 'MM(qT)')
-  Estimator <- f.rename.level(Estimator, 'MM.qE', 'MM(qE)')
-  Estimator <- f.rename.level(Estimator, 'MM.rob', 'MM(robust)')
+  Estimator <- f.rename.level(Estimator, 'MM.qT', 'MMqT')
+  Estimator <- f.rename.level(Estimator, 'MM.qE', 'MMqE')
+  Estimator <- f.rename.level(Estimator, 'MM.rob', 'MMrobust')
   Estimator <- f.rename.level(Estimator, 'lsq.lm', 'OLS')
   Est.Scale <- f.rename.level(Estimator, 'MM', 'sigma_S')
-  Est.Scale <- f.rename.level(Est.Scale, 'MM(robust)', 'sigma_robust')
-  Est.Scale <- f.rename.level(Est.Scale, 'MM(qE)', 'sigma_S*qE')
-  Est.Scale <- f.rename.level(Est.Scale, 'MM(qT)', 'sigma_S*qT')
+  Est.Scale <- f.rename.level(Est.Scale, 'MMrobust', 'sigma_robust')
+  Est.Scale <- f.rename.level(Est.Scale, 'MMqE', 'sigma_S*qE')
+  Est.Scale <- f.rename.level(Est.Scale, 'MMqT', 'sigma_S*qT')
   Est.Scale <- f.rename.level(Est.Scale, 'SMDM', 'sigma_D')
   Est.Scale <- f.rename.level(Est.Scale, 'SMD', 'sigma_D')
+  Est.Scale <- f.rename.level(Est.Scale, 'OLS', 'sigma_OLS')
   Psi <- f.rename.level(Psi, 'hampel', 'Hampel')
 })
 ## add interaction of Method and Cov
@@ -756,13 +747,13 @@ test.1 <- within(test.1, {
   method.cov <- interaction(Estimator, Cov, drop=TRUE)
   levels(method.cov) <-
     sub('\\.+vcov\\.(a?)[wacrv1]*', '\\1', levels(method.cov))
-  method.cov <- f.rename.level(method.cov, "MMa", "MM(Avar1)")
-  method.cov <- f.rename.level(method.cov, "MM(robust).Default", "MM(robust)")
-  method.cov <- f.rename.level(method.cov, "MM", "MM(ssc)")
-  method.cov <- f.rename.level(method.cov, "SMD", "SMD(tau)")
-  method.cov <- f.rename.level(method.cov, "SMDM", "SMDM(tau)")
-  method.cov <- f.rename.level(method.cov, "MM(qT)", "MM(qT,ssc)")
-  method.cov <- f.rename.level(method.cov, "MM(qE)", "MM(qE,ssc)")
+  method.cov <- f.rename.level(method.cov, "MMa", "MM.Avar1")
+  method.cov <- f.rename.level(method.cov, "MMrobust.Default", "MMrobust.Wssc")
+  method.cov <- f.rename.level(method.cov, "MM", "MM.Wssc")
+  method.cov <- f.rename.level(method.cov, "SMD", "SMD.Wtau")
+  method.cov <- f.rename.level(method.cov, "SMDM", "SMDM.Wtau")
+  method.cov <- f.rename.level(method.cov, "MMqT", "MMqT.Wssc")
+  method.cov <- f.rename.level(method.cov, "MMqE", "MMqE.Wssc")
   method.cov <- f.rename.level(method.cov, "OLS.Default", "OLS")
   })
 ## add desired ratios:
@@ -801,11 +792,11 @@ The simulated methods are compared using the following criteria.
 \begin{itemize}
 \item \textbf{Scale estimates.} The criteria for scale estimates are all
   calculated on the log-scale. The bias of the estimators is measured by
-  the $\Sexpr{trim*100}\%$ trimmed mean. To recover a meaningfun scale, the
-  results are exponatiated before plotting. It is easy to see that this is
-  equivalent to calculating the geometric mean. Since the methods are all
+  the $\Sexpr{trim*100}\%$ trimmed mean. To recover a meaningful scale, the
+  results are exponentiated before plotting. It is easy to see that this is
+  equivalent to calculating geometric means. Since the methods are all
   tuned at the central model, ${\mathcal N}(0,1)$, a meaningful comparison
-  can only be made for ${\mathcal N}(0,1)$ distributed errors.  
+  of biases can only be made for ${\mathcal N}(0,1)$ distributed errors.
 
   The variability of the estimators, on the other hand, can be compared
   over all simulated error distributions. It is measured by the
@@ -821,37 +812,37 @@ The simulated methods are compared using the following criteria.
   \end{equation}
   where $S(e)$ stands for the S-scale estimate evaluated for the actual
   errors $\bld e$. For the D-scale estimate, the definition is
-  analogue. Since there is no design to correct for, we set $\tau_i = 1
+  analogue. Since there is no design to correct for, we set $\tau_i = 1\ 
   \forall i$.  
-\item \textbf{Regression estimates.} The efficiency of the regression estimates
-  $\bld{\hat\beta}$ is characterized by its mean squared error
-  (MSE).  Since we simulate under $H_0: \bld\beta = 0$, this is the
-  $L_2$-norm of $\bld{\hat\beta}$.  When comparing to the MSE of the
-  ordinary least squares estimate (\emph{OLS}), this gives the efficiency, which,
-  by the choice of tuning constants of $\psi$, should yield
+\item \textbf{Coefficients.}  The efficiency of estimated regression
+  coefficients $\bld{\hat\beta}$ is characterized by their mean squared
+  error (\emph{MSE}).  Since we simulate under $H_0: \bld\beta = 0$, this
+  is determined by the covariance matrix of $\bld{\hat\beta}$. We use
+  $\Erw\left[\norm{\bld{\hat\beta}}_2^2\right] = \sum_{j=1}^p
+  \var(\hat\beta_j)$ as a summary. When comparing to the MSE of the
+  ordinary least squares estimate (\emph{OLS}), this gives the efficiency,
+  which, by the choice of tuning constants of $\psi$, should yield
   \begin{equation*}
-    %% \label{eq:MSE}
     \frac{{\rm MSE}(\bld{\hat\beta}_{\rm OLS})}{{\rm MSE}(\bld{\hat\beta})}
     \approx 0.95
   \end{equation*}
-  for standard normally distributed errors. The mean is calculated with
-  $\Sexpr{trim*100}\%$ trimming.
-
-  For other error distributions, this ratio should be larger than $1$,
-  since by using robust procedures we expect to gain efficency at other
-  error distributions (relative to the least squares estimate).
+  for standard normally distributed errors. The simulation mean of
+  $\sum_{j=1}^p \var(\hat\beta_j)$ is calculated with $\Sexpr{trim*100}\%$
+  trimming. For other error distributions, this ratio should be larger than
+  $1$, since by using robust procedures we expect to gain efficiency at
+  other error distributions (relative to the least squares estimate).
 \item $\gamma$. We compare the behaviour of the various estimators of
   $\gamma$ by calculating the trimmed mean and the trimmed standard
   deviation for standard normal distributed errors.
 \item \textbf{Covariance matrix estimate.} The covariance matrix estimates
   are compared indirectly over the performance of the resulting test
-  statistics. We compare the empirical level of the simple hypothesis tests
-  $H_0: \beta_i = 0$ for some $i \in \{1,\dots, p\}$. The power of the
-  tests is compared by testing for $H_0: \beta_i = b$ for several values of
+  statistics. We compare the empirical level of the hypothesis tests $H_0:
+  \beta_j = 0$ for some $j \in \{1,\dots, p\}$. The power of the tests is
+  compared by testing for $H_0: \beta_j = b$ for several values of
   $b>0$. The formal power of a more liberal test is generally
   higher. Therefore, in order for this comparison to be meaningful, the
-  individual test statistic was corrected such that all tests have the same
-  level of $5\%$. 
+  critical value for each test statistic was corrected such that all tests
+  have the same simulated level of $5\%$.
 
   The simple hypothesis tests give only limited insights. To investigate
   the effects of other error distributions, e.g.\ asymmetric error
@@ -876,14 +867,12 @@ Fig.~\ref{fig:cpr}). For a complete discussion of the results, we refer to
 
 The different $\psi$-functions are each plotted in a different facet,
 except for Fig.~\ref{fig:qscale-all}, Fig.~\ref{fig:Mscale-all} and
-Fig.~\ref{fig:lqq-level} , where the facets show the results for various
-error distributions. The plots are augmented with auxilliary lines to ease
-the comparison of the methods. The lines connect the median values for each
-simulated ratio $p/n$. In the plots showing the empirical levels, power of
-tests and coverage probabilities, Fig.~\ref{fig:emp-level},
-Fig.~\ref{fig:lqq-level} and Fig.~\ref{fig:cpr}, the y-axis has been
-truncated. Points in the grey shaded area indicate truncated values.
-
+Fig.~\ref{fig:lqq-level}, where the facets show the results for various
+error distributions. The plots are augmented with auxiliary lines to ease
+the comparison of the methods. The lines connect the median values over the
+values of $n$ for each simulated ratio $p/n$. In many plots the y-axis has
+been truncated. Points in the grey shaded area represent truncated values
+using a different scale.
                              
 \begin{figure}
 \begin{center}
@@ -898,22 +887,11 @@ print(ggplot(test.3, aes(p/n, exp(meanlogsigma.1), color = Est.Scale)) +
       ylab(expression(paste('geometric ',mean(hat(sigma))))) + 
       scale_shape_discrete(expression(n)) +
       scale_colour_discrete("Scale Est."), legend.mod = legend.mod)
-
-## print(ggplot(test.3, aes(p/n, meansigma.1, color = Est.Scale)) +
-##       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
-##       geom_point(aes(shape = factor(n)), alpha = alpha.n) + 
-##       geom_hline(yintercept = 1) +
-##       g.scale_y_log10_1() + 
-##       facet_wrap(~ Psi) +
-##       ylab(expression(mean(sigma))) + 
-##       scale_shape_discrete(expression(n)) +
-##       scale_colour_discrete("Scale Est."), legend.mod = legend.mod)
 @ 
 \end{center}
-\caption{Mean of scale estimates for $\Norm{0,1}$ distributed errors. The
-  mean is calculated with $\Sexpr{trim*100}\%$ trimming. The lines connect
-  the median values for each simulated ratio $p/n$. Results for random
-  designs only. }
+\caption{Mean of scale estimates for normal errors. The mean is calculated
+  with $\Sexpr{trim*100}\%$ trimming. The lines connect the median values
+  for each simulated ratio $p/n$. Results for random designs only. }
 \label{fig:meanscale-1}
 \end{figure}              
                           
@@ -924,33 +902,19 @@ print(ggplot(test.3, aes(p/n, sdlogsigma.1*sqrt(n), color = Est.Scale)) +
       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
       geom_point(aes(shape = factor(n)), alpha = alpha.n) +
       ylab(expression(sd(log(hat(sigma)))*sqrt(n))) +
-      ## coord_trans(y = 'sqrt') +
       facet_wrap(~ Psi) +
-      ## geom_point(data=test.lm.2, alpha = alpha.n) + 
-      stat_summary(data=test.lm.2, aes(x=ratio), fun.y=median, 
-                   geom='line', color = 'black') + 
+      geom_point(data=test.lm.2, alpha=alpha.n, aes(color = Est.Scale)) +
+      stat_summary(data=test.lm.2, aes(x=ratio, color = Est.Scale), 
+                   fun.y=median, geom='line') + 
       scale_shape_discrete(expression(n)) +
       scale_colour_discrete("Scale Est."), legend.mod = legend.mod)
-
-## print(ggplot(test.3, aes(p/n, sdsigma.1/meansigma.1*sqrt(n), color = Est.Scale)) +
-##       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
-##       geom_point(aes(shape = factor(n)), alpha = alpha.n) +
-##       ylab(expression(sd(hat(sigma))*sqrt(n)/mean(hat(sigma)))) +
-##       coord_trans(y = 'sqrt') +
-##       facet_wrap(~ Psi) +
-##       scale_shape_discrete(expression(n)) +
-##       scale_colour_discrete("Scale Est."), legend.mod = legend.mod)
 @
 \end{center}
-\caption{Scale efficiency for $\Norm{0,1}$ distributed errors. The standard
+\caption{Variability of the scale estimates for normal errors. The standard
   deviation is calculated with $\Sexpr{trim*100}\%$ trimming. 
-  % The lines connect the median values for each simulated ratio $p/n$. 
-  % Results for random designs only.
 }
 \label{fig:sdscale-1} 
 \end{figure}
-
-
 
 \begin{figure}
 \begin{center}
@@ -961,25 +925,16 @@ print(ggplot(test.4, aes(p/n, sdlogsigma.1*sqrt(n),
       geom_point(aes(shape = Error), alpha = alpha.error) + 
       ylab(expression(sd(log(hat(sigma)))*sqrt(n))) +
       facet_wrap(~ Psi) +
-      ## geom_point(data=test.lm, alpha = alpha.n) + 
-      stat_summary(data=test.lm, aes(x=ratio), fun.y=median, 
-                   geom='line', color = 'black') + 
+      geom_point(data=test.lm, alpha=alpha.n, aes(color = Est.Scale)) +
+      stat_summary(data=test.lm, aes(x=ratio, color = Est.Scale), 
+                   fun.y=median, geom='line') + 
       ylim(with(test.4, range(sdlogsigma.1*sqrt(n)))) +
       g.scale_shape() + scale_colour_discrete("Scale Est."), 
       legend.mod = legend.mod)
-                         
-## print(ggplot(test.4, aes(p/n, sdsigma.1/meansigma.1*sqrt(n),
-##                          color = Estimator)) +
-##       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
-##       geom_point(aes(shape = Error), alpha = alpha.error) + facet_wrap(~ Psi) +
-##       ylab(expression(sd(hat(sigma))*sqrt(n)/mean(hat(sigma)))) + 
-##       g.scale_shape(), legend.mod = legend.mod)
 @
 \end{center}
-\caption{Scale efficiency for all simulated error distributions.%  The
-  % standard deviation is calculated with $\Sexpr{trim*100}\%$ trimming. The
-  % lines connect the median values for each simulated ratio $p/n$. Results
-  % for random designs only.
+\caption{Variability of the scale estimates for all simulated error
+  distributions.
 }
 \label{fig:sdscale-all} 
 \end{figure}
@@ -987,7 +942,7 @@ print(ggplot(test.4, aes(p/n, sdlogsigma.1*sqrt(n),
 \begin{figure}
 \begin{center}
 <<label=fig-qscale,fig=TRUE,echo=FALSE>>=
-print(ggplot(drop.levels(subset(test.3, Estimator %in% c("SMD", "MM(qE)")),
+print(ggplot(drop.levels(subset(test.3, Estimator %in% c("SMD", "MMqE")),
                          reorder=FALSE), aes(p/n, q, color = Est.Scale)) +
       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
       geom_point(aes(shape = factor(n)), alpha = alpha.n) + 
@@ -999,11 +954,8 @@ print(ggplot(drop.levels(subset(test.3, Estimator %in% c("SMD", "MM(qE)")),
       scale_colour_discrete("Scale Est."), legend.mod = legend.mod)
 @ 
 \end{center}
-\caption{$q$ statistic for $\Norm{0,1}$ distributed errors. $q$ is defined
-  in \eqref{eq:def.q.and.M}. % The
-  % mean is calculated with $\Sexpr{trim*100}\%$ trimming. The lines connect
-  % the median values for each simulated ratio $p/n$. Results for random
-  % designs only. 
+\caption{$q$ statistic for normal errors. $q$ is defined
+  in \eqref{eq:def.q.and.M}. 
 }
 \label{fig:qscale-1}
 \end{figure}     
@@ -1011,7 +963,7 @@ print(ggplot(drop.levels(subset(test.3, Estimator %in% c("SMD", "MM(qE)")),
 \begin{figure}
 \begin{center}
 <<label=fig-Mscale,fig=TRUE,echo=FALSE>>=
-print(ggplot(drop.levels(subset(test.3, Estimator %in% c("SMD", "MM(qE)")),
+print(ggplot(drop.levels(subset(test.3, Estimator %in% c("SMD", "MMqE")),
                          reorder=FALSE), aes(p/n, M/q, color = Est.Scale)) +
       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
       geom_point(aes(shape = factor(n)), alpha = alpha.n) + 
@@ -1022,11 +974,8 @@ print(ggplot(drop.levels(subset(test.3, Estimator %in% c("SMD", "MM(qE)")),
       scale_colour_discrete("Scale Est."), legend.mod = legend.mod)
 @ 
 \end{center}
-\caption{$M/q$ statistic for $\Norm{0,1}$ distributed errors. $M$ and $q$ are 
-  defined in \eqref{eq:def.q.and.M}.%  The
-  % mean is calculated with $\Sexpr{trim*100}\%$ trimming. The lines connect
-  % the median values for each simulated ratio $p/n$. Results for random
-  % designs only.
+\caption{$M/q$ statistic for normal errors. $M$ and $q$ are 
+  defined in \eqref{eq:def.q.and.M}.
 }
 \label{fig:Mscale-1}
 \end{figure}           
@@ -1034,7 +983,7 @@ print(ggplot(drop.levels(subset(test.3, Estimator %in% c("SMD", "MM(qE)")),
 \begin{figure}
 \begin{center}
 <<label=fig-qscale-all,fig=TRUE,echo=FALSE>>=
-print(ggplot(drop.levels(subset(test.1, Estimator %in% c("SMD", "MM(qE)") & 
+print(ggplot(drop.levels(subset(test.1, Estimator %in% c("SMD", "MMqE") & 
                                 Psi == 'bisquare'),
                          reorder=FALSE), aes(p/n, q, color = Est.Scale)) +
       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
@@ -1047,10 +996,7 @@ print(ggplot(drop.levels(subset(test.1, Estimator %in% c("SMD", "MM(qE)") &
       scale_colour_discrete("Scale Est."), legend.mod = legend.mod)
 @ 
 \end{center}
-\caption{$q$ statistic for \emph{bisquare} $\psi$. % The
-  % mean is calculated with $\Sexpr{trim*100}\%$ trimming. The lines connect
-  % the median values for each simulated ratio $p/n$. Results for random
-  % designs only. 
+\caption{$q$ statistic for \emph{bisquare} $\psi$. 
 }
 \label{fig:qscale-all}
 \end{figure}
@@ -1059,7 +1005,7 @@ print(ggplot(drop.levels(subset(test.1, Estimator %in% c("SMD", "MM(qE)") &
 \begin{figure}
 \begin{center}
 <<label=fig-Mscale-all,fig=TRUE,echo=FALSE>>=
-print(ggplot(drop.levels(subset(test.1, Estimator %in% c("SMD", "MM(qE)") & 
+print(ggplot(drop.levels(subset(test.1, Estimator %in% c("SMD", "MMqE") & 
                                 Psi == 'bisquare'),
                          reorder=FALSE), aes(p/n, M/q, color = Est.Scale)) +
       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
@@ -1071,10 +1017,7 @@ print(ggplot(drop.levels(subset(test.1, Estimator %in% c("SMD", "MM(qE)") &
       scale_colour_discrete("Scale Est."), legend.mod = legend.mod)
 @ 
 \end{center}
-\caption{$M/q$ statistic for \emph{bisquare} $\psi$. % The
-  % mean is calculated with $\Sexpr{trim*100}\%$ trimming. The lines connect
-  % the median values for each simulated ratio $p/n$. Results for random
-  % designs only. 
+\caption{$M/q$ statistic for \emph{bisquare} $\psi$. 
 }
 \label{fig:Mscale-all}
 \end{figure}        
@@ -1088,17 +1031,15 @@ print(ggplot(test.2, aes(p/n, efficiency.1, color = Estimator)) +
       geom_point(aes(shape = factor(n)), alpha = alpha.n) +
       geom_hline(yintercept = 0.95) + 
       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
-      ## g.scale_y_log10_1() + 
       facet_wrap(~ Psi) +
       ylab(expression(paste('efficiency of ',hat(beta)))) +
       g.scale_shape(expression(n)) + 
       scale_colour_discrete(name = "Estimator"), legend.mod = legend.mod)
 @ 
 \end{center}
-\caption{Efficiency for standard normal distributed errors. The efficiency
+\caption{Efficiency for normal errors. The efficiency
   is calculated by comparing to an OLS estimate and averaging with
-  $\Sexpr{trim*100}\%$ trimming. % The lines connect the median values for
-  % each simulated ratio $p/n$. Results for random designs only.
+  $\Sexpr{trim*100}\%$ trimming. 
 }
 \label{fig:efficiency}
 \end{figure}
@@ -1111,17 +1052,13 @@ print(ggplot(drop.levels(subset(test.1, Error != 't1'), reorder = FALSE),
       geom_point(aes(shape = Error), alpha = alpha.error) +
       geom_hline(yintercept = 0.95) + 
       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
-      ## g.scale_y_log10_1() + 
       g.scale_shape(value=c(16,17,15,3,7,8,9,1,2,4)[-4]) +
       facet_wrap(~ Psi) + 
       ylab(expression(paste('efficiency of ',hat(beta)))) +
       scale_colour_discrete(name = "Estimator"), legend.mod = legend.mod)
 @ 
 \end{center}
-\caption{Efficiency for all simulated error distributions except $t_1$. % The
-  % efficiency is calculated by comparing to an OLS estimate and averaging
-  % with $\Sexpr{trim*100}\%$ trimming. The lines connect the median values
-  % for each simulated ratio $p/n$. Results for random designs only.
+\caption{Efficiency for all simulated error distributions except $t_1$. 
 }
 \label{fig:efficiency-all}
 \end{figure}
@@ -1148,10 +1085,7 @@ print(ggplot(test.2, aes(p/n, AdB2.1/(1-p/n), color = Estimator)) +
 \end{center}
 \caption{Comparing the estimates of $\gamma$. The solid line connects the
   uncorrected estimate, dotted the $\tau$ corrected estimate and
-  dashed Huber's small sample correction.%  The
-  % mean is caclulated with $\Sexpr{trim*100}\%$ trimming. The lines connect
-  % the median values for each simulated ratio $p/n$. Results for random
-  % designs only.
+  dashed Huber's small sample correction.
 }
 \label{fig:AdB2-1}
 \end{figure}
@@ -1177,10 +1111,7 @@ print(ggplot(test.2, aes(p/n, sdAdB2.1/(1-p/n), color = Estimator)) +
 \end{center}
 \caption{Comparing the estimates of $\gamma$. The solid line connects the
   uncorrected estimate, dotted the $\tau$ corrected estimate and
-  dashed Huber's small sample correction. % The
-  % standard deviation is calculated with $\Sexpr{trim*100}\%$ trimming. The
-  % lines connect the median values for each simulated ratio $p/n$. Results
-  % for random designs only.
+  dashed Huber's small sample correction. 
 }
 \label{fig:sdAdB2-1}
 \end{figure}
@@ -1194,19 +1125,15 @@ print(ggplot(test.2, aes(p/n, f.truncate(emplev_1),
       geom_point(aes(shape = factor(n)), alpha = alpha.n) +
       scale_shape_discrete(expression(n)) +
       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
-      geom_hline(yintercept = 0.05) +
-      ## geom_point(data=test.lm.2, alpha = alpha.n) + 
-      ## stat_summary(data=test.lm.2, aes(x=ratio), fun.y=median, geom='line') + 
+      geom_hline(yintercept = 0.05) + 
       g.scale_y_log10_0.05() +
       scale_colour_discrete(name = "Estimator")  +
-      ylab(expression(paste("empirical level ", (beta[1])))) + 
+      ylab(expression(paste("empirical level (", H[0], ": ", beta[1], "=", 0, ")"))) + 
       facet_wrap(~ Psi), legend.mod = legend.mod)
 @ 
 \end{center}
-\caption{Empirical levels for $\beta_1$ and $\Norm{0,1}$ distributed
-  errors. The y-values are truncated at $\Sexpr{trunc[1]}$ and
-  $\Sexpr{trunc[2]}$. % The lines connect the median values for each
-  % simulated ratio $p/n$. Results for random designs only.
+\caption{Empirical levels of test $H_0: \beta_1 = 0$ for normal errors. The
+  y-values are truncated at $\Sexpr{trunc[1]}$ and $\Sexpr{trunc[2]}$. 
 }
 \label{fig:emp-level}
 \end{figure}
@@ -1220,21 +1147,17 @@ print(ggplot(drop.levels(subset(test.1, Psi == 'lqq' & emplev_1 != 0),
       g.truncate.line + g.truncate.area +
       geom_point(aes(shape = factor(n)), alpha = alpha.n) +
       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
-      ## stat_smooth(se = FALSE, method = 'loess') + 
-      ## stat_smooth(se = FALSE, method = 'lmRob', formula = y ~ poly(x, 4)) + 
       geom_hline(yintercept = 0.05) + 
       g.scale_y_log10_0.05() +
       g.scale_shape(expression(n)) + 
       scale_colour_discrete(name = "Estimator") + 
-      ylab(expression(paste("empirical level ", (beta[1])))) + 
+      ylab(expression(paste("empirical level (", H[0], ": ", beta[1], "=", 0, ")"))) + 
       facet_wrap(~ Error), legend.mod = legend.mod
       )
 @ 
 \end{center}
-\caption{Empirical levels for $\beta_1$ and \emph{lqq} $\psi$-function. The
-  y-values are truncated at $\Sexpr{trunc[2]}$. % The lines connect the
-  % median values for each simulated ratio $p/n$. Results for random designs
-  % only.
+\caption{Empirical levels of test $H_0: \beta_1 = 0$ for \emph{lqq}
+  $\psi$-function and different error distributions. 
 }
 \label{fig:lqq-level}
 \end{figure}
@@ -1247,20 +1170,19 @@ print(ggplot(subset(test.1, n == 25),
       aes(p/n, power_1_0.2, color = method.cov)) +
       geom_point(aes(shape = Error), alpha = alpha.error) +
       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
-      ## g.scale_y_log10_1() +
       geom_point(data=subset(test.lm, n == 25), alpha = alpha.n) + 
       stat_summary(data=subset(test.lm, n == 25), aes(x=ratio),
                    fun.y=median, geom='line') + 
       g.scale_shape("Error") + 
       scale_colour_discrete(name = "Estimator (Cov. Est.)") + 
-      ylab(expression(paste("empirical power ", (beta[1])))) + 
+      ylab(expression(paste("empirical power (", H[0], ": ",
+          beta[1], "=", 0.2, ")"))) + 
       facet_wrap(~ Psi), legend.mod = legend.mod
       )
 @ 
 \end{center}
-\caption{Empirical power for test $H_0: \beta_1 = 0.2$. Results for $n =
-  25$ displayed only. % The lines connect the median values for each
-  % simulated ratio $p/n$. Results for random designs only.
+\caption{Empirical power of test $H_0: \beta_1 = 0.2$ for different
+  $\psi$-functions. Results for $n = 25$ and normal errors only. 
 }
 \label{fig:power-1-0_2}
 \end{figure}
@@ -1272,20 +1194,19 @@ print(ggplot(subset(test.1, n == 25),
       aes(p/n, power_1_0.4, color = method.cov)) +
       geom_point(aes(shape = Error), alpha = alpha.error) +
       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
-      ## g.scale_y_log10_1() +
       geom_point(data=subset(test.lm, n == 25), alpha = alpha.n) + 
       stat_summary(data=subset(test.lm, n == 25), aes(x=ratio),
                    fun.y=median, geom='line') + 
       g.scale_shape("Error") + 
       scale_colour_discrete(name = "Estimator (Cov. Est.)") + 
-      ylab(expression(paste("empirical power ", (beta[1])))) + 
+      ylab(expression(paste("empirical power (", H[0], ": ",
+          beta[1], "=", 0.4, ")"))) + 
       facet_wrap(~ Psi), legend.mod = legend.mod
       )
 @ 
 \end{center}
-\caption{Empirical power for test $H_0: \beta_1 = 0.4$. Results for $n =
-  25$ displayed only. % The lines connect the median values for each
-  % simulated ratio $p/n$. Results for random designs only.
+\caption{Empirical power of test $H_0: \beta_1 = 0.4$ for different
+  $\psi$-functions. Results for $n = 25$ and normal errors only. 
 }
 \label{fig:power-1-0_4}
 \end{figure}
@@ -1297,20 +1218,19 @@ print(ggplot(subset(test.1, n == 25),
       aes(p/n, power_1_0.6, color = method.cov)) +
       geom_point(aes(shape = Error), alpha = alpha.error) +
       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
-      ## g.scale_y_log10_1() +
       g.scale_shape("Error") + 
       geom_point(data=subset(test.lm, n == 25), alpha = alpha.n) + 
       stat_summary(data=subset(test.lm, n == 25), aes(x=ratio),
                    fun.y=median, geom='line') + 
       scale_colour_discrete(name = "Estimator (Cov. Est.)") + 
-      ylab(expression(paste("empirical power ", (beta[1])))) + 
+      ylab(expression(paste("empirical power (", H[0], ": ",
+          beta[1], "=", 0.6, ")"))) + 
       facet_wrap(~ Psi), legend.mod = legend.mod
       )
 @ 
 \end{center}
-\caption{Empirical power for test $H_0: \beta_1 = 0.6$. Results for $n =
-  25$ displayed only.%  The lines connect the median values for each
-  % simulated ratio $p/n$. Results for random designs only.
+\caption{Empirical power of test $H_0: \beta_1 = 0.6$ for different
+  $\psi$-functions. Results for $n = 25$ and normal errors only. 
 }
 \label{fig:power-1-0_6}
 \end{figure}
@@ -1322,20 +1242,19 @@ print(ggplot(subset(test.1, n == 25),
       aes(p/n, power_1_0.8, color = method.cov)) +
       geom_point(aes(shape = Error), alpha = alpha.error) +
       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
-      ## g.scale_y_log10_1() +
       geom_point(data=subset(test.lm, n == 25), alpha = alpha.n) + 
       stat_summary(data=subset(test.lm, n == 25), aes(x=ratio),
                    fun.y=median, geom='line') + 
       g.scale_shape("Error") + 
       scale_colour_discrete(name = "Estimator (Cov. Est.)") + 
-      ylab(expression(paste("empirical power ", (beta[1])))) + 
+      ylab(expression(paste("empirical power (", H[0], ": ",
+          beta[1], "=", 0.8, ")"))) + 
       facet_wrap(~ Psi), legend.mod = legend.mod
       )
 @ 
 \end{center}
-\caption{Empirical power for test $H_0: \beta_1 = 0.8$. Results for $n =
-  25$ displayed only. % The lines connect the median values for each
-  % simulated ratio $p/n$. Results for random designs only.
+\caption{Empirical power of test $H_0: \beta_1 = 0.8$ for different
+  $\psi$-functions. Results for $n = 25$ and normal errors only. 
 }
 \label{fig:power-1-0_8}
 \end{figure}
@@ -1347,20 +1266,19 @@ print(ggplot(subset(test.1, n == 25),
       aes(p/n, power_1_1, color = method.cov)) +
       geom_point(aes(shape = Error), alpha = alpha.error) +
       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
-      ## g.scale_y_log10_1() +
       geom_point(data=subset(test.lm, n == 25), alpha = alpha.n) + 
       stat_summary(data=subset(test.lm, n == 25), aes(x=ratio),
                    fun.y=median, geom='line') + 
       g.scale_shape("Error") + 
       scale_colour_discrete(name = "Estimator (Cov. Est.)") + 
-      ylab(expression(paste("empirical power ", (beta[1])))) + 
+      ylab(expression(paste("empirical power (", H[0], ": ",
+          beta[1], "=", 1, ")"))) + 
       facet_wrap(~ Psi), legend.mod = legend.mod
       )
 @ 
 \end{center}
-\caption{Empirical power for test $H_0: \beta_1 = 1$. Results for $n =
-  25$ displayed only. % The lines connect the median values for each
-  % simulated ratio $p/n$. Results for random designs only.
+\caption{Empirical power of test $H_0: \beta_1 = 1$ for different
+  $\psi$-functions. Results for $n = 25$ and normal errors only. 
 }
 \label{fig:power-1-1}
 \end{figure}
@@ -1370,16 +1288,10 @@ print(ggplot(subset(test.1, n == 25),
 \begin{figure}
 \begin{center}
 <<label=fig-pred-points,fig=TRUE,echo=FALSE>>=
-## pairs(rbind(dd, f.prediction.points(dd)[1:7,]), 
-##       col = c(rep(1, 20), rep(2, 7)), 
-##       pch = c(rep("o", 20), as.character(1:7)))
-
 pp <- f.prediction.points(dd)[1:7,]
 tmp <- plotmatrix(pp)$data
 tmp$label <- as.character(1:7)
 print(plotmatrix(dd) + geom_text(data=tmp, color = 2, aes(label=label), size = 2.5))
-  ## geom_text(data = tmp, aes(label=label, x = x + 0.5, y = y + 0.5),
-  ##           size = 3)
 @ 
 \end{center}
 \caption{Prediction points for fixed design. The black points are the
@@ -1403,7 +1315,6 @@ print(ggplot(test.5,
              aes(Point, f.truncate(value), color = method.cov)) +
       geom_point(aes(shape = Error), alpha = alpha.error) +
       g.truncate.line + g.truncate.area + 
-      ## stat_summary(fun.y=median, geom='point', shape = '—', size = 3) + 
       stat_summary(fun.y=median, geom='line') + 
       geom_hline(yintercept = 0.05) +
       g.scale_y_log10_0.05() +
@@ -1415,8 +1326,7 @@ print(ggplot(test.5,
 @ 
 \end{center}
 \caption{Empirical coverage probabilities. Results for fixed design. The
-  y-values are truncated at $\Sexpr{trunc[2]}$. % The lines connect the
-  % median values for each point.
+  y-values are truncated at $\Sexpr{trunc[2]}$. 
 }
 \label{fig:cpr}
 \end{figure}
