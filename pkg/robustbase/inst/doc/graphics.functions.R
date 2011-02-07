@@ -375,6 +375,14 @@ print.ggplot <- function(x, newpage = is.null(vp), vp = NULL, ...,
         grob <- editGrob(grob, gPath=le$name, label = legend.mod[[le$label]])
       }
     }
+    ## walk axis labels
+    lls <- getGrob(grob, gPath='axis.text...text', grep=TRUE, global=TRUE)
+    for(le in lls) {
+      if (any(lidx <- ((llab <- le$label) %in% names(legend.mod)))) {
+        llab[lidx] <- do.call(c, legend.mod[llab[lidx]])
+        grob <- editGrob(grob, gPath=le$name, label = llab)
+      }
+    }
     ## also: remove alpha in legend key points
     lls <- getGrob(grob, gPath='key.points', grep=TRUE, global=TRUE)
     for (le in lls) {
