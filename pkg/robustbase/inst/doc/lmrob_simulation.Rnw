@@ -148,13 +148,13 @@ legend.mod <- list(`SMD.Wtau` = expression(paste('SMD.W',tau)),
                    `t1` = expression(t[1]),
                    `t3` = expression(t[3]),
                    `t5` = expression(t[5]),
-                   `cskt(Inf,2)` = expression(paste('skt(',infinity,',2)')),
-                   `cskt(5,2)` = expression('skt(5,2)')
+                   `cskt(Inf,2)` = expression(paste('cskt(',infinity,',2)'))
                    )
 @ 
 
 
-\title{Simulations for Wald-type Inference in Robust Regression}
+\title{Simulations for Sharpening Wald-type Inference in Robust Regression
+  for Small Samples}
 \author{Manuel Koller}
 \maketitle
 \tableofcontents
@@ -163,7 +163,7 @@ legend.mod <- list(`SMD.Wtau` = expression(paste('SMD.W',tau)),
 In this vignette, we recreate the simulation study of \citet{KS2011}. This
 vignette is supposed to complement the results presented in the above cited
 reference and render its results reproducible. Another goal is to provide
-simulation functions, that, with small changes, could also used for other
+simulation functions, that, with small changes, could also be used for other
 simulation studies. 
 
 Additionally, in Section~\ref{sec:maximum-asymptotic-bias}, we calculate
@@ -173,7 +173,7 @@ simulation.
 \section{Setting}
 The simulation setting used here is similar to the one in
 \citet{maronna2009correcting}. We simulate $N = \Sexpr{N}$ repetitions. To
-repeat the simulation, we recommend to use a small value of $N$ here, since
+repeat the simulation, we recommend using a small value of $N$ here, since
 for large $n$ and $p$, computing all the replicates will take days.
 
 \subsection{Methods}
@@ -188,10 +188,10 @@ We compare the methods
   
   $q_{\rm T}$ and $q_{\rm E}$ are defined as follows.
   \begin{equation*}
-    q_{\rm E} = \frac{1}{1 - (1.29 - 6.02/n)p/n}
+    q_{\rm E} = \frac{1}{1 - (1.29 - 6.02/n)p/n},
   \end{equation*}
   \begin{equation*}
-    \hat q_{\rm T} = 1 + \frac{p}{2n}\frac{\hat a}{\hat b\hat c}
+    \hat q_{\rm T} = 1 + \frac{p}{2n}\frac{\hat a}{\hat b\hat c},
   \end{equation*}
   where
   \begin{equation*}
@@ -201,7 +201,7 @@ We compare the methods
     \sum_{i=1}^n\psi'\left(\frac{r_i}{\hat\sigma_{\rm S}}\right),
     \hat c = \frac{1}{n}\sum_{i=1}^n
     \psi\left(\frac{r_i}{\hat\sigma_{\rm S}}\right)
-    \frac{r_i}{\hat\sigma_{\rm S}}
+    \frac{r_i}{\hat\sigma_{\rm S}},
   \end{equation*}
   with $\psi = \rho'$, $n$ the number of observations, $p$ the number of
   predictor variables, $\hat\sigma_{\rm S}$ is the S-scale estimate and
@@ -280,7 +280,7 @@ print(ggplot(tmp, aes(x, value, color = psi)) + geom_line() +
       scale_color_discrete(name = expression(paste(psi, '-function'))))
 @ 
 \end{center}
-\caption{$\psi$-functions used in the simulation}
+\caption{$\psi$-functions used in the simulation.}
 \label{fig:psi.functions}
 \end{figure}
 
@@ -288,12 +288,12 @@ print(ggplot(tmp, aes(x, value, color = psi)) + geom_line() +
 Two types of designs are used in the simulation: fixed and random designs.
 One design with $n=20$ observations, $p=1+3$ predictors and strong leverage
 points. This design also includes an intercept column. It is shown in
-Fig.~\ref{fig:design-predict}. The other designs are random, i.e.\
+Fig.~\ref{fig:design-predict}. The other designs are random, i.e.,
 regenerated for every repetition, and the models are fitted without an
-intercept. We use the same distribution to generate the designs as is used
-for the errors. The number of observations simulated are $n = 25, 50, 100,
-400$ and the ratio to the number of parameters are $p/n = 1/20, 1/10, 1/5,
-1/3, 1/2$. We round $p$ to the nearest smaller integer if necessary.
+intercept. We use the same distribution to generate the designs as for the
+errors. The number of observations simulated are $n = 25, 50, 100, 400$ and
+the ratio to the number of parameters are $p/n = 1/20, 1/10, 1/5, 1/3,
+1/2$. We round $p$ to the nearest smaller integer if necessary.
 
 The random datasets are generated using the following code.
 <<results=HIDE,keep.source=TRUE>>=
@@ -328,19 +328,22 @@ print(plotmatrix(rand_25_5) +
       scale_y_continuous(breaks = -3:3))
 @ 
 \end{center}
-\caption{Example design}
+\caption{Example random design.}
 \label{fig:example.design}
 \end{figure}
 
 \subsection{Error Distributions}
-We simulate the following error distributions.
+We simulate the following error distributions
 \begin{itemize}
-\item Standard normal distribution,
+\item standard normal distribution,
 \item $t_5$, $t_3$, $t_1$,
-\item skewed t with $df = \infty, 5$ and $\gamma = 2$, as introduced by
-  \citet{fernandez1998bayesian} using the \T{R} package \T{skewt}, 
-\item contaminated normal with $10\%$ contamination with $\Norm{0, 10}$
-  (symmetric) as well as $\Norm{4, 1}$ (asymmetric).
+\item centered skewed t with $df = \infty, 5$ and $\gamma = 2$ (denoted by
+  \emph{cskt$(\infty,2)$} and \emph{cskt}$(5,2)$, respectively); as
+  introduced by \citet{fernandez1998bayesian} using the \T{R} package
+  \T{skewt},
+\item contaminated normal, $\Norm{0,1}$ contaminated with $10\%$ 
+  $\Norm{0, 10}$ (symmetric, \emph{cnorm}$(0.1,0,3.16)$) or
+  $\Norm{4, 1}$ (asymmetric, \emph{cnorm}$(0.1,4,1)$).
 \end{itemize}
 
 \subsection{Covariance Matrix Estimators}
@@ -359,7 +362,7 @@ The covariance matrix estimate consists of three parts:
 
 The SMD and SMDM methods of \T{lmrob} use the following defaults.
 \begin{equation*}
-  \gamma =
+  \hat\gamma =
   \frac{\frac{1}{n}\sum_{i=1}^n
     \psi\left(\frac{r_i}{\tau_i\hat\sigma}\right)^2} 
   {\frac{1}{n}\sum_{i=1}^n\psi'\left(\frac{r_i}{\tau_i\hat\sigma}\right)}
@@ -418,8 +421,8 @@ simulated. The entry for the standard normal looks as follows.
 estlist$errs[[1]]
 @ 
 \T{err} is translated internally to the corresponding random generation or
-quantile function, e.g.\ in this case \T{rnorm} or \T{qnorm}. \T{args}
-is a sublist containing all the required arguments to call the
+quantile function, e.g., in this case \T{rnorm} or \T{qnorm}. \T{args}
+is a list containing all the required arguments to call the
 function. The errors are then generated internally with the following call.
 <<eval=FALSE>>=
 set.seed(estlist$seed)
@@ -789,76 +792,79 @@ coords <- coord_cartesian(ylim = c(0.5, 1.7))
 \section{Simulation Results}
 \subsection{Criteria}
 The simulated methods are compared using the following criteria. 
-\begin{itemize}
-\item \textbf{Scale estimates.} The criteria for scale estimates are all
-  calculated on the log-scale. The bias of the estimators is measured by
-  the $\Sexpr{trim*100}\%$ trimmed mean. To recover a meaningful scale, the
-  results are exponentiated before plotting. It is easy to see that this is
-  equivalent to calculating geometric means. Since the methods are all
-  tuned at the central model, ${\mathcal N}(0,1)$, a meaningful comparison
-  of biases can only be made for ${\mathcal N}(0,1)$ distributed errors.
 
-  The variability of the estimators, on the other hand, can be compared
-  over all simulated error distributions. It is measured by the
-  $\Sexpr{trim*100}\%$ trimmed standard deviation, rescaled by the square
-  root of the number of observations.
+\textbf{Scale estimates.} The criteria for scale estimates are all
+calculated on the log-scale. The bias of the estimators is measured by
+the $\Sexpr{trim*100}\%$ trimmed mean. To recover a meaningful scale, the
+results are exponentiated before plotting. It is easy to see that this is
+equivalent to calculating geometric means. Since the methods are all
+tuned at the central model, ${\mathcal N}(0,1)$, a meaningful comparison
+of biases can only be made for ${\mathcal N}(0,1)$ distributed errors.
 
-  For completeness, the statistics used to compare scale estimates in
-  \citet{maronna2009correcting} are also calculated. They are defined as
-  \begin{equation}
-    \label{eq:def.q.and.M}
-    q = \median\left(\frac{S(\bld e)}{\hat\sigma_S}\right), \quad
-    M = \mad\left(\frac{S(\bld e)}{\hat\sigma_S}\right),
-  \end{equation}
-  where $S(e)$ stands for the S-scale estimate evaluated for the actual
-  errors $\bld e$. For the D-scale estimate, the definition is
-  analogue. Since there is no design to correct for, we set $\tau_i = 1\ 
-  \forall i$.  
-\item \textbf{Coefficients.}  The efficiency of estimated regression
-  coefficients $\bld{\hat\beta}$ is characterized by their mean squared
-  error (\emph{MSE}).  Since we simulate under $H_0: \bld\beta = 0$, this
-  is determined by the covariance matrix of $\bld{\hat\beta}$. We use
-  $\Erw\left[\norm{\bld{\hat\beta}}_2^2\right] = \sum_{j=1}^p
-  \var(\hat\beta_j)$ as a summary. When comparing to the MSE of the
-  ordinary least squares estimate (\emph{OLS}), this gives the efficiency,
-  which, by the choice of tuning constants of $\psi$, should yield
-  \begin{equation*}
-    \frac{{\rm MSE}(\bld{\hat\beta}_{\rm OLS})}{{\rm MSE}(\bld{\hat\beta})}
-    \approx 0.95
-  \end{equation*}
-  for standard normally distributed errors. The simulation mean of
-  $\sum_{j=1}^p \var(\hat\beta_j)$ is calculated with $\Sexpr{trim*100}\%$
-  trimming. For other error distributions, this ratio should be larger than
-  $1$, since by using robust procedures we expect to gain efficiency at
-  other error distributions (relative to the least squares estimate).
-\item $\gamma$. We compare the behaviour of the various estimators of
-  $\gamma$ by calculating the trimmed mean and the trimmed standard
-  deviation for standard normal distributed errors.
-\item \textbf{Covariance matrix estimate.} The covariance matrix estimates
-  are compared indirectly over the performance of the resulting test
-  statistics. We compare the empirical level of the hypothesis tests $H_0:
-  \beta_j = 0$ for some $j \in \{1,\dots, p\}$. The power of the tests is
-  compared by testing for $H_0: \beta_j = b$ for several values of
-  $b>0$. The formal power of a more liberal test is generally
-  higher. Therefore, in order for this comparison to be meaningful, the
-  critical value for each test statistic was corrected such that all tests
-  have the same simulated level of $5\%$.
+The variability of the estimators, on the other hand, can be compared
+over all simulated error distributions. It is measured by the
+$\Sexpr{trim*100}\%$ trimmed standard deviation, rescaled by the square
+root of the number of observations.
 
-  The simple hypothesis tests give only limited insights. To investigate
-  the effects of other error distributions, e.g.\ asymmetric error
-  distributions, we compare the confidence intervals for the prediction of
-  some fixed points. Since it was not clear how to assess the quality
-  prediction intervals, either at the central or the simulated model, we do
-  not calculate them here.
+For completeness, the statistics used to compare scale estimates in
+\citet{maronna2009correcting} are also calculated. They are defined as
+\begin{equation}
+  \label{eq:def.q.and.M}
+  q = \median\left(\frac{S(\bld e)}{\hat\sigma_S}\right), \quad
+  M = \mad\left(\frac{S(\bld e)}{\hat\sigma_S}\right),
+\end{equation}
+where $S(e)$ stands for the S-scale estimate evaluated for the actual
+errors $\bld e$. For the D-scale estimate, the definition is
+analogue. Since there is no design to correct for, we set $\tau_i = 1\ 
+\forall i$.  
 
-  A small number of prediction points is already enough, if they  are
-  chosen properly. We chose to use seven points lying on the first two
-  principal components, spaced evenly from the center of the design used to
-  the extended range of the design. The principal components were
-  calculated robustly (using \T{covMcd} of the \T{robustbase} package) and
-  the range was extended by a fraction of $0.5$. An example is shown in
-  Figure~\ref{fig:design-predict}.
-\end{itemize}
+\textbf{Coefficients.}  The efficiency of estimated regression
+coefficients $\bld{\hat\beta}$ is characterized by their mean squared
+error (\emph{MSE}).  Since we simulate under $H_0: \bld\beta = 0$, this
+is determined by the covariance matrix of $\bld{\hat\beta}$. We use
+$\Erw\left[\norm{\bld{\hat\beta}}_2^2\right] = \sum_{j=1}^p
+\var(\hat\beta_j)$ as a summary. When comparing to the MSE of the
+ordinary least squares estimate (\emph{OLS}), this gives the efficiency,
+which, by the choice of tuning constants of $\psi$, should yield
+\begin{equation*}
+  \frac{{\rm MSE}(\bld{\hat\beta}_{\rm OLS})}{{\rm MSE}(\bld{\hat\beta})}
+  \approx 0.95
+\end{equation*}
+for standard normally distributed errors. The simulation mean of
+$\sum_{j=1}^p \var(\hat\beta_j)$ is calculated with $\Sexpr{trim*100}\%$
+trimming. For other error distributions, this ratio should be larger than
+$1$, since by using robust procedures we expect to gain efficiency at
+other error distributions (relative to the least squares estimate).
+
+$\bld\gamma$\textbf{.} We compare the behavior of the various estimators of
+$\gamma$ by calculating the trimmed mean and the trimmed standard
+deviation for standard normal distributed errors.
+
+\textbf{Covariance matrix estimate.} The covariance matrix estimates
+are compared indirectly over the performance of the resulting test
+statistics. We compare the empirical level of the hypothesis tests $H_0:
+\beta_j = 0$ for some $j \in \{1,\dots, p\}$. The power of the tests is
+compared by testing for $H_0: \beta_j = b$ for several values of
+$b>0$. The formal power of a more liberal test is generally
+higher. Therefore, in order for this comparison to be meaningful, the
+critical value for each test statistic was corrected such that all tests
+have the same simulated level of $5\%$.
+
+The simple hypothesis tests give only limited insights. To investigate
+the effects of other error distributions, e.g., asymmetric error
+distributions, we compare the confidence intervals for the prediction of
+some fixed points. Since it was not clear how to assess the quality
+prediction intervals, either at the central or the simulated model, we do
+not calculate them here.
+
+A small number of prediction points is already enough, if they  are
+chosen properly. We chose to use seven points lying on the first two
+principal components, spaced evenly from the center of the design used to
+the extended range of the design. The principal components were
+calculated robustly (using \T{covMcd} of the \T{robustbase} package) and
+the range was extended by a fraction of $0.5$. An example is shown in
+Figure~\ref{fig:design-predict}.
+
 
 \subsection{Results}
 The results are given here as plots (Fig.~\ref{fig:meanscale-1} to

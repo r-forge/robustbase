@@ -132,8 +132,8 @@ lmrob.control(setting, seed = NULL, nResample = 500,
   }
 }\references{
   Koller, M. and Stahel, W.A. (2011), Sharpening Wald-type inference in
-  robust regression, \emph{submitted to Computational Statistics and
-    Data Analysis}.
+  robust regression for small samples, \emph{submitted to Computational
+  Statistics and Data Analysis}.
 }
 \author{ Matias Salibian-Barrera, Martin Maechler and Manuel Koller}
 \seealso{ \code{\link{lmrob}}, also for references and examples.
