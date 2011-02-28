@@ -48,9 +48,12 @@ s_Qn(x, mu.too = FALSE, \dots)
   (\eqn{\mu}) and scale; this is typically only useful for
   \code{\link{covOGK}(*, sigmamu = s_Qn)}.
 }
-% \details{
-%   ............  FIXME ........
-% }
+\details{
+  As the (default, consistency) constant needed to be corrected,
+  the finite sample correction has been based on a much more extensive
+  simulation, and on a 3rd or 4th degree polynomial model in \eqn{1/n}
+  for odd or even n, respectively.
+}
 \references{
   Rousseeuw, P.J. and Croux, C. (1993)
   Alternatives to the Median Absolute Deviation,
