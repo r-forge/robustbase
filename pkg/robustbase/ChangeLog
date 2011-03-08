@@ -1,3 +1,13 @@
+2011-03-08  Manuel Koller  <koller@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version, Suggests): 0.7-3 and added xtable and
+	ggplot2 to Suggests.
+
+	* inst/doc/lmrob_simulation.Rnw: re- or moved dependencies that are
+	not required or just needed for data generation.
+
+	* inst/doc/error.distributions.R: removed dependency on skewt.
+
 2011-02-10  Manuel Koller  <koller@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): Version: 0.7-2

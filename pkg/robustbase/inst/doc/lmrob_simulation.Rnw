@@ -2,6 +2,7 @@
 \documentclass[a4paper]{article}
 
 %\VignetteIndexEntry{lmrob_simulation.Rnw}
+%\VignetteDepends{xtable, robustbase, ggplot2}
 
 \usepackage{amsmath}
 \usepackage{natbib}
@@ -32,16 +33,9 @@
 options(width=60)
 
 ## load required packages
-require(xtable)
-require(robustbase)
-require(ggplot2)
-require(robust)
-require(gtools)
-require(gdata)
-require(foreach)
-registerDoSEQ()
-## require(doMC)
-## registerDoMC()
+stopifnot(require(xtable),
+          require(robustbase),
+          require(ggplot2))
 
 ## Number of Repetitions:
 N <- 1000
@@ -382,7 +376,14 @@ The main loop of the simulation is fairly simple. (This code is only run if
 there are no aggregate results available.)
 <<results=HIDE,eval=FALSE>>=
 if (!file.exists("aggr_results.Rdata")) {
-  for (design in c("dd", mixedsort(ls(pattern = 'rand_\\d+_\\d+')))) {
+  ## load packages required only for simulation
+  stopifnot(require(robust),
+            require(skewt),
+            require(foreach))
+  registerDoSEQ()
+  ## stopifnot(require(doMC)) ## uncomment to use multicore package
+  ## registerDoMC()
+  for (design in c("dd", ls(pattern = 'rand_\\d+_\\d+'))) {
     print(design)
     ## set design
     estlist$design <- get(design)
@@ -727,7 +728,7 @@ if (!file.exists("aggr_results.Rdata")) {
 test.1 <- do.call('rbind', res)
 test.1 <- within(test.1, {
   Method[Method == "SM"] <- "MM"
-  Method <- drop.levels(Method, reorder = FALSE)
+  Method <- Method[, drop = TRUE]
   Estimator <- interaction(Method, D.type, drop = TRUE)
   Estimator <- f.rename.level(Estimator, 'MM.S', 'MM')
   Estimator <- f.rename.level(Estimator, 'SMD.D', 'SMD')
@@ -776,16 +777,15 @@ for(Procstr in levels(test.1$Procstr)) {
     robustbase:::lmrob.E(psi(r,1), lctrl, use.integrate = TRUE)
 }
 ## drop some observations, separate fixed and random designs
-test.fixed <- drop.levels(subset(test.1, n == 20), reorder = FALSE)
-test.1 <- drop.levels(subset(test.1, n != 20), reorder = FALSE)
-test.lm <- drop.levels(subset(test.1, Function == 'lm'), reorder = FALSE)
+test.fixed <- droplevels(subset(test.1, n == 20))
+test.1 <- droplevels(subset(test.1, n != 20))
+test.lm <- droplevels(subset(test.1, Function == 'lm'))
 test.lm$Psi <- NULL
-test.lm.2 <- drop.levels(subset(test.lm, Error == 'N(0,1)'), reorder = FALSE)
-test.1 <- drop.levels(subset(test.1, Function != 'lm'), reorder = FALSE)
-test.2 <- drop.levels(subset(test.1, Error == 'N(0,1)' & Function != 'lm'), 
-                      reorder = FALSE)
-test.3 <- drop.levels(subset(test.2, Method != 'SMDM'), reorder = FALSE)
-test.4 <- drop.levels(subset(test.1, Method != 'SMDM'), reorder = FALSE)
+test.lm.2 <- droplevels(subset(test.lm, Error == 'N(0,1)'))
+test.1 <- droplevels(subset(test.1, Function != 'lm'))
+test.2 <- droplevels(subset(test.1, Error == 'N(0,1)' & Function != 'lm'))
+test.3 <- droplevels(subset(test.2, Method != 'SMDM'))
+test.4 <- droplevels(subset(test.1, Method != 'SMDM'))
 coords <- coord_cartesian(ylim = c(0.5, 1.7))
 @ 
 
@@ -948,8 +948,8 @@ print(ggplot(test.4, aes(p/n, sdlogsigma.1*sqrt(n),
 \begin{figure}
 \begin{center}
 <<label=fig-qscale,fig=TRUE,echo=FALSE>>=
-print(ggplot(drop.levels(subset(test.3, Estimator %in% c("SMD", "MMqE")),
-                         reorder=FALSE), aes(p/n, q, color = Est.Scale)) +
+print(ggplot(droplevels(subset(test.3, Estimator %in% c("SMD", "MMqE"))), 
+             aes(p/n, q, color = Est.Scale)) +
       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
       geom_point(aes(shape = factor(n)), alpha = alpha.n) + 
       geom_hline(yintercept = 1) +
@@ -969,8 +969,8 @@ print(ggplot(drop.levels(subset(test.3, Estimator %in% c("SMD", "MMqE")),
 \begin{figure}
 \begin{center}
 <<label=fig-Mscale,fig=TRUE,echo=FALSE>>=
-print(ggplot(drop.levels(subset(test.3, Estimator %in% c("SMD", "MMqE")),
-                         reorder=FALSE), aes(p/n, M/q, color = Est.Scale)) +
+print(ggplot(droplevels(subset(test.3, Estimator %in% c("SMD", "MMqE"))),
+             aes(p/n, M/q, color = Est.Scale)) +
       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
       geom_point(aes(shape = factor(n)), alpha = alpha.n) + 
       g.scale_y_log10_0.05() + 
@@ -989,9 +989,9 @@ print(ggplot(drop.levels(subset(test.3, Estimator %in% c("SMD", "MMqE")),
 \begin{figure}
 \begin{center}
 <<label=fig-qscale-all,fig=TRUE,echo=FALSE>>=
-print(ggplot(drop.levels(subset(test.1, Estimator %in% c("SMD", "MMqE") & 
-                                Psi == 'bisquare'),
-                         reorder=FALSE), aes(p/n, q, color = Est.Scale)) +
+print(ggplot(droplevels(subset(test.1, Estimator %in% c("SMD", "MMqE") & 
+                                Psi == 'bisquare')),
+             aes(p/n, q, color = Est.Scale)) +
       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
       geom_point(aes(shape = factor(n)), alpha = alpha.n) + 
       geom_hline(yintercept = 1) +
@@ -1011,9 +1011,9 @@ print(ggplot(drop.levels(subset(test.1, Estimator %in% c("SMD", "MMqE") &
 \begin{figure}
 \begin{center}
 <<label=fig-Mscale-all,fig=TRUE,echo=FALSE>>=
-print(ggplot(drop.levels(subset(test.1, Estimator %in% c("SMD", "MMqE") & 
-                                Psi == 'bisquare'),
-                         reorder=FALSE), aes(p/n, M/q, color = Est.Scale)) +
+print(ggplot(droplevels(subset(test.1, Estimator %in% c("SMD", "MMqE") & 
+                                Psi == 'bisquare')),
+             aes(p/n, M/q, color = Est.Scale)) +
       stat_summary(aes(x=ratio), fun.y=median, geom='line') + 
       geom_point(aes(shape = factor(n)), alpha = alpha.n) + 
       g.scale_y_log10_0.05() + 
@@ -1053,7 +1053,7 @@ print(ggplot(test.2, aes(p/n, efficiency.1, color = Estimator)) +
 \begin{figure}
 \begin{center}
 <<label=fig-efficiency-all,fig=TRUE,echo=FALSE>>=
-print(ggplot(drop.levels(subset(test.1, Error != 't1'), reorder = FALSE),
+print(ggplot(droplevels(subset(test.1, Error != 't1')),
              aes(p/n, efficiency.1, color = Estimator)) +
       geom_point(aes(shape = Error), alpha = alpha.error) +
       geom_hline(yintercept = 0.95) + 
@@ -1147,8 +1147,7 @@ print(ggplot(test.2, aes(p/n, f.truncate(emplev_1),
 \begin{figure}
 \begin{center}
 <<label=fig-lqq-level,fig=TRUE,echo=FALSE>>=
-print(ggplot(drop.levels(subset(test.1, Psi == 'lqq' & emplev_1 != 0), 
-                         reorder = FALSE),
+print(ggplot(droplevels(subset(test.1, Psi == 'lqq' & emplev_1 != 0)),
       aes(p/n, f.truncate(emplev_1), color = method.cov)) +
       g.truncate.line + g.truncate.area +
       geom_point(aes(shape = factor(n)), alpha = alpha.n) +

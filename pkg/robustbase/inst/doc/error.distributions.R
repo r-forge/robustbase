@@ -1,6 +1,6 @@
 ## error.distributions.R: additional error distributions for use in simulations
 
-require(skewt)
+## require(skewt) ## loaded in vignette if required
 
 ## centered skewed t distribution
 Eskt <- function(nu, gam) {
