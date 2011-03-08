@@ -1,7 +1,8 @@
 
-R version 2.10.1 Patched (2010-03-27 r51528)
-Copyright (C) 2010 The R Foundation for Statistical Computing
+R version 2.13.0 Under development (unstable) (2011-03-07 r54691)
+Copyright (C) 2011 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
+Platform: x86_64-unknown-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -125,11 +126,11 @@ Robust Estimate of Location:
      2.76      48.38       6.12      25.00       6.40  
 Robust Estimate of Covariance:
            salaryP  fatherWc  sstatus  teacherSc  motherLev
-salaryP      0.381      2.69   -0.400      0.228      0.113
-fatherWc     2.685   1959.47  496.858     18.948     51.871
-sstatus     -0.400    496.86  180.236      5.762     15.230
-teacherSc    0.228     18.95    5.762      1.180      0.835
-motherLev    0.113     51.87   15.230      0.835      1.567
+salaryP      0.381      2.69    -0.40      0.228      0.113
+fatherWc     2.685   1959.47   496.86     18.948     51.871
+sstatus     -0.400    496.86   180.24      5.762     15.230
+teacherSc    0.228     18.95     5.76      1.180      0.835
+motherLev    0.113     51.87    15.23      0.835      1.567
 --------------------------------------------------------
             salinity  28   3  16     1.326364 
 Best subsample: 
@@ -168,12 +169,12 @@ Robust Estimate of Location:
    x1     x2     x3     x4     x5  
 0.587  0.122  0.531  0.538  0.892  
 Robust Estimate of Covariance:
-          x1         x2        x3         x4         x5
-x1   0.01507   2.83e-03   0.00474  -8.81e-04  -2.45e-03
-x2   0.00283   7.29e-04   0.00191  -7.82e-05   3.55e-05
-x3   0.00474   1.91e-03   0.00997  -1.31e-03   5.30e-04
-x4  -0.00088  -7.82e-05  -0.00131   4.28e-03   2.75e-03
-x5  -0.00245   3.55e-05   0.00053   2.75e-03   4.16e-03
+           x1         x2        x3         x4         x5
+x1   0.015071   2.83e-03   0.00474  -8.81e-04  -2.45e-03
+x2   0.002828   7.29e-04   0.00191  -7.82e-05   3.55e-05
+x3   0.004741   1.91e-03   0.00997  -1.31e-03   5.30e-04
+x4  -0.000881  -7.82e-05  -0.00131   4.28e-03   2.75e-03
+x5  -0.002450   3.55e-05   0.00053   2.75e-03   4.16e-03
 --------------------------------------------------------
                  hbk  75   3  39    -1.047858 
 Best subsample: 
@@ -380,11 +381,11 @@ Robust Estimate of Location:
      2.76      48.38       6.12      25.00       6.40  
 Robust Estimate of Covariance:
            salaryP  fatherWc  sstatus  teacherSc  motherLev
-salaryP      0.381      2.69   -0.400      0.228      0.113
-fatherWc     2.685   1959.47  496.858     18.948     51.871
-sstatus     -0.400    496.86  180.236      5.762     15.230
-teacherSc    0.228     18.95    5.762      1.180      0.835
-motherLev    0.113     51.87   15.230      0.835      1.567
+salaryP      0.381      2.69    -0.40      0.228      0.113
+fatherWc     2.685   1959.47   496.86     18.948     51.871
+sstatus     -0.400    496.86   180.24      5.762     15.230
+teacherSc    0.228     18.95     5.76      1.180      0.835
+motherLev    0.113     51.87    15.23      0.835      1.567
 --------------------------------------------------------
             salinity  28   3  16     1.326364 
 Best subsample: 
@@ -423,12 +424,12 @@ Robust Estimate of Location:
    x1     x2     x3     x4     x5  
 0.587  0.122  0.531  0.538  0.892  
 Robust Estimate of Covariance:
-          x1         x2        x3         x4         x5
-x1   0.01507   2.83e-03   0.00474  -8.81e-04  -2.45e-03
-x2   0.00283   7.29e-04   0.00191  -7.82e-05   3.55e-05
-x3   0.00474   1.91e-03   0.00997  -1.31e-03   5.30e-04
-x4  -0.00088  -7.82e-05  -0.00131   4.28e-03   2.75e-03
-x5  -0.00245   3.55e-05   0.00053   2.75e-03   4.16e-03
+           x1         x2        x3         x4         x5
+x1   0.015071   2.83e-03   0.00474  -8.81e-04  -2.45e-03
+x2   0.002828   7.29e-04   0.00191  -7.82e-05   3.55e-05
+x3   0.004741   1.91e-03   0.00997  -1.31e-03   5.30e-04
+x4  -0.000881  -7.82e-05  -0.00131   4.28e-03   2.75e-03
+x5  -0.002450   3.55e-05   0.00053   2.75e-03   4.16e-03
 --------------------------------------------------------
                  hbk  75   3  39    -1.047858 
 Best subsample: 
@@ -489,15 +490,15 @@ Robust Estimate of Location:
     X1      X2      X3      X4      X5      X6      X7      X8  
   1.03   35.97   33.13   26.17   25.15   25.08  123.18   14.39  
 Robust Estimate of Covariance:
-          X1        X2        X3        X4        X5        X6        X7
-X1  6.21e-07  6.11e-05  0.000222  0.000220  0.000195  0.000181  0.000813
-X2  6.11e-05  1.91e+00  0.305315  0.234515  0.151617  0.261667  2.081023
-X3  2.22e-04  3.05e-01  1.524243  1.122585  1.092155  1.120191  0.884748
-X4  2.20e-04  2.35e-01  1.122585  0.891433  0.844566  0.861078  0.727338
-X5  1.95e-04  1.52e-01  1.092155  0.844566  0.878407  0.860894  0.709359
-X6  1.81e-04  2.62e-01  1.120191  0.861078  0.860894  0.905852  0.729376
-X7  8.13e-04  2.08e+00  0.884748  0.727338  0.709359  0.729376  5.130073
-X8  8.02e-06  3.42e-01  0.261602  0.167884  0.146623  0.160590  0.506099
+          X1        X2        X3       X4        X5        X6        X7
+X1  6.21e-07  6.11e-05  0.000222  0.00022  0.000195  0.000181  0.000813
+X2  6.11e-05  1.91e+00  0.305315  0.23452  0.151617  0.261667  2.081023
+X3  2.22e-04  3.05e-01  1.524243  1.12258  1.092155  1.120191  0.884748
+X4  2.20e-04  2.35e-01  1.122585  0.89143  0.844566  0.861078  0.727338
+X5  1.95e-04  1.52e-01  1.092155  0.84457  0.878407  0.860894  0.709359
+X6  1.81e-04  2.62e-01  1.120191  0.86108  0.860894  0.905852  0.729376
+X7  8.13e-04  2.08e+00  0.884748  0.72734  0.709359  0.729376  5.130073
+X8  8.02e-06  3.42e-01  0.261602  0.16788  0.146623  0.160590  0.506099
           X8
 X1  8.02e-06
 X2  3.42e-01
@@ -902,7 +903,7 @@ Error in solve.default(cov, ...) :
   system is computationally singular: reciprocal condition number = 4.85293e-11
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  1.537 0.075 1.697 0 0 
+Time elapsed:  1.34 0.02 1.36 0 0 
 > 
 > ## "large" examples using different algo branches {seg.fault in version 0.4-4}:
 > set.seed(1)
@@ -943,7 +944,7 @@ Robust Estimate of Covariance:
 [3,]      7.31   238  9862.80
 > 
 > cat('Time elapsed: ', proc.time(),'\n')
-Time elapsed:  1.657 0.076 1.818 0 0 
+Time elapsed:  1.46 0.02 1.476 0 0 
 > 
 > 
 > ## Now, some small sample cases:
@@ -986,7 +987,7 @@ Call:
 covMcd(x = X, use.correction = FALSE)
 -> Method:  Minimum Covariance Determinant Estimator. 
 
-Log(Det.):  4.30 
+Log(Det.):  4.3 
 Robust Estimate of Location:
 [1]   2.50  -6.50   1.25
 Robust Estimate of Covariance:
@@ -1103,13 +1104,13 @@ In covMcd(X, use.correction = FALSE) :
 +           all.equal(c(mcc$cov / cc$raw.cov), rep(0.7528695976179, p*p)))
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  1.705 0.077 1.866 0 0 
+Time elapsed:  1.5 0.02 1.525 0 0 
 > 
 > ## nsamp = "exact" -- here for p=7
 > coleman.x <- data.matrix(coleman[, 1:6])
 > cat('Time : ', system.time(CcX <- covMcd(coleman.x, nsamp="exact")),
 +     "\n")# ~ 3 sec. on a fast 2003 machine (Intel Xeon 2400 MHz)
-Time :  1.056 0 1.056 0 0 
+Time :  0.81 0 0.824 0 0 
 > stopifnot(all.equal(CcX$best,
 +                     c(2, 5:9, 11,13, 14:16, 19:20), tol=0))
 > 

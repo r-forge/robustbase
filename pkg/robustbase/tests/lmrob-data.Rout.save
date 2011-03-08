@@ -1,6 +1,6 @@
 
-R version 2.12.0 Patched (2010-10-25 r53426)
-Copyright (C) 2010 The R Foundation for Statistical Computing
+R version 2.13.0 Under development (unstable) (2011-03-07 r54691)
+Copyright (C) 2011 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
@@ -123,7 +123,7 @@ Largest model fitted by lmrob(), i.e. SM
 
   pseudoDf Test.Stat Df Pr(>chisq)    
 1       24                            
-2       25    19.650  1  9.302e-06 ***
+2       25     19.65  1  9.302e-06 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
 > cX3 <- c(Estimate = -0.627327396, `Std. Error` = 0.15844971,
@@ -340,5 +340,5 @@ seed : int(0)
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # "stats"
-Time elapsed:  0.75 0.01 0.765 0 0 
+Time elapsed:  0.35 0.03 0.375 0 0 
 > 
