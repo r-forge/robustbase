@@ -74,11 +74,13 @@ dd <- data.frame(X1 = c(0.0707996949791054, 0.0347546309449992,
                    0.262270854360470, 1.24686336241, 
                    0.386112727548389))
 
+## get path
+robustDoc <- system.file('doc', package='robustbase')
 ## load functions
-source('simulation.functions.R')
-source('estimating.functions.R')
-source('error.distributions.R')
-source('graphics.functions.R')
+source(file.path(robustDoc, 'simulation.functions.R'))
+source(file.path(robustDoc, 'estimating.functions.R'))
+source(file.path(robustDoc, 'error.distributions.R'))
+source(file.path(robustDoc, 'graphics.functions.R'))
 
 ## set estlist and parameters
 estlist <- .estlist.confint
@@ -374,8 +376,13 @@ where $\bld W = \diag\left(\wgt\left(\frac{r_1}{\hat\sigma}\right), \dots,
 \section{Simulation}
 The main loop of the simulation is fairly simple. (This code is only run if
 there are no aggregate results available.)
-<<results=HIDE,eval=FALSE>>=
-if (!file.exists("aggr_results.Rdata")) {
+<<results=HIDE>>=
+aggrResultsFile <- file.path(robustDoc, "aggr_results.Rdata")
+## set eval to TRUE for chunks simulation-run and simulation-aggr
+## if you really want to run the simulations again.
+## (better fail with an error than run for weeks)
+<<label=simulation-run,results=HIDE,eval=FALSE>>=
+if (!file.exists(aggrResultsFile)) {
   ## load packages required only for simulation
   stopifnot(require(robust),
             require(skewt),
@@ -394,7 +401,8 @@ if (!file.exists("aggr_results.Rdata")) {
         f.prediction.points(estlist$design) else
       f.prediction.points(estlist$design, max.pc = 2)
     
-    filename <- sprintf('r.test.final.%s.Rdata',design)
+    filename <- file.path(robustDoc,
+                          sprintf('r.test.final.%s.Rdata',design))
     if (!file.exists(filename)) {
       ## run
       print(system.time(r.test <- f.sim(estlist, silent = TRUE)))
@@ -465,13 +473,12 @@ recalculated. Using vectorized operations and some specialized \T{C} code,
 this is quite cheap. The summary statistics generated are discussed in the
 next section.
 
-<<results=HIDE,echo=FALSE>>=
-if (!file.exists("aggr_results.Rdata")) { 
-  files <- list.files('./', pattern = 'r.test.final\\.')
-  files <- files[!grepl('400', files)] ## drop 400s for the moment
+<<label=simulation-aggr,results=HIDE,echo=FALSE,eval=FALSE>>=
+if (!file.exists(aggrResultsFile)) { 
+  files <- list.files(robustDoc, pattern = 'r.test.final\\.')
   res <- foreach(file = files) %dopar% {
     ## get design, load r.test, initialize other stuff
-    design <- substr(file, 14, nchar(file) - 6)
+    design <- substr(basename(file), 14, nchar(basename(file)) - 6)
     cat(design, ' ')
     load(file)
     estlist <- attr(r.test, 'estlist')
@@ -721,8 +728,14 @@ if (!file.exists("aggr_results.Rdata")) {
     ## return lres
     lres
   } 
-  save(res, trim, file = 'aggr_results.Rdata')
-} else load('aggr_results.Rdata')
+  save(res, trim, file = aggrResultsFile)
+} else load(aggrResultsFile)
+<<label=simulation-aggr2,results=hide,echo=FALSE>>=
+load(aggrResultsFile)
+## this will fail if the file is not found (for a reason)
+## set eval to TRUE for chunks simulation-run and simulation-aggr
+## if you really want to run the simulations again.
+## (better fail with an error than run for weeks)
 
 ## combine list elements to data.frame
 test.1 <- do.call('rbind', res)
@@ -1408,7 +1421,8 @@ u <- Vectorize(function(epsilon, ...) {
 \begin{figure}
 \begin{center}
 <<label=fig-max-asymptotic-bias,fig=TRUE,echo=FALSE>>=
-if (!file.exists('asymptotic.max.bias.Rdata')) {
+asymptMBFile <- file.path(robustDoc, 'asymptotic.max.bias.Rdata')
+if (!file.exists(asymptMBFile)) {
   x <- seq(0, 0.35, length.out = 100)
   rmb <- rbind(data.frame(l=l(x, psi = 'hampel'), 
                           u=u(x, psi = 'hampel'), psi = 'Hampel'),
@@ -1419,8 +1433,8 @@ if (!file.exists('asymptotic.max.bias.Rdata')) {
                data.frame(l=l(x, psi = 'optimal'), 
                           u=u(x, psi = 'optimal'), psi = 'optimal'))
   rmb$x <- x
-  save(rmb, file='asymptotic.max.bias.Rdata')
-} else load('asymptotic.max.bias.Rdata')
+  save(rmb, file=asymptMBFile)
+} else load(asymptMBFile)
 
 print(ggplot(rmb, aes(x, l, color=psi)) + 
       geom_line() + geom_line(aes(x, u, color=psi, linetype = 2)) + 
