@@ -1,4 +1,3 @@
-% -*- mode: noweb; noweb-default-code-mode: R-mode; -*-
 \documentclass[a4paper]{article}
 
 %\VignetteIndexEntry{lmrob_simulation.Rnw}
@@ -21,7 +20,7 @@
 \DeclareMathOperator{\Erw}{\mathbf{E}}
 
 
-\SweaveOpts{prefix.string=plot, eps = FALSE, pdf = TRUE, strip.white="true"}
+\SweaveOpts{prefix.string=plot, eps = FALSE, pdf = TRUE, strip.white=true}
 \SweaveOpts{width=6, height=4}
 
 \begin{document}
