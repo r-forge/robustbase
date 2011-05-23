@@ -1,3 +1,16 @@
+2011-05-23  Manuel Koller  <koller@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version, Date): 0.7-5
+
+	* man/lmrob..D..fit.Rd: updated reference to Koller and Stahel
+	2011 (now with volume, issue and page numbers).
+	* man/lmrob.control.Rd: updated reference.
+	* man/lmrob.Rd: update reference.
+	* inst/doc/lmrob_simulation.bib: updated reference.
+
+	* inst/doc/estimating.functions.R (robustness.weights.lmrob.S):
+	fixed typo.
+
 2011-03-17  Manuel Koller  <koller@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version, Date): 0.7-4
