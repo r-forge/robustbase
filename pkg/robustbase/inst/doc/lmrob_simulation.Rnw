@@ -1,7 +1,7 @@
 \documentclass[a4paper]{article}
 
 %\VignetteIndexEntry{lmrob_simulation.Rnw}
-%\VignetteDepends{xtable, robustbase, ggplot2}
+%\VignetteDepends{robustbase, xtable, ggplot2, RColorBrewer}
 
 \usepackage{amsmath}
 \usepackage{natbib}
