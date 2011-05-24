@@ -1,3 +1,11 @@
+2011-05-24  Manuel Koller  <koller@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.7-6
+
+	* inst/doc/lmrob_simulation.Rnw: cleaned up chunk headers.
+
+	* inst/doc/Makefile: added Makefile that runs qpdf after texi2pdf.
+
 2011-05-23  Manuel Koller  <koller@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version, Date): 0.7-5

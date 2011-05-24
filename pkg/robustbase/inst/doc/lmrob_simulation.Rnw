@@ -260,7 +260,7 @@ print(xtable(tbl), sanitize.text.function=identity,
 
 \begin{figure}
 \begin{center}
-<<label=fig-psi-functions,fig=TRUE,echo=FALSE>>=
+<<fig-psi-functions,fig=TRUE,echo=FALSE>>=
 f.plot.psi <- function(x, psi) {
   cc <- lmrob.control(psi = psi)$tuning.psi
   data.frame(x=x, value=robustbase:::lmrob.psifun(x, cc, psi), psi = psi)
@@ -291,7 +291,7 @@ the ratio to the number of parameters are $p/n = 1/20, 1/10, 1/5, 1/3,
 1/2$. We round $p$ to the nearest smaller integer if necessary.
 
 The random datasets are generated using the following code.
-<<results=HIDE,keep.source=TRUE>>=
+<<results=hide,keep.source=TRUE>>=
 f.gen <- function(n, p, rep, err) {
   ## get function name and parameters
   lerrfun <- f.errname(err$err)
@@ -317,7 +317,7 @@ An example design is shown in Fig.~\ref{fig:example.design}.
 
 \begin{figure}
 \begin{center}
-<<label=fig-example-design,fig=TRUE,echo=FALSE>>=
+<<fig-example-design,fig=TRUE,echo=FALSE>>=
 print(plotmatrix(rand_25_5) +
       scale_x_continuous(breaks = -3:3) +
       scale_y_continuous(breaks = -3:3))
@@ -375,12 +375,12 @@ where $\bld W = \diag\left(\wgt\left(\frac{r_1}{\hat\sigma}\right), \dots,
 \section{Simulation}
 The main loop of the simulation is fairly simple. (This code is only run if
 there are no aggregate results available.)
-<<results=HIDE>>=
+<<results=hide>>=
 aggrResultsFile <- file.path(robustDoc, "aggr_results.Rdata")
 ## set eval to TRUE for chunks simulation-run and simulation-aggr
 ## if you really want to run the simulations again.
 ## (better fail with an error than run for weeks)
-<<label=simulation-run,results=HIDE,eval=FALSE>>=
+<<simulation-run,results=hide,eval=FALSE>>=
 if (!file.exists(aggrResultsFile)) {
   ## load packages required only for simulation
   stopifnot(require(robust),
@@ -472,7 +472,7 @@ recalculated. Using vectorized operations and some specialized \T{C} code,
 this is quite cheap. The summary statistics generated are discussed in the
 next section.
 
-<<label=simulation-aggr,results=HIDE,echo=FALSE,eval=FALSE>>=
+<<simulation-aggr,results=hide,echo=FALSE,eval=FALSE>>=
 if (!file.exists(aggrResultsFile)) {
   files <- list.files(robustDoc, pattern = 'r.test.final\\.')
   res <- foreach(file = files) %dopar% {
@@ -729,7 +729,7 @@ if (!file.exists(aggrResultsFile)) {
   }
   save(res, trim, file = aggrResultsFile)
 } else load(aggrResultsFile)
-<<label=simulation-aggr2,results=hide,echo=FALSE>>=
+<<simulation-aggr2,results=hide,echo=FALSE>>=
 load(aggrResultsFile)
 ## this will fail if the file is not found (for a reason)
 ## set eval to TRUE for chunks simulation-run and simulation-aggr
@@ -894,7 +894,7 @@ using a different scale.
 
 \begin{figure}
 \begin{center}
-<<label=fig-meanscale,fig=TRUE,echo=FALSE>>=
+<<fig-meanscale,fig=TRUE,echo=FALSE>>=
 ## ## exp(mean(log(sigma))): this looks almost identical to mean(sigma)
 print(ggplot(test.3, aes(p/n, exp(meanlogsigma.1), color = Est.Scale)) +
       stat_summary(aes(x=ratio), fun.y=median, geom='line') +
@@ -915,7 +915,7 @@ print(ggplot(test.3, aes(p/n, exp(meanlogsigma.1), color = Est.Scale)) +
 
 \begin{figure}
 \begin{center}
-<<label=fig-sdscale-1,fig=TRUE,echo=FALSE>>=
+<<fig-sdscale-1,fig=TRUE,echo=FALSE>>=
 print(ggplot(test.3, aes(p/n, sdlogsigma.1*sqrt(n), color = Est.Scale)) +
       stat_summary(aes(x=ratio), fun.y=median, geom='line') +
       geom_point(aes(shape = factor(n)), alpha = alpha.n) +
@@ -936,7 +936,7 @@ print(ggplot(test.3, aes(p/n, sdlogsigma.1*sqrt(n), color = Est.Scale)) +
 
 \begin{figure}
 \begin{center}
-<<label=fig-sdscale-all,fig=TRUE,echo=FALSE>>=
+<<fig-sdscale-all,fig=TRUE,echo=FALSE>>=
 print(ggplot(test.4, aes(p/n, sdlogsigma.1*sqrt(n),
                          color = Est.Scale)) +
       stat_summary(aes(x=ratio), fun.y=median, geom='line') +
@@ -959,7 +959,7 @@ print(ggplot(test.4, aes(p/n, sdlogsigma.1*sqrt(n),
 
 \begin{figure}
 \begin{center}
-<<label=fig-qscale,fig=TRUE,echo=FALSE>>=
+<<fig-qscale,fig=TRUE,echo=FALSE>>=
 print(ggplot(droplevels(subset(test.3, Estimator %in% c("SMD", "MMqE"))),
              aes(p/n, q, color = Est.Scale)) +
       stat_summary(aes(x=ratio), fun.y=median, geom='line') +
@@ -980,7 +980,7 @@ print(ggplot(droplevels(subset(test.3, Estimator %in% c("SMD", "MMqE"))),
 
 \begin{figure}
 \begin{center}
-<<label=fig-Mscale,fig=TRUE,echo=FALSE>>=
+<<fig-Mscale,fig=TRUE,echo=FALSE>>=
 print(ggplot(droplevels(subset(test.3, Estimator %in% c("SMD", "MMqE"))),
              aes(p/n, M/q, color = Est.Scale)) +
       stat_summary(aes(x=ratio), fun.y=median, geom='line') +
@@ -1000,7 +1000,7 @@ print(ggplot(droplevels(subset(test.3, Estimator %in% c("SMD", "MMqE"))),
 
 \begin{figure}
 \begin{center}
-<<label=fig-qscale-all,fig=TRUE,echo=FALSE>>=
+<<fig-qscale-all,fig=TRUE,echo=FALSE>>=
 print(ggplot(droplevels(subset(test.1, Estimator %in% c("SMD", "MMqE") &
                                 Psi == 'bisquare')),
              aes(p/n, q, color = Est.Scale)) +
@@ -1022,7 +1022,7 @@ print(ggplot(droplevels(subset(test.1, Estimator %in% c("SMD", "MMqE") &
 
 \begin{figure}
 \begin{center}
-<<label=fig-Mscale-all,fig=TRUE,echo=FALSE>>=
+<<fig-Mscale-all,fig=TRUE,echo=FALSE>>=
 print(ggplot(droplevels(subset(test.1, Estimator %in% c("SMD", "MMqE") &
                                 Psi == 'bisquare')),
              aes(p/n, M/q, color = Est.Scale)) +
@@ -1044,7 +1044,7 @@ print(ggplot(droplevels(subset(test.1, Estimator %in% c("SMD", "MMqE") &
 
 \begin{figure}
 \begin{center}
-<<label=fig-efficiency,fig=TRUE,echo=FALSE>>=
+<<fig-efficiency,fig=TRUE,echo=FALSE>>=
 print(ggplot(test.2, aes(p/n, efficiency.1, color = Estimator)) +
       geom_point(aes(shape = factor(n)), alpha = alpha.n) +
       geom_hline(yintercept = 0.95) +
@@ -1064,7 +1064,7 @@ print(ggplot(test.2, aes(p/n, efficiency.1, color = Estimator)) +
 
 \begin{figure}
 \begin{center}
-<<label=fig-efficiency-all,fig=TRUE,echo=FALSE>>=
+<<fig-efficiency-all,fig=TRUE,echo=FALSE>>=
 print(ggplot(droplevels(subset(test.1, Error != 't1')),
              aes(p/n, efficiency.1, color = Estimator)) +
       geom_point(aes(shape = Error), alpha = alpha.error) +
@@ -1083,7 +1083,7 @@ print(ggplot(droplevels(subset(test.1, Error != 't1')),
 
 \begin{figure}
 \begin{center}
-<<label=fig-AdB2-1,fig=TRUE,echo=FALSE>>=
+<<fig-AdB2-1,fig=TRUE,echo=FALSE>>=
 print(ggplot(test.2, aes(p/n, AdB2.1/(1-p/n), color = Estimator)) +
       geom_point(aes(shape=factor(n)), alpha = alpha.n) +
       geom_point(aes(p/n, K2AdB2.1/(1-p/n)), alpha = alpha.n) +
@@ -1110,7 +1110,7 @@ print(ggplot(test.2, aes(p/n, AdB2.1/(1-p/n), color = Estimator)) +
 
 \begin{figure}
 \begin{center}
-<<label=fig-sdAdB2-1,fig=TRUE,echo=FALSE>>=
+<<fig-sdAdB2-1,fig=TRUE,echo=FALSE>>=
 print(ggplot(test.2, aes(p/n, sdAdB2.1/(1-p/n), color = Estimator)) +
       geom_point(aes(shape=factor(n)), alpha = alpha.n) +
       geom_point(aes((p/n), sdK2AdB2.1/(1-p/n)), alpha = alpha.n) +
@@ -1136,7 +1136,7 @@ print(ggplot(test.2, aes(p/n, sdAdB2.1/(1-p/n), color = Estimator)) +
 
 \begin{figure}
 \begin{center}
-<<label=fig-emp-level,fig=TRUE,echo=FALSE>>=
+<<fig-emp-level,fig=TRUE,echo=FALSE>>=
 print(ggplot(test.2, aes(p/n, f.truncate(emplev_1),
                          color = method.cov)) +
       g.truncate.lines + g.truncate.areas +
@@ -1158,7 +1158,7 @@ print(ggplot(test.2, aes(p/n, f.truncate(emplev_1),
 
 \begin{figure}
 \begin{center}
-<<label=fig-lqq-level,fig=TRUE,echo=FALSE>>=
+<<fig-lqq-level,fig=TRUE,echo=FALSE>>=
 print(ggplot(droplevels(subset(test.1, Psi == 'lqq' & emplev_1 != 0)),
       aes(p/n, f.truncate(emplev_1), color = method.cov)) +
       g.truncate.line + g.truncate.area +
@@ -1182,7 +1182,7 @@ print(ggplot(droplevels(subset(test.1, Psi == 'lqq' & emplev_1 != 0)),
 
 \begin{figure}
 \begin{center}
-<<label=fig-power-1-0_2,fig=TRUE,echo=FALSE>>=
+<<fig-power-1-0_2,fig=TRUE,echo=FALSE>>=
 print(ggplot(subset(test.1, n == 25),
       aes(p/n, power_1_0.2, color = method.cov)) +
       geom_point(aes(shape = Error), alpha = alpha.error) +
@@ -1206,7 +1206,7 @@ print(ggplot(subset(test.1, n == 25),
 
 \begin{figure}
 \begin{center}
-<<label=fig-power-1-0_4,fig=TRUE,echo=FALSE>>=
+<<fig-power-1-0_4,fig=TRUE,echo=FALSE>>=
 print(ggplot(subset(test.1, n == 25),
       aes(p/n, power_1_0.4, color = method.cov)) +
       geom_point(aes(shape = Error), alpha = alpha.error) +
@@ -1230,7 +1230,7 @@ print(ggplot(subset(test.1, n == 25),
 
 \begin{figure}
 \begin{center}
-<<label=fig-power-1-0_6,fig=TRUE,echo=FALSE>>=
+<<fig-power-1-0_6,fig=TRUE,echo=FALSE>>=
 print(ggplot(subset(test.1, n == 25),
       aes(p/n, power_1_0.6, color = method.cov)) +
       geom_point(aes(shape = Error), alpha = alpha.error) +
@@ -1254,7 +1254,7 @@ print(ggplot(subset(test.1, n == 25),
 
 \begin{figure}
 \begin{center}
-<<label=fig-power-1-0_8,fig=TRUE,echo=FALSE>>=
+<<fig-power-1-0_8,fig=TRUE,echo=FALSE>>=
 print(ggplot(subset(test.1, n == 25),
       aes(p/n, power_1_0.8, color = method.cov)) +
       geom_point(aes(shape = Error), alpha = alpha.error) +
@@ -1278,7 +1278,7 @@ print(ggplot(subset(test.1, n == 25),
 
 \begin{figure}
 \begin{center}
-<<label=fig-power-1-1,fig=TRUE,echo=FALSE>>=
+<<fig-power-1-1,fig=TRUE,echo=FALSE>>=
 print(ggplot(subset(test.1, n == 25),
       aes(p/n, power_1_1, color = method.cov)) +
       geom_point(aes(shape = Error), alpha = alpha.error) +
@@ -1304,7 +1304,7 @@ print(ggplot(subset(test.1, n == 25),
 
 \begin{figure}
 \begin{center}
-<<label=fig-pred-points,fig=TRUE,echo=FALSE>>=
+<<fig-pred-points,fig=TRUE,echo=FALSE>>=
 pp <- f.prediction.points(dd)[1:7,]
 tmp <- plotmatrix(pp)$data
 tmp$label <- as.character(1:7)
@@ -1320,7 +1320,7 @@ print(plotmatrix(dd) + geom_text(data=tmp, color = 2, aes(label=label), size = 2
 
 \begin{figure}
 \begin{center}
-<<label=fig-cpr,fig=TRUE,echo=FALSE>>=
+<<fig-cpr,fig=TRUE,echo=FALSE>>=
 n.cprs <- names(test.fixed)[grep('cpr', names(test.fixed))]
 test.5 <- melt(test.fixed[,c('method.cov', 'Error', 'Psi', n.cprs)])
 test.5 <- within(test.5, {
@@ -1359,7 +1359,7 @@ as illustrated in Fig.~\ref{fig:max-asymptotic-bias}. We calculate the
 asymptotic bias as in \citet{berrendero2007maximum}.
 
 
-<<results=HIDE,echo=FALSE>>=
+<<results=hide,echo=FALSE>>=
 ## Henning (1994) eq 33:
 g <- Vectorize(function(s, theta, mu, ...) {
   lctrl <- lmrob.control(...)
@@ -1419,7 +1419,7 @@ u <- Vectorize(function(epsilon, ...) {
 
 \begin{figure}
 \begin{center}
-<<label=fig-max-asymptotic-bias,fig=TRUE,echo=FALSE>>=
+<<fig-max-asymptotic-bias,fig=TRUE,echo=FALSE>>=
 asymptMBFile <- file.path(robustDoc, 'asymptotic.max.bias.Rdata')
 if (!file.exists(asymptMBFile)) {
   x <- seq(0, 0.35, length.out = 100)
