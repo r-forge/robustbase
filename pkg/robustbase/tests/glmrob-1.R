@@ -17,6 +17,12 @@ stopifnot(all.equal(c(0.0287933850640724, 0.0284930623638766,
 if(FALSE) # for manual digging:
 debug(robustbase:::glmrobMqle)
 
+## check validity of several methods simultaneously:
+y. <- model.response(model.frame(rm1))
+stopifnot(all.equal(residuals(rm1) + fitted(rm1), y.),
+          y. == y)
+## residuals() has failed since at least R version 2.9.2 (2009) till ... 2011
+
 ## Using  *factor*  y ...
 x <- seq(0,5, length = 120)
 summary(px <- plogis(-5 + 2*x))
