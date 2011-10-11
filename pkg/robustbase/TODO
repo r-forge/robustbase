@@ -83,7 +83,8 @@ o drop1() would be nice
 
 --- nlrob ---
 
-o nlrob() needs tests in ./tests/ -- you can take some from man/nlrob.Rd
+o  residuals( nlrob(), type = "...") should provide types
+   	      "as in the litterature"
 
 ------
 

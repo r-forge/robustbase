@@ -19,6 +19,7 @@ debug(robustbase:::glmrobMqle)
 
 ## check validity of several methods simultaneously:
 y. <- model.response(model.frame(rm1))
+if(FALSE) ### ANDREAS!
 stopifnot(all.equal(residuals(rm1) + fitted(rm1), y.),
           y. == y)
 ## residuals() has failed since at least R version 2.9.2 (2009) till ... 2011

@@ -68,6 +68,7 @@ S3method(anova, glmrob)
 
 S3method(model.matrix, lmrob)
 
+S3method(formula, nlrob)
 S3method(fitted, nlrob)
 S3method(plot, lts)
 S3method(plot, mcd)
