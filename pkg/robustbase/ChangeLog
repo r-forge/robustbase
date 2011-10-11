@@ -1,5 +1,8 @@
 2011-10-11  Martin Maechler  <maechler@stat.math.ethz.ch>
 
+	* src/rfltsreg.f: add 'implicit none' and declare everything;
+	new gfortran gave (correct) warnings.
+
 	* R/nlrob.R, man/nlrob.Rd: finally fix "fitted.values"
 	* tests/nlrob-tst.R (new): start more testing of nlrob()!
 
