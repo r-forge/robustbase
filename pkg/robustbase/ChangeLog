@@ -1,3 +1,17 @@
+
+2011-10-11  Manuel Koller  <koller@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.7-8
+
+	* man/lmrob.Rd: See also extended with lmrob..M..fit.
+
+	* man/lmrob..M..fit.Rd: Extended example with function lmrob.custom.
+
+	* R/lmrob.MM.R (lmrob.tau): moving calculation of h to the inside
+	of the function, so that obj$qr is not required.
+
+	* R/ltsPlot.R (ltsPlot, myqqplot): removed superfluous title().
+
 2011-10-11  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* src/rfltsreg.f: add 'implicit none' and declare everything;
