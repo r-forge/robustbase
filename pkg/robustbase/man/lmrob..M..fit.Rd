@@ -21,7 +21,7 @@ lmrob..M..fit(x, y, beta.initial, scale, control, obj)
     by \code{\link{lmrob.control}}.  Currently, only the components
     \code{c("max.it", "rel.tol","trace.lev", "psi", "tuning.psi",
       "method")} are accessed.}
-  \item{obj}{an optional \code{lmrob}-object. If given, this is used to
+  \item{obj}{an optional \code{lmrob}-object.  If specified, this is used to
     set values for the other arguments.}
 }
 \details{

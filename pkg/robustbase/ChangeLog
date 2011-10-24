@@ -1,3 +1,9 @@
+2011-10-24  Martin Maechler  <maechler@stat.math.ethz.ch>  with	Andreas in train to Fribourg
+
+	* R/glmrob.R (residuals.glmrob): provide a version of
+	residuals.glm() which works
+	* NAMESPACE: residuals.glmrob
+
 2011-10-11  Manuel Koller  <koller@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.7-8

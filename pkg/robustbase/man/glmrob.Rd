@@ -257,7 +257,7 @@ plot(1/lot1 ~ log(u), data=clotM5.high)
 abline(cl5.high, lty=2, col="red")
 abline(ro5.high, lwd=2, col="blue") ## result is ok (but not "perfect")
 
-%% FIXME: Need work -- option of starting from
+%% FIXME: Need work -- option of *starting* from
 %% -----  see Andreas' ~/R/MM/Pkg-ex/robustbase/glmrob-gamma-ARu.R
 
 % ## a "regular outlier" in the middle :
