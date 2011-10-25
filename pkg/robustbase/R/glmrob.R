@@ -65,12 +65,12 @@ function (formula, family, data, weights, subset,
 		   stop("invalid 'start' string"))
     }
     fit <- switch(method,
-		  "cubif" =
+		  "cubif" = ## FIXME: not yet implemented !
 		  glmrobCubif(X = X, y = Y, weights = weights, start = start,
 			      offset = offset, family = family,
 			      weights.on.x = weights.on.x, control = control,
 			      intercept = attr(mt, "intercept") > 0,trace=trace),
-		  "Mqle" =
+		  "Mqle" = ## --> ./glmrobMqle.R
 		  glmrobMqle(X = X, y = Y, weights = weights, start = start,
 			     offset = offset, family = family,
 			     weights.on.x = weights.on.x, control = control,
