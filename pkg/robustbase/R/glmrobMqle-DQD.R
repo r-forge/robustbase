@@ -11,11 +11,12 @@ glmrobMqleDiffQuasiDevB <- function(mu, mu0, y, ni, w.x, phi, tcc)
     ##
     f.cnui <- function(u, y, ni, tcc)
     {
-	## First part: nui
 	pr <- u/ni
 	Vmu <- pr * (1 - pr) ## = binomial()$variance
 	residP <- (y-pr)*sqrt(ni/Vmu)
-	nui <- pmax(-tcc, pmin(residP,tcc))
+
+	## First part: nui
+	nui <- pmax(-tcc, pmin(tcc, residP))
 
 	## Second part: Enui
 	H <- floor(u - tcc*sqrt(ni*Vmu))
@@ -48,17 +49,18 @@ glmrobMqleDiffQuasiDevB <- function(mu, mu0, y, ni, w.x, phi, tcc)
     ## -2*(sum(QMi1)-sum(QMi2)/nobs)  ## Eva's interpretation of (4) and (5)
     ## According to Andreas' interpretation
     -2*sum(QMi*w.x)
-}
+} ## glmrobMqleDiffQuasiDevB
 
 glmrobMqleDiffQuasiDevPois <- function(mu, mu0, y, ni, w.x, phi, tcc)
 {
     ##
     f.cnui <- function(u, y, ni, tcc)
     {
-	## First part: nui
 	Vmu <- u ## = poisson()$variance
 	residP <- (y-u)/sqrt(Vmu)
-	nui <- pmax(-tcc,pmin(residP,tcc))
+
+	## First part: nui
+	nui <- pmax(-tcc, pmin(tcc, residP))
 
 	## Second part: Enui
 	H <- floor(u - tcc*sqrt(Vmu))
@@ -84,7 +86,7 @@ glmrobMqleDiffQuasiDevPois <- function(mu, mu0, y, ni, w.x, phi, tcc)
     ## -2*(sum(QMi1)-sum(QMi2)/nobs) ## Eva's interpretation of (4) and (5)
     ## According to Andreas' interpretation
     -2*sum(QMi*w.x)
-}
+}## glmrobMqleDiffQuasiDevPois
 
 glmrobMqleDiffQuasiDevGamma <- function(mu, mu0, y, ni, w.x, phi, tcc,
                                         variant = c("V1", "Eva1", "Andreas1"))
@@ -92,8 +94,9 @@ glmrobMqleDiffQuasiDevGamma <- function(mu, mu0, y, ni, w.x, phi, tcc,
     ## Notation similar to the discrete case (Cantoni & Ronchetti, 2001)
     f.cnui <- function(u, y, ni, phi, tcc)
     {
+        s.ph <- sqrt(phi)
 	## First part: nui
-	sV <- sqrt(phi) * u ## = sqrt(dispersion * Gamma()$variance)
+	sV <- s.ph * u ## = sqrt(dispersion * Gamma()$variance)
 	residP <- (y-u)/sV
 	nui <- pmax(-tcc, pmin(tcc, residP))
 
@@ -101,14 +104,14 @@ glmrobMqleDiffQuasiDevGamma <- function(mu, mu0, y, ni, w.x, phi, tcc,
         ## what follows is similar to glmrob.Mqle.Epsipois except a
 	## different vectorisation
         nu <- 1/phi      ## form parameter nu
-        snu <- 1/sqrt(phi) ## sqrt (nu)
+        snu <- 1/s.ph ## sqrt (nu)
 
         pPtmc <- pgamma(snu - tcc, shape=nu, rate=snu)
         pPtpc <- pgamma(snu + tcc, shape=nu, rate=snu)
 
         Enui <- tcc*(1-pPtpc-pPtmc) + Gmn(-tcc,nu) - Gmn( tcc,nu)
 
-        ( nui/sV - Enui/u*sqrt(phi) )
+        ( nui/sV - Enui/u*s.ph )
     }
     f.cnui1 <- function(u, y, ni, phi, tcc)
     {
@@ -137,24 +140,6 @@ glmrobMqleDiffQuasiDevGamma <- function(mu, mu0, y, ni, w.x, phi, tcc,
 	return(Enui/u * s.ph)
     }
 
-    f.cnui22 <- function(u, y=y[1], ni=1, phi=phi, tcc=1.5)
-    {
-	## First part: nui
-	sV <- sqrt(phi) * u ## = sqrt(dispersion * Gamma()$variance)
-
-	## Second part: Enui
-        ## what follows is similar to glmrob.Mqle.Epsipois except a
-	## different vectorisation
-        nu <- 1/phi      ## form parameter nu
-        snu <- 1/sqrt(phi)
-
-        pPtmc <- pgamma(snu - tcc, shape=nu, rate=snu)
-        pPtpc <- pgamma(snu + tcc, shape=nu, rate=snu)
-
-	##return (Enui) :
-        tcc*(1-pPtpc-pPtmc) + Gmn(-tcc,nu) - Gmn( tcc,nu)
-    }
-
     nobs <- length(mu)
     stopifnot(nobs > 0)
     ## robust quasi-deviance
@@ -167,9 +152,9 @@ glmrobMqleDiffQuasiDevGamma <- function(mu, mu0, y, ni, w.x, phi, tcc,
         -2*sum(QMi*w.x)
 
     } else {
-        QM1i <- QM2i <- numeric(nobs)
+        QMi1 <- QMi2 <- numeric(nobs)
         for(i in 1:nobs)
-            QM1i[i] <- integrate(f.cnui1, y = y[i], ni = ni[i], phi=phi, tcc = tcc,
+            QMi1[i] <- integrate(f.cnui1, y = y[i], ni = ni[i], phi=phi, tcc = tcc,
                                  lower = mu[i], upper = mu0[i])$value
         for(i in 1:nobs)
             QM2i[i] <- integrate(f.cnui2, y = y[i], ni = ni[i], phi=phi, tcc = tcc,
