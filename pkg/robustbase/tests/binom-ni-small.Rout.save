@@ -1,5 +1,5 @@
 
-R version 2.14.0 RC (2011-10-23 r57410)
+R version 2.14.0 RC (2011-10-25 r57433)
 Copyright (C) 2011 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: x86_64-unknown-linux-gnu (64-bit)
@@ -223,7 +223,7 @@ In glmrobMqle(X = X, y = Y, weights = weights, start = start, offset = offset,  
 > ## --> warning..
 > rg0. <- glmrob(cbind(k0, n0-k0) ~ x, family = binomial, subset = n0 > 0)
 > 
-> coef(summary(rg0)) # not yet good (cf. 'g0' above!)
+> coef(summary(rg0)) # not yet good (cf. 'g0' above!) -- but the one of rg0. is
              Estimate Std. Error z-value Pr(>|z|)
 (Intercept) -1.852918        NaN     NaN      NaN
 x            3.847520        NaN     NaN      NaN
@@ -353,5 +353,5 @@ test.acc
 +                     rg3.15  [no.comp], tol = 1e-13))
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  0.392 0.036 0.423 0 0 
+Time elapsed:  0.502 0.065 0.628 0 0.009 
 > 
