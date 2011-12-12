@@ -103,6 +103,17 @@ stopifnot(which(!a2$nonOut) == 1:14,
       })
 
 
+## check of adjOutlyingness *free* bug
+## reported by Kaveh Vakili <Kaveh.Vakili@wis.kuleuven.be>
+set.seed(-37665251)
+X<-matrix(rnorm(100*5),100,5)
+Z<-matrix(rnorm(100*5,0,1/100),10,5)
+Z<-sweep(Z,2,c(5,rep(0,4)),FUN="+")
+X[91:100,]<-Z
+for (i in 1:10) {
+    ## this would produce an error in the 6th iteration
+    aa <- adjOutlyingness(x=X,ndir=250)
+}
 
 ### Some platform info :
 local({ nms <- names(Si <- Sys.info())
