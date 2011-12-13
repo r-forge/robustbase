@@ -1,5 +1,5 @@
 
-R version 2.14.1 beta (2011-12-11 r57866)
+R version 2.14.0 (2011-10-31)
 Copyright (C) 2011 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: x86_64-unknown-linux-gnu (64-bit)
@@ -52,10 +52,12 @@ Median = 2.04417 (not at the border)
 n =  5:
 ------
 Median = 3.25694 (not at the border)
+  not found [it=1,  (nr,nl) = (5,0)], -> (knew-nl, j) = (5,5)
  --> mc(rlnorm(5)) = -0.107345
 n =  6:
 ------
 Median = 1.87719 (not at the border)
+  not found [it=1,  (nr,nl) = (5,0)], -> (knew-nl, j) = (5,5)
  --> mc(rlnorm(6)) = -0.362411
 n =  7:
 ------
@@ -79,6 +81,7 @@ Median = 1.224 (not at the border)
 n = 11:
 ------
 Median = 1.16303 (not at the border)
+  not found [it=2,  (nr,nl) = (23,13)], -> (knew-nl, j) = (6,10)
  --> mc(rlnorm(11)) = 0.335301
 n = 12:
 ------
@@ -107,7 +110,7 @@ Median = 0.993696 (not at the border)
 n = 17:
 ------
 Median = 1.06594 (not at the border)
-  not found [it=3,  (nr,nl) = (43,37)], -> (knew-nl, j) = (4,6)
+  not found [it=2,  (nr,nl) = (43,26)], -> (knew-nl, j) = (15,17)
  --> mc(rlnorm(17)) = 0.496123
 n = 18:
 ------
@@ -121,12 +124,12 @@ Median = 0.607121 (not at the border)
 n = 20:
 ------
 Median = 0.734745 (not at the border)
-  not found [it=4,  (nr,nl) = (51,45)], -> (knew-nl, j) = (6,6)
+  not found [it=3,  (nr,nl) = (51,34)], -> (knew-nl, j) = (17,17)
  --> mc(rlnorm(20)) = 0.741001
 n = 21:
 ------
 Median = 0.962639 (not at the border)
-  not found [it=4,  (nr,nl) = (65,58)], -> (knew-nl, j) = (3,7)
+  not found [it=3,  (nr,nl) = (78,58)], -> (knew-nl, j) = (3,20)
  --> mc(rlnorm(21)) = 0.713546
 n = 22:
 ------
@@ -135,12 +138,12 @@ Median = 0.623584 (not at the border)
 n = 23:
 ------
 Median = 1.27168 (not at the border)
-  not found [it=4,  (nr,nl) = (80,71)], -> (knew-nl, j) = (2,9)
+  not found [it=3,  (nr,nl) = (80,60)], -> (knew-nl, j) = (13,20)
  --> mc(rlnorm(23)) = 0.488602
 n = 24:
 ------
 Median = 1.1221 (not at the border)
-  not found [it=4,  (nr,nl) = (74,63)], -> (knew-nl, j) = (10,11)
+  not found [it=3,  (nr,nl) = (85,63)], -> (knew-nl, j) = (10,22)
  --> mc(rlnorm(24)) = 0.310879
 n = 25:
 ------
@@ -150,7 +153,7 @@ Median = 1.07368 (not at the border)
 n = 26:
 ------
 Median = 0.838229 (not at the border)
-  not found [it=4,  (nr,nl) = (85,74)], -> (knew-nl, j) = (11,11)
+  not found [it=3,  (nr,nl) = (85,62)], -> (knew-nl, j) = (23,23)
  --> mc(rlnorm(26)) = 0.269868
 n = 27:
 ------
@@ -194,7 +197,7 @@ Median = 0.918038 (not at the border)
 n = 35:
 ------
 Median = 1.13929 (not at the border)
-  not found [it=4,  (nr,nl) = (165,152)], -> (knew-nl, j) = (11,13)
+  not found [it=3,  (nr,nl) = (165,132)], -> (knew-nl, j) = (31,33)
  --> mc(rlnorm(35)) = 0.271650
 n = 36:
 ------
@@ -239,12 +242,12 @@ Median = 0.938235 (not at the border)
 n = 44:
 ------
 Median = 1.03247 (not at the border)
-  not found [it=5,  (nr,nl) = (245,222)], -> (knew-nl, j) = (21,23)
+  not found [it=4,  (nr,nl) = (258,222)], -> (knew-nl, j) = (21,36)
  --> mc(rlnorm(44)) = 0.402930
 n = 45:
 ------
 Median = 1.19818 (not at the border)
-  not found [it=5,  (nr,nl) = (273,256)], -> (knew-nl, j) = (9,17)
+  not found [it=4,  (nr,nl) = (292,256)], -> (knew-nl, j) = (9,36)
  --> mc(rlnorm(45)) = 0.178041
 n = 46:
 ------
@@ -259,7 +262,7 @@ Median = 0.850011 (not at the border)
 n = 48:
 ------
 Median = 0.984916 (not at the border)
-  not found [it=5,  (nr,nl) = (313,284)], -> (knew-nl, j) = (5,29)
+  not found [it=4,  (nr,nl) = (327,284)], -> (knew-nl, j) = (5,43)
  --> mc(rlnorm(48)) = 0.372149
 n = 49:
 ------
@@ -274,17 +277,17 @@ Median = 1.321 (not at the border)
 n = 51:
 ------
 Median = 0.663719 (not at the border)
-  not found [it=4,  (nr,nl) = (342,314)], -> (knew-nl, j) = (25,28)
+  not found [it=3,  (nr,nl) = (361,314)], -> (knew-nl, j) = (25,47)
  --> mc(rlnorm(51)) = 0.809476
 n = 52:
 ------
 Median = 0.863617 (not at the border)
-  not found [it=5,  (nr,nl) = (350,333)], -> (knew-nl, j) = (6,17)
+  not found [it=4,  (nr,nl) = (350,298)], -> (knew-nl, j) = (41,52)
  --> mc(rlnorm(52)) = 0.453604
 n = 53:
 ------
 Median = 0.869323 (not at the border)
-  not found [it=5,  (nr,nl) = (381,355)], -> (knew-nl, j) = (10,26)
+  not found [it=4,  (nr,nl) = (401,355)], -> (knew-nl, j) = (10,46)
  --> mc(rlnorm(53)) = 0.463112
 n = 54:
 ------
@@ -304,7 +307,7 @@ Median = 0.944194 (not at the border)
 n = 57:
 ------
 Median = 0.834438 (not at the border)
-  not found [it=5,  (nr,nl) = (423,402)], -> (knew-nl, j) = (19,21)
+  not found [it=4,  (nr,nl) = (423,377)], -> (knew-nl, j) = (44,46)
  --> mc(rlnorm(57)) = 0.559266
 n = 58:
 ------
@@ -314,17 +317,17 @@ Median = 1.3469 (not at the border)
 n = 59:
 ------
 Median = 1.13765 (not at the border)
-  not found [it=5,  (nr,nl) = (482,449)], -> (knew-nl, j) = (2,33)
+  not found [it=4,  (nr,nl) = (507,449)], -> (knew-nl, j) = (2,58)
  --> mc(rlnorm(59)) = 0.424859
 n = 60:
 ------
 Median = 0.74878 (not at the border)
-  not found [it=5,  (nr,nl) = (451,422)], -> (knew-nl, j) = (29,29)
+  not found [it=4,  (nr,nl) = (475,422)], -> (knew-nl, j) = (29,53)
  --> mc(rlnorm(60)) = 0.351161
 n = 61:
 ------
 Median = 1.18794 (not at the border)
-  not found [it=5,  (nr,nl) = (507,476)], -> (knew-nl, j) = (5,31)
+  not found [it=4,  (nr,nl) = (530,476)], -> (knew-nl, j) = (5,54)
  --> mc(rlnorm(61)) = 0.249025
 n = 62:
 ------
@@ -339,17 +342,17 @@ Median = 1.0835 (not at the border)
 n = 64:
 ------
 Median = 1.07216 (not at the border)
-  not found [it=5,  (nr,nl) = (523,491)], -> (knew-nl, j) = (22,32)
+  not found [it=4,  (nr,nl) = (545,491)], -> (knew-nl, j) = (22,54)
  --> mc(rlnorm(64)) = 0.352580
 n = 65:
 ------
 Median = 0.98628 (not at the border)
-  not found [it=5,  (nr,nl) = (573,544)], -> (knew-nl, j) = (1,29)
+  not found [it=4,  (nr,nl) = (573,511)], -> (knew-nl, j) = (34,62)
  --> mc(rlnorm(65)) = 0.534033
 n = 66:
 ------
 Median = 1.0057 (not at the border)
-  not found [it=5,  (nr,nl) = (563,538)], -> (knew-nl, j) = (7,25)
+  not found [it=4,  (nr,nl) = (563,505)], -> (knew-nl, j) = (40,58)
  --> mc(rlnorm(66)) = 0.170391
 n = 67:
 ------
@@ -364,12 +367,12 @@ Median = 1.03721 (not at the border)
 n = 69:
 ------
 Median = 1.04214 (not at the border)
-  not found [it=5,  (nr,nl) = (625,596)], -> (knew-nl, j) = (17,29)
+  not found [it=4,  (nr,nl) = (625,557)], -> (knew-nl, j) = (56,68)
  --> mc(rlnorm(69)) = 0.426994
 n = 70:
 ------
 Median = 1.2122 (not at the border)
-  not found [it=5,  (nr,nl) = (629,597)], -> (knew-nl, j) = (16,32)
+  not found [it=4,  (nr,nl) = (657,597)], -> (knew-nl, j) = (16,60)
  --> mc(rlnorm(70)) = 0.086907
 n = 71:
 ------
@@ -379,7 +382,7 @@ Median = 0.75431 (not at the border)
 n = 72:
 ------
 Median = 0.881605 (not at the border)
-  not found [it=5,  (nr,nl) = (669,629)], -> (knew-nl, j) = (20,40)
+  not found [it=4,  (nr,nl) = (691,629)], -> (knew-nl, j) = (20,62)
  --> mc(rlnorm(72)) = 0.493531
 n = 73:
 ------
@@ -409,7 +412,7 @@ Median = 0.924149 (not at the border)
 n = 78:
 ------
 Median = 0.73153 (not at the border)
-  not found [it=5,  (nr,nl) = (773,740)], -> (knew-nl, j) = (21,33)
+  not found [it=4,  (nr,nl) = (811,740)], -> (knew-nl, j) = (21,71)
  --> mc(rlnorm(78)) = 0.404619
 n = 79:
 ------
@@ -429,7 +432,7 @@ Median = 0.949946 (not at the border)
 n = 82:
 ------
 Median = 0.793115 (not at the border)
-  not found [it=5,  (nr,nl) = (866,831)], -> (knew-nl, j) = (10,35)
+  not found [it=4,  (nr,nl) = (866,792)], -> (knew-nl, j) = (49,74)
  --> mc(rlnorm(82)) = 0.601821
 n = 83:
 ------
@@ -459,7 +462,7 @@ Median = 0.973207 (not at the border)
 n = 88:
 ------
 Median = 0.931138 (not at the border)
-  not found [it=5,  (nr,nl) = (993,942)], -> (knew-nl, j) = (27,51)
+  not found [it=4,  (nr,nl) = (1017,942)], -> (knew-nl, j) = (27,75)
  --> mc(rlnorm(88)) = 0.443169
 n = 89:
 ------
@@ -518,7 +521,7 @@ Median = 1.1647 (not at the border)
 n =100:
 ------
 Median = 0.921319 (not at the border)
-  not found [it=6,  (nr,nl) = (1280,1236)], -> (knew-nl, j) = (15,44)
+  not found [it=5,  (nr,nl) = (1312,1236)], -> (knew-nl, j) = (15,76)
  --> mc(rlnorm(100)) = 0.457971
 > 
 > allEQ <- function(x,y) all.equal(x,y, tol = 1e-12)
@@ -667,6 +670,6 @@ numeric
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  0.408 0.06 0.732 0.001 0.009 
+Time elapsed:  0.437 0.071 0.711 0.001 0.009 
 > 
 > quit('no')
