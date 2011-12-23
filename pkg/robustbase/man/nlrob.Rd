@@ -23,7 +23,7 @@ nlrob(formula, data, start, weights = NULL, na.action = na.fail,
     and parameters of the model, such as \code{y ~ f(x, theta)} (cf. \code{\link{nls}}).
     (For some checks: if \eqn{f(.)} is linear, then we need
     parentheses, e.g., \code{y ~ (a + b * x)}.)
-%% FIXME in code:
+%% FIXME in code -- long overdue, as nls() is more flexible *SINCE* R 2.2.1
     Do not use \code{w} as variable or parameter name!
   }
   \item{data}{an optional data frame containing the variables
@@ -51,9 +51,10 @@ nlrob(formula, data, start, weights = NULL, na.action = na.fail,
     \code{nrow(data) == length(w)}.
   }
   \item{psi}{a function (possibly by name) of the form \code{g(x, 'tuning
-    constant(s)', deriv)} that for deriv=0 returns psi(x)/x and for
-    deriv=1 returns psi'(x). Tuning constants will be passed in via one
-    or several arguments, depending on the psi function. (see also
+      constant(s)', deriv)} that for \code{deriv=0} returns
+    \eqn{\psi(x)/x}{psi(x)/x} and for \code{deriv=1} returns
+    \eqn{\psi'(x)}{psi'(x)}.  Tuning constants will be passed in via one
+    or several arguments, depending on the psi function. (See also
     \code{\link[MASS]{rlm}}).}
   \item{test.vec}{character string specifying the convergence
     criterion. The relative change is tested for residuals with a value

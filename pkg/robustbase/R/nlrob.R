@@ -48,6 +48,7 @@ nlrob <-
     coef <- start
     fit <- eval(formula[[3]], c(as.list(data), start))
     y <- eval(formula[[2]], as.list(data))
+    nobs <- length(y)
     resid <- y - fit
     w <- rep(1, nrow(data))
     if (!is.null(weights))
@@ -77,14 +78,18 @@ nlrob <-
 	    w <- psi(resid/Scale, ...)
 	    if (!is.null(weights))
 		w <- w * weights
-	    data$w <- sqrt(w)
+	    data$w <- sw <- sqrt(w)
 	    out <- nls(formula, data = data, start = start, algorithm = algorithm,
 		       trace = trace, na.action = na.action, control = control)
 
 	    ## same sequence as in start! Ok for test.vec:
 	    coef <- coefficients(out)
 	    start <- coef
-	    resid <- -residuals(out)/sqrt(w) ## == - (y - f(x))*sqrt(w)
+	    ## Residuals:  -residuals(.) == - (y - f(x))*sqrt(w)
+	    ##	==> divide by sw := sqrt(w)  only if that is not 0
+	    iw <- 1/sw
+	    if(any(i0 <- w == 0)) iw[i0] <- 0
+	    resid <- -residuals(out) * iw
 	    convi <- irls.delta(previous, get(test.vec))
 	}
 	converged <- convi <= acc
@@ -115,7 +120,7 @@ nlrob <-
     fit <- eval(oform[[3]], c(as.list(data), coef))
     names(fit) <- rownames(data)
     out <- list(m = out$m, call = call, formula = oform,
-		new.formula = formula,
+		new.formula = formula, nobs = nobs,
 		coefficients = coef, working.residuals =  - as.vector(resid),
 		fitted.values = fit, residuals = y - fit,
 		Scale = Scale, w = w, w.r = psi(resid/Scale, ...),
