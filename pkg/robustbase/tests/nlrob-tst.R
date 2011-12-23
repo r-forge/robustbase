@@ -41,6 +41,8 @@ nlr1 <- nlrob(y ~ a*(x + b*exp(-c*x)), start=list(a= 4, b= 1, c= 1.2),
 nlr2 <- update(nlr1, psi = robustbase:::psi.bisquare) # does *NOT* converge...
 nlr3 <- update(nlr1, psi = robustbase:::psi.hampel)   # does *NOT* converge...
 
+psiFHa <- robustbase:::psi.hampel
+
 ## Different example with more data:
 pp <- list(a=10, b=4, c=1/4)
 x <- seq(-6,9, by = 1/8)
