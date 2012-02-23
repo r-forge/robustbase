@@ -1,3 +1,13 @@
+2012-02-22  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/nlrob.R (print.summary.nlrob): use full call instead of just
+	formula. --> shows non-default psi()
+
+2012-02-19  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/nlrob.R (nlrob): now use nls(...., weights = *, ..), no longer
+	need hack "put everything to the RHS".
+
 2011-12-23  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/nlrob.R (nlrob): for zero weights 'w', the residuals

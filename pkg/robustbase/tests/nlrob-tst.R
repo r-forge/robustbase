@@ -1,7 +1,6 @@
 library(robustbase)
 
-## TODO: after 2012, only get test-tools-1.R
-source(system.file("test-tools.R", package = "Matrix"), keep.source = FALSE)
+source(system.file("test-tools-1.R", package = "Matrix"), keep.source = FALSE)
 
 DNase1 <- DNase[ DNase$Run == 1, ]
 Y <- DNase1[,"density"] # for convenience below
@@ -38,8 +37,20 @@ nlr1 <- nlrob(y ~ a*(x + b*exp(-c*x)), start=list(a= 4, b= 1, c= 1.2),
               maxit = 50, # default 20 is *not* sufficient
               trace=TRUE)
 ## These failed in robustbase version 0.8-0 and earlier
-nlr2 <- update(nlr1, psi = robustbase:::psi.bisquare) # does *NOT* converge...
-nlr3 <- update(nlr1, psi = robustbase:::psi.hampel)   # does *NOT* converge...
+nlr2  <- update(nlr1, psi = robustbase:::psi.bisquare) # now *does* converge...
+## 'port' ditto
+nlr2. <- update(nlr2, algorithm= "port")
+nlr3  <- update(nlr1, psi = robustbase:::psi.hampel)   # *does* converge, too...
+nlr3. <- update(nlr3, algorithm= "port")
+summary(nlr2.)
+summary(nlr3.)
+i. <- -c(2, 15) # <- drop 'call' and 'iter' components
+stopifnot(all.equal(nlr2[i.], nlr2.[i.], tol = 2e-5),
+          all.equal(nlr3[i.], nlr3.[i.], tol = 1e-4),
+          ## The redescending psi() give some exact 0 weights :
+          identical(which(abs(nlr2$w.r) < 1e-9), c(1L, 10 :12)),
+          identical(which(abs(nlr3$w.r) < 1e-9), c(1L, 10L,12L))
+          )
 
 psiFHa <- robustbase:::psi.hampel
 

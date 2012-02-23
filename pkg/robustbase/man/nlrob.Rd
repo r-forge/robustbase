@@ -63,9 +63,8 @@ nlrob(formula, data, start, weights = NULL, na.action = na.fail,
   \item{maxit}{maximum number of iterations in the robust loop.}
   \item{acc}{convergence tolerance for the robust fit.}
   \item{algorithm}{character string specifying the algorithm to use for
-    \code{nls}. The default algorithm is a Gauss-Newton algorithm. The other
-    alternative is \code{"plinear"}, the Golub-Pereyra algorithm for
-    partially linear least-squares models.}
+    \code{\link{nls}}, see there. The default algorithm is a
+    Gauss-Newton algorithm.}
   \item{control}{an optional list of control settings for \code{\link{nls}}.
     See \code{\link{nls.control}} for the names of the settable control
     values and their effect.}
@@ -78,9 +77,8 @@ nlrob(formula, data, start, weights = NULL, na.action = na.fail,
     When the \code{"plinear"} algorithm is used, the conditional
     estimates of the linear parameters are printed after the nonlinear
     parameters.}
-  \item{\dots}{potentially arguments to be passed to the psi function
-    (see above).}
-
+  \item{\dots}{optional arguments (tuning constants) to be passed to the
+    psi function (see \code{psi} above).}
   \item{object}{an \R object of class \code{"nlrob"}, typically
     resulting from \code{nlrob(..)}.}
   \item{type}{a string specifying the \emph{type} of residuals desired.

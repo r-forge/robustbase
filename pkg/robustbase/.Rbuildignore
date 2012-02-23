@@ -1,6 +1,7 @@
-MM-misc
+misc/
 configure-hint-Kurt
 R/glmrobMqle\.R\+-
+.*\.zip
 .*/.*-not-yet
 inst/doc/.*\.eps
 inst/doc/plot.*
