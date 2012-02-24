@@ -603,7 +603,7 @@
 
 2008-01-05  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* man/ambientNOxCH.Rd: new data set from René Locher,
+	* man/ambientNOxCH.Rd: new data set from RenÃ© Locher,
 	* data/ambientNOxCH.rda: showing some lmrob-nonconvergence
 
 2007-12-22  Martin Maechler  <maechler@stat.math.ethz.ch>
@@ -1046,7 +1046,7 @@
 
 2006-04-21  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-    * data/NOxEmissions.Rd: add the large dataset from René Locher
+    * data/NOxEmissions.Rd: add the large dataset from RenÃ© Locher
     * man/NOxEmissions.Rd:
 
 2006-04-21  Martin Maechler  <maechler@stat.math.ethz.ch>

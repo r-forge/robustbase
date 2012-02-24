@@ -7,15 +7,15 @@ Lieber Martin
 
 Ich hoffe ja, dass Du das erst im neuen Jahr liest.
 
-Wir sollten die web page möglichst bald zu füllen beginnen.
+Wir sollten die web page mÃ¶glichst bald zu fÃ¼llen beginnen.
 Ein Beitrag von mir besteht aus
 /u/stahel/proj/covcomp/paper/m-barrowwheel.tex
 
-Könntest Du in robustMisc gelegentlich:
+KÃ¶nntest Du in robustMisc gelegentlich:
 
 a. bitte  rwheelb  in  rbwheel  umbenennen
 
-b. im Resultat den Komponenten  $X  und $X0  anständige
+b. im Resultat den Komponenten  $X  und $X0  anstÃ¤ndige
    colnames  verpassen  (paste('X',1:p,sep='')
 
 Dann muss jemand von uns das index.html schreiben.
