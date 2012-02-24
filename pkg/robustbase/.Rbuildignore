@@ -5,9 +5,5 @@ R/glmrobMqle\.R\+-
 .*/.*-not-yet
 inst/doc/.*\.eps
 inst/doc/plot.*
-inst/doc/.*\.tex
-inst/doc/.*\.aux
-inst/doc/.*\.log
+inst/doc/.*\.(tex|toc|aux|log|bbl|blg)
 inst/doc/r.*\.Rdata
-inst/doc/.*\.bbl
-inst/doc/.*\.blg
