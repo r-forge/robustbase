@@ -1,6 +1,7 @@
 library(robustbase)
 
-source(system.file("test-tools-1.R", package = "Matrix"), keep.source = FALSE)
+identical3 <- function(x,y,z)	  identical(x,y) && identical (y,z)
+identical4 <- function(a,b,c,d)   identical(a,b) && identical3(b,c,d)
 
 DNase1 <- DNase[ DNase$Run == 1, ]
 Y <- DNase1[,"density"] # for convenience below
