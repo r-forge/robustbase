@@ -21,6 +21,7 @@ Description: "Essential" Robust Statistics.  The goal is to provide
  statistics where we strive to cover the book "Robust Statistics,
  Theory and Methods" by Maronna, Martin and Yohai; Wiley 2006.
 Depends: R (>= 2.12.0), stats, graphics, methods
-Suggests: MASS, lattice, boot, cluster, MPV, xtable, ggplot2, RColorBrewer
+Suggests: MASS, lattice, boot, cluster, MPV, xtable, ggplot2, RColorBrewer,
+ grid, reshape2
 LazyData: yes
 License: GPL (>= 2)
