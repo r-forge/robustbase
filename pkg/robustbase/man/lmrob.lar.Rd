@@ -1,0 +1,63 @@
+\name{lmrob.lar}
+\alias{lmrob.lar}
+\title{
+  Least Absolute Residuals / L1 Regression
+}
+\description{
+  This method implements the routine L1 in Barrodale and Roberts (1974),
+  which is based on the simplex method of linear programming. It is a
+  copy of the method lmRob.lar in the robust package.  
+}
+\usage{
+lmrob.lar(x, y, tol = 1e-06)
+}
+\arguments{
+  \item{x}{
+    numeric matrix for the predictors
+  }
+  \item{y}{
+    numeric vector for the response
+  }
+  \item{tol}{
+    tolerance, the subroutine regards any quantity as zero unless its
+    magnitude exeeds \code{tol}. 
+  }
+}
+\details{
+  This method is used for computing the M-S estimate and typically not
+  to be used on its own.
+}
+\value{
+  A list that includes the following components:
+  \item{coef }{The L1-estimate of the coefficient vector}
+  \item{scale }{The residual scale estimate (mad)}
+  \item{resid }{The residuals}
+  \item{iter }{The number of iterations required by the simplex algorithm}
+}
+\references{
+  Marazzi, A. (1993).
+  \emph{Algorithms, routines, and S functions for robust statistics}.
+  Wadsworth & Brooks/Cole, Pacific Grove, CA.
+}
+\author{
+  Manuel Koller
+}
+\note{
+%%  ~~further notes~~
+}
+
+%% ~Make other sections like Warning with \section{Warning }{....} ~
+
+\seealso{
+  \code{\link[quantreg]{rq}} from package \pkg{quantreg}.
+}
+\examples{
+data(stackloss)
+X <- model.matrix(stack.loss ~ . , data = stackloss)
+y <- stack.loss
+lmrob.lar(X, y)
+}
+% Add one or more standard keywords, see file 'KEYWORDS' in the
+% R documentation directory.
+\keyword{ L1 }
+\keyword{ regression }% __ONLY ONE__ keyword per line

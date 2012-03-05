@@ -155,12 +155,11 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
 \author{ Matias Salibian-Barrera and Manuel Koller}
 \seealso{
   \code{\link{lmrob.control}};
-  for the algorithms \code{\link{lmrob.S}} and \code{\link{lmrob.fit}};
+  for the algorithms \code{\link{lmrob.S}}, \code{\link{lmrob.M.S}} and
+  \code{\link{lmrob.fit}}; 
   and for methods,
   \code{\link{predict.lmrob}}, \code{\link{summary.lmrob}},
   \code{\link{print.lmrob}}, and \code{\link{plot.lmrob}}.
-  \code{\link{lmrob..M..fit}} for examples on how to use a custom
-  initial estimate.
 }
 \examples{
 data(coleman)
