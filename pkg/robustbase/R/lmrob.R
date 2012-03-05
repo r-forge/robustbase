@@ -79,14 +79,24 @@ lmrob <-
                 ##    lmrob.kappa: tuning.psi / tuning.chi choice
             } else stop("unknown init argument")
             stopifnot(!is.null(init$coef), !is.null(init$scale))
+            ## modify (default) control$method
+            if (control$method == "MM" || substr(control$method, 1, 1) == "S")
+                control$method <- substring(control$method, 2)
         } else {
+            ## --- choose initial estimator
             split <- lmrob.split(mf, x, control$split.type)
-            if (!is.null(split$x1)) {
-                init <- lmrob.S(x, y, control)
+            if (is.null(split[["x1"]])) {
+                ## --- no categorical variables: S estimator
+                init <- lmrob.S(x, y, control=control)
             } else {
+                ## --- categorical variables present: M-S estimator
                 init <- lmrob.M.S(x, y, control, mf, split)
-            }          
+            }
+            control$method <- sub("^(S|M-S|M)(M?)", "\\2", control$method)
         }
+        ## check for control$cov argument
+        if (class(init)[1] != "lmrob.S" && control$cov == '.vcov.avar1')
+            control$cov <- ".vcov.w"
         z <- lmrob.fit(x, y, control, init=init)
     }
 

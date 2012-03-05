@@ -1,4 +1,4 @@
-lmrob.lar <- function(x, y, tol=1e-6)
+lmrob.lar <- function(x, y, control = lmrob.control(), mf = NULL)
 {
   ## LAR : Least Absolute Residuals -- i.e. L_1  M-estimate
   ## this function is identical to lmRob.lar of the robust package
@@ -6,7 +6,7 @@ lmrob.lar <- function(x, y, tol=1e-6)
   x <- as.matrix(x)
   p <- ncol(x)
   n <- nrow(x)
-  stopifnot(p > 0, n >= p, length(y) == n, length(tol) == 1, is.numeric(tol))
+  stopifnot(p > 0, n >= p, length(y) == n, is.numeric(control$rel.tol))
   storage.mode(x) <- "double"
   storage.mode(y) <- "double"
   bet0 <- 0.773372647623  ## bet0 = pnorm(0.75)
@@ -20,7 +20,7 @@ lmrob.lar <- function(x, y, tol=1e-6)
                  as.integer(p),
                  as.integer(n),
                  as.integer(n),
-                 as.double(tol),
+                 as.double(control$rel.tol),
                  NIT=integer(1),
                  K=integer(1),
                  KODE=integer(1),
@@ -38,6 +38,7 @@ lmrob.lar <- function(x, y, tol=1e-6)
            "(probably because of rounding errors).")
   names(z1) <- c("coef", "scale","resid","iter", "status")
   ##           c("THETA","SIGMA", "RS",  "NIT", "KODE")
+  z1$converged <- TRUE
   length(z1$coef) <- p
   z1
 }

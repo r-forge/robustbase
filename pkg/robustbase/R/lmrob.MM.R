@@ -125,6 +125,7 @@ lmrob.fit <- function(x, y, control, init=NULL) {
         init$cov <- NA
         init$df <- init$degree.freedom <- NA
     } else {
+        control$method <- est
         init$control <- control
         init$cov <-
             if (is.null(control$cov) || control$cov == "none") NA

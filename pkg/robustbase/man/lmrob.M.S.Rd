@@ -33,7 +33,11 @@ lmrob.M.S(x, y, control, mf, split)
   rather than to the continuous side. This can be done via the control
   argument \code{split.type}, see \code{\link{lmrob.split}}.
 
-  
+  Note that the return status \code{converged} does not refer to the
+  actual convergence status. The algorithm used does not guarantee
+  convergence and thus true convergence is almost never reached. This
+  is, however, not a problem if the estimate is only used as initial
+  estimate part of an MM or SMDM estimate.
 }
 \value{
   A list with compontents
@@ -43,6 +47,8 @@ lmrob.M.S(x, y, control, mf, split)
   \item{residuals}{numeric vector (legnth \eqn{n}) of the residuals.}
   \item{weights}{numeric vector (length \eqn{n}) of the robustness weights.}
   \item{control}{the same list as the \code{control} argument.}
+  \item{converged}{Convergence status (always \code{TRUE}), needed for
+    \code{\link{lmrob.fit}}.}
 }
 \references{
   Maronna, R. A., and Yohai, V. J. (2000).

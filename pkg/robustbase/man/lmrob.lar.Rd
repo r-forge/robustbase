@@ -9,7 +9,7 @@
   copy of the method lmRob.lar in the robust package.  
 }
 \usage{
-lmrob.lar(x, y, tol = 1e-06)
+lmrob.lar(x, y, control, mf)
 }
 \arguments{
   \item{x}{
@@ -18,9 +18,11 @@ lmrob.lar(x, y, tol = 1e-06)
   \item{y}{
     numeric vector for the response
   }
-  \item{tol}{
-    tolerance, the subroutine regards any quantity as zero unless its
-    magnitude exeeds \code{tol}. 
+  \item{control}{
+    list as returned by \code{\link{lmrob.control}}
+  }
+  \item{mf}{
+    dummy parameter.
   }
 }
 \details{
@@ -39,6 +41,8 @@ lmrob.lar(x, y, tol = 1e-06)
     algorithm}
   \item{status }{Return status (0: optimal, but non unique solution, 1:
     optimal unique solution)}
+  \item{converged }{Convergence status (always \code{TRUE}), needed for
+    \code{\link{lmrob.fit}}.}
 }
 \references{
   Marazzi, A. (1993).

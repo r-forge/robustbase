@@ -79,13 +79,13 @@ y <- education$Y
 ## test orthogonalizing
 x1 <- splt$x1
 x2 <- splt$x2
-tmp <- lmrob.lar(x1, y, control$rel.tol)
+tmp <- lmrob.lar(x1, y, control)
 y.tilde <- tmp$resid
 t1 <- tmp$coef
 x2.tilde <- x2
 T2 <- matrix(0, nrow=ncol(x1), ncol=ncol(x2))
 for (i in 1:ncol(x2)) {
-    tmp <- lmrob.lar(x1, x2[,i], control$rel.tol)
+    tmp <- lmrob.lar(x1, x2[,i], control)
     x2.tilde[,i] <- tmp$resid
     T2[,i] <- tmp$coef
 }
@@ -200,7 +200,7 @@ m_s_descent_Ronly<- function(x1, x2, y, control, b1, b2, scale) {
         if (control$trace.lev > 4) cat("t2:", t2, "\n")
         rs <- y - x2 %*% t2
         ## STEP 2: OBTAIN M-ESTIMATE OF B1
-        z1 <- lmrob.lar(x1, rs, control$rel.tol)
+        z1 <- lmrob.lar(x1, rs, control)
         t1 <- z1$coef
         if (control$trace.lev > 4) cat("t1:", t1, "\n")
         rs <- z1$resid
@@ -251,3 +251,20 @@ set.seed(1001)
 obj2 <- lmrob.M.S(x, y, control, obj$model)
 resid <- drop(y - x %*% obj2$coef)
 stopifnot(all.equal(resid, obj2$resid, check.attr=FALSE))
+
+## Test direct call to lmrob
+set.seed(13)
+obj1 <- lmrob(Y ~ Region + X1 + X2 + X3, education)
+summary(obj1)
+out1 <- capture.output(summary(obj1))
+
+set.seed(13)
+obj2 <- lmrob(Y ~ Region + X1 + X2 + X3, education, init="M-S")
+out2 <- capture.output(summary(obj2))
+
+set.seed(13)
+obj3 <- lmrob(Y ~ Region + X1 + X2 + X3, education, init=lmrob.M.S)
+out3 <- capture.output(summary(obj3))
+
+stopifnot(all.equal(out1[-(1:3)], out2[-(1:4)]),
+          all.equal(out1[-(1:3)], out3[-(1:4)]))
