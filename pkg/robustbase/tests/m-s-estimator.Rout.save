@@ -84,8 +84,7 @@ Loading required package: robustbase
 +             trace_lev=as.integer(control$trace.lev),
 +             orthogonalize=as.logical(orthogonalize),
 +             subsample=TRUE,
-+             descent=FALSE,
-+             reweight=FALSE)
++             descent=FALSE)
 +     z[c("b1", "b2", "scale")]
 + }
 > 
@@ -121,7 +120,7 @@ Loading required package: robustbase
 +     res[[i]] <- unlist(within(tmp, b1 <- drop(t1 + b1 - T2 %*% b2)))
 + })
 > cat('Time elapsed in subsampling: ', time,'\n')
-Time elapsed in subsampling:  0.395 0 0.397 0 0 
+Time elapsed in subsampling:  0.408 0.001 0.412 0 0 
 > ## show a summary of the results
 > res1 <- do.call(rbind, res)
 > summary(res1)
@@ -179,8 +178,7 @@ Time elapsed in subsampling:  0.395 0 0.397 0 0
 +             trace_lev=as.integer(control$trace.lev),
 +             orthogonalize=FALSE,
 +             subsample=FALSE,
-+             descent=TRUE,
-+             reweight=FALSE)
++             descent=TRUE)
 +     z[c("b1", "b2", "scale")]
 + }
 > 

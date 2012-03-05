@@ -264,7 +264,7 @@ void R_lmrob_M_S(double *X1, double *X2, double *y,
 		 int *K_m_s, int *max_k, double *rel_tol,
 		 int *converged, int *trace_lev, 
 		 int *orthogonalize, int *subsample, 
-		 int *descent, int *reweight)
+		 int *descent)
 {
     /* Initialize (some of the) memory here,
      * so that we have to do it only once */
@@ -346,10 +346,6 @@ void R_lmrob_M_S(double *X1, double *X2, double *y,
 		    b1, b2, t1, t2, y_tilde, res, x1, x2,
 		    &NIT, &K, &KODE, &SIGMA, &BET0, SC1, SC2, SC3, SC4,
 		    converged);
-    }
-
-    if (*reweight > 0) {
-	Rprintf("hard reweighting step not implemented yet");
     }
 }
 

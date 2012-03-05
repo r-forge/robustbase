@@ -51,7 +51,7 @@ void R_lmrob_M_S(double *X1, double *X2, double *y,
 		 int *K_m_s, int *max_k, double *rel_tol,
 		 int *converged, int *trace_lev,
 		 int *orthogonalize, int *subsample, 
-		 int *descent, int *reweight);
+		 int *descent);
 
 void R_lmrob_MM(double *X, double *y, int *n, int *P,
 		double *beta_initial, double *scale,

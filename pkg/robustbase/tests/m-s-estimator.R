@@ -65,8 +65,7 @@ m_s_subsample <- function(x1, x2, y, control, orthogonalize=TRUE) {
             trace_lev=as.integer(control$trace.lev),
             orthogonalize=as.logical(orthogonalize),
             subsample=TRUE,
-            descent=FALSE,
-            reweight=FALSE)
+            descent=FALSE)
     z[c("b1", "b2", "scale")]
 }
 
@@ -140,8 +139,7 @@ m_s_descent <- function(x1, x2, y, control, b1, b2, scale) {
             trace_lev=as.integer(control$trace.lev),
             orthogonalize=FALSE,
             subsample=FALSE,
-            descent=TRUE,
-            reweight=FALSE)
+            descent=TRUE)
     z[c("b1", "b2", "scale")]
 }
 
