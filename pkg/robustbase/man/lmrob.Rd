@@ -77,13 +77,14 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
 
   The initial estimator may be specified using the argument
   \code{init}. This argument can either be a string, a function or a
-  list. A \emph{string} can be used to specify built in internal estimators
-  (currently only \code{S}, see below). A \emph{function} taking
-  arguments \code{x1=x1, x2=x2, y=y, mf=mf, control=control} and
-  returning a list containing at least the initial coefficients as
-  \code{coefficients} and the initial scale estimate \code{scale}. Or a
-  \emph{list} giving the initial coefficients and scale as
-  \code{coefficients} and \code{scale}. See also \emph{Examples}.
+  list. A \emph{string} can be used to specify built in internal
+  estimators (currently only \code{S}, see below). A \emph{function}
+  taking arguments \code{x, y, control, mf} (where \code{mf} stands for
+  \code{model.frame}) and returning a list containing at least the
+  initial coefficients as \code{coefficients} and the initial scale
+  estimate \code{scale}. Or a \emph{list} giving the initial
+  coefficients and scale as \code{coefficients} and \code{scale}. See
+  also \emph{Examples}.
   
   Note that if the init argument supplied is a function or list, the
   method argument must not contain the initial estimator, e.g.,
@@ -186,8 +187,8 @@ set.seed(0)
 m3 <- lmrob(Y ~ ., data=coleman, init = "S")
 stopifnot(all.equal(m1[-17], m3[-17]))
 ## function
-initFun <- function(x1=x1, x2=x2, y=y, mf=mf, control=control) {
-    init.S <- lmrob.S(x2, y, control)
+initFun <- function(x, y, control, mf) {
+    init.S <- lmrob.S(x, y, control)
     list(coefficients=init.S$coef, scale = init.S$scale)
 }
 set.seed(0)

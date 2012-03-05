@@ -65,14 +65,12 @@ lmrob <-
         if(!is.null(offset))
             stop("'offset' not yet implemented for this estimator")
         if (!is.null(init)) {
-            x1 <- NULL
-            x2 <- x
             if (is.character(init)) {
                 init <- switch(init,
                                S = lmrob.S(x, y, control),
                                stop('init must be "S", function or list'))
             } else if (is.function(init)) {
-                init <- init(x1=x1, x2=x2, y=y, mf=mf, control=control)
+                init <- init(x=x, y=y, control=control, mf=mf)
             } else if (is.list(init)) {
                 ## MK: set init$weights, init$residuals here ??
                 ##     (needed in lmrob..D..fit)
@@ -346,3 +344,4 @@ summarizeRobWeights <-
 	print(summary(w, digits = digits), digits = digits, ...)
     }
 }
+
