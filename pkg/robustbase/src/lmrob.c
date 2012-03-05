@@ -2199,7 +2199,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     b_i =       (int *)    R_alloc(p2,    sizeof(int));
     ind_space = (int *)    R_alloc(n,     sizeof(int));
     xx =        (double *) R_alloc(p2*p2, sizeof(double));
-    work =      (double *) R_alloc(p2,    sizeof(int));
+    work =      (int *)    R_alloc(p2,    sizeof(int));
 
     /*	set the seed */
     GetRNGstate();
