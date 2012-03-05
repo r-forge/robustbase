@@ -428,7 +428,7 @@ lmrob..M..fit <- function (x=obj$x, y=obj$y, beta.initial=obj$coef,
 }
 
 
-lmrob.S <- function (x, y, control, trace.lev = 0)
+lmrob.S <- function (x, y, control, trace.lev = 0, mf = NULL)
 {
     if (!is.matrix(x)) x <- as.matrix(x)
     n <- nrow(x)

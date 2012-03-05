@@ -6,7 +6,7 @@
   using the \dQuote{fast S} algorithm.% of Matias Salibian & Victor Yohai ...
 }
 \usage{
-lmrob.S(x, y, control, trace.lev = 0)
+lmrob.S(x, y, control, trace.lev = 0, mf = NULL)
 }
 \arguments{
   \item{x}{ design matrix }
@@ -15,6 +15,7 @@ lmrob.S(x, y, control, trace.lev = 0)
   \item{trace.lev}{integer indicating if the progress of the algorithm
     should be traced (increasingly); default \code{trace.lev = 0} does
     no tracing.}
+  \item{mf}{ dummy parameter.}
 }
 \details{
   This function is used by \code{\link{lmrob.fit}} and not
