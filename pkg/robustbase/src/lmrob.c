@@ -39,6 +39,7 @@
 
 #include <R_ext/BLAS.h>
 #include <R_ext/Applic.h>
+#include <R_ext/Lapack.h>
 
 #include "robustbase.h"
 
@@ -72,8 +73,10 @@ static void sample_noreplace(int *x, int n, int k, int *ind_space);
 
 int lu(double **a,int *P, double *x);
 
+double norm2 (double *x, int n);
 double norm (double *x, int n);
 double norm1(double *x, int n);
+double norm_diff2 (double *x, double *y, int n);
 double norm_diff (double *x, double *y, int n);
 double norm1_diff(double *x, double *y, int n);
 double normcnst(double *c, int ipsi);
@@ -137,6 +140,16 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 		   double *y_tilde, double *res, double *x1, double *x2,
 		   int *NIT, int *K, int *KODE, double *SIGMA, double *BET0,
 		   double *SC1, double *SC2, double *SC3, double *SC4);
+
+void m_s_descent(double *X1, double *X2, double *y,
+		 int n, int p1, int p2, int K_m_s, int max_k,
+		 double *rel_tol, double *bb, double *rrhoc,  int ipsi,
+		 double *sscale, int *trace_lev,
+		 double *b1, double *b2, double *t1, double *t2,
+		 double *y_tilde, double *res, double *x1, double *x2,
+		 int *NIT, int *K, int *KODE, double *SIGMA,  double *BET0,
+		 double *SC1, double *SC2, double *SC3, double *SC4,
+		 int *conv);
 
 #ifdef _UNUSED_
 void fast_s_irwls(double **x, double *y,
@@ -301,7 +314,7 @@ void R_lmrob_M_S(double *X1, double *X2, double *y,
 	 * y_work and y_tilde now contain \tilde y, ot1 -> t_1,
 	 * x2 -> \tilde x2, oT2 -> T_2 */
     } else 
-	COPY_beta(X2, x2, n*p2);    
+	COPY_beta(X2, x2, n*p2);
 
     /* STEP 2: Subsample */
     if (*subsample > 0)
@@ -317,10 +330,22 @@ void R_lmrob_M_S(double *X1, double *X2, double *y,
 	sum_vec(ot1, b1, t1, p1);
 	F77_CALL(dgemv)("N", &p1, &p2, &dmone, oT2, &p1, b2, &one, &done, t1, &one);
 	COPY_beta(t1, b1, p1);
+	/* restore x2 */
+	COPY_beta(X2, x2, n*p2);
     }
 
+    /* update / calculate residuals */
+    COPY_beta(y, res, n);
+    F77_CALL(dgemv)("N", &n, &p1, &dmone, X1, &n, b1, &one, &done, res, &one);
+    F77_CALL(dgemv)("N", &n, &p2, &dmone, X2, &n, b2, &one, &done, res, &one);
+
+    /* STEP 4: Descent procedure */
     if (*descent > 0) {
-	Rprintf("descent step not implemented yet");
+	m_s_descent(X1, X2, y, n, p1, p2, *K_m_s, *max_k, rel_tol, bb, 
+		    rho_c, *ipsi, scale, trace_lev,
+		    b1, b2, t1, t2, y_tilde, res, x1, x2,
+		    &NIT, &K, &KODE, &SIGMA, &BET0, SC1, SC2, SC3, SC4,
+		    converged);
     }
 
     if (*reweight > 0) {
@@ -2165,6 +2190,9 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     double sc = INFI, done = 1., dmone = -1.;
     *sscale = INFI;
 
+    if (*trace_lev > 1) 
+	Rprintf("starting with subsampling procedure...");
+
     /* (Pointers to) Arrays - to be allocated */
     int *ind_space, *b_i;
     double **xx;
@@ -2210,6 +2238,11 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 	F77_CALL(rllarsbi)(x1, y_tilde, &n, &p1, &n, &n, rel_tol, 
 			   NIT, K, KODE, SIGMA, t1, res, SC1, SC2, 
 			   SC3, SC4, BET0);
+	if (*KODE > 1) {
+	    REprintf("\nm_s_subsample(): Problem in rllarsbi (rilars). KODE=%d. Exiting.\n", 
+		     *KODE);
+	    goto cleanup_and_return;
+	}
 	/* STEP 4: Check if candidate looks promising */
 	if (sum_rho_sc(res, *sscale, n, p, rrhoc, ipsi) < b) {
 	    /* scale will be better */
@@ -2234,7 +2267,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     /* STEP 7: Clean up and return */
     if (*trace_lev >= 1) {
 	Rprintf("Finished M-S subsampling with scale = %.15g\n",*sscale);
-	if (*trace_lev >= 2) {
+	if (*trace_lev > 2) {
 	     Rprintf("b1: "); disp_vec(b1,p1);
 	     Rprintf("b2: "); disp_vec(b2,p2);
 	}
@@ -2246,44 +2279,124 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     for (i=0; i < p2; i++) Free(xx[i]); Free(xx);
 } /* m_s_subsample() */
 
-/* /\* Descent step for M-S algorithm                        *\/ */
-/* void m_s_descent(double *X1, double *y, */
-/* 		 int n, int p1, int p2, int K_m_s, int max_k,  */
-/* 		 double *rel_tol, double *bb, double *rrhoc,  int ipsi, */
-/* 		 double *sscale, int *trace_lev, */
-/* 		 double *b1, double *b2, double *t1, double *t2, */
-/* 		 double *y_tilde, double *res, double *x1, double **x2, */
-/* 		 int *NIT, int *K, int *KODE, double *SIGMA,  double *BET0, */
-/* 		 double *SC1, double *SC2, double *SC3, double *SC4, */
-/* 		 int *conv) */
-/* { */
-/*     int i, j, k, one = 1, nnoimpr = 0, nref = 0; */
-/*     int p = p1 + p2; */
-/*     Rboolean lu_sing, converged = FALSE; */
-/*     double b = *bb; */
-/*     double sc = *sscale, done = 1., dmone = -1.; */
-/*     COPY_beta(b1, t1, p1); */
-/*     COPY_beta(b2, t2, p2); */
+/* Descent step for M-S algorithm                        */
+void m_s_descent(double *X1, double *X2, double *y,
+		 int n, int p1, int p2, int K_m_s, int max_k,
+		 double *rel_tol, double *bb, double *rrhoc,  int ipsi,
+		 double *sscale, int *trace_lev,
+		 double *b1, double *b2, double *t1, double *t2,
+		 double *y_tilde, double *res, double *x1, double *x2,
+		 int *NIT, int *K, int *KODE, double *SIGMA,  double *BET0,
+		 double *SC1, double *SC2, double *SC3, double *SC4,
+		 int *conv)
+{
+    int j, k, one = 1, nnoimpr = 0, nref = 0;
+    int p = p1 + p2, info = 1;
+    Rboolean converged = FALSE;
+    double b = *bb;
+    double sc = *sscale, done = 1., dmone = -1., wtmp;
+    COPY_beta(b1, t1, p1);
+    COPY_beta(b2, t2, p2);
 
-/*     /\* (Pointers to) Arrays - to be allocated *\/ */
-/*     double *w; */
+    if (*trace_lev > 1) 
+	Rprintf("starting with descent procedure...\n");
+    
+    /* Determine optimal block size */
+    int lwork = -1;
+    double work0;
+    F77_CALL(dgels)("N", &n, &p2, &one, x2, &n, y, &n, &work0, &lwork, &info);
+    if (info) {
+	warning("problem determining optimal block size, using minimum");
+	lwork = 2*p2;
+    } else 
+	lwork = (int)work0;
 
-/*      w = (double *) R_alloc(n, sizeof(double)); */
+    if (*trace_lev > 3)
+	Rprintf("optimal block size: %d\n", lwork);
 
-/*     /\* Do descent steps until there is no improvement for   *\/ */
-/*     /\* K_m_s steps or we are converged                      *\/ */
-/*     /\* (convergence is not guaranteed)                      *\/ */
-/*     while ( (nref++ < max_k) & (!converged) & (nnoimpr < K_m_s) ) { */
-/* 	/\* STEP 1: update b2 *\/ */
-/* 	/\* y_tilde = y - x1 %*% t1 *\/ */
-/* 	COPY_beta(y, y_tilde, n); */
-/* 	F77_CALL(dgemv)("N", &n, &p1, &done, x1, &n, t1, &one, &dmone, y_tilde, &one); */
-/* 	get_weights_rhop(res, sc, n, rrhoc, ipsi, w); */
+    /* (Pointers to) Arrays - to be allocated */
+    double *w, *work;
 
-/* 	COPY_beta(X1, x1, n*p1); */
-/*     } */
+    w =     (double *) R_alloc(n,     sizeof(double));
+    work =  (double *) R_alloc(lwork, sizeof(double));
 
-/* } /\* m_s_descent() *\/ */
+    if (*trace_lev > 4) {
+	Rprintf("scale: %.15g\n", *sscale); 
+	Rprintf("res: "); disp_vec(res,n);
+    }
+
+    /* Do descent steps until there is no improvement for   */
+    /* K_m_s steps or we are converged                      */
+    /* (convergence is not guaranteed)                      */
+    while ( (nref++ < max_k) & (!converged) & (nnoimpr < K_m_s) ) {
+	R_CheckUserInterrupt();
+	/* STEP 1: update b2 (save it to t2) */
+	/* y_tilde = y - x1 %*% t1 */
+	COPY_beta(y, y_tilde, n);
+	COPY_beta(X1, x1, n*p1);
+	F77_CALL(dgemv)("N", &n, &p1, &dmone, x1, &n, t1, &one, &done, y_tilde, &one);
+	/* compute weights */
+	get_weights_rhop(res, sc, n, rrhoc, ipsi, w);
+	/* add weights to y_tilde and x2 */
+	for (j=0; j<n; j++) {
+	    wtmp = sqrt(w[j]);
+	    y_tilde[j] *= wtmp;
+	    for (k=0; k<p2; k++)
+		x2[n*k+j] = X2[n*k+j] * wtmp;
+	}
+	/* solve weighted least squares problem */
+	F77_CALL(dgels)("N", &n, &p2, &one, x2, &n, y_tilde, &n, work, &lwork, &info);
+	if (info)
+	    error("m_s_descent(): Problem in dgels. info=%d. Exiting.", info);
+	COPY_beta(y_tilde, t2, p2);
+        /* get (intermediate) residuals */
+	COPY_beta(y, res, n);
+	F77_CALL(dgemv)("N", &n, &p2, &dmone, X2, &n, t2, &one, &done, res, &one);
+	/* STEP 2: Obtain L1-estimate of b1 */
+	COPY_beta(res, y_tilde, n);
+	F77_CALL(rllarsbi)(x1, y_tilde, &n, &p1, &n, &n, rel_tol,
+			   NIT, K, KODE, SIGMA, t1, res,
+			   SC1, SC2, SC3, SC4, BET0);
+	if (*KODE > 1)
+	    error("m_s_descent(): Problem in rllarsbi (rilars). KODE=%d. Exiting.", 
+		  *KODE);
+	/* STEP 3: Compute the scale estimate */
+	sc = find_scale(res, b, rrhoc, ipsi, sc, n, p);
+	/* STEP 4: Check for convergence */
+	/* FIXME: check convergence using scale ? */
+	double del = sqrt(norm_diff2(b1, t1, p1) + norm_diff2(b2, t2, p2));
+	double nrmB = sqrt(norm2(t1, p1) + norm2(t2, p2));
+	converged = (del < *rel_tol * fmax2(*rel_tol, nrmB));
+	if (*trace_lev > 4) {
+	    Rprintf("w: "); disp_vec(w,n);
+	    Rprintf("t2: "); disp_vec(t2,p2);
+	    Rprintf("t1: "); disp_vec(t1,p1);
+	    Rprintf("sc: %.15g\n", sc); 
+	}
+	/* STEP 5: Update best fit */
+	if (sc < *sscale) {
+	    COPY_beta(t1, b1, p1);
+	    COPY_beta(t2, b2, p2);
+	    *sscale = sc;
+	    if (*trace_lev > 2)
+		Rprintf("Refinement step %d: better fit, scale: %.15g\n",
+			nref, sc);
+	    nnoimpr = 0;
+	} else nnoimpr++;
+    }
+
+    if ( (!converged) & (nref == max_k) )
+	warning("M-S estimate: maximum number of refinement steps reached.");
+    *conv = converged;
+    
+    if (*trace_lev >= 1) {
+	Rprintf("descent procedure: %sconverged.\n", converged ? "" : "not " );
+	if (*trace_lev > 2) {
+	    Rprintf("b1: "); disp_vec(b1,p1);
+	    Rprintf("b2: "); disp_vec(b2,p2);
+	}
+    }
+} /* m_s_descent() */
 
 void get_weights_rhop(double *r, double s, int n, double *rrhoc, int ipsi,
 		      double *w)
@@ -2391,6 +2504,22 @@ double sum_rho_sc(double *r, double scale, int n, int p, double *c, int ipsi)
 
 #define _USE_BLAS_
 
+/* ||x||_2^2 */
+double norm2(double *x, int n)
+{
+    double s = 0.;
+#ifdef  _USE_BLAS_
+    int one = 1;
+    s = F77_CALL(dnrm2)(&n, x, &one);
+    return( s*s );
+#else
+    int i;
+    for(i=0; i < n; i++)
+	s += x[i] * x[i];
+    return(s);
+#endif
+}
+
 /* ||x||_2 */
 double norm(double *x, int n)
 {
@@ -2419,6 +2548,16 @@ double norm1(double *x, int n)
 #endif
 }
 
+/* ||x-y||_2^2 */
+double norm_diff2(double *x, double *y, int n)
+{
+    int i;
+    double s = 0;
+    for(i=0; i < n; i++)
+	s += (x[i]-y[i])*(x[i]-y[i]);
+    return( s );
+}
+
 /* ||x-y||_2 */
 double norm_diff(double *x, double *y, int n)
 {
@@ -2428,6 +2567,7 @@ double norm_diff(double *x, double *y, int n)
 	s += (x[i]-y[i])*(x[i]-y[i]);
     return( sqrt(s) );
 }
+
 
 /* ||x-y||_1 */
 double norm1_diff(double *x, double *y, int n)
