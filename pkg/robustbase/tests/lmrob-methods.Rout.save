@@ -1,7 +1,8 @@
 
-R version 2.11.1 (2010-05-31)
-Copyright (C) 2010 The R Foundation for Statistical Computing
+R version 2.14.1 (2011-12-22)
+Copyright (C) 2011 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
+Platform: x86_64-unknown-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -32,7 +33,7 @@ converged       1     -none-     logical
 fitted.values  21     -none-     numeric
 residuals      21     -none-     numeric
 weights        21     -none-     numeric
-control        19     -none-     list   
+control        20     -none-     list   
 qr              4     qr         list   
 rank            1     -none-     numeric
 cov            16     -none-     numeric
@@ -86,8 +87,8 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
- trace.lev compute.rd  numpoints 
-         0          0         10 
+     k.m_s  trace.lev compute.rd  numpoints 
+        20          0          0         10 
           psi        method           cov 
    "bisquare"          "MM" ".vcov.avar1" 
 seed : int(0) 
@@ -136,8 +137,8 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
- trace.lev compute.rd  numpoints 
-         0          0         10 
+     k.m_s  trace.lev compute.rd  numpoints 
+        20          0          0         10 
        psi     method        cov 
 "bisquare"      "SMD"  ".vcov.w" 
 seed : int(0) 
@@ -173,8 +174,8 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
- trace.lev compute.rd  numpoints 
-         0          0         10 
+     k.m_s  trace.lev compute.rd  numpoints 
+        20          0          0         10 
        psi     method        cov 
 "bisquare"      "SMD"  ".vcov.w" 
 seed : int(0) 
@@ -220,8 +221,8 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
- trace.lev compute.rd  numpoints 
-         0          0         10 
+     k.m_s  trace.lev compute.rd  numpoints 
+        20          0          0         10 
        psi     method        cov 
 "bisquare"     "SMDM"  ".vcov.w" 
 seed : int(0) 
@@ -256,8 +257,8 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
- trace.lev compute.rd  numpoints 
-         0          0         10 
+     k.m_s  trace.lev compute.rd  numpoints 
+        20          0          0         10 
        psi     method        cov 
 "bisquare"     "SMDM"  ".vcov.w" 
 seed : int(0) 

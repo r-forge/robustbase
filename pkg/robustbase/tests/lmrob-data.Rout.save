@@ -1,5 +1,5 @@
 
-R version 2.13.0 Under development (unstable) (2011-03-07 r54691)
+R version 2.14.1 (2011-12-22)
 Copyright (C) 2011 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: x86_64-unknown-linux-gnu (64-bit)
@@ -53,8 +53,8 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
- trace.lev compute.rd  numpoints 
-         0          0         10 
+     k.m_s  trace.lev compute.rd  numpoints 
+        20          0          0         10 
           psi        method           cov 
    "bisquare"          "MM" ".vcov.avar1" 
 seed : int(0) 
@@ -167,8 +167,8 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
- trace.lev compute.rd  numpoints 
-         0          0         10 
+     k.m_s  trace.lev compute.rd  numpoints 
+        20          0          0         10 
           psi        method           cov 
    "bisquare"          "MM" ".vcov.avar1" 
 seed : int(0) 
@@ -213,8 +213,8 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
- trace.lev compute.rd  numpoints 
-         0          0         10 
+     k.m_s  trace.lev compute.rd  numpoints 
+        20          0          0         10 
           psi        method           cov 
    "bisquare"          "MM" ".vcov.avar1" 
 seed : int(0) 
@@ -255,8 +255,8 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
- trace.lev compute.rd  numpoints 
-         0          0         10 
+     k.m_s  trace.lev compute.rd  numpoints 
+        20          0          0         10 
           psi        method           cov 
    "bisquare"          "MM" ".vcov.avar1" 
 seed : int(0) 
@@ -290,8 +290,8 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
- trace.lev compute.rd  numpoints 
-         0          0         10 
+     k.m_s  trace.lev compute.rd  numpoints 
+        20          0          0         10 
           psi        method           cov 
    "bisquare"          "MM" ".vcov.avar1" 
 seed : int(0) 
@@ -332,13 +332,13 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
- trace.lev compute.rd  numpoints 
-         0          0         10 
+     k.m_s  trace.lev compute.rd  numpoints 
+        20          0          0         10 
           psi        method           cov 
    "bisquare"          "MM" ".vcov.avar1" 
 seed : int(0) 
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # "stats"
-Time elapsed:  0.35 0.03 0.375 0 0 
+Time elapsed:  0.489 0.067 0.72 0 0.009 
 > 
