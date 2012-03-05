@@ -98,7 +98,7 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   \code{\link{lmrob.S}}.
 
   In case of categorical variables or a mix of continuous and
-  categorical variables, it used an M-S-estimator (Maronna and Yohai,
+  categorical variables, it uses an M-S-estimator (Maronna and Yohai,
   2000) which is computed using the M-S algorithm, calling the function
   \code{\link{lmrob.M.S}}.
 

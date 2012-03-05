@@ -26,6 +26,9 @@ lmrob.lar(x, y, tol = 1e-06)
 \details{
   This method is used for computing the M-S estimate and typically not
   to be used on its own.
+
+  A description of the Fortran subroutines used can be found in Marazzi
+  (1993). In the book, the main method is named \code{RILARS}.
 }
 \value{
   A list that includes the following components:
