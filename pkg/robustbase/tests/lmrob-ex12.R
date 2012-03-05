@@ -100,9 +100,9 @@ dput(signif(100 * (sd <- unname(coef(sm4)[, "Std. Error"])), 7))
 ## both for 32 and 64 bit
 
 stopifnot(
-	  all.equal(cf, c(0.03148659, 0.9980933, 1.016364, 1.03243), tol= 7e-7)
+	  all.equal(cf, c(-0.05108914, 1.00597115, 1.00320052, 0.98332632), tol= 7e-7)
 	  , # ... e-7	 needed on 64b
-	  all.equal(100*sd,c(2.194914,0.2737579, 2.371728, 2.206261),tol= 7e-7)
+	  all.equal(100*sd,c(2.2138147, 0.2864678, 2.2023182, 2.1808862),tol= 7e-7)
 	  ) # 1.334 e-7	 needed on 64b
 
 cat('Time elapsed: ', proc.time(),'\n') # "stats"

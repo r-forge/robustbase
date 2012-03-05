@@ -1940,12 +1940,24 @@ void fast_s(double *X, double *y,
     /* Rprintf("fast_s %d\n", ipsi); */
 
     /* (Pointers to) Arrays - to be allocated */
-    int *ind_space, *b_i;
-    double **x, **x_samp, *beta_cand, *beta_ref, *res;
+    double **x, *beta_cand, *beta_ref, *res;
     double **best_betas, *best_scales, *weights;
     double *tmp, *tmp2, **tmp_mat, **tmp_mat2;
 
-    SETUP_FAST_S(n, p);
+    SETUP_SUBSAMPLE(n, p);
+	 
+    res	    = (double *) R_alloc(n, sizeof(double));
+    weights = (double *) R_alloc(n, sizeof(double));
+    tmp	    = (double *) R_alloc(n, sizeof(double));
+    tmp2    = (double *) R_alloc(n, sizeof(double));
+    /* 'Matrices' (pointers to pointers): use Calloc(),
+     *  so we can Free() in precise order: */ 
+    tmp_mat  = (double **) Calloc(p, double *);
+    tmp_mat2 = (double **) Calloc(p, double *);
+    for(i=0; i < p; i++) {
+	tmp_mat [i] = (double *) Calloc( p,	 double);
+	tmp_mat2[i] = (double *) Calloc(p+1, double);
+    }
 
     best_betas = (double **) Calloc(*best_r, double *);
     best_scales = (double *) Calloc(*best_r, double);
@@ -1955,12 +1967,9 @@ void fast_s(double *X, double *y,
     }
     beta_cand = (double *) Calloc(p, double);
     beta_ref  = (double *) Calloc(p, double);
-    b_i	  = (int *) Calloc(n, int);
     x	  = (double **) Calloc(n, double *);
-    x_samp= (double **) Calloc(n, double *);
     for(i=0; i < n; i++) {
 	x[i]	   = (double *) Calloc(p, double);
-	x_samp[i]  = (double *) Calloc((p+1), double);
     }
     for(i=0; i < n; i++)
 	for(j=0; j < p; j++)
@@ -1977,31 +1986,9 @@ void fast_s(double *X, double *y,
 
     for(i=0; i < nResample; i++) {
 
+	R_CheckUserInterrupt();
 	/* find a candidate */
-	no_try_samples = 0;
-	do {
-	    R_CheckUserInterrupt();
-	    if( (++no_try_samples) > MAX_NO_TRY_SAMPLES ) {
-		REprintf("\nToo many singular resamples\n"
-			 "Aborting fast_s()\n\n");
-		*sscale = -1.;
-		goto cleanup_and_return;
-	    }
-	    /* take a sample of the indices  */
-	    /* sample_n_outof_N(p, n-1, b_i); */
-	    sample_noreplace(b_i, n, p, ind_space);
-
-	    /* build the submatrix */
-	    for(j=0; j < p; j++) {
-		for(k=0; k < p; k++)
-		    x_samp[j][k] = x[b_i[j]][k];
-		x_samp[j][p] = y[b_i[j]];
-	    }
-	    /* solve the system, lu() = TRUE means matrix is singular
-	     */
-	    lu_sing = lu(x_samp,pp,beta_cand);
-
-	} while(lu_sing);
+	subsample(X, y, n, p, beta_cand, ind_space, idc, idr, lu, v, pivot, 1);
 
 	/* disp_vec(beta_cand,p); */
 
@@ -2070,17 +2057,18 @@ void fast_s(double *X, double *y,
 
     PutRNGstate();
 
+    CLEANUP_SUBSAMPLE;
+
     Free(best_scales);
     Free(beta_cand);
-    Free(beta_ref); Free(b_i);
+    Free(beta_ref);
     for(i=0; i < *best_r; i++)
 	Free(best_betas[i]);
     Free(best_betas);
     for(i=0; i < n; i++) {
 	Free(x[i]);
-	Free(x_samp[i]);
     }
-    Free(x); Free(x_samp);
+    Free(x);
     for(i=0; i < p; i++) {
 	Free(tmp_mat[i]);
 	Free(tmp_mat2[i]);

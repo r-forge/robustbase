@@ -122,7 +122,7 @@ Loading required package: robustbase
 +     res[[i]] <- unlist(within(tmp, b1 <- drop(t1 + b1 - T2 %*% b2)))
 + })
 > cat('Time elapsed in subsampling: ', time,'\n')
-Time elapsed in subsampling:  0.371 0 0.373 0 0 
+Time elapsed in subsampling:  0.37 0.002 0.373 0 0 
 > ## show a summary of the results
 > res1 <- do.call(rbind, res)
 > summary(res1[,1:8])
@@ -144,11 +144,11 @@ Time elapsed in subsampling:  0.371 0 0.373 0 0
 > obj <- lmrob(Y ~ Region + X1 + X2 + X3, education, init="S")
 > coef(obj)
   (Intercept)       Region2       Region3       Region4            X1 
--135.72598378  -20.64573273   -9.84881996   24.58012060    0.03405594 
+-135.72592070  -20.64576533   -9.84881705   24.58013150    0.03405590 
            X2            X3 
-   0.04327562    0.57895753 
+   0.04327562    0.57895740 
 > obj$scale
-[1] 26.40387
+[1] 26.40386
 > 
 > ## Test descent algorithm
 > m_s_descent <- function(x1, x2, y, control, b1, b2, scale) {
@@ -276,7 +276,7 @@ Time elapsed in subsampling:  0.371 0 0.373 0 0
 +     res3[[i]] <- unlist(m_s_descent(x1, x2, y, control, res[[i]][1:4], res[[i]][5:7], res[[i]][8]))
 + })
 > cat('Time elapsed in descent proc: ', time,'\n')
-Time elapsed in descent proc:  0.083 0 0.084 0 0 
+Time elapsed in descent proc:  0.084 0 0.084 0 0 
 > 
 > ## show a summary of the results
 > res4 <- do.call(rbind, res3)
