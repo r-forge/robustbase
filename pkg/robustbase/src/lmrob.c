@@ -216,6 +216,17 @@ void sum_vec(double *a, double *b, double *c, int n);
 	tmp_mat2[i] = (double *) Calloc((_p_)+1, double);	\
     }
 
+#define SETUP_SUBSAMPLE(_n_, _p_)                               \
+    /* (Pointers to) Arrays - to be allocated */                \
+    int *ind_space, *idc, *work, *pivot;                        \
+    double *lu, *v;                                             \
+    ind_space = (int *)    R_alloc(_n_,     sizeof(int));       \
+    idc =       (int *)    R_alloc(_n_,     sizeof(int));       \
+    work =      (int *)    R_alloc(_p_,     sizeof(int));       \
+    pivot =     (int *)    R_alloc(_p_-1,   sizeof(int));       \
+    lu =        (double *) R_alloc(_p_*_p_, sizeof(double));    \
+    v =         (double *) R_alloc(_p_,     sizeof(double));
+
 /* This assumes that 'p' is correctly defined, and 'j' can be used in caller: */
 #define COPY_beta(BETA_FROM, BETA_TO, _p_)			\
     for(j=0; j < _p_; j++) BETA_TO[j] = BETA_FROM[j];
@@ -2201,8 +2212,8 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 		   int *NIT, int *K, int *KODE, double *SIGMA, double *BET0,
 		   double *SC1, double *SC2, double *SC3, double *SC4) 
 {
-    int i, j, k, no_try_samples, one = 1;
-    int p = p1 + p2, info = 1;
+    int i, j, one = 1;
+    int p = p1 + p2;
     double b = *bb;
     double sc = INFI, done = 1., dmone = -1.;
     *sscale = INFI;
@@ -2210,21 +2221,13 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     if (*trace_lev > 1) 
 	Rprintf("starting with subsampling procedure...\n");
 
-    /* (Pointers to) Arrays - to be allocated */
-    int *ind_space, *idc, *work, *pivot;
-    double *lu, *v;
-    
-    ind_space = (int *)    R_alloc(n,     sizeof(int));
-    idc =       (int *)    R_alloc(n,     sizeof(int));
-    work =      (int *)    R_alloc(p2,    sizeof(int));
-    pivot =     (int *)    R_alloc(p2-1,  sizeof(int));
-    lu =        (double *) R_alloc(p2*p2, sizeof(double));
-    v =         (double *) R_alloc(p2,    sizeof(double));
+    SETUP_SUBSAMPLE(n, p2);
 
     /*	set the seed */
     GetRNGstate();
     
     for(i=0; i < nResample; i++) {
+	R_CheckUserInterrupt();
 	/* STEP 1: Draw a subsample of size p2 from (X2, y) */
 	subsample(x2, y, n, p2, t2, ind_space, idc, work, lu, v, pivot, 1);
 	/* calculate partial residuals */
