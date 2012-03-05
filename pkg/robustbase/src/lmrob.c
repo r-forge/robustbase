@@ -2184,8 +2184,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 		   double *SC1, double *SC2, double *SC3, double *SC4) 
 {
     int i, j, k, no_try_samples, one = 1;
-    int p = p1 + p2;
-    Rboolean lu_sing;
+    int p = p1 + p2, info = 1;
     double b = *bb;
     double sc = INFI, done = 1., dmone = -1.;
     *sscale = INFI;
@@ -2193,17 +2192,27 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     if (*trace_lev > 1) 
 	Rprintf("starting with subsampling procedure...");
 
+    /* Determine optimal block size for work array */
+    int lwork = -1;
+    double work0;
+    F77_CALL(dgels)("N", &p2, &p2, &one, x2, &p2, y, &p2, &work0, &lwork, &info);
+    if (info) {
+	warning("problem determining optimal block size, using minimum");
+	lwork = 2*p2;
+    } else 
+	lwork = (int)work0;
+
+    if (*trace_lev > 3)
+	Rprintf("optimal block size: %d\n", lwork);
+
     /* (Pointers to) Arrays - to be allocated */
     int *ind_space, *b_i;
-    double **xx;
+    double *xx, *work;
     
-    b_i =        (int *) R_alloc(p2, sizeof(int));
-    ind_space =  (int *) R_alloc(n,  sizeof(int));
-    /* 'Matrices' (pointers to pointers): use Calloc(),
-     *  so we can Free() in precise order: */
-    xx =     (double **) Calloc(p2, double *);
-    for (i=0; i < p2; i++) 
-	xx[i] = (double *) Calloc(p2+1, double);
+    b_i =       (int *)    R_alloc(p2,    sizeof(int));
+    ind_space = (int *)    R_alloc(n,     sizeof(int));
+    xx =        (double *) R_alloc(p2*p2, sizeof(double));
+    work =      (double *) R_alloc(lwork, sizeof(double));
 
     /*	set the seed */
     GetRNGstate();
@@ -2224,13 +2233,12 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 	    /* STEP 2: Decompose sample matrix and solve equations */
 	    for(j=0; j < p2; j++) {
 		for(k=0; k < p2; k++)
-		    xx[j][k] = x2[k*n+b_i[j]];
-		xx[j][p2] = y[b_i[j]];
+		    xx[k*p2+j] = x2[k*n+b_i[j]];
+		t2[j] = y[b_i[j]];
 	    }
-	    /* solve the system, lu() = TRUE means matrix is singular
-	     */
-	    lu_sing = lu(xx, &p2, t2);
-	} while(lu_sing);
+	    /* solve the system */
+	    F77_CALL(dgels)("N", &p2, &p2, &one, xx, &p2, t2, &p2, work, &lwork, &info);
+	} while(info);
 	COPY_beta(y, y_tilde, n);
         F77_CALL(dgemv)("N", &n, &p2, &dmone, x2, &n, t2, &one, &done, y_tilde, &one);
 	/* STEP 3: Obtain L1-estimate of b1 */
@@ -2275,8 +2283,6 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     
   cleanup_and_return:
     PutRNGstate();
-
-    for (i=0; i < p2; i++) Free(xx[i]); Free(xx);
 } /* m_s_subsample() */
 
 /* Descent step for M-S algorithm                        */
@@ -2301,7 +2307,7 @@ void m_s_descent(double *X1, double *X2, double *y,
     if (*trace_lev > 1) 
 	Rprintf("starting with descent procedure...\n");
     
-    /* Determine optimal block size */
+    /* Determine optimal block size for work array*/
     int lwork = -1;
     double work0;
     F77_CALL(dgels)("N", &n, &p2, &one, x2, &n, y, &n, &work0, &lwork, &info);

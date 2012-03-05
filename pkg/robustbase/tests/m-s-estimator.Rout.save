@@ -121,23 +121,24 @@ Loading required package: robustbase
 +     res[[i]] <- unlist(within(tmp, b1 <- drop(t1 + b1 - T2 %*% b2)))
 + })
 > cat('Time elapsed in subsampling: ', time,'\n')
-Time elapsed in subsampling:  0.337 0.002 0.34 0 0 
+Time elapsed in subsampling:  0.395 0 0.397 0 0 
 > ## show a summary of the results
-> summary(do.call(rbind, res))
+> res1 <- do.call(rbind, res)
+> summary(res1)
       b11               b12              b13               b14       
- Min.   :-318.21   Min.   :-32.84   Min.   :-19.386   Min.   :19.97  
- 1st Qu.:-220.48   1st Qu.:-23.36   1st Qu.: -8.376   1st Qu.:30.22  
- Median :-165.13   Median :-21.37   Median : -7.415   Median :32.64  
- Mean   :-160.86   Mean   :-21.20   Mean   : -7.436   Mean   :32.86  
- 3rd Qu.: -98.35   3rd Qu.:-18.33   3rd Qu.: -6.331   3rd Qu.:36.26  
+ Min.   :-396.39   Min.   :-39.07   Min.   :-17.236   Min.   :16.22  
+ 1st Qu.:-224.09   1st Qu.:-23.38   1st Qu.: -8.241   1st Qu.:30.35  
+ Median :-165.41   Median :-21.43   Median : -7.385   Median :32.55  
+ Mean   :-166.64   Mean   :-21.52   Mean   : -7.404   Mean   :32.58  
+ 3rd Qu.:-102.66   3rd Qu.:-18.39   3rd Qu.: -6.478   3rd Qu.:35.95  
  Max.   : -33.62   Max.   :-12.23   Max.   :  1.154   Max.   :42.25  
       b21                b22               b23             scale      
  Min.   :-0.03808   Min.   :0.03168   Min.   :0.2953   Min.   :29.79  
- 1st Qu.: 0.01643   1st Qu.:0.03996   1st Qu.:0.4928   1st Qu.:30.37  
- Median : 0.02947   Median :0.04682   Median :0.6270   Median :30.82  
- Mean   : 0.02987   Mean   :0.04567   Mean   :0.6217   Mean   :30.84  
- 3rd Qu.: 0.04804   3rd Qu.:0.05110   3rd Qu.:0.7847   3rd Qu.:31.33  
- Max.   : 0.09728   Max.   :0.06792   Max.   :0.9480   Max.   :32.12  
+ 1st Qu.: 0.02009   1st Qu.:0.04004   1st Qu.:0.5024   1st Qu.:30.30  
+ Median : 0.03095   Median :0.04672   Median :0.6382   Median :30.82  
+ Mean   : 0.03050   Mean   :0.04594   Mean   :0.6346   Mean   :30.84  
+ 3rd Qu.: 0.04718   3rd Qu.:0.05110   3rd Qu.:0.8056   3rd Qu.:31.29  
+ Max.   : 0.09728   Max.   :0.06792   Max.   :1.1109   Max.   :32.12  
 > ## compare with fast S solution
 > obj <- lmrob(Y ~ Region + X1 + X2 + X3, education, init="S")
 > coef(obj)
@@ -223,8 +224,8 @@ Time elapsed in subsampling:  0.337 0.002 0.34 0 0
 +     ## do maximally control$k.max iterations
 +     ## stop if converged
 +     ## stop after k.fast.m_s step of no improvement
-+     cat("scale:", scale, "\n")
-+     cat("res:", rs, "\n")
++     if (control$trace.lev > 4) cat("scale:", scale, "\n")
++     if (control$trace.lev > 4) cat("res:", rs, "\n")
 +     nnoimprovement <- nref <- 0; conv <- FALSE
 +     while((nref <- nref + 1) <= control$k.max && !conv &&
 +           nnoimprovement < control$k.m_s) {
@@ -267,13 +268,32 @@ Time elapsed in subsampling:  0.337 0.002 0.34 0 0
 > stopifnot(all.equal(m_s_descent(x1, x2, y, control2, res2$b1, res2$b2, res2$scale+10),
 +                     m_s_descent_Ronly(x1, x2, y, control2, res2$b1, res2$b2, res2$scale+10),
 +                     check.attr=FALSE))
-scale: 41.39674 
-res: -8.6527 -39.61602 17.43366 -22.81718 38.95789 0 85.94543 -25.4 32.23061 -42.50927 -5.684342e-14 14.25497 87.2957 91.53674 113.0937 -24.98671 -8.524785 -19.01129 -10.55104 13.87197 81.88584 38.56475 38.29496 -1.278185 -7.912545 3.98423 -6.470067 -4.663523 6.210023 -18.8613 -14.29412 -18.65335 -17.96482 2.064944 0 3.98423 16.62335 -6.678307 -41.71973 0 -21.63584 22.84989 21.78031 4.464618 -61.68664 -5.406487 15.93799 1.385498 -31.44817 149.1588 
 > 
+> ## control$k.m_s <- 100
+> res2 <- list()
+> time <- system.time(for (i in 1:100) {
++     res2[[i]] <- unlist(m_s_descent(x1, x2, y, control, res[[i]][1:4], res[[i]][5:7], res[[i]][8]))
++ })
+> cat('Time elapsed in descent proc: ', time,'\n')
+Time elapsed in descent proc:  0.079 0 0.079 0 0 
 > 
+> ## show a summary of the results
+> res3 <- do.call(rbind, res2)
+> summary(res3)
+      b11               b12              b13               b14       
+ Min.   :-396.39   Min.   :-39.07   Min.   :-16.100   Min.   :16.22  
+ 1st Qu.:-221.93   1st Qu.:-22.83   1st Qu.: -8.680   1st Qu.:27.92  
+ Median :-161.54   Median :-21.28   Median : -7.837   Median :30.86  
+ Mean   :-164.48   Mean   :-20.66   Mean   : -8.121   Mean   :31.00  
+ 3rd Qu.:-101.67   3rd Qu.:-18.09   3rd Qu.: -6.951   3rd Qu.:33.15  
+ Max.   : -28.78   Max.   :-12.24   Max.   : -4.032   Max.   :42.25  
+      b21                b22               b23             scale      
+ Min.   :-0.02141   Min.   :0.03098   Min.   :0.3260   Min.   :29.79  
+ 1st Qu.: 0.02153   1st Qu.:0.03933   1st Qu.:0.5024   1st Qu.:30.30  
+ Median : 0.04100   Median :0.04272   Median :0.6376   Median :30.48  
+ Mean   : 0.04017   Mean   :0.04411   Mean   :0.6356   Mean   :30.70  
+ 3rd Qu.: 0.05842   3rd Qu.:0.04794   3rd Qu.:0.7799   3rd Qu.:30.96  
+ Max.   : 0.08613   Max.   :0.06473   Max.   :1.1109   Max.   :32.11  
 > 
-> ## time <- system.time(for (i in 1:100) {
-> ##     res[[i]] <- unlist(m_s_descent(x1, x2, y, control, res[[i]][1:4], res[[i]][5:7], res[[i]][8]))
-> ## })
-> ## cat('Time elapsed in descent proc: ', time,'\n')
+> plot(res1[, "scale"], res3[,"scale"])
 > 
