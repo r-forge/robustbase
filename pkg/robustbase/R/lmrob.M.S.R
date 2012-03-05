@@ -109,6 +109,7 @@ lmrob.M.S <- function(x, y, control, mf, split) {
     storage.mode(x1) <- "double"
     storage.mode(x2) <- "double"
     storage.mode(y) <- "double"
+    c.chi <- lmrob.conv.cc(control$psi, control$tuning.chi)
     
     z <- .C(robustbase:::R_lmrob_M_S,
             X1=x1,
@@ -122,7 +123,7 @@ lmrob.M.S <- function(x, y, control, mf, split) {
             scale=double(1),
             b1=double(ncol(x1)),
             b2=double(ncol(x2)),
-            tuning_chi=as.double(control$tuning.chi),
+            tuning_chi=as.double(c.chi),
             ipsi=as.integer(lmrob.psi2ipsi(control$psi)),
             bb=as.double(control$bb),
             K_m_s=as.integer(control$k.m_s),
