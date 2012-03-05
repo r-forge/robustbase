@@ -60,6 +60,10 @@ void R_lmrob_MM(double *X, double *y, int *n, int *P,
 		double *rho_c, int *ipsi, double *loss, double *rel_tol,
 		int *converged, int *trace_lev);
 
+void R_subsample(const double *x, const double *y, int *n, int *m, 
+		 double *beta, int *ind_space, int *idc, int *idr, 
+		 double *lu, double *v, int *p, int *status, int *sample);
+
 void R_psifun(double *xx, double *cc, int *iipsi, int *dderiv, int *llength);
 void R_chifun(double *xx, double *cc, int *iipsi, int *dderiv, int *llength);
 void R_wgtfun(double *xx, double *cc, int *iipsi, int *llength);

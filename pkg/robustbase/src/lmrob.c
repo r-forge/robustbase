@@ -151,6 +151,10 @@ void m_s_descent(double *X1, double *X2, double *y,
 		 double *SC1, double *SC2, double *SC3, double *SC4,
 		 int *conv);
 
+int subsample(const double *x, const double *y, int n, int m, 
+	       double *beta, int *ind_space, int *idc, int *idr, 
+	      double *lu, double *v, int *p, int sample);
+
 #ifdef _UNUSED_
 void fast_s_irwls(double **x, double *y,
 		  double *weights, int n, int p, double *beta_ref,
@@ -166,6 +170,7 @@ int fast_s_with_memory(double **x, double *y,
 /* for "tracing" only : */
 void disp_mat(double **a, int n, int m);
 void disp_vec(double *a, int n);
+void disp_veci(int *a, int n);
 
 double kthplace(double *, int, int);
 
@@ -392,6 +397,19 @@ void R_lmrob_MM(double *X, double *y, int *n, int *P,
     for(i=0; i < N; i++)
 	Free(x[i]);
     Free(x);
+}
+
+/* Call subsample() from R, just for testing purposes */
+void R_subsample(const double *x, const double *y, int *n, int *m, 
+		 double *beta, int *ind_space, int *idc, int *idr, 
+		 double *lu, double *v, int *p, int *status, int *sample)
+{
+    /*	set the seed */
+    GetRNGstate();
+
+    *status = subsample(x, y, *n, *m, beta, ind_space, idc, idr, lu, v, p, *sample);
+
+    PutRNGstate();
 }
 
 
@@ -2394,6 +2412,116 @@ void m_s_descent(double *X1, double *X2, double *y,
     }
 } /* m_s_descent() */
 
+/* draw a subsample of observations and calculate a candidate           *
+ * starting value for S estimates                                       *
+ * uses a custom LU decomposition, which acts on the transposed design  *
+ * matrix. In case of a singular subsample, the subsample is modified   *
+ * until it is non-singular.                                            *
+ *                                                                      *
+ * Parts of the algorithm are based on the Gaxpy version of the LU      *
+ * decomposition with partial pivoting by                               *
+ * Golub G. H., Van Loan C. F. (1996) - MATRIX Computations             */
+int subsample(const double *x, const double *y, int n, int m, 
+	      double *beta, int *ind_space, int *idc, int *idr, 
+	      double *lu, double *v, int *p, int sample) 
+{
+    /* x:         design matrix (n x m)
+       y:         response vector
+       n:         length of y, nrow of x
+       m:         ncol of x  ( == p )
+       beta:      [out] candidate parameters (length m)
+       ind_space: (required in sample_noreplace, length n)
+       idc:       (required in sample_noreplace, !! length n !!) 
+                  holds the index permutation, 
+		  [out] index of observations used in subsample
+       idr:       work array of length m
+       lu:        [out] LU decomposition of subsample of xt (m x m)
+       v:         work array of length m
+       p:         [out] pivoting table of LU decomposition (length m-1) 
+       sample:    whether to sample or not
+       
+       return condition:
+             0: success
+             1: singular (matrix xt does not contain a p dim. full rank 
+                          submatrix)                                    */
+    int j, k, l, one = 1, mu = 0, tmpi, len_idc = n;
+    double tmpd;
+    Rboolean sing;
+
+#define xt(_k_, _j_) x[idr[_k_]*n+idc[_j_]]
+#define U(_k_, _j_) lu[_j_*m+_k_]
+#define u(_k_, _j_) lu + (_j_*m+_k_)
+#define L(_k_, _j_) lu[_j_*m+_k_]
+#define l(_k_, _j_) lu + (_j_*m+_k_)
+
+    /* STEP 1: Calculate permutation of 1:n */
+    if (sample > 0) {
+	sample_noreplace(idc, n, n, ind_space);
+    } else for(k=0;k<n;k++) idc[k] = k;
+    for(k=0;k<m;k++) idr[k] = k;
+    
+    /* STEP 2: Calculate LU decomposition of the first p cols of xt     *
+     *         using the order in b_i                                   */
+    for(j = 0; j < m; j++) {
+	sing=TRUE;
+	do {
+	    if (j == 0) {
+		for(k=j;k<m;k++) v[k] = xt(k, j);
+	    } else {
+		for(k=0;k<j;k++) U(k,j) = xt(k, j);
+		/* z = solve(lu[0:(j-1), 0:(j-1)], xt[0:(j-1), j]) */
+		F77_CALL(dtrsv)("L", "N", "U", &j, lu, &m, u(0, j), &one);
+		/* Rprintf("Step %d: z = ", j); disp_vec(u(0,j), j); */
+		/* v[j:(m-1)] = xt[j:(m-1), j] - L[j:(m-1), 0:(j-1)] %*% z */
+		for(k=j;k<m;k++) {
+		    v[k] = xt(k, j);
+		    for(l=0;l<j;l++) v[k] -= L(k, l) * U(l, j);
+		}
+		/* Rprintf("v = "); disp_vec(v, m); */
+	    }
+	    if (j < m-1) {
+		/* find pivot */
+		tmpd=fabs(v[j]); mu = j;
+		for(k=j+1;k<m;k++) if (tmpd < fabs(v[k])) { mu = k; tmpd = fabs(v[k]); }
+		/* continue only if pivot is large enough */
+		if (tmpd >= TOL_INVERSE) {
+		    p[j] = mu;
+		    tmpd = v[j]; v[j] = v[mu]; v[mu] = tmpd;
+		    tmpi = idr[j]; idr[j] = idr[mu]; idr[mu] = tmpi;
+		    for(k=j+1;k<m;k++) L(k, j) = v[k] / v[j];
+		    if (j > 0) {
+			for(k=0;k<j;k++) { 
+			    tmpd = L(j, k); L(j, k) = L(mu, k); L(mu, k) = tmpd;
+			}
+		    }
+		}
+	    }
+	    if (fabs(v[j]) < TOL_INVERSE) {
+		idc[j] = idc[--len_idc];
+		if (len_idc <= j) {
+		    warning("subsample: could not find non-singular subsample.");
+		    return(1);
+		}
+	    } else {
+		sing = FALSE;
+		U(j, j) = v[j];
+	    }
+	} while(sing);
+    } /* end for loop */
+    
+    /* Rprintf("lu:"); disp_vec(lu, m*m); */
+    /* Rprintf("p:"); disp_veci(p, m-1); */
+    /* Rprintf("idc:"); disp_veci(idc, m); */
+
+    return(0);
+
+#undef Xt
+#undef U
+#undef u
+#undef L
+#undef l
+}
+
 void get_weights_rhop(double *r, double s, int n, double *rrhoc, int ipsi,
 		      double *w)
 {
@@ -2638,6 +2766,13 @@ void disp_vec(double *a, int n)
 {
     int i;
     for(i=0; i < n; i++) Rprintf("%lf ",a[i]);
+    Rprintf("\n");
+}
+
+void disp_veci(int *a, int n)
+{
+    int i;
+    for(i=0; i < n; i++) Rprintf("%d ",a[i]);
     Rprintf("\n");
 }
 

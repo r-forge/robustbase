@@ -78,6 +78,12 @@ static R_NativePrimitiveArgType R_lmrob_M_S_t[] = {
     LGLSXP, LGLSXP, LGLSXP
 };
 
+static R_NativePrimitiveArgType R_subsample_t[] = {
+    REALSXP, REALSXP, INTSXP, INTSXP, 
+    REALSXP, INTSXP, INTSXP, INTSXP, 
+    REALSXP, REALSXP, INTSXP, INTSXP, LGLSXP
+};
+
 static const R_CMethodDef CEntries[]  = {
     CDEF(Qn0),
     CDEF(Sn0),
@@ -92,6 +98,7 @@ static const R_CMethodDef CEntries[]  = {
     CDEF(R_find_D_scale),
     CDEF(R_calc_fitted),
     CDEF(R_lmrob_M_S),
+    CDEF(R_subsample),
     {NULL, NULL, 0}
 };
 
