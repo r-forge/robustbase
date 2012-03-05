@@ -122,24 +122,24 @@ Loading required package: robustbase
 +     res[[i]] <- unlist(within(tmp, b1 <- drop(t1 + b1 - T2 %*% b2)))
 + })
 > cat('Time elapsed in subsampling: ', time,'\n')
-Time elapsed in subsampling:  0.386 0.001 0.389 0 0 
+Time elapsed in subsampling:  0.341 0 0.343 0 0 
 > ## show a summary of the results
 > res1 <- do.call(rbind, res)
 > summary(res1[,1:8])
       b11               b12              b13               b14       
- Min.   :-396.39   Min.   :-39.07   Min.   :-17.236   Min.   :16.22  
- 1st Qu.:-224.09   1st Qu.:-23.38   1st Qu.: -8.241   1st Qu.:30.35  
- Median :-165.41   Median :-21.43   Median : -7.385   Median :32.55  
- Mean   :-166.64   Mean   :-21.52   Mean   : -7.404   Mean   :32.58  
- 3rd Qu.:-102.66   3rd Qu.:-18.39   3rd Qu.: -6.478   3rd Qu.:35.95  
+ Min.   :-318.21   Min.   :-32.84   Min.   :-19.386   Min.   :19.97  
+ 1st Qu.:-213.00   1st Qu.:-23.09   1st Qu.: -8.521   1st Qu.:30.22  
+ Median :-165.13   Median :-21.37   Median : -7.676   Median :32.64  
+ Mean   :-160.02   Mean   :-21.18   Mean   : -7.295   Mean   :32.78  
+ 3rd Qu.: -98.35   3rd Qu.:-18.33   3rd Qu.: -6.291   3rd Qu.:36.26  
  Max.   : -33.62   Max.   :-12.23   Max.   :  1.154   Max.   :42.25  
       b21                b22               b23             scale      
  Min.   :-0.03808   Min.   :0.03168   Min.   :0.2953   Min.   :29.79  
- 1st Qu.: 0.02009   1st Qu.:0.04004   1st Qu.:0.5024   1st Qu.:30.30  
- Median : 0.03095   Median :0.04672   Median :0.6382   Median :30.82  
- Mean   : 0.03050   Mean   :0.04594   Mean   :0.6346   Mean   :30.84  
- 3rd Qu.: 0.04718   3rd Qu.:0.05110   3rd Qu.:0.8056   3rd Qu.:31.29  
- Max.   : 0.09728   Max.   :0.06792   Max.   :1.1109   Max.   :32.12  
+ 1st Qu.: 0.01643   1st Qu.:0.03996   1st Qu.:0.4928   1st Qu.:30.37  
+ Median : 0.03213   Median :0.04682   Median :0.6183   Median :30.90  
+ Mean   : 0.03053   Mean   :0.04569   Mean   :0.6177   Mean   :30.87  
+ 3rd Qu.: 0.05240   3rd Qu.:0.05110   3rd Qu.:0.7745   3rd Qu.:31.33  
+ Max.   : 0.09728   Max.   :0.06792   Max.   :0.9480   Max.   :32.12  
 > ## compare with fast S solution
 > obj <- lmrob(Y ~ Region + X1 + X2 + X3, education, init="S")
 > coef(obj)
@@ -276,25 +276,25 @@ Time elapsed in subsampling:  0.386 0.001 0.389 0 0
 +     res3[[i]] <- unlist(m_s_descent(x1, x2, y, control, res[[i]][1:4], res[[i]][5:7], res[[i]][8]))
 + })
 > cat('Time elapsed in descent proc: ', time,'\n')
-Time elapsed in descent proc:  0.08 0 0.08 0 0 
+Time elapsed in descent proc:  0.083 0 0.084 0 0 
 > 
 > ## show a summary of the results
 > res4 <- do.call(rbind, res3)
 > summary(res4[,1:8])
       b11               b12              b13               b14       
- Min.   :-396.39   Min.   :-39.07   Min.   :-16.100   Min.   :16.22  
- 1st Qu.:-221.93   1st Qu.:-22.83   1st Qu.: -8.680   1st Qu.:27.92  
- Median :-161.54   Median :-21.28   Median : -7.837   Median :30.86  
- Mean   :-164.48   Mean   :-20.66   Mean   : -8.121   Mean   :31.00  
- 3rd Qu.:-101.67   3rd Qu.:-18.09   3rd Qu.: -6.951   3rd Qu.:33.15  
+ Min.   :-318.21   Min.   :-30.56   Min.   :-16.100   Min.   :19.97  
+ 1st Qu.:-213.00   1st Qu.:-22.52   1st Qu.: -8.833   1st Qu.:27.95  
+ Median :-161.06   Median :-21.00   Median : -8.056   Median :30.31  
+ Mean   :-157.58   Mean   :-20.11   Mean   : -8.194   Mean   :31.17  
+ 3rd Qu.: -97.36   3rd Qu.:-17.04   3rd Qu.: -6.722   3rd Qu.:33.31  
  Max.   : -28.78   Max.   :-12.24   Max.   : -4.032   Max.   :42.25  
       b21                b22               b23             scale      
  Min.   :-0.02141   Min.   :0.03098   Min.   :0.3260   Min.   :29.79  
- 1st Qu.: 0.02153   1st Qu.:0.03933   1st Qu.:0.5024   1st Qu.:30.30  
- Median : 0.04100   Median :0.04272   Median :0.6376   Median :30.48  
- Mean   : 0.04017   Mean   :0.04411   Mean   :0.6356   Mean   :30.70  
- 3rd Qu.: 0.05842   3rd Qu.:0.04794   3rd Qu.:0.7799   3rd Qu.:30.96  
- Max.   : 0.08613   Max.   :0.06473   Max.   :1.1109   Max.   :32.11  
+ 1st Qu.: 0.02198   1st Qu.:0.03914   1st Qu.:0.5007   1st Qu.:30.36  
+ Median : 0.04541   Median :0.04271   Median :0.6362   Median :30.55  
+ Mean   : 0.04172   Mean   :0.04350   Mean   :0.6196   Mean   :30.71  
+ 3rd Qu.: 0.05959   3rd Qu.:0.04757   3rd Qu.:0.7506   3rd Qu.:30.97  
+ Max.   : 0.08613   Max.   :0.06367   Max.   :0.9480   Max.   :32.11  
 > 
 > plot(res1[, "scale"], res4[,"scale"])
 > 
@@ -305,25 +305,25 @@ Time elapsed in descent proc:  0.08 0 0.08 0 0
 > obj2 <- lmrob.M.S(x, y, control, obj$model)
 starting with subsampling procedure...
 Step 0: new candidate with sc = 104.088811486156
-Step 5: new candidate with sc = 68.4977242622213
+Step 5: new candidate with sc = 68.4977242622214
 Step 7: new candidate with sc = 37.448652862062
 Step 12: new candidate with sc = 35.1596230289069
-Step 20: new candidate with sc = 31.9348857445637
-Step 355: new candidate with sc = 31.5550607183877
-Finished M-S subsampling with scale = 31.5550607183877
-b1: -19.158290 10.753696 11.130900 25.192340 
+Step 20: new candidate with sc = 31.8434476850534
+Step 355: new candidate with sc = 31.5276325001316
+Finished M-S subsampling with scale = 31.5276325001316
+b1: -19.158290 10.753696 12.254664 25.192340 
 b2: -0.029633 0.051415 0.809801 
 starting with descent procedure...
-Refinement step 3: better fit, scale: 31.5205071818621
-Refinement step 4: better fit, scale: 30.9466521282569
-Refinement step 5: better fit, scale: 30.8180005418827
-Refinement step 6: better fit, scale: 30.758316670988
-Refinement step 7: better fit, scale: 30.6979460767994
-Refinement step 8: better fit, scale: 30.6043365897621
-Refinement step 9: better fit, scale: 30.588042369233
+Refinement step 3: better fit, scale: 31.455369423292
+Refinement step 4: better fit, scale: 30.926639419427
+Refinement step 5: better fit, scale: 30.8115897477157
+Refinement step 6: better fit, scale: 30.7523424086512
+Refinement step 7: better fit, scale: 30.6926462718385
+Refinement step 8: better fit, scale: 30.5971249089057
+Refinement step 9: better fit, scale: 30.590129993075
 descent procedure: not converged.
-b1: -197.193523 -21.179008 -7.561589 27.098607 
-b2: 0.051545 0.045065 0.702375 
+b1: -197.200233 -21.191192 -7.576516 27.056762 
+b2: 0.051531 0.045103 0.701954 
 > resid <- drop(y - x %*% obj2$coef)
 > stopifnot(all.equal(resid, obj2$resid, check.attr=FALSE))
 > 

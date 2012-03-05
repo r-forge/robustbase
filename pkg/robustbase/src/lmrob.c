@@ -2192,27 +2192,14 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     if (*trace_lev > 1) 
 	Rprintf("starting with subsampling procedure...\n");
 
-    /* Determine optimal block size for work array */
-    int lwork = -1;
-    double work0;
-    F77_CALL(dgels)("N", &p2, &p2, &one, x2, &p2, y, &p2, &work0, &lwork, &info);
-    if (info) {
-	warning("problem determining optimal block size, using minimum");
-	lwork = 2*p2;
-    } else 
-	lwork = (int)work0;
-
-    if (*trace_lev > 3)
-	Rprintf("optimal block size: %d\n", lwork);
-
     /* (Pointers to) Arrays - to be allocated */
-    int *ind_space, *b_i;
-    double *xx, *work;
+    int *ind_space, *b_i, *work;
+    double *xx;
     
     b_i =       (int *)    R_alloc(p2,    sizeof(int));
     ind_space = (int *)    R_alloc(n,     sizeof(int));
     xx =        (double *) R_alloc(p2*p2, sizeof(double));
-    work =      (double *) R_alloc(lwork, sizeof(double));
+    work =      (double *) R_alloc(p2,    sizeof(int));
 
     /*	set the seed */
     GetRNGstate();
@@ -2237,7 +2224,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 		t2[j] = y[b_i[j]];
 	    }
 	    /* solve the system */
-	    F77_CALL(dgels)("N", &p2, &p2, &one, xx, &p2, t2, &p2, work, &lwork, &info);
+	    F77_CALL(dgesv)(&p2, &one, xx, &p2, work, t2, &p2, &info);
 	} while(info);
 	COPY_beta(y, y_tilde, n);
         F77_CALL(dgemv)("N", &n, &p2, &dmone, x2, &n, t2, &one, &done, y_tilde, &one);
