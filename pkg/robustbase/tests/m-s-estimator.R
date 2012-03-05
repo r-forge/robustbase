@@ -49,6 +49,7 @@ m_s_subsample <- function(x1, x2, y, control, orthogonalize=TRUE) {
             X1=x1,
             X2=x2,
             y=y,
+            res=double(length(y)),
             n=length(y),
             p1=ncol(x1),
             p2=ncol(x2),
@@ -104,7 +105,7 @@ time <- system.time(for (i in 1:100) {
 cat('Time elapsed in subsampling: ', time,'\n')
 ## show a summary of the results
 res1 <- do.call(rbind, res)
-summary(res1)
+summary(res1[,1:8])
 ## compare with fast S solution
 obj <- lmrob(Y ~ Region + X1 + X2 + X3, education, init="S")
 coef(obj)
@@ -123,6 +124,7 @@ m_s_descent <- function(x1, x2, y, control, b1, b2, scale) {
             X1=x1,
             X2=x2,
             y=y,
+            res=double(length(y)),
             n=length(y),
             p1=ncol(x1),
             p2=ncol(x2),
@@ -141,7 +143,7 @@ m_s_descent <- function(x1, x2, y, control, b1, b2, scale) {
             orthogonalize=FALSE,
             subsample=FALSE,
             descent=TRUE)
-    z[c("b1", "b2", "scale")]
+    z[c("b1", "b2", "scale", "res")]
 }
 
 find_scale <- function(r, s0, n, p, control) {
@@ -219,7 +221,7 @@ m_s_descent_Ronly<- function(x1, x2, y, control, b1, b2, scale) {
     if (nref == control$k.max)
         warning("M-S estimate: maximum number of refinement steps reached.")
     
-    list(b1=b1, b2=b2, scale=scale)
+    list(b1=b1, b2=b2, scale=scale, res=rs)
 }
 
 control2 <- control
@@ -230,14 +232,22 @@ stopifnot(all.equal(m_s_descent(x1, x2, y, control2, res2$b1, res2$b2, res2$scal
                     check.attr=FALSE))
 
 ## control$k.m_s <- 100
-res2 <- list()
+res3 <- list()
 time <- system.time(for (i in 1:100) {
-    res2[[i]] <- unlist(m_s_descent(x1, x2, y, control, res[[i]][1:4], res[[i]][5:7], res[[i]][8]))
+    res3[[i]] <- unlist(m_s_descent(x1, x2, y, control, res[[i]][1:4], res[[i]][5:7], res[[i]][8]))
 })
 cat('Time elapsed in descent proc: ', time,'\n')
 
 ## show a summary of the results
-res3 <- do.call(rbind, res2)
-summary(res3)
+res4 <- do.call(rbind, res3)
+summary(res4[,1:8])
 
-plot(res1[, "scale"], res3[,"scale"])
+plot(res1[, "scale"], res4[,"scale"])
+
+## Test lmrob.M.S
+x <- model.matrix(obj)
+control$trace.lev <- 3
+set.seed(1001)
+obj2 <- lmrob.M.S(x, y, control, obj$model)
+resid <- drop(y - x %*% obj2$coef)
+stopifnot(all.equal(resid, obj2$resid, check.attr=FALSE))

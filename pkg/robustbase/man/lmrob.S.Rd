@@ -30,7 +30,7 @@ lmrob.S(x, y, control, trace.lev = 0, mf = NULL)
   %   coefficient estimates.}
   \item{fitted.values}{numeric vector (length \eqn{n}) of the fitted
     values.}
-  \item{residuals}{numberic vector (legnth \eqn{n}) of the residuals.}
+  \item{residuals}{numeric vector (legnth \eqn{n}) of the residuals.}
   \item{weights}{numeric vector (length \eqn{n}) of the robustness weights.}
   \item{k.iter}{(maximal) number of refinement iterations used.}
   \item{converged}{logical indicating if \bold{all} refinement

@@ -44,6 +44,7 @@ lmrob.lar <- function(x, y, tol=1e-6)
 
 lmrob.split <- function(mf, x = model.matrix(mt, mf), type = "f") {
     mt <- attr(mf, "terms")
+    x <- as.matrix(x)
     p <- ncol(x)
     
     ## --- split categorical and interactions of categorical vars.
@@ -97,4 +98,50 @@ lmrob.split <- function(mf, x = model.matrix(mt, mf), type = "f") {
         return(list(x1=x1, x1.idx=x1.idx))
     
     list(x1=x1, x1.idx=x1.idx, x2=x2)
+}
+
+lmrob.M.S <- function(x, y, control, mf, split) {
+    if (missing("split"))
+        split <- lmrob.split(mf, x, control$split.type)
+    x1 <- split$x1
+    x2 <- split$x2
+    storage.mode(x1) <- "double"
+    storage.mode(x2) <- "double"
+    storage.mode(y) <- "double"
+    
+    z <- .C(robustbase:::R_lmrob_M_S,
+            X1=x1,
+            X2=x2,
+            y=y,
+            res=double(length(y)),
+            n=length(y),
+            p1=ncol(x1),
+            p2=ncol(x2),
+            nResample=as.integer(control$nResample),
+            scale=double(1),
+            b1=double(ncol(x1)),
+            b2=double(ncol(x2)),
+            tuning_chi=as.double(control$tuning.chi),
+            ipsi=as.integer(lmrob.psi2ipsi(control$psi)),
+            bb=as.double(control$bb),
+            K_m_s=as.integer(control$k.m_s),
+            max_k=as.integer(control$k.max),
+            rel_tol=as.double(control$rel.tol),
+            converged=logical(1),
+            trace_lev=as.integer(control$trace.lev),
+            orthogonalize=TRUE,
+            subsample=TRUE,
+            descent=TRUE)
+
+    res <- list(coefficients = numeric(length(split$x1.idx)),
+                scale = z$scale,
+                residuals = z$res,
+                weights = lmrob.wgtfun(z$res / z$scale, control$tuning.chi, control$psi),
+                control = control)
+    res$coefficients[split$x1.idx] <- z$b1
+    res$coefficients[!split$x1.idx] <- z$b2    
+    
+    ## set method argument in control
+    res$control$method = 'M-S'
+    res    
 }

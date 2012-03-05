@@ -68,6 +68,7 @@ Loading required package: robustbase
 +             X1=x1,
 +             X2=x2,
 +             y=y,
++             res=double(length(y)),
 +             n=length(y),
 +             p1=ncol(x1),
 +             p2=ncol(x2),
@@ -121,10 +122,10 @@ Loading required package: robustbase
 +     res[[i]] <- unlist(within(tmp, b1 <- drop(t1 + b1 - T2 %*% b2)))
 + })
 > cat('Time elapsed in subsampling: ', time,'\n')
-Time elapsed in subsampling:  0.392 0 0.396 0 0 
+Time elapsed in subsampling:  0.387 0.002 0.391 0 0 
 > ## show a summary of the results
 > res1 <- do.call(rbind, res)
-> summary(res1)
+> summary(res1[,1:8])
       b11               b12              b13               b14       
  Min.   :-396.39   Min.   :-39.07   Min.   :-17.236   Min.   :16.22  
  1st Qu.:-224.09   1st Qu.:-23.38   1st Qu.: -8.241   1st Qu.:30.35  
@@ -162,6 +163,7 @@ Time elapsed in subsampling:  0.392 0 0.396 0 0
 +             X1=x1,
 +             X2=x2,
 +             y=y,
++             res=double(length(y)),
 +             n=length(y),
 +             p1=ncol(x1),
 +             p2=ncol(x2),
@@ -180,7 +182,7 @@ Time elapsed in subsampling:  0.392 0 0.396 0 0
 +             orthogonalize=FALSE,
 +             subsample=FALSE,
 +             descent=TRUE)
-+     z[c("b1", "b2", "scale")]
++     z[c("b1", "b2", "scale", "res")]
 + }
 > 
 > find_scale <- function(r, s0, n, p, control) {
@@ -258,7 +260,7 @@ Time elapsed in subsampling:  0.392 0 0.396 0 0
 +     if (nref == control$k.max)
 +         warning("M-S estimate: maximum number of refinement steps reached.")
 +     
-+     list(b1=b1, b2=b2, scale=scale)
++     list(b1=b1, b2=b2, scale=scale, res=rs)
 + }
 > 
 > control2 <- control
@@ -269,16 +271,16 @@ Time elapsed in subsampling:  0.392 0 0.396 0 0
 +                     check.attr=FALSE))
 > 
 > ## control$k.m_s <- 100
-> res2 <- list()
+> res3 <- list()
 > time <- system.time(for (i in 1:100) {
-+     res2[[i]] <- unlist(m_s_descent(x1, x2, y, control, res[[i]][1:4], res[[i]][5:7], res[[i]][8]))
++     res3[[i]] <- unlist(m_s_descent(x1, x2, y, control, res[[i]][1:4], res[[i]][5:7], res[[i]][8]))
 + })
 > cat('Time elapsed in descent proc: ', time,'\n')
-Time elapsed in descent proc:  0.079 0 0.08 0 0 
+Time elapsed in descent proc:  0.079 0.001 0.081 0 0 
 > 
 > ## show a summary of the results
-> res3 <- do.call(rbind, res2)
-> summary(res3)
+> res4 <- do.call(rbind, res3)
+> summary(res4[,1:8])
       b11               b12              b13               b14       
  Min.   :-396.39   Min.   :-39.07   Min.   :-16.100   Min.   :16.22  
  1st Qu.:-221.93   1st Qu.:-22.83   1st Qu.: -8.680   1st Qu.:27.92  
@@ -294,5 +296,34 @@ Time elapsed in descent proc:  0.079 0 0.08 0 0
  3rd Qu.: 0.05842   3rd Qu.:0.04794   3rd Qu.:0.7799   3rd Qu.:30.96  
  Max.   : 0.08613   Max.   :0.06473   Max.   :1.1109   Max.   :32.11  
 > 
-> plot(res1[, "scale"], res3[,"scale"])
+> plot(res1[, "scale"], res4[,"scale"])
+> 
+> ## Test lmrob.M.S
+> x <- model.matrix(obj)
+> control$trace.lev <- 3
+> set.seed(1001)
+> obj2 <- lmrob.M.S(x, y, control, obj$model)
+starting with subsampling procedure...
+Step 0: new candidate with sc = 104.088811486156
+Step 5: new candidate with sc = 68.4977242622213
+Step 7: new candidate with sc = 37.448652862062
+Step 12: new candidate with sc = 35.1596230289069
+Step 20: new candidate with sc = 31.9348857445637
+Step 355: new candidate with sc = 31.5550607183877
+Finished M-S subsampling with scale = 31.5550607183877
+b1: -19.158290 10.753696 11.130900 25.192340 
+b2: -0.029633 0.051415 0.809801 
+starting with descent procedure...
+Refinement step 3: better fit, scale: 31.5205071818621
+Refinement step 4: better fit, scale: 30.9466521282569
+Refinement step 5: better fit, scale: 30.8180005418827
+Refinement step 6: better fit, scale: 30.758316670988
+Refinement step 7: better fit, scale: 30.6979460767994
+Refinement step 8: better fit, scale: 30.6043365897621
+Refinement step 9: better fit, scale: 30.588042369233
+descent procedure: not converged.
+b1: -197.193523 -21.179008 -7.561589 27.098607 
+b2: 0.051545 0.045065 0.702375 
+> resid <- drop(y - x %*% obj2$coef)
+> stopifnot(all.equal(resid, obj2$resid, check.attr=FALSE))
 > 

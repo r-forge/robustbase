@@ -37,7 +37,7 @@ export(Sn, Qn, Qn.old,
 
        lmrob, lmrob.fit,
        lmrob.fit.MM, lmrob..M..fit, lmrob..D..fit,
-       lmrob.S, lmrob.lar,
+       lmrob.S, lmrob.lar, lmrob.M.S,
        lmrob.control,
        lmrob.split,
 

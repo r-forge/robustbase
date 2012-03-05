@@ -146,7 +146,7 @@ void m_s_descent(double *X1, double *X2, double *y,
 		 double *rel_tol, double *bb, double *rrhoc,  int ipsi,
 		 double *sscale, int *trace_lev,
 		 double *b1, double *b2, double *t1, double *t2,
-		 double *y_tilde, double *res, double *x1, double *x2,
+		 double *y_tilde, double *res, double *res2, double *x1, double *x2,
 		 int *NIT, int *K, int *KODE, double *SIGMA,  double *BET0,
 		 double *SC1, double *SC2, double *SC3, double *SC4,
 		 int *conv);
@@ -257,7 +257,7 @@ void R_lmrob_S(double *X, double *y, int *n, int *P,
 }
 
 /* This function computes an M-S-regression estimator */
-void R_lmrob_M_S(double *X1, double *X2, double *y, 
+void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
 		 int *nn, int *pp1, int *pp2, int *nRes, 
 		 double *scale, double *b1, double *b2,
 		 double *rho_c, int *ipsi, double *bb,
@@ -271,7 +271,7 @@ void R_lmrob_M_S(double *X1, double *X2, double *y,
     int i, j, n = *nn, p1 = *pp1, p2 = *pp2, one = 1;
 
     /* (Pointers to) Arrays - to be allocated */
-    double *t1, *t2, *y_tilde, *y_work, *res, done = 1., dmone = -1.;
+    double *t1, *t2, *y_tilde, *y_work, done = 1., dmone = -1.;
     double *x1, *x2, *ot1, *oT2, *ptr;
     
     t1 =      (double *) R_alloc(n,  sizeof(double)); /* size n needed for rllarsbi */
@@ -281,9 +281,9 @@ void R_lmrob_M_S(double *X1, double *X2, double *y,
     y_work =  (double *) R_alloc(n,  sizeof(double));
     COPY_beta(y, y_work, n);
     y_tilde = (double *) R_alloc(n,  sizeof(double));
-    res =     (double *) R_alloc(n,  sizeof(double));
     x1 =      (double *) R_alloc(n*p1, sizeof(double));
     x2 =      (double *) R_alloc(n*p2, sizeof(double));
+    COPY_beta(X2, x2, n*p2);
 
     /* Variables required for rllarsbi
      *  (l1 / least absolut residuals - estimate) */   
@@ -302,27 +302,31 @@ void R_lmrob_M_S(double *X1, double *X2, double *y,
 			   &NIT, &K, &KODE, &SIGMA, t1, y_tilde, SC1, SC2, 
 			   SC3, SC4, &BET0);
 	COPY_beta(t1, ot1, p1); 
-	COPY_beta(y_tilde, y_work, n);
 	for (i=0; i < p2; i++) {
 	    COPY_beta(X1, x1, n*p1);
-	    F77_CALL(rllarsbi)(x1, X2+i*n, &n, &p1, &n, &n, rel_tol, 
+	    ptr = X2+i*n; COPY_beta(ptr, y_work, n);
+	    F77_CALL(rllarsbi)(x1, y_work, &n, &p1, &n, &n, rel_tol, 
 			       &NIT, &K, &KODE, &SIGMA, t1, x2+i*n, SC1, SC2, 
 			       SC3, SC4, &BET0);
 	    ptr = oT2+i*p1; COPY_beta(t1, ptr, p1);
 	}
+	COPY_beta(y_tilde, y_work, n);
 	/* compare with Maronna & Yohai 2000: 
 	 * y_work and y_tilde now contain \tilde y, ot1 -> t_1,
 	 * x2 -> \tilde x2, oT2 -> T_2 */
-    } else 
-	COPY_beta(X2, x2, n*p2);
+    } 
 
     /* STEP 2: Subsample */
-    if (*subsample > 0)
+    if (*subsample > 0) {
 	m_s_subsample(X1, y_work, n, p1, p2, *nRes, rel_tol, bb, 
 		      rho_c, *ipsi, scale, trace_lev,
 		      b1, b2, t1, t2, y_tilde, res, x1, x2, 
 		      &NIT, &K, &KODE, &SIGMA, &BET0,
 		      SC1, SC2, SC3, SC4);
+
+	if (*scale < 0)
+	    error("m_s_subsample() stopped prematurely.");
+    }
 
     /* STEP 3: Transform back */
     if (*orthogonalize > 0) {
@@ -343,7 +347,7 @@ void R_lmrob_M_S(double *X1, double *X2, double *y,
     if (*descent > 0) {
 	m_s_descent(X1, X2, y, n, p1, p2, *K_m_s, *max_k, rel_tol, bb, 
 		    rho_c, *ipsi, scale, trace_lev,
-		    b1, b2, t1, t2, y_tilde, res, x1, x2,
+		    b1, b2, t1, t2, y_tilde, res, y_work, x1, x2,
 		    &NIT, &K, &KODE, &SIGMA, &BET0, SC1, SC2, SC3, SC4,
 		    converged);
     }
@@ -2186,7 +2190,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     *sscale = INFI;
 
     if (*trace_lev > 1) 
-	Rprintf("starting with subsampling procedure...");
+	Rprintf("starting with subsampling procedure...\n");
 
     /* Determine optimal block size for work array */
     int lwork = -1;
@@ -2287,7 +2291,7 @@ void m_s_descent(double *X1, double *X2, double *y,
 		 double *rel_tol, double *bb, double *rrhoc,  int ipsi,
 		 double *sscale, int *trace_lev,
 		 double *b1, double *b2, double *t1, double *t2,
-		 double *y_tilde, double *res, double *x1, double *x2,
+		 double *y_tilde, double *res, double *res2, double *x1, double *x2,
 		 int *NIT, int *K, int *KODE, double *SIGMA,  double *BET0,
 		 double *SC1, double *SC2, double *SC3, double *SC4,
 		 int *conv)
@@ -2299,6 +2303,7 @@ void m_s_descent(double *X1, double *X2, double *y,
     double sc = *sscale, done = 1., dmone = -1., wtmp;
     COPY_beta(b1, t1, p1);
     COPY_beta(b2, t2, p2);
+    COPY_beta(res, res2, n);
 
     if (*trace_lev > 1) 
 	Rprintf("starting with descent procedure...\n");
@@ -2324,7 +2329,7 @@ void m_s_descent(double *X1, double *X2, double *y,
 
     if (*trace_lev > 4) {
 	Rprintf("scale: %.15g\n", *sscale); 
-	Rprintf("res: "); disp_vec(res,n);
+	Rprintf("res2: "); disp_vec(res2,n);
     }
 
     /* Do descent steps until there is no improvement for   */
@@ -2338,7 +2343,7 @@ void m_s_descent(double *X1, double *X2, double *y,
 	COPY_beta(X1, x1, n*p1);
 	F77_CALL(dgemv)("N", &n, &p1, &dmone, x1, &n, t1, &one, &done, y_tilde, &one);
 	/* compute weights */
-	get_weights_rhop(res, sc, n, rrhoc, ipsi, w);
+	get_weights_rhop(res2, sc, n, rrhoc, ipsi, w);
 	/* add weights to y_tilde and x2 */
 	for (j=0; j<n; j++) {
 	    wtmp = sqrt(w[j]);
@@ -2352,18 +2357,18 @@ void m_s_descent(double *X1, double *X2, double *y,
 	    error("m_s_descent(): Problem in dgels. info=%d. Exiting.", info);
 	COPY_beta(y_tilde, t2, p2);
         /* get (intermediate) residuals */
-	COPY_beta(y, res, n);
-	F77_CALL(dgemv)("N", &n, &p2, &dmone, X2, &n, t2, &one, &done, res, &one);
+	COPY_beta(y, res2, n);
+	F77_CALL(dgemv)("N", &n, &p2, &dmone, X2, &n, t2, &one, &done, res2, &one);
 	/* STEP 2: Obtain L1-estimate of b1 */
-	COPY_beta(res, y_tilde, n);
+	COPY_beta(res2, y_tilde, n);
 	F77_CALL(rllarsbi)(x1, y_tilde, &n, &p1, &n, &n, rel_tol,
-			   NIT, K, KODE, SIGMA, t1, res,
+			   NIT, K, KODE, SIGMA, t1, res2,
 			   SC1, SC2, SC3, SC4, BET0);
 	if (*KODE > 1)
 	    error("m_s_descent(): Problem in rllarsbi (rilars). KODE=%d. Exiting.", 
 		  *KODE);
 	/* STEP 3: Compute the scale estimate */
-	sc = find_scale(res, b, rrhoc, ipsi, sc, n, p);
+	sc = find_scale(res2, b, rrhoc, ipsi, sc, n, p);
 	/* STEP 4: Check for convergence */
 	/* FIXME: check convergence using scale ? */
 	double del = sqrt(norm_diff2(b1, t1, p1) + norm_diff2(b2, t2, p2));
@@ -2373,12 +2378,14 @@ void m_s_descent(double *X1, double *X2, double *y,
 	    Rprintf("w: "); disp_vec(w,n);
 	    Rprintf("t2: "); disp_vec(t2,p2);
 	    Rprintf("t1: "); disp_vec(t1,p1);
+	    Rprintf("res2: "); disp_vec(res2,n);
 	    Rprintf("sc: %.15g\n", sc); 
 	}
 	/* STEP 5: Update best fit */
 	if (sc < *sscale) {
 	    COPY_beta(t1, b1, p1);
 	    COPY_beta(t2, b2, p2);
+	    COPY_beta(res2, res, n);
 	    *sscale = sc;
 	    if (*trace_lev > 2)
 		Rprintf("Refinement step %d: better fit, scale: %.15g\n",
