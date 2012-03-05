@@ -1,4 +1,5 @@
 \name{lmrob.control}
+\encoding{utf8}
 \alias{lmrob.control}
 \alias{lmrob.control.sfs}
 \title{ Tuning parameters for lmrob }
@@ -57,7 +58,7 @@ lmrob.control(setting, seed = NULL, nResample = 500,
   \item{best.r.s}{(for the fast-S algorithm): Number of
     of best candidates to be iterated further (i.e.,
     \dQuote{\emph{\bold{r}efined}}); is denoted \eqn{t} in
-    Salibian-Barrera \& Yohai(2006).}
+    Salibian-Barrera & Yohai(2006).}
   \item{k.max}{(for the fast-S algorithm): maximal number of
     refinement steps for the \dQuote{fully} iterated best candidates.}
   \item{refine.tol}{(for the fast-S algorithm): relative convergence

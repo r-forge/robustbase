@@ -1,4 +1,5 @@
 \name{lmrob}
+\encoding{utf8}
 \alias{lmrob}
 \title{MM-type Estimators for Linear Regression}
 \description{
@@ -146,7 +147,7 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   Rousseeuw, P.J. and Yohai, V.J. (1984)
   Robust regression by means of S-estimators,
   In \emph{Robust and Nonlinear Time Series},
-  J. Franke, W. H\"ardle and R. D. Martin (eds.).
+  J. Franke, W. Härdle and R. D. Martin (eds.).
   Lectures Notes in Statistics 26, 256--272,
   Springer Verlag, New York.
 
