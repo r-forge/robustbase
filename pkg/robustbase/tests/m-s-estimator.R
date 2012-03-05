@@ -34,6 +34,7 @@ testFun(Y ~ Region*X1 + X2*X3 + Region:Group:X2, c(1:6, 8:10, 12:23))
 testFun(Y ~ (X1+X2+X3+Region)^2, c(1:7,10:12,14:19))
 testFun(Y ~ (X1+X2+X3+Region)^3, c(1:19, 21:29))
 testFun(Y ~ (X1+X2+X3+Region)^4, 1:32)
+testFun(Y ~ Region:X1:X2 + X1*X2, c(1, 4:7))
 
 ## Test subsampling algorithm
 m_s_subsample <- function(x1, x2, y, control, orthogonalize=TRUE) {

@@ -53,6 +53,7 @@ Loading required package: robustbase
 > testFun(Y ~ (X1+X2+X3+Region)^2, c(1:7,10:12,14:19))
 > testFun(Y ~ (X1+X2+X3+Region)^3, c(1:19, 21:29))
 > testFun(Y ~ (X1+X2+X3+Region)^4, 1:32)
+> testFun(Y ~ Region:X1:X2 + X1*X2, c(1, 4:7))
 > 
 > ## Test subsampling algorithm
 > m_s_subsample <- function(x1, x2, y, control, orthogonalize=TRUE) {
@@ -120,7 +121,7 @@ Loading required package: robustbase
 +     res[[i]] <- unlist(within(tmp, b1 <- drop(t1 + b1 - T2 %*% b2)))
 + })
 > cat('Time elapsed in subsampling: ', time,'\n')
-Time elapsed in subsampling:  0.397 0 0.399 0 0 
+Time elapsed in subsampling:  0.392 0 0.396 0 0 
 > ## show a summary of the results
 > res1 <- do.call(rbind, res)
 > summary(res1)
@@ -273,7 +274,7 @@ Time elapsed in subsampling:  0.397 0 0.399 0 0
 +     res2[[i]] <- unlist(m_s_descent(x1, x2, y, control, res[[i]][1:4], res[[i]][5:7], res[[i]][8]))
 + })
 > cat('Time elapsed in descent proc: ', time,'\n')
-Time elapsed in descent proc:  0.081 0 0.081 0 0 
+Time elapsed in descent proc:  0.079 0 0.08 0 0 
 > 
 > ## show a summary of the results
 > res3 <- do.call(rbind, res2)

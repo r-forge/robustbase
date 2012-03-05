@@ -57,18 +57,24 @@ lmrob.split <- function(mf, x = model.matrix(mt, mf), type = "f") {
            ##     make sure to include interactions of continuous variables
            ##     interacting with categorical variables, too
            fii = { factor.asgn <- numeric(0)
-                   factors.cat <- factors[, factor.idx %*% factors > 0,drop=FALSE]
-                   factors.cat[factors.cat > 0] <- 1 ## fix triple+ interactions
+                   factors.cat <- factors
+                   factors.cat[factors.cat > 0] <- 1L ## fix triple+ interactions
+                   factors.cat[, factor.idx %*% factors == 0] <- 0L
                    for (i in 1:ncol(factors)) {
-                       comp <- factors[,i] == 1
+                       comp <- factors[,i] > 0
                        ## if any of the components is a factor: include in x1 and continue
                        if (any(factor.idx[comp])) {
                            factor.asgn <- c(factor.asgn, i)
                        } else {
                            ## if there is an interaction of this term with a categorical var.
-                           ## include in x1 and continue
-                           if (any(colSums(factors.cat[comp,,drop=FALSE]) >= sum(comp)))
-                               factor.asgn <- c(factor.asgn, i)
+                           tmp <- colSums(factors.cat[comp,,drop=FALSE]) >= sum(comp)
+                           if (any(tmp)) {
+                               ## if no other continuous variables are involved
+                               ## include in x1 and continue
+                               ## if (identical(factors[!comp, tmp], factors.cat[!comp, tmp]))
+                               if (!all(colSums(factors[!factor.idx & !comp, tmp, drop=FALSE]) > 0))
+                                   factor.asgn <- c(factor.asgn, i)
+                           }
                        }
                    } },
            ## --- do not include interactions cat * cont in x1:
