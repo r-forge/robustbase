@@ -247,7 +247,7 @@ plot(res1[, "scale"], res4[,"scale"])
 ## Test lmrob.M.S
 x <- model.matrix(obj)
 control$trace.lev <- 3
-set.seed(1001)
+set.seed(1003)
 obj2 <- lmrob.M.S(x, y, control, obj$model)
 resid <- drop(y - x %*% obj2$coef)
 stopifnot(all.equal(resid, obj2$resid, check.attr=FALSE))

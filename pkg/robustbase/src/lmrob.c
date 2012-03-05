@@ -2211,39 +2211,23 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 	Rprintf("starting with subsampling procedure...\n");
 
     /* (Pointers to) Arrays - to be allocated */
-    int *ind_space, *b_i, *work;
-    double *xx;
+    int *ind_space, *idc, *work, *pivot;
+    double *lu, *v;
     
-    b_i =       (int *)    R_alloc(p2,    sizeof(int));
     ind_space = (int *)    R_alloc(n,     sizeof(int));
-    xx =        (double *) R_alloc(p2*p2, sizeof(double));
+    idc =       (int *)    R_alloc(n,     sizeof(int));
     work =      (int *)    R_alloc(p2,    sizeof(int));
+    pivot =     (int *)    R_alloc(p2-1,  sizeof(int));
+    lu =        (double *) R_alloc(p2*p2, sizeof(double));
+    v =         (double *) R_alloc(p2,    sizeof(double));
 
     /*	set the seed */
     GetRNGstate();
     
     for(i=0; i < nResample; i++) {
 	/* STEP 1: Draw a subsample of size p2 from (X2, y) */
-	no_try_samples = 0;
-	do {
-	    R_CheckUserInterrupt();
-	    if( (++no_try_samples) > MAX_NO_TRY_SAMPLES ) {
-		REprintf("\nToo many singular resamples, try another split.type.\n"
-			 "Aborting m_s_subsample()\n\n");
-		*sscale = -1.;
-		goto cleanup_and_return;
-	    }
-            /* take a sample of the indices  */
-	    sample_noreplace(b_i, n, p2, ind_space);
-	    /* STEP 2: Decompose sample matrix and solve equations */
-	    for(j=0; j < p2; j++) {
-		for(k=0; k < p2; k++)
-		    xx[k*p2+j] = x2[k*n+b_i[j]];
-		t2[j] = y[b_i[j]];
-	    }
-	    /* solve the system */
-	    F77_CALL(dgesv)(&p2, &one, xx, &p2, work, t2, &p2, &info);
-	} while(info);
+	subsample(x2, y, n, p2, t2, ind_space, idc, work, lu, v, pivot, 1);
+	/* calculate partial residuals */
 	COPY_beta(y, y_tilde, n);
         F77_CALL(dgemv)("N", &n, &p2, &dmone, x2, &n, t2, &one, &done, y_tilde, &one);
 	/* STEP 3: Obtain L1-estimate of b1 */
@@ -2423,7 +2407,7 @@ void m_s_descent(double *X1, double *X2, double *y,
  * Golub G. H., Van Loan C. F. (1996) - MATRIX Computations             */
 int subsample(const double *x, const double *y, int n, int m, 
 	      double *beta, int *ind_space, int *idc, int *idr, 
-	      double *lu, double *v, int *p, int sample) 
+	      double *lu, double *v, int *pivot, int sample) 
 {
     /* x:         design matrix (n x m)
        y:         response vector
@@ -2437,12 +2421,12 @@ int subsample(const double *x, const double *y, int n, int m,
        idr:       work array of length m
        lu:        [out] LU decomposition of subsample of xt (m x m)
        v:         work array of length m
-       p:         [out] pivoting table of LU decomposition (length m-1) 
+       pivot:     [out] pivoting table of LU decomposition (length m-1) 
        sample:    whether to sample or not
        
        return condition:
              0: success
-             1: singular (matrix xt does not contain a p dim. full rank 
+             1: singular (matrix xt does not contain a m dim. full rank 
                           submatrix)                                    */
     int j, k, l, one = 1, mu = 0, tmpi, len_idc = n;
     double tmpd;
@@ -2460,7 +2444,7 @@ int subsample(const double *x, const double *y, int n, int m,
     } else for(k=0;k<n;k++) idc[k] = k;
     for(k=0;k<m;k++) idr[k] = k;
     
-    /* STEP 2: Calculate LU decomposition of the first p cols of xt     *
+    /* STEP 2: Calculate LU decomposition of the first m cols of xt     *
      *         using the order in idc                                   */
     for(j = 0; j < m; j++) {
 	sing=TRUE;
@@ -2485,7 +2469,7 @@ int subsample(const double *x, const double *y, int n, int m,
 		for(k=j+1;k<m;k++) if (tmpd < fabs(v[k])) { mu = k; tmpd = fabs(v[k]); }
 		/* continue only if pivot is large enough */
 		if (tmpd >= TOL_INVERSE) {
-		    p[j] = mu;
+		    pivot[j] = mu;
 		    tmpd = v[j]; v[j] = v[mu]; v[mu] = tmpd;
 		    tmpi = idr[j]; idr[j] = idr[mu]; idr[mu] = tmpi;
 		    for(k=j+1;k<m;k++) L(k, j) = v[k] / v[j];
@@ -2510,7 +2494,7 @@ int subsample(const double *x, const double *y, int n, int m,
     } /* end for loop */
     
     /* Rprintf("lu:"); disp_vec(lu, m*m); */
-    /* Rprintf("p:"); disp_veci(p, m-1); */
+    /* Rprintf("pivot:"); disp_veci(pivot, m-1); */
     /* Rprintf("idc:"); disp_veci(idc, m); */
 
     /* STEP 3: Solve for candidate parameters */
@@ -2520,7 +2504,7 @@ int subsample(const double *x, const double *y, int n, int m,
     F77_CALL(dtrsv)("L", "T", "U", &m, lu, &m, beta, &one);
     /* undo pivoting */
     for(k=m-2;k>=0;k--) {
-    	tmpd = beta[k]; beta[k] = beta[p[k]]; beta[p[k]] = tmpd;
+    	tmpd = beta[k]; beta[k] = beta[pivot[k]]; beta[pivot[k]] = tmpd;
     }
 
     return(0);

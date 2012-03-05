@@ -122,33 +122,33 @@ Loading required package: robustbase
 +     res[[i]] <- unlist(within(tmp, b1 <- drop(t1 + b1 - T2 %*% b2)))
 + })
 > cat('Time elapsed in subsampling: ', time,'\n')
-Time elapsed in subsampling:  0.343 0.002 0.346 0 0 
+Time elapsed in subsampling:  0.371 0 0.373 0 0 
 > ## show a summary of the results
 > res1 <- do.call(rbind, res)
 > summary(res1[,1:8])
-      b11               b12              b13               b14       
- Min.   :-318.21   Min.   :-32.84   Min.   :-19.386   Min.   :19.97  
- 1st Qu.:-213.00   1st Qu.:-23.09   1st Qu.: -8.521   1st Qu.:30.22  
- Median :-165.13   Median :-21.37   Median : -7.676   Median :32.64  
- Mean   :-160.02   Mean   :-21.18   Mean   : -7.295   Mean   :32.78  
- 3rd Qu.: -98.35   3rd Qu.:-18.33   3rd Qu.: -6.291   3rd Qu.:36.26  
- Max.   : -33.62   Max.   :-12.23   Max.   :  1.154   Max.   :42.25  
+      b11               b12              b13                b14       
+ Min.   :-316.24   Min.   :-33.92   Min.   :-35.8703   Min.   :16.43  
+ 1st Qu.:-225.08   1st Qu.:-23.56   1st Qu.: -8.9603   1st Qu.:29.92  
+ Median :-165.13   Median :-21.67   Median : -7.1102   Median :32.20  
+ Mean   :-162.74   Mean   :-22.07   Mean   : -8.1134   Mean   :32.12  
+ 3rd Qu.:-103.36   3rd Qu.:-18.47   3rd Qu.: -5.9652   3rd Qu.:35.72  
+ Max.   :  61.83   Max.   :-12.03   Max.   :  0.7015   Max.   :42.23  
       b21                b22               b23             scale      
- Min.   :-0.03808   Min.   :0.03168   Min.   :0.2953   Min.   :29.79  
- 1st Qu.: 0.01643   1st Qu.:0.03996   1st Qu.:0.4928   1st Qu.:30.37  
- Median : 0.03213   Median :0.04682   Median :0.6183   Median :30.90  
- Mean   : 0.03053   Mean   :0.04569   Mean   :0.6177   Mean   :30.87  
- 3rd Qu.: 0.05240   3rd Qu.:0.05110   3rd Qu.:0.7745   3rd Qu.:31.33  
- Max.   : 0.09728   Max.   :0.06792   Max.   :0.9480   Max.   :32.12  
+ Min.   :-0.03808   Min.   :0.02111   Min.   :0.2555   Min.   :29.79  
+ 1st Qu.:-0.00397   1st Qu.:0.03927   1st Qu.:0.4956   1st Qu.:30.42  
+ Median : 0.02142   Median :0.04717   Median :0.6404   Median :30.91  
+ Mean   : 0.02678   Mean   :0.04621   Mean   :0.6275   Mean   :30.94  
+ 3rd Qu.: 0.05561   3rd Qu.:0.05211   3rd Qu.:0.7506   3rd Qu.:31.36  
+ Max.   : 0.10427   Max.   :0.06938   Max.   :0.9172   Max.   :32.18  
 > ## compare with fast S solution
 > obj <- lmrob(Y ~ Region + X1 + X2 + X3, education, init="S")
 > coef(obj)
   (Intercept)       Region2       Region3       Region4            X1 
--135.72600303  -20.64572279   -9.84882085   24.58011727    0.03405595 
+-135.72598378  -20.64573273   -9.84881996   24.58012060    0.03405594 
            X2            X3 
-   0.04327562    0.57895757 
+   0.04327562    0.57895753 
 > obj$scale
-[1] 26.40388
+[1] 26.40387
 > 
 > ## Test descent algorithm
 > m_s_descent <- function(x1, x2, y, control, b1, b2, scale) {
@@ -276,54 +276,50 @@ Time elapsed in subsampling:  0.343 0.002 0.346 0 0
 +     res3[[i]] <- unlist(m_s_descent(x1, x2, y, control, res[[i]][1:4], res[[i]][5:7], res[[i]][8]))
 + })
 > cat('Time elapsed in descent proc: ', time,'\n')
-Time elapsed in descent proc:  0.081 0 0.083 0 0 
+Time elapsed in descent proc:  0.083 0 0.084 0 0 
 > 
 > ## show a summary of the results
 > res4 <- do.call(rbind, res3)
 > summary(res4[,1:8])
-      b11               b12              b13               b14       
- Min.   :-318.21   Min.   :-30.56   Min.   :-16.100   Min.   :19.97  
- 1st Qu.:-213.00   1st Qu.:-22.52   1st Qu.: -8.833   1st Qu.:27.95  
- Median :-161.06   Median :-21.00   Median : -8.056   Median :30.31  
- Mean   :-157.58   Mean   :-20.11   Mean   : -8.194   Mean   :31.17  
- 3rd Qu.: -97.36   3rd Qu.:-17.04   3rd Qu.: -6.722   3rd Qu.:33.31  
- Max.   : -28.78   Max.   :-12.24   Max.   : -4.032   Max.   :42.25  
+      b11              b12              b13               b14       
+ Min.   :-316.3   Min.   :-30.56   Min.   :-36.501   Min.   :16.43  
+ 1st Qu.:-224.2   1st Qu.:-23.09   1st Qu.: -8.956   1st Qu.:28.05  
+ Median :-160.7   Median :-20.72   Median : -7.693   Median :31.21  
+ Mean   :-159.9   Mean   :-20.52   Mean   : -8.873   Mean   :31.03  
+ 3rd Qu.:-102.7   3rd Qu.:-17.40   3rd Qu.: -6.819   3rd Qu.:33.04  
+ Max.   : 101.7   Max.   :-12.06   Max.   : -4.032   Max.   :42.23  
       b21                b22               b23             scale      
- Min.   :-0.02141   Min.   :0.03098   Min.   :0.3260   Min.   :29.79  
- 1st Qu.: 0.02198   1st Qu.:0.03914   1st Qu.:0.5007   1st Qu.:30.36  
- Median : 0.04541   Median :0.04271   Median :0.6362   Median :30.55  
- Mean   : 0.04172   Mean   :0.04350   Mean   :0.6196   Mean   :30.71  
- 3rd Qu.: 0.05959   3rd Qu.:0.04757   3rd Qu.:0.7506   3rd Qu.:30.97  
- Max.   : 0.08613   Max.   :0.06367   Max.   :0.9480   Max.   :32.11  
+ Min.   :-0.02141   Min.   :0.01459   Min.   :0.2034   Min.   :29.79  
+ 1st Qu.: 0.02071   1st Qu.:0.03924   1st Qu.:0.5007   1st Qu.:30.37  
+ Median : 0.03911   Median :0.04493   Median :0.6381   Median :30.57  
+ Mean   : 0.03852   Mean   :0.04372   Mean   :0.6310   Mean   :30.70  
+ 3rd Qu.: 0.06021   3rd Qu.:0.04811   3rd Qu.:0.7508   3rd Qu.:30.96  
+ Max.   : 0.09102   Max.   :0.06367   Max.   :0.9172   Max.   :31.84  
 > 
 > plot(res1[, "scale"], res4[,"scale"])
 > 
 > ## Test lmrob.M.S
 > x <- model.matrix(obj)
 > control$trace.lev <- 3
-> set.seed(1001)
+> set.seed(1003)
 > obj2 <- lmrob.M.S(x, y, control, obj$model)
 starting with subsampling procedure...
-Step 0: new candidate with sc = 104.08881
-Step 5: new candidate with sc = 68.49772
-Step 7: new candidate with sc = 37.44865
-Step 12: new candidate with sc = 35.15962
-Step 20: new candidate with sc = 31.84345
-Step 355: new candidate with sc = 31.52763
-Finished M-S subsampling with scale = 31.52763
-b1: -19.158290 10.753696 12.254664 25.192340 
-b2: -0.029633 0.051415 0.809801 
+Step 0: new candidate with sc = 43.22688
+Step 1: new candidate with sc = 33.12505
+Step 18: new candidate with sc = 31.85586
+Step 136: new candidate with sc = 31.74081
+Step 338: new candidate with sc = 31.51188
+Finished M-S subsampling with scale = 31.51188
+b1: -5.445072 7.825257 1.756708 7.656800 
+b2: 0.048442 0.037633 0.591759 
 starting with descent procedure...
-Refinement step 3: better fit, scale: 31.45537
-Refinement step 4: better fit, scale: 30.92664
-Refinement step 5: better fit, scale: 30.81159
-Refinement step 6: better fit, scale: 30.75234
-Refinement step 7: better fit, scale: 30.69265
-Refinement step 8: better fit, scale: 30.59712
-Refinement step 9: better fit, scale: 30.59013
+Refinement step 1: better fit, scale: 31.48594
+Refinement step 4: better fit, scale: 31.38752
+Refinement step 5: better fit, scale: 31.34287
+Refinement step 6: better fit, scale: 31.32908
 descent procedure: not converged.
-b1: -197.200233 -21.191192 -7.576516 27.056762 
-b2: 0.051531 0.045103 0.701954 
+b1: -113.528805 -14.858187 -9.426368 27.485299 
+b2: 0.066846 0.036134 0.540701 
 > resid <- drop(y - x %*% obj2$coef)
 > stopifnot(all.equal(resid, obj2$resid, check.attr=FALSE))
 > 
@@ -337,28 +333,28 @@ lmrob(formula = Y ~ Region + X1 + X2 + X3, data = education)
 
 Weighted Residuals:
     Min      1Q  Median      3Q     Max 
--63.074 -15.516  -1.571  23.369 174.769 
+-62.729 -15.529  -1.572  23.392 174.750 
 
 Coefficients:
               Estimate Std. Error t value Pr(>|t|)   
-(Intercept) -150.54998  143.26726  -1.051  0.29921   
-Region2      -12.49679   16.64842  -0.751  0.45696   
-Region3      -10.67307   15.95032  -0.669  0.50698   
-Region4       21.85618   16.98728   1.287  0.20511   
-X1             0.04170    0.05048   0.826  0.41331   
-X2             0.04337    0.01374   3.155  0.00292 **
-X3             0.61219    0.35201   1.739  0.08917 . 
+(Intercept) -150.07630  143.09300  -1.049  0.30013   
+Region2      -12.76767   16.63758  -0.767  0.44704   
+Region3      -10.63954   15.92865  -0.668  0.50774   
+Region4       21.95445   16.96484   1.294  0.20253   
+X1             0.04146    0.05040   0.823  0.41525   
+X2             0.04337    0.01373   3.159  0.00289 **
+X3             0.61106    0.35153   1.738  0.08932 . 
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
 
-Robust residual standard error: 31.06 
+Robust residual standard error: 30.82 
 Convergence in 19 IRWLS iterations
 
 Robustness weights: 
  observation 50 is an outlier with |weight| = 0 ( < 0.002); 
  7 weights are ~= 1. The remaining 42 ones are summarized as
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
- 0.2995  0.8907  0.9518  0.8906  0.9867  0.9986 
+ 0.2884  0.8904  0.9508  0.8890  0.9867  0.9985 
 Algorithmic parameters: 
 tuning.chi         bb tuning.psi    rel.tol 
  1.5476400  0.5000000  4.6850610  0.0000001 
