@@ -67,8 +67,9 @@ lmrob <-
         if (!is.null(init)) {
             if (is.character(init)) {
                 init <- switch(init,
+                               `M-S` = lmrob.M.S(x, y, control, mf),
                                S = lmrob.S(x, y, control),
-                               stop('init must be "S", function or list'))
+                               stop('init must be "S", "M-S", function or list'))
             } else if (is.function(init)) {
                 init <- init(x=x, y=y, control=control, mf=mf)
             } else if (is.list(init)) {
@@ -78,6 +79,13 @@ lmrob <-
                 ##    lmrob.kappa: tuning.psi / tuning.chi choice
             } else stop("unknown init argument")
             stopifnot(!is.null(init$coef), !is.null(init$scale))
+        } else {
+            split <- lmrob.split(mf, x, control$split.type)
+            if (!is.null(split$x1)) {
+                init <- lmrob.S(x, y, control)
+            } else {
+                init <- lmrob.M.S(x, y, control, mf, split)
+            }          
         }
         z <- lmrob.fit(x, y, control, init=init)
     }
@@ -344,4 +352,3 @@ summarizeRobWeights <-
 	print(summary(w, digits = digits), digits = digits, ...)
     }
 }
-

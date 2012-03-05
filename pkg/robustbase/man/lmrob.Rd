@@ -78,22 +78,31 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   The initial estimator may be specified using the argument
   \code{init}. This argument can either be a string, a function or a
   list. A \emph{string} can be used to specify built in internal
-  estimators (currently only \code{S}, see below). A \emph{function}
-  taking arguments \code{x, y, control, mf} (where \code{mf} stands for
-  \code{model.frame}) and returning a list containing at least the
-  initial coefficients as \code{coefficients} and the initial scale
-  estimate \code{scale}. Or a \emph{list} giving the initial
-  coefficients and scale as \code{coefficients} and \code{scale}. See
-  also \emph{Examples}.
+  estimators (currently \code{S} and \code{M-S}, see below). A
+  \emph{function} taking arguments \code{x, y, control, mf} (where
+  \code{mf} stands for \code{model.frame}) and returning a list
+  containing at least the initial coefficients as \code{coefficients}
+  and the initial scale estimate \code{scale}. Or a \emph{list} giving
+  the initial coefficients and scale as \code{coefficients} and
+  \code{scale}. See also \emph{Examples}.
   
   Note that if the init argument supplied is a function or list, the
   method argument must not contain the initial estimator, e.g.,
   \code{MDM} instead of \code{SMDM}.
 
-  As default initial estimator it uses an S-estimator (Rousseeuw and Yohai,
-  1984) which is computed using the Fast-S algorithm of Salibian-Barrera
-  and Yohai (2006), calling the function \code{\link{lmrob.S}}. The
-  following chain of estimates is customizable via the \code{method}
+  The default initial estimator is chosen depending on whether the
+  design matrix contains only continuous or also categorical variables.
+  In case of only continuous variables it uses an S-estimator (Rousseeuw
+  and Yohai, 1984) which is computed using the Fast-S algorithm of
+  Salibian-Barrera and Yohai (2006), calling the function
+  \code{\link{lmrob.S}}.
+
+  In case of categorical variables or a mix of continuous and
+  categorical variables, it used an M-S-estimator (Maronna and Yohai,
+  2000) which is computed using the M-S algorithm, calling the function
+  \code{\link{lmrob.M.S}}.
+
+  The following chain of estimates is customizable via the \code{method}
   argument of \code{\link{lmrob.control}}. There are currently two types
   of estimates available: \code{M} and \code{D}. The first corresponds
   to the standard M-regression estimate. \code{D} stands for the Design
@@ -116,8 +125,8 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   An object of class \code{lmrob}. A list that includes the
   following components:
   \item{coefficients}{The estimate of the coefficient vector}
-  \item{init.S}{The list returned by \code{\link{lmrob.S} (for
-      MM-estimates only}}
+  \item{init.S}{The list returned by \code{\link{lmrob.S}} or
+  \code{\link{lmrob.M.S}} (for MM-estimates only)}
   \item{init}{A similar list that contains the results of intermediate
   estimates (not for MM-estimates).}
   \item{scale}{The scale as used in the M estimator.}
@@ -134,7 +143,11 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
 
   Koller, M. and Stahel, W.A. (2011), Sharpening Wald-type inference in
   robust regression for small samples, \emph{Computational Statistics &
-  Data Analysis} \bold{55}(8), 2504--2515.
+    Data Analysis} \bold{55}(8), 2504--2515.
+  
+  Maronna, R. A., and Yohai, V. J. (2000).
+  Robust regression with both continuous and categorical predictors.
+  \emph{Journal of Statistical Planning and Inference} \bold{89}, 197--214.
 
   Rousseeuw, P.J. and Yohai, V.J. (1984)
   Robust regression by means of S-estimators,
