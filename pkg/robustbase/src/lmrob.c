@@ -59,11 +59,11 @@ void fast_s(double *X, double *y,
 	    int *best_r, double *bb, double *rrhoc, int *iipsi,
 	    double *bbeta, double *sscale, int *trace_lev);
 
-int rwls(double **a, int n, int p,
+int rwls(const double *X, const double *y, int n, int p,
 	 double *estimate, double *i_estimate,
 	 double *resid, double *loss,
 	 double scale, double epsilon,
-	 int *max_it, double *rho_c, const int ipsi, int trace_lev);
+	 int *max_it, double *rho_c, const int ipsi, int *trace_lev);
 
 #ifdef _NO_LONGUER_USED_
 void sample_n_outof_N(int n, int N, int *x);
@@ -224,7 +224,7 @@ void sum_vec(double *a, double *b, double *c, int n);
     /* add weights to _y_ and _x_ */                            \
     for (j=0; j<_n_; j++) {                                     \
     wtmp = sqrt(weights[j]);                                    \
-    y_tilde[j] *= wtmp;                                         \
+    _y_[j] *= wtmp;                                             \
     for (k=0; k<_p_; k++)                                       \
 	_x_[_n_*k+j] = _X_[_n_*k+j] * wtmp;                     \
     }                                                           \
@@ -420,31 +420,16 @@ void R_lmrob_MM(double *X, double *y, int *n, int *P,
 		int *max_it, double *rho_c, int *ipsi, double *loss,
 		double *rel_tol, int *converged, int *trace_lev)
 {
-    double **x;
-    int N = *n, p = *P, i, j;
-    x = (double **) Calloc(N, double *);
-
-    /* rearranges X into a matrix of n x p,
-     * i.e. [, 0:(p-1)] and cbind()'s  y as column [,p] : */
-    for(i=0; i < N; i++) {
-	double *x_i = x[i] = (double *) Calloc( (p+1), double);
-	for(j=0; j < p; j++)
-	    x_i[j]=X[j*N+i];
-	x_i[p]=y[i];
-    }
+    int j;
 
 /* starting from the S-estimate (beta_initial), use
  * irwls to compute the MM-estimate (beta_m)  */
 
-    *converged = rwls(x,N,p,beta_m, beta_initial, resid, loss,
+    *converged = rwls(X,y,*n,*P,beta_m, beta_initial, resid, loss,
 		      *scale, *rel_tol,
-		      max_it, rho_c, *ipsi, *trace_lev);
+		      max_it, rho_c, *ipsi, trace_lev);
     if (!converged)
-	COPY_beta(beta_initial, beta_m, p);
-
-    for(i=0; i < N; i++)
-	Free(x[i]);
-    Free(x);
+	COPY_beta(beta_initial, beta_m, *P);
 }
 
 /* Call subsample() from R, just for testing purposes */
@@ -1401,186 +1386,73 @@ void mat_mat(double **a, double **b, double **c, int n,
 /* RWLS iterations starting from i_estimate,
  * ---- the workhorse of the "lmrob_MM" algorithm;
  * in itself,  ``just'' an M-estimator :
- *
- * FIXME: rather than using C-matrices  **a, **b, and copying
- *        should use BLAS and Lapack
  */
-int rwls(double **a, int n, int p,
+int rwls(const double *X, const double *y, int n, int p,
 	 double *estimate, double *i_estimate,
 	 double *resid, double* loss,
 	 double scale, double epsilon,
 	 int *max_it, /* on Input:  maximal number of iterations;
 			 on Output: number of iterations */
-	 double *rho_c, const int ipsi, int trace_lev)
+	 double *rho_c, const int ipsi, int *trace_lev)
 {
-    double **b, *beta1, *beta2, *beta0, *weights;
-    double d_beta = 0.;
-    int i,j, iterations = 0;
+    double *wx, *wy, done = 1., dmone = -1.;
+    double *beta0, d_beta = 0.;
+    int j, k, iterations = 0;
     Rboolean converged = FALSE;
 
-    if ( (b = (double **) Calloc(p, double *)) == NULL)
-	return(1);
-    for (i=0; i < p; i++)
-	if ( (b[i] = (double *) Calloc((p+1), double)) == NULL)
-	    return(1);/* FIXME: memory leaks if this happens! */
-    beta1 = (double *) Calloc(p, double);
-    beta2 = (double *) Calloc(p, double);
-    beta0 = (double *) Calloc(p, double);
-    weights = (double *) Calloc(n, double);
+    wx     = (double *) R_alloc(n*p, sizeof(double));
+    wy     = (double *) R_alloc(n,   sizeof(double));
+    beta0  = (double *) R_alloc(p,   sizeof(double));
 
-    COPY_beta(i_estimate, beta1, p);
+    /* avoid destruction of const... warnings */
+    COPY_beta(X, wx, n*p);
+    COPY_beta(y, wy, n);
+    INIT_DGELS(wx, wy, n, p);
+
+    COPY_beta(i_estimate, beta0, p);
+    /* calculate residuals */
+    COPY_beta(y, resid, n);
+    F77_CALL(dgemv)("N", &n, &p, &dmone, X, &n, beta0, &one, &done, resid, &one);
 
     /* main loop */
     while(!converged &&	 ++iterations < *max_it) {
-
-	double r,s;
-	int k;
-#ifdef LAMBDA_Iterations_remnant_no_longer_needed
-	double loss2, lambda;
-	int iter_lambda;
-#endif
-
 	R_CheckUserInterrupt();
-	for(i=0; i < n; i++) {
-	    s=0;
-	    for(j=0; j < p; j++)
-		s += a[i][j] * beta1[j];
-	    r = a[i][p]- s;
-	    weights[i] = wgt(r/scale, rho_c, ipsi);
-	    /* if(fabs(r/scale) < 1e-7) */
-	    /* 	weights[i] = 1.0 / scale / rho_c; */
-	    /* else */
-	    /* 	weights[i] = psi_biwgt(r/scale, rho_c) / r; */
+        /* compute weights */
+	get_weights_rhop(resid, scale, n, rho_c, ipsi, weights);
+	/* solve weighted least squares problem */
+	COPY_beta(y, wy, n);
+	FIT_WLS(X, wx, wy, n, p);
+	COPY_beta(wy, estimate, p);
+	/* calculate residuals */
+	COPY_beta(y, resid, n);
+	F77_CALL(dgemv)("N", &n, &p, &dmone, X, &n, estimate, &one, &done, resid, &one);
+	if(*trace_lev >= 2) {
+	    /* get the residuals and loss for the new estimate */
+	    *loss = sum_rho_sc(resid,scale,n,0,rho_c,ipsi);
+	    Rprintf(" it %4d: L(b1) = %12g ", iterations, *loss);
 	}
-
-	COPY_beta(beta1, beta2, p);
-
-	/* get the residuals and loss for beta2 */
-	for(i=0; i < n; i++) {
-	    s = 0;
-	    for(j=0; j < p; j++)
-		s += a[i][j] * beta2[j];
-	    resid[i] = a[i][p] - s;
-	}
-#ifdef LAMBDA_Iterations_remnant_no_longer_needed
-	loss2 = sum_rho(resid,n,rho_c,ipsi);
-#endif
-	if(trace_lev >= 2) {
-#ifdef LAMBDA_Iterations_remnant_no_longer_needed
-	    *loss = loss2;
-#else
-	    *loss = sum_rho(resid,n,rho_c,ipsi);
-#endif
-	    Rprintf(" it %4d: L(b2) = %12g ", iterations, *loss);
-	}
-
-	/* S version of the following code:
-	 * A <- matrix(0, p, p)
-	 * Y <- rep(0, p)
-	 * for(i in 1:n) {
-	 *   A <- A + w[i] * a[i,0:(p-1)] %*% t(a[i,0:(p-1)])
-	 *   Y <- Y + w[i] * a[i,0:(p-1)] * a[i,p]
-	 * }
-	 * beta1 <- solve(A, Y)
-	 */
-	for(j=0; j < p; j++)
-	    for(k=0; k <= p; k++) {
-		b[j][k]=0.;
-		for(i=0; i < n; i++)
-		    b[j][k] += a[i][j] * a[i][k] * weights[i];
-	    }
-
-	if( lu(b,&p,beta1) ) { /* is system singular? */
-	    /* converged = FALSE; */
-	    if(trace_lev)
-		Rprintf("rwls(.): stopping early because of singular LU decomposition\n");
-	    break; /* out of while(.) */
-	}
-
-	/* else -- lu() was not singular : */
-
-	/* get the residuals and loss for beta1 */
-	for(i=0; i < n; i++) {
-	    s = 0;
-	    for(j=0; j < p; j++)
-		s += a[i][j] * beta1[j];
-	    resid[i] = a[i][p] - s;
-	}
-	*loss = sum_rho(resid,n,rho_c,ipsi);
-
-#ifdef LAMBDA_Iterations_remnant_no_longer_needed
-	/* Is beta1 good enough? --
-	 * if not, find beta0 in [beta1, beta2] and use that. */
-
-	COPY_beta(beta1, beta0, p);
-	/* from now on:	 *loss = loss( beta0 ) ... */
-	lambda = 1.;
-	iter_lambda = 1;
-	if(trace_lev >= 3)
-	    Rprintf(" -- lambda iterations: L(b0) = %12g\n%s\n",
-		    *loss, "  l.it |      lambda ,   L(<beta0>)");
-	while( *loss > loss2 ) {
-	    lambda /= 2.;
-	    for(j=0; j < p; j++)
-		beta0[j] = (1 - lambda) * beta2[j] + lambda * beta1[j];
-	    /* get the residuals and loss for beta0 */
-	    for(i=0; i < n; i++) {
-		s = 0;
+	/* check for convergence */
+	d_beta = norm1_diff(beta0,estimate, p);
+	if(*trace_lev >= 2) {
+	    if(*trace_lev >= 3) {
+		Rprintf("\n  b1 = (");
 		for(j=0; j < p; j++)
-		    s += a[i][j] * beta0[j];
-		resid[i] = a[i][p] - s;
-	    }
-	    *loss = sum_rho(resid,n,rho_c,ipsi);
-
-	    if(trace_lev >= 3 && iter_lambda % 20 == 1)
-		Rprintf("  %4d | %11g , %12g\n", iter_lambda, lambda, *loss);
-
-	    if( ++iter_lambda > 1000) {
-		warning("rwls(): not converged in 1000 lambda iterations");
-		COPY_beta(beta2, beta0, p);
-		/* FIXME - should we signal non-convergence ?
-		 * converged = FALSE; */
-		break; /* out of while(.) lambda iterations */
-	    }
-	} /* end while (*loss > loss2) */
-	if(trace_lev >= 2)
-	    Rprintf(" used %4d lambda iter.;", iter_lambda);
-
-#endif /*lambda iterations */
-
-	d_beta = norm1_diff(beta1,beta2, p);
-	if(trace_lev >= 2) {
-	    if(trace_lev >= 3) {
-		Rprintf("\n  b2 = (");
-		for(j=0; j < p; j++)
-		    Rprintf("%s%11g", (j > 0)? ", " : "", beta0[j]);
+		    Rprintf("%s%11g", (j > 0)? ", " : "", estimate[j]);
 		Rprintf(");");
 	    }
-	    Rprintf(" ||b1 - b2||_1 = %g\n", d_beta);
+	    Rprintf(" ||b0 - b1||_1 = %g\n", d_beta);
 	}
-
-
-#ifdef LAMBDA_Iterations_remnant_no_longer_needed
-	converged = d_beta <= epsilon * fmax2(epsilon, norm1(beta0, p));
-#else
-	converged = d_beta <= epsilon * fmax2(epsilon, norm1(beta1, p));
-#endif
-
+	converged = d_beta <= epsilon * fmax2(epsilon, norm1(estimate, p));
+	COPY_beta(estimate, beta0, p);
     } /* end while(!converged & iter <=...) */
 
-#ifdef LAMBDA_Iterations_remnant_no_longer_needed
-    COPY_beta(beta0, estimate, p);
-#else
-    COPY_beta(beta1, estimate, p);
-#endif
+    if (*trace_lev < 2)
+	/* get the residuals and loss for the new estimate */
+	*loss = sum_rho_sc(resid,scale,n,0,rho_c,ipsi);
 
-    if(trace_lev)
-	Rprintf(" rwls() used %d it.; last ||b1 - b2||_1 = %g;%sconvergence\n",
+    if(*trace_lev)
+	Rprintf(" rwls() used %d it.; last ||b0 - b1||_1 = %g;%sconvergence\n",
 		iterations, d_beta, (converged ? " " : " NON-"));
-
-    Free(weights); Free(beta1); Free(beta2); Free(beta0);
-    for(i=0; i < p; i++) Free(b[i]);
-    Free(b);
 
     *max_it = iterations;
 
