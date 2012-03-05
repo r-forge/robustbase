@@ -49,7 +49,7 @@ void R_lmrob_M_S(double *X1, double *X2, double *y,
 		 double *scale, double *b1, double *b2,
 		 double *rho_c, int *ipsi, double *bb,
 		 int *K_m_s, int *max_k, double *rel_tol,
-		 int *converged, int *trace_lev);
+		 int *converged, int *trace_lev, int *do_descent);
 
 void R_lmrob_MM(double *X, double *y, int *n, int *P,
 		double *beta_initial, double *scale,

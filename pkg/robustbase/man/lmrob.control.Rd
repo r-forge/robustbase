@@ -12,7 +12,7 @@
 lmrob.control(setting, seed = NULL, nResample = 500,
               tuning.chi = NULL, bb = 0.5, tuning.psi = NULL,
               max.it = 50, groups = 5, n.group = 400,
-              k.fast.s = 1, best.r.s = 2, k.max = 200,
+              k.fast.s = 1, best.r.s = 2, k.max = 200, k.m_s = 20,
               refine.tol = 1e-7, rel.tol = 1e-7, trace.lev = 0,
               compute.rd = FALSE, method = 'MM',
               psi = c('bisquare', 'lqq', 'welsh', 'optimal', 'hampel',
@@ -51,6 +51,8 @@ lmrob.control(setting, seed = NULL, nResample = 500,
   \item{k.fast.s}{(for the fast-S algorithm): Number of
     local improvement steps (\dQuote{\emph{I-steps}}) for each
     re-sampling candidate.}
+  \item{k.m_s}{(for the M-S algorithm): specifies after how many
+    unsucessful refinement steps the algorithm stops.}
   \item{best.r.s}{(for the fast-S algorithm): Number of
     of best candidates to be iterated further (i.e.,
     \dQuote{\emph{\bold{r}efined}}); is denoted \eqn{t} in
