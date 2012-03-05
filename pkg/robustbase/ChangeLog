@@ -1,3 +1,11 @@
+2012-02-24  Manuel Koller  <koller@stat.math.ethz.ch>
+
+	* R/lmrob.R (lmrob): added init argument: string, function or list.
+	* R/lmrob.MM.R (lmrob.fit): added init argument.
+
+	* man/lmrob.Rd: Added documentation about init argument.
+	* man/lmrob.fit.Rd: see above.
+
 2012-02-22  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/nlrob.R (print.summary.nlrob): use full call instead of just

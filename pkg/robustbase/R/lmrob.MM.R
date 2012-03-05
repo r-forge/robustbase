@@ -65,23 +65,38 @@ lmrob.fit.MM <- function(x, y, control) ## deprecated
     lmrob.fit(x, y, control)
 }## lmrob.MM.fit()
 
-lmrob.fit <- function(x, y, control) {
+lmrob.fit <- function(x, y, control, init=NULL) {
     if(!is.matrix(x)) x <- as.matrix(x)
     ## old notation: MM -> SM
     if (control$method == "MM") control$method <- "SM"
-    ## --- initial S estimator
-    if (substr(control$method,1,1) != 'S') {
-      warning("Initial estimator '", substr(control$method,1,1), "' not supported",
-              " using S-estimator instead")
-      substr(control$method,1,1) <- 'S'
+    if (is.null(init)) {
+        ## --- initial S estimator
+        if (substr(control$method,1,1) != 'S') {
+            warning("Initial estimator '", substr(control$method,1,1), "' not supported",
+                    " using S-estimator instead")
+            substr(control$method,1,1) <- 'S'
+        }
+        init <- lmrob.S(x,y,control=control)
+        est <- 'S'
+    } else {
+        if (is.null(init$converged)) init$converged <- TRUE
+        if (is.null(init$control)) {
+            init$control <- control
+            init$control$method <- ''
+        }
+        est <- init$control$method
     }
-    init <- lmrob.S(x,y,control=control)
     stopifnot(is.numeric(init$coef), length(init$coef) == ncol(x),
-	      is.numeric(init$scale), init$scale >= 0)
-    est <- 'S'
+              is.numeric(init$scale), init$scale >= 0)
+    if (est != 'S' && control$cov == '.vcov.avar1') {
+        warning("Can only use .vcov.avar1 for S as initial estimator",
+                " using .vcov.w instead")
+        control$cov <- ".vcov.w"
+    }
     if (init$converged) {
         ## --- loop through the other estimators
-        for (step in strsplit(control$method,'')[[1]][-1]) {
+        method <- sub(est, '', control$method)
+        for (step in strsplit(method,'')[[1]]) {
             ## now we have either M or D steps
             est <- paste(est, step, sep = '')
             init <- switch(step,
@@ -89,7 +104,7 @@ lmrob.fit <- function(x, y, control) {
                            D = lmrob..D..fit(init, x),
                            ## M-Step
                            M = lmrob..M..fit(x = x, y = y, obj=init),
-                           stop('only M, D or T steps supported'))
+                           stop('only M and D are steps supported'))
             ## break if an estimator did not converge
             if (!init$converged) {
                 warning(step, "-step did NOT converge. Returning unconverged ", est,
@@ -215,7 +230,7 @@ lmrob.fit <- function(x, y, control) {
             else if (!is.null(obj$init$tau)) obj$init$tau
             else stop(':.vcov.w: tau not found') }
         else rep(1,n)
-        rstand <- rstand / tau
+       rstand <- rstand / tau
         r.psi <- lmrob.psifun(rstand, c.psi, psi)
         r.psipr <- lmrob.psifun(rstand, c.psi, psi, deriv = 1)
         if (any(is.na(r.psipr))) warning(":.vcov.w: Caution. Some psiprime are NA")

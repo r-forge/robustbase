@@ -10,7 +10,7 @@
   calculated. 
 }
 \usage{
-lmrob.fit(x, y, control)
+lmrob.fit(x, y, control, init = NULL)
 }
 \arguments{
   \item{x}{design matrix (\eqn{n \times p}{n x p}) typically including a
@@ -19,14 +19,15 @@ lmrob.fit(x, y, control)
   \item{control}{A list of control parameters as returned
     by \code{\link{lmrob.control}}, used for both the initial S-estimate
     and the subsequent M- and D-estimates.}
+  \item{init}{An optional list with initial estimates. See \emph{Details}.}
 }
 \details{This function is the basic fitting function for MM-type estimation,
   called by \code{\link{lmrob}} and typically not to be used on its own.
 
-  It calls \code{\link{lmrob.S}(..)} and uses it as initial estimator.
-  Note that by default the inference used (covariance matrix) depends
-  crucially on the S-estimator used, and hence it is currently no longer
-  possible to specify the S-estimator at this level.
+  If given, \code{init} must be a list of initial estimates containing
+  at least the initial coefficients and scale as \code{coefficients} and
+  \code{scale}. Otherwise it calls \code{\link{lmrob.S}(..)} and uses it
+  as initial estimator.g
 }
 \value{
   A list with components
@@ -57,4 +58,3 @@ lmrob.fit(x, y, control)
 }
 \keyword{robust}
 \keyword{regression}
-

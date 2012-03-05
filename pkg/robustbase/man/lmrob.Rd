@@ -8,7 +8,7 @@
 lmrob(formula, data, subset, weights, na.action, method = "MM",
       model = TRUE, x = !control$compute.rd, y = FALSE,
       singular.ok = TRUE, contrasts = NULL, offset = NULL,
-      control = NULL, ...)
+      control = NULL, init = NULL, ...)
 }
 \arguments{
   \item{formula}{a symbolic description of the model to be fit.  See
@@ -55,6 +55,10 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
 
   \item{control}{a \code{\link{list}} specifying control parameters; use
     the function \code{\link{lmrob.control}(.)} and see its help page.}
+
+  \item{init}{an optional argument to specify or supply the initial
+  estimate. See \emph{Details}.}
+  
   \item{\dots}{can be used to specify control parameters directly
     instead of via \code{control}.}
 }
@@ -71,7 +75,21 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   (use \code{setting='KS2011'}). For details, see
   \code{\link{lmrob.control}}.
 
-  As initial estimator it uses an S-estimator (Rousseeuw and Yohai,
+  The initial estimator may be specified using the argument
+  \code{init}. This argument can either be a string, a function or a
+  list. A \emph{string} can be used to specify built in internal estimators
+  (currently only \code{S}, see below). A \emph{function} taking
+  arguments \code{x1=x1, x2=x2, y=y, mf=mf, control=control} and
+  returning a list containing at least the initial coefficients as
+  \code{coefficients} and the initial scale estimate \code{scale}. Or a
+  \emph{list} giving the initial coefficients and scale as
+  \code{coefficients} and \code{scale}. See also \emph{Examples}.
+  
+  Note that if the init argument supplied is a function or list, the
+  method argument must not contain the initial estimator, e.g.,
+  \code{MDM} instead of \code{SMDM}.
+
+  As default initial estimator it uses an S-estimator (Rousseeuw and Yohai,
   1984) which is computed using the Fast-S algorithm of Salibian-Barrera
   and Yohai (2006), calling the function \code{\link{lmrob.S}}. The
   following chain of estimates is customizable via the \code{method}
@@ -145,6 +163,7 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
 }
 \examples{
 data(coleman)
+set.seed(0)
 summary( m1 <- lmrob(Y ~ ., data=coleman) )
 summary( m2 <- lmrob(Y ~ ., data=coleman, setting = 'KS2011') )
 
@@ -160,6 +179,23 @@ vcov(RlmST)
 stopifnot(all.equal(fitted(RlmST),
                     predict(RlmST, newdata = starsCYG),
                     tol = 1e-14))
+
+## --- init argument
+## string
+set.seed(0)
+m3 <- lmrob(Y ~ ., data=coleman, init = "S")
+stopifnot(all.equal(m1[-17], m3[-17]))
+## function
+initFun <- function(x1=x1, x2=x2, y=y, mf=mf, control=control) {
+    init.S <- lmrob.S(x2, y, control)
+    list(coefficients=init.S$coef, scale = init.S$scale)
+}
+set.seed(0)
+m4 <- lmrob(Y ~ ., data=coleman, method = "M", init = initFun)
+## list
+m5 <- lmrob(Y ~ ., data=coleman, method = "M",
+            init = list(coefficients = m3$init$coef, scale = m3$scale))
+stopifnot(all.equal(m4[-17], m5[-17]))
 
 }
 \keyword{robust}

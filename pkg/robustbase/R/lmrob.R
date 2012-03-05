@@ -17,7 +17,7 @@ lmrob <-
     function(formula, data, subset, weights, na.action, method = 'MM',
              model = TRUE, x = !control$compute.rd, y = FALSE,
              singular.ok = TRUE, contrasts = NULL, offset = NULL,
-             control = NULL, ...)
+             control = NULL, init = NULL, ...)
 {
     ## to avoid problems with setting argument
     ## call lmrob.control here either with or without method arg.
@@ -64,8 +64,24 @@ lmrob <-
             stop("Weights are not yet implemented for this estimator")
         if(!is.null(offset))
             stop("'offset' not yet implemented for this estimator")
-
-        z <- lmrob.fit(x, y, control)
+        if (!is.null(init)) {
+            x1 <- NULL
+            x2 <- x
+            if (is.character(init)) {
+                init <- switch(init,
+                               S = lmrob.S(x, y, control),
+                               stop('init must be "S", function or list'))
+            } else if (is.function(init)) {
+                init <- init(x1=x1, x2=x2, y=y, mf=mf, control=control)
+            } else if (is.list(init)) {
+                ## MK: set init$weights, init$residuals here ??
+                ##     (needed in lmrob..D..fit)
+                ##     or disallow method = D... ? would need to fix also
+                ##    lmrob.kappa: tuning.psi / tuning.chi choice
+            } else stop("unknown init argument")
+            stopifnot(!is.null(init$coef), !is.null(init$scale))
+        }
+        z <- lmrob.fit(x, y, control, init=init)
     }
 
     z$na.action <- attr(mf, "na.action")
@@ -330,4 +346,3 @@ summarizeRobWeights <-
 	print(summary(w, digits = digits), digits = digits, ...)
     }
 }
-
