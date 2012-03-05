@@ -1192,9 +1192,6 @@ int rwls(const double *X, const double *y, int n, int p,
     wy     = (double *) R_alloc(n,   sizeof(double));
     beta0  = (double *) R_alloc(p,   sizeof(double));
 
-    /* avoid destruction of const... warnings */
-    COPY(X, wx, n*p);
-    COPY(y, wy, n);
     INIT_WLS(wx, wy, n, p);
 
     COPY(i_estimate, beta0, p);
@@ -1633,9 +1630,6 @@ void fast_s(double *X, double *y,
     beta_cand = (double *) Calloc(p, double);
     beta_ref  = (double *) Calloc(p, double);
 
-    /* avoid destruction of const... warnings */
-    COPY(X, wx, n*p);
-    COPY(y, wy, n);
     INIT_WLS(wx, wy, n, p);
 
     /* disp_mat(x, n, p); */
