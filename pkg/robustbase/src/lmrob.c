@@ -170,10 +170,10 @@ void fast_s_irwls(double **x, double *y,
 		  double **tmp_mat, double *tmp, double *tmp2);
 #endif
 
-int fast_s_with_memory(double **x, double *y,
+int fast_s_with_memory(double *X, double *y,
 		       int *nn, int *pp, int *nRes,
 		       int *K, int *max_k, double *rel_tol, int *trace_lev,
-		       int *best_r, int *ind_space, double *bb, double *rrhoc, int *iipsi,
+		       int *best_r, double *bb, double *rrhoc, int *iipsi,
 		       double **best_betas, double *best_scales);
 
 /* for "tracing" only : */
@@ -210,10 +210,8 @@ void scalar_vec(double *a, double b, double *c, int n);
 void sum_mat(double **a, double **b, double **c, int n, int m);
 void sum_vec(double *a, double *b, double *c, int n);
 
-#define INIT_DGELS(_X_, _y_, _n_, _p_)                          \
+#define INIT_WLS(_X_, _y_, _n_, _p_)                            \
     /* Determine optimal block size for work array*/            \
-    int lwork = -1, one = 1, info = 1;				\
-    double work0, *work, wtmp, *weights;	       		\
     F77_CALL(dgels)("N", &_n_, &_p_, &one, _X_, &_n_, _y_,      \
 		    &_n_, &work0, &lwork, &info);               \
     if (info) {                                                 \
@@ -226,8 +224,8 @@ void sum_vec(double *a, double *b, double *c, int n);
 	Rprintf("optimal block size: %d\n", lwork);             \
                                                                 \
     /* allocate */                                              \
-    work =    (double *) R_alloc(lwork, sizeof(double));        \
-    weights = (double *) R_alloc(n,     sizeof(double));
+    work =    (double *) Calloc(lwork, double);                 \
+    weights = (double *) Calloc(n,     double);
 
 #define FIT_WLS(_X_, _x_, _y_, _n_, _p_)			\
     /* add weights to _y_ and _x_ */                            \
@@ -240,23 +238,13 @@ void sum_vec(double *a, double *b, double *c, int n);
     /* solve weighted least squares problem */                  \
     F77_CALL(dgels)("N", &_n_, &_p_, &one, _x_, &_n_, _y_,      \
 		    &_n_, work, &lwork, &info);                 \
-    if (info)                                                   \
-	error("Problem in dgels. info=%d. Exiting.", info);
-
-#define SETUP_FAST_S(_n_, _p_)					\
-    ind_space =  (int *) R_alloc(n, sizeof(int));		\
-    res	    = (double *) R_alloc(_n_, sizeof(double));		\
-    weights = (double *) R_alloc(_n_, sizeof(double));		\
-    tmp	    = (double *) R_alloc(_n_, sizeof(double));		\
-    tmp2    = (double *) R_alloc(_n_, sizeof(double));		\
-    /* 'Matrices' (pointers to pointers): use Calloc(), 	\
-     *  so we can Free() in precise order: */			\
-    tmp_mat  = (double **) Calloc(_p_, double *);		\
-    tmp_mat2 = (double **) Calloc(_p_, double *);		\
-    for(i=0; i < _p_; i++) {					\
-	tmp_mat [i] = (double *) Calloc( _p_,	 double);	\
-	tmp_mat2[i] = (double *) Calloc((_p_)+1, double);	\
+    if (info) {					                \
+	Free(work); Free(weights);                              \
+	error("Problem in dgels. info=%d. Exiting.", info);     \
     }
+
+#define CLEANUP_WLS                                             \
+    Free(work); Free(weights);
 
 #define SETUP_SUBSAMPLE(_n_, _p_)                               \
     /* (Pointers to) Arrays - to be allocated */                \
@@ -1404,6 +1392,8 @@ int rwls(const double *X, const double *y, int n, int p,
 			 on Output: number of iterations */
 	 double *rho_c, const int ipsi, int *trace_lev)
 {
+    int lwork = -1, one = 1, info = 1;
+    double work0, *work, wtmp, *weights;
     double *wx, *wy, done = 1., dmone = -1.;
     double *beta0, d_beta = 0.;
     int j, k, iterations = 0;
@@ -1416,7 +1406,7 @@ int rwls(const double *X, const double *y, int n, int p,
     /* avoid destruction of const... warnings */
     COPY_beta(X, wx, n*p);
     COPY_beta(y, wy, n);
-    INIT_DGELS(wx, wy, n, p);
+    INIT_WLS(wx, wy, n, p);
 
     COPY_beta(i_estimate, beta0, p);
     /* calculate residuals */
@@ -1465,8 +1455,10 @@ int rwls(const double *X, const double *y, int n, int p,
 
     *max_it = iterations;
 
-    return (int)converged;
+    CLEANUP_WLS;
 
+    return (int)converged;
+    
 } /* rwls() */
 
 /* sets the entries of a matrix to zero */
@@ -1534,21 +1526,17 @@ void fast_s_large_n(double *X, double *y,
  * *bbeta  = final estimator
  * *sscale = associated scale estimator (or -1 when problem)
  */
-    int i,j,k, k2, it_k;
-    int n = *nn, p = *pp, kk = *K;
-    int groups = *ggroups, n_group = *nn_group, ipsi = *iipsi;
+    int i,j,k, k2, it_k, ij, freedsamp = 0, initwls = 0;
+    int n = *nn, p = *pp, kk = *K, ipsi = *iipsi;
+    int groups = *ggroups, n_group = *nn_group, sg = groups * n_group;
     double b = *bb, sc, best_sc, worst_sc;
     int pos_worst_scale;
-    Rboolean conv;
-
+    Rboolean conv; 
     /* (Pointers to) Arrays - to be allocated */
-    int *ind_space, *indices;
-    double **best_betas, *best_scales, *weights;
-    double *tmp, *tmp2, **tmp_mat, **tmp_mat2;
-    double **x, **xsamp, *ysamp, *res, *beta_ref;
+    int *indices, *ind_space;
+    double **best_betas, *best_scales;
+    double *xsamp, *ysamp, *beta_ref;
     double **final_best_betas, *final_best_scales;
-
-    SETUP_FAST_S(n, p);
 
     beta_ref = (double *) Calloc(p, double);
     final_best_betas = (double **) Calloc(*best_r, double *);
@@ -1560,56 +1548,74 @@ void fast_s_large_n(double *X, double *y,
     best_scales = (double *) Calloc(k,	double );
     for(i=0; i < k; i++)
 	best_betas[i] = (double*) Calloc(p, double);
-    x = (double**) Calloc(n, double *);
-    for(i=0; i < n; i++)
-	x[i] = (double*) Calloc(p, double);
 
-    k = n_group * groups;
-    indices = (int *) Calloc(k, int);
-    xsamp = (double**) Calloc(k, double *);
-    ysamp = (double*) Calloc(k, double);
-    for(i=0; i < k; i++)
-	xsamp[i] = (double*) Calloc(p, double);
-    for(i=0; i < n; i++)
-	for(j=0; j < p; j++)
-	    x[i][j] = X[j*n+i];
+    indices =   (int *)    Calloc(sg,   int);
+    ind_space = (int *)    Calloc(n,   int);
+    xsamp =     (double *) Calloc(n_group*p, double);
+    ysamp =     (double *) Calloc(n_group,   double);
 
     /* assume that n > 2000 */
 
     /*	set the seed */
-    /* srand((long)*seed_rand); */
     GetRNGstate();
 
     /* get a sample of k indices */
-    /* sample_n_outof_N(k, n-1, indices); */
-    sample_noreplace(indices, n, k, ind_space);
+    sample_noreplace(indices, n, sg, ind_space);
+    Free(ind_space);
     /* FIXME: Also look at lqs_setup(),
      * -----  and  xr[.,.] "fortran-like" matrix can be used from there!*/
 
-    /* get the sampled design matrix and response */
-    for(i=0; i < k; i++) {
-	for(j=0; j < p; j++)
-	    xsamp[i][j] = x[indices[i]][j];
-	ysamp[i] = y[indices[i]];
-    }
-
 /* For each (of 'groups') group : get the *best_r best betas : */
 
-    for(i=0; i < groups; i++) {
-	if( !fast_s_with_memory(xsamp+i*n_group, ysamp+i*n_group,
-				&n_group, pp, nRes, K, max_k, rel_tol,
-				trace_lev, best_r, ind_space, bb, rrhoc,
-				iipsi, best_betas + i* *best_r,
-				best_scales+ i* *best_r)) {
+#define X(_k_, _j_) X[_j_*n+_k_]
+#define xsamp(_k_, _j_) xsamp[_j_*n_group+_k_]
 
+    for(i=0; i < groups; i++) {
+	/* populate matrix */
+	for(j = 0; j < n_group; j++) {
+	    ij = i*n_group + j;
+	    for (k = 0; k < p; k++)
+		xsamp(j, k) = X(indices[ij], k);
+	    ysamp[j] = y[indices[ij]];
+	}
+	if(fast_s_with_memory(xsamp, ysamp,
+			      &n_group, pp, nRes, K, max_k, rel_tol,
+			      trace_lev, best_r, bb, rrhoc,
+			      iipsi, best_betas + i* *best_r,
+			      best_scales+ i* *best_r)) {
 	    *sscale = -1.; /* problem */
 	    goto cleanup_and_return;
 	}
     }
+
+    Free(xsamp); Free(ysamp); freedsamp = 1;
+#undef xsamp
+
 /* now	iterate (refine) these "best_r * groups"
  * best betas in the (xsamp,ysamp) sample
  * with kk C-steps and keep only the "best_r" best ones
  */
+    /* initialize new work matrices */
+    double *wx, *wy, *res;
+    res = (double *) R_alloc(n,   sizeof(double));
+    wx =  (double *) R_alloc(n*p, sizeof(double)); // need only k here,
+    wy =  (double *) R_alloc(n,   sizeof(double)); // but n in the last step
+    xsamp =     (double *) Calloc(sg*p, double);
+    ysamp =     (double *) Calloc(sg,   double); 
+    freedsamp = 0;
+
+#define xsamp(_k_,_j_) xsamp[_j_*sg+_k_]
+
+    for (ij = 0; ij < sg; ij++) {
+	for (k = 0; k < p; k++)
+	    xsamp(ij, k) = X(indices[ij],k);
+	ysamp[ij] = y[indices[ij]];
+    }
+
+    int lwork = -1, one = 1, info = 1;
+    double work0, *work, *weights;
+    INIT_WLS(wx, wy, n, p); initwls = 1;
+
     conv = FALSE;
     pos_worst_scale = 0;
     for(i=0; i < *best_r; i++)
@@ -1617,7 +1623,6 @@ void fast_s_large_n(double *X, double *y,
     worst_sc = INFI;
     /* set the matrix to zero */
     zero_mat(final_best_betas, *best_r, p);
-    k = n_group * groups;
     for(i=0; i < (*best_r * groups); i++) {
 	if(*trace_lev >= 3) {
 	    Rprintf("sample[%3d]: before refine_(*, conv=FALSE):\n", i);
@@ -1625,17 +1630,17 @@ void fast_s_large_n(double *X, double *y,
 	    Rprintf("with scale %.15g\n", best_scales[i]);
 
 	}
-	refine_fast_s_old(xsamp, ysamp, weights, k, p, res,
-		      tmp, tmp2, tmp_mat, tmp_mat2, best_betas[i],
+	refine_fast_s(xsamp, wx, ysamp, wy, weights, sg, p, res,
+		      work, lwork, best_betas[i],
 		      kk, &conv/* = FALSE*/, *max_k, *rel_tol, *trace_lev,
 		      b, rrhoc, ipsi, best_scales[i], /* -> */ beta_ref, &sc);
 	if(*trace_lev >= 3) {
 	    Rprintf("after refine: beta_ref : "); disp_vec(beta_ref,p);
 	    Rprintf("with scale %.15g\n", sc);
 	}
-	if ( sum_rho_sc(res, worst_sc, k, p, rrhoc, ipsi) < b ) {
+	if ( sum_rho_sc(res, worst_sc, sg, p, rrhoc, ipsi) < b ) {
 	    /* scale will be better */
-	    sc = find_scale(res, b, rrhoc, ipsi, sc, k, p);
+	    sc = find_scale(res, b, rrhoc, ipsi, sc, sg, p);
 	    k2 = pos_worst_scale;
 	    final_best_scales[ k2 ] = sc;
 	    COPY_beta(beta_ref, final_best_betas[k2], p);
@@ -1644,6 +1649,8 @@ void fast_s_large_n(double *X, double *y,
 	}
     }
 
+    Free(xsamp); Free(ysamp); freedsamp = 1;
+
 /* now iterate the best "best_r"
  * betas in the whole sample until convergence (max_k, rel_tol)
  */
@@ -1651,8 +1658,8 @@ void fast_s_large_n(double *X, double *y,
 
     for(i=0; i < *best_r; i++) {
 	conv = TRUE;
-	it_k = refine_fast_s_old(x, y, weights, n, p, res, tmp, tmp2,
-			     tmp_mat, tmp_mat2, final_best_betas[i], kk,
+	it_k = refine_fast_s(X, wx, y, wy, weights, n, p, res, 
+			     work, lwork, final_best_betas[i], kk,
 			     &conv/* = TRUE */, *max_k, *rel_tol, *trace_lev,
 			     b, rrhoc, ipsi, final_best_scales[i],
 			     /* -> */ beta_ref, &sc);
@@ -1674,31 +1681,33 @@ void fast_s_large_n(double *X, double *y,
   cleanup_and_return:
     PutRNGstate();
 
-    for(i=0; i < n; i++) Free(x[i]); Free(x);
     Free(best_scales);
     k = *best_r * groups;
     for(i=0; i < k; i++) Free( best_betas[i] );
-    Free(best_betas); Free(indices); Free(ysamp);
-    k = n_group * groups;
-    for(i=0; i < k; i++) Free(xsamp[i]);
-    Free(xsamp);
-    for(i=0; i < p; i++) {
-	Free(tmp_mat[i]);
-	Free(tmp_mat2[i]);
-    }
-    Free(tmp_mat); Free(tmp_mat2);
+    Free(best_betas); Free(indices);
     for(i=0; i < *best_r; i++)
 	Free(final_best_betas[i]);
     Free(final_best_betas);
     Free(final_best_scales);
     Free(beta_ref);
 
+    if (freedsamp == 0) {
+	Free(xsamp); Free(ysamp);
+    }
+
+    if (initwls) {
+	CLEANUP_WLS;
+    }
+
+#undef X
+#undef xsamp
+
 } /* fast_s_large_n() */
 
-int fast_s_with_memory(double **x, double *y,
+int fast_s_with_memory(double *X, double *y,
 		       int *nn, int *pp, int *nRes,
 		       int *K, int *max_k, double *rel_tol, int *trace_lev,
-		       int *best_r, int *ind_space, double *bb, double *rrhoc, int *iipsi,
+		       int *best_r, double *bb, double *rrhoc, int *iipsi,
 		       double **best_betas, double *best_scales)
 {
 /*
@@ -1719,32 +1728,25 @@ int fast_s_with_memory(double **x, double *y,
  * *best_betas	= returning the best ... coefficient vectors
  * *best_scales = returning their associated residual scales
  */
-    int i,j,k, no_try_samples;
-    int n = *nn, p = *pp, nResample = *nRes, *b_i;
-    Rboolean lu_sing, conv = FALSE;
-    double **x_samp, *beta_cand, *beta_ref, *res;
+
+    int i,j,k;
+    int n = *nn, p = *pp, nResample = *nRes;
+    Rboolean conv = FALSE;
+    double *beta_cand, *beta_ref, *res;
     int ipsi = *iipsi;
     double b = *bb, sc, worst_sc = INFI;
-    double *weights;
-    int pos_worst_scale, is_ok = 1;
-    double *tmp, *tmp2, **tmp_mat2, **tmp_mat;
+    double work0, *weights, *work, *wx, *wy;
+    int lwork = -1, one = 1, info = 1;
+    int pos_worst_scale, sing;
 
-    res	      = (double *) Calloc(n, double);
-    tmp	      = (double *) Calloc(n, double);
-    tmp2      = (double *) Calloc(n, double);
-    weights   = (double *) Calloc(n, double);
-    beta_cand = (double *) Calloc(p, double);
-    beta_ref  = (double *) Calloc(p, double);
-    b_i	      = (int *) Calloc(n, int);
-    x_samp    = (double **) Calloc(n, double *);
-    tmp_mat   = (double **) Calloc(p, double *);
-    tmp_mat2  = (double **) Calloc(p, double *);
-    for(i=0; i < n; i++)
-	x_samp[i]  = (double *) Calloc((p+1), double);
-    for(i=0; i < p; i++) {
-	tmp_mat [i] = (double *) Calloc(p, double);
-	tmp_mat2[i] = (double *) Calloc((p+1), double);
-    }
+    SETUP_SUBSAMPLE(n, p);
+    INIT_WLS(X, y, n, p);
+
+    res	=       (double *) Calloc(n,   double);
+    wx =        (double *) Calloc(n*p, double);
+    wy =        (double *) Calloc(n,   double);
+    beta_cand = (double *) Calloc(p,   double);
+    beta_ref  = (double *) Calloc(p,   double);
 
     for(i=0; i < *best_r; i++)
 	best_scales[i] = INFI;
@@ -1753,42 +1755,22 @@ int fast_s_with_memory(double **x, double *y,
 /* resampling approximation  */
 
     for(i=0; i < nResample; i++) {
-
+	R_CheckUserInterrupt();
 	/* find a candidate */
-	no_try_samples = 0;
-	do {
-	    R_CheckUserInterrupt();
-	    if( (++no_try_samples) > MAX_NO_TRY_SAMPLES ) {
-		REprintf("\nToo many singular resamples\n"
-			 "Aborting fast_s_w_mem()\n\n");
-		is_ok = 0;
-		goto cleanup_and_return;
-	    }
-	    /* take a sample of the indices  */
-	    /* sample_n_outof_N(p, n-1, b_i); */
-	    sample_noreplace(b_i, n, p, ind_space);
-
-	    /* build the submatrix */
-	    for(j=0; j < p; j++) {
-		for(k=0; k < p; k++)
-		    x_samp[j][k]=x[b_i[j]][k];
-		x_samp[j][p]=y[b_i[j]];
-	    }
-	    /* solve the system, lu() = TRUE means matrix is singular
-	     */
-	    lu_sing = lu(x_samp,pp,beta_cand);
-
-	} while(lu_sing);
+	sing = subsample(X, y, n, p, beta_cand, ind_space, idc, idr, lu, v, pivot, 1);
+	if (sing) 
+	    goto cleanup_and_return;
+	/* FIXME: is_ok ?? */
 
 	/* disp_vec(beta_cand,p); */
 
 	/* improve the re-sampling candidate */
 
 	/* conv = FALSE : do *K refining steps */
-	refine_fast_s_old(x, y, weights, n, p, res,
-		      tmp, tmp2, tmp_mat, tmp_mat2, beta_cand,
-		      *K, &conv/* = FALSE*/, *max_k, *rel_tol, *trace_lev,
-		      b, rrhoc, ipsi, -1., /* -> */ beta_ref, &sc);
+	refine_fast_s(X, wx, y, wy, weights, n, p, res,
+		      work, lwork, beta_cand, *K, &conv/* = FALSE*/, 
+		      *max_k, *rel_tol, *trace_lev, b, rrhoc, ipsi, -1., 
+		      /* -> */ beta_ref, &sc);
 
 	/* FIXME: if sc ~ 0 ---> return beta_cand and be done */
 
@@ -1802,23 +1784,17 @@ int fast_s_with_memory(double **x, double *y,
 	    pos_worst_scale = find_max(best_scales, *best_r);
 	    worst_sc = best_scales[pos_worst_scale];
 	}
-
     } /* for(i ) */
 
   cleanup_and_return:
-    Free(tmp); Free(tmp2);
-    Free(res); Free(weights); Free(beta_cand);
-    Free(beta_ref); Free(b_i);
-    for(i=0; i < n; i++) {
-	Free(x_samp[i]);
-    }
-    for(i=0; i < p; i++) {
-	Free(tmp_mat[i]);
-	Free(tmp_mat2[i]);
-    }
-    Free(x_samp); Free(tmp_mat); Free(tmp_mat2);
 
-    return is_ok;
+    CLEANUP_SUBSAMPLE;
+    CLEANUP_WLS;
+
+    Free(res); Free(wx); Free(wy);
+    Free(beta_cand); Free(beta_ref);
+
+    return sing;
 } /* fast_s_with_memory() */
 
 void fast_s(double *X, double *y,
@@ -1844,12 +1820,14 @@ void fast_s(double *X, double *y,
  * *bbeta  = final estimator
  * *sscale = associated scale estimator (or -1 when problem)
  */
-    int i,j,k, it_k, no_try_samples;
+    int i,j,k, it_k;
     int n = *nn, p = *pp, nResample = *nRes, ipsi = *iipsi;
-    Rboolean lu_sing, conv;
+    Rboolean conv;
     double b = *bb;
     double sc, best_sc, worst_sc, aux;
-    int pos_worst_scale;
+    int pos_worst_scale;    
+    int lwork = -1, one = 1, info = 1;
+    double work0, *work, *weights, sing;
 
     /* Rprintf("fast_s %d\n", ipsi); */
 
@@ -1875,7 +1853,7 @@ void fast_s(double *X, double *y,
     /* avoid destruction of const... warnings */
     COPY_beta(X, wx, n*p);
     COPY_beta(y, wy, n);
-    INIT_DGELS(wx, wy, n, p);
+    INIT_WLS(wx, wy, n, p);
 
     /* disp_mat(x, n, p); */
 
@@ -1890,7 +1868,9 @@ void fast_s(double *X, double *y,
 
 	R_CheckUserInterrupt();
 	/* find a candidate */
-	subsample(X, y, n, p, beta_cand, ind_space, idc, idr, lu, v, pivot, 1);
+	sing = subsample(X, y, n, p, beta_cand, ind_space, idc, idr, lu, v, pivot, 1);
+	if (sing) 
+	    goto cleanup_and_return;
 
 	/* disp_vec(beta_cand,p); */
 
@@ -1960,6 +1940,7 @@ void fast_s(double *X, double *y,
     PutRNGstate();
 
     CLEANUP_SUBSAMPLE;
+    CLEANUP_WLS;
 
     Free(best_scales);
     Free(beta_cand);
@@ -2193,7 +2174,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 		   double *SC1, double *SC2, double *SC3, double *SC4) 
 {
     int i, j, one = 1;
-    int p = p1 + p2;
+    int p = p1 + p2, sing;
     double b = *bb;
     double sc = INFI, done = 1., dmone = -1.;
     *sscale = INFI;
@@ -2209,7 +2190,11 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     for(i=0; i < nResample; i++) {
 	R_CheckUserInterrupt();
 	/* STEP 1: Draw a subsample of size p2 from (X2, y) */
-	subsample(x2, y, n, p2, t2, ind_space, idc, idr, lu, v, pivot, 1);
+	sing = subsample(x2, y, n, p2, t2, ind_space, idc, idr, lu, v, pivot, 1);
+	if (sing) {
+	    *sscale = -1.;
+	    goto cleanup_and_return;
+	}
 	/* calculate partial residuals */
 	COPY_beta(y, y_tilde, n);
         F77_CALL(dgemv)("N", &n, &p2, &dmone, x2, &n, t2, &one, &done, y_tilde, &one);
@@ -2221,6 +2206,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 	if (*KODE > 1) {
 	    REprintf("\nm_s_subsample(): Problem in rllarsbi (rilars). KODE=%d. Exiting.\n", 
 		     *KODE);
+	    *sscale = -1.;
 	    goto cleanup_and_return;
 	}
 	/* STEP 4: Check if candidate looks promising */
@@ -2273,7 +2259,10 @@ void m_s_descent(double *X1, double *X2, double *y,
     int p = p1 + p2;
     Rboolean converged = FALSE;
     double b = *bb;
-    double sc = *sscale, done = 1., dmone = -1.;
+    double sc = *sscale, done = 1., dmone = -1.; 
+    int lwork = -1, one = 1, info = 1;
+    double work0, *work, wtmp, *weights;
+
     COPY_beta(b1, t1, p1);
     COPY_beta(b2, t2, p2);
     COPY_beta(res, res2, n);
@@ -2281,7 +2270,7 @@ void m_s_descent(double *X1, double *X2, double *y,
     if (*trace_lev > 1) 
 	Rprintf("starting with descent procedure...\n");
     
-    INIT_DGELS(x2, y, n, p2);
+    INIT_WLS(x2, y, n, p2);
 
     if (*trace_lev > 4) {
 	Rprintf("scale: %.5f\n", *sscale); 
@@ -2311,9 +2300,11 @@ void m_s_descent(double *X1, double *X2, double *y,
 	F77_CALL(rllarsbi)(x1, y_tilde, &n, &p1, &n, &n, rel_tol,
 			   NIT, K, KODE, SIGMA, t1, res2,
 			   SC1, SC2, SC3, SC4, BET0);
-	if (*KODE > 1)
+	if (*KODE > 1) {
+	    CLEANUP_WLS;
 	    error("m_s_descent(): Problem in rllarsbi (rilars). KODE=%d. Exiting.", 
 		  *KODE);
+	}
 	/* STEP 3: Compute the scale estimate */
 	sc = find_scale(res2, b, rrhoc, ipsi, sc, n, p);
 	/* STEP 4: Check for convergence */
@@ -2352,6 +2343,8 @@ void m_s_descent(double *X1, double *X2, double *y,
 	    Rprintf("b2: "); disp_vec(b2,p2);
 	}
     }
+
+    CLEANUP_WLS;
 } /* m_s_descent() */
 
 /* draw a subsample of observations and calculate a candidate           *
