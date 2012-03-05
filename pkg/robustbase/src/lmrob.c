@@ -201,6 +201,39 @@ void scalar_vec(double *a, double b, double *c, int n);
 void sum_mat(double **a, double **b, double **c, int n, int m);
 void sum_vec(double *a, double *b, double *c, int n);
 
+#define INIT_DGELS(_X_, _y_, _n_, _p_)                          \
+    /* Determine optimal block size for work array*/            \
+    int lwork = -1, one = 1, info = 1;				\
+    double work0, *work, wtmp, *weights;	       		\
+    F77_CALL(dgels)("N", &_n_, &_p_, &one, _X_, &_n_, _y_,      \
+		    &_n_, &work0, &lwork, &info);               \
+    if (info) {                                                 \
+	warning("problem determining optimal block size, using minimum"); \
+	lwork = 2*_p_;                                          \
+    } else                                                      \
+	lwork = (int)work0;                                     \
+                                                                \
+    if (*trace_lev > 3)                                         \
+	Rprintf("optimal block size: %d\n", lwork);             \
+                                                                \
+    /* allocate */                                              \
+    work =    (double *) R_alloc(lwork, sizeof(double));        \
+    weights = (double *) R_alloc(n,     sizeof(double));
+
+#define FIT_WLS(_X_, _x_, _y_, _n_, _p_)			\
+    /* add weights to _y_ and _x_ */                            \
+    for (j=0; j<_n_; j++) {                                     \
+    wtmp = sqrt(weights[j]);                                    \
+    y_tilde[j] *= wtmp;                                         \
+    for (k=0; k<_p_; k++)                                       \
+	_x_[_n_*k+j] = _X_[_n_*k+j] * wtmp;                     \
+    }                                                           \
+    /* solve weighted least squares problem */                  \
+    F77_CALL(dgels)("N", &_n_, &_p_, &one, _x_, &_n_, _y_,      \
+		    &_n_, work, &lwork, &info);                 \
+    if (info)                                                   \
+	error("Problem in dgels. info=%d. Exiting.", info);
+
 #define SETUP_FAST_S(_n_, _p_)					\
     ind_space =  (int *) R_alloc(n, sizeof(int));		\
     res	    = (double *) R_alloc(_n_, sizeof(double));		\
@@ -2281,11 +2314,11 @@ void m_s_descent(double *X1, double *X2, double *y,
 		 double *SC1, double *SC2, double *SC3, double *SC4,
 		 int *conv)
 {
-    int j, k, one = 1, nnoimpr = 0, nref = 0;
-    int p = p1 + p2, info = 1;
+    int j, k, nnoimpr = 0, nref = 0;
+    int p = p1 + p2;
     Rboolean converged = FALSE;
     double b = *bb;
-    double sc = *sscale, done = 1., dmone = -1., wtmp;
+    double sc = *sscale, done = 1., dmone = -1.;
     COPY_beta(b1, t1, p1);
     COPY_beta(b2, t2, p2);
     COPY_beta(res, res2, n);
@@ -2293,24 +2326,7 @@ void m_s_descent(double *X1, double *X2, double *y,
     if (*trace_lev > 1) 
 	Rprintf("starting with descent procedure...\n");
     
-    /* Determine optimal block size for work array*/
-    int lwork = -1;
-    double work0;
-    F77_CALL(dgels)("N", &n, &p2, &one, x2, &n, y, &n, &work0, &lwork, &info);
-    if (info) {
-	warning("problem determining optimal block size, using minimum");
-	lwork = 2*p2;
-    } else 
-	lwork = (int)work0;
-
-    if (*trace_lev > 3)
-	Rprintf("optimal block size: %d\n", lwork);
-
-    /* (Pointers to) Arrays - to be allocated */
-    double *w, *work;
-
-    w =     (double *) R_alloc(n,     sizeof(double));
-    work =  (double *) R_alloc(lwork, sizeof(double));
+    INIT_DGELS(x2, y, n, p2);
 
     if (*trace_lev > 4) {
 	Rprintf("scale: %.5f\n", *sscale); 
@@ -2328,18 +2344,9 @@ void m_s_descent(double *X1, double *X2, double *y,
 	COPY_beta(X1, x1, n*p1);
 	F77_CALL(dgemv)("N", &n, &p1, &dmone, x1, &n, t1, &one, &done, y_tilde, &one);
 	/* compute weights */
-	get_weights_rhop(res2, sc, n, rrhoc, ipsi, w);
-	/* add weights to y_tilde and x2 */
-	for (j=0; j<n; j++) {
-	    wtmp = sqrt(w[j]);
-	    y_tilde[j] *= wtmp;
-	    for (k=0; k<p2; k++)
-		x2[n*k+j] = X2[n*k+j] * wtmp;
-	}
+	get_weights_rhop(res2, sc, n, rrhoc, ipsi, weights);
 	/* solve weighted least squares problem */
-	F77_CALL(dgels)("N", &n, &p2, &one, x2, &n, y_tilde, &n, work, &lwork, &info);
-	if (info)
-	    error("m_s_descent(): Problem in dgels. info=%d. Exiting.", info);
+	FIT_WLS(X2, x2, y_tilde, n, p2);
 	COPY_beta(y_tilde, t2, p2);
         /* get (intermediate) residuals */
 	COPY_beta(y, res2, n);
@@ -2360,7 +2367,7 @@ void m_s_descent(double *X1, double *X2, double *y,
 	double nrmB = sqrt(norm2(t1, p1) + norm2(t2, p2));
 	converged = (del < *rel_tol * fmax2(*rel_tol, nrmB));
 	if (*trace_lev > 4) {
-	    Rprintf("w: "); disp_vec(w,n);
+	    Rprintf("weights: "); disp_vec(weights,n);
 	    Rprintf("t2: "); disp_vec(t2,p2);
 	    Rprintf("t1: "); disp_vec(t1,p1);
 	    Rprintf("res2: "); disp_vec(res2,n);
