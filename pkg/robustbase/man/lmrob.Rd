@@ -78,9 +78,9 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   The initial estimator may be specified using the argument
   \code{init}. This argument can either be a string, a function or a
   list. A \emph{string} can be used to specify built in internal
-  estimators (currently \code{S} and \code{M-S}, see below). A
-  \emph{function} taking arguments \code{x, y, control, mf} (where
-  \code{mf} stands for \code{model.frame}) and returning a list
+  estimators (currently \code{S} and \code{M-S}, see \emph{See also}
+  below). A \emph{function} taking arguments \code{x, y, control, mf}
+  (where \code{mf} stands for \code{model.frame}) and returning a list
   containing at least the initial coefficients as \code{coefficients}
   and the initial scale estimate \code{scale}. Or a \emph{list} giving
   the initial coefficients and scale as \code{coefficients} and
@@ -90,17 +90,11 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   method argument must not contain the initial estimator, e.g.,
   \code{MDM} instead of \code{SMDM}.
 
-  The default initial estimator is chosen depending on whether the
-  design matrix contains only continuous or also categorical variables.
-  In case of only continuous variables it uses an S-estimator (Rousseeuw
-  and Yohai, 1984) which is computed using the Fast-S algorithm of
-  Salibian-Barrera and Yohai (2006), calling the function
-  \code{\link{lmrob.S}}.
-
-  In case of categorical variables or a mix of continuous and
-  categorical variables, it uses an M-S-estimator (Maronna and Yohai,
-  2000) which is computed using the M-S algorithm, calling the function
-  \code{\link{lmrob.M.S}}.
+  As initial estimator it uses an S-estimator (Rousseeuw and Yohai,
+  1984) which is computed using the Fast-S algorithm of Salibian-Barrera
+  and Yohai (2006), calling the function \code{\link{lmrob.S}}. The
+  function used constrained subsampling, that makes the Fast-S algorithm
+  feasible for categorical data as well.
 
   The following chain of estimates is customizable via the \code{method}
   argument of \code{\link{lmrob.control}}. There are currently two types

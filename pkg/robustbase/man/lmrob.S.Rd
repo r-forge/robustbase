@@ -21,6 +21,11 @@ lmrob.S(x, y, control, trace.lev = 0, mf = NULL)
   This function is used by \code{\link{lmrob.fit}} and not
   intended to be used on its own (because an S-estimator has too low
   efficiency \sQuote{on its own}).
+
+  The subsampling algorithm uses a customized LU decomposition which
+  ensures a non singular subsample (if this is at all possible). This
+  makes the Fast-S algorithm also feasible for categorical and mixed
+  continuous-categorical data.
 }
 \value{
   A list with components

@@ -254,11 +254,6 @@ stopifnot(all.equal(resid, obj2$resid, check.attr=FALSE))
 
 ## Test direct call to lmrob
 set.seed(13)
-obj1 <- lmrob(Y ~ Region + X1 + X2 + X3, education)
-summary(obj1)
-out1 <- capture.output(summary(obj1))
-
-set.seed(13)
 obj2 <- lmrob(Y ~ Region + X1 + X2 + X3, education, init="M-S")
 out2 <- capture.output(summary(obj2))
 
@@ -266,5 +261,4 @@ set.seed(13)
 obj3 <- lmrob(Y ~ Region + X1 + X2 + X3, education, init=lmrob.M.S)
 out3 <- capture.output(summary(obj3))
 
-stopifnot(all.equal(out1[-(1:3)], out2[-(1:4)]),
-          all.equal(out1[-(1:3)], out3[-(1:4)]))
+stopifnot(all.equal(out2[-4], out3[-4]))
