@@ -62,8 +62,10 @@ m_s_subsample <- function(x1, x2, y, control, orthogonalize=TRUE) {
             rel_tol=as.double(control$rel.tol),
             converged=logical(1),
             trace_lev=as.integer(control$trace.lev),
-            do_descent=FALSE,
-            orthogonalize=as.logical(orthogonalize))
+            orthogonalize=as.logical(orthogonalize),
+            subsample=TRUE,
+            descent=FALSE,
+            reweight=FALSE)
     z[c("b1", "b2", "scale")]
 }
 

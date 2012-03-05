@@ -250,7 +250,8 @@ void R_lmrob_M_S(double *X1, double *X2, double *y,
 		 double *rho_c, int *ipsi, double *bb,
 		 int *K_m_s, int *max_k, double *rel_tol,
 		 int *converged, int *trace_lev, 
-		 int *do_descent, int *orthogonalize)
+		 int *orthogonalize, int *subsample, 
+		 int *descent, int *reweight)
 {
     /* Initialize (some of the) memory here,
      * so that we have to do it only once */
@@ -270,7 +271,6 @@ void R_lmrob_M_S(double *X1, double *X2, double *y,
     res =     (double *) R_alloc(n,  sizeof(double));
     x1 =      (double *) R_alloc(n*p1, sizeof(double));
     x2 =      (double *) R_alloc(n*p2, sizeof(double));
-    COPY_beta(X2, x2, n*p2);    
 
     /* Variables required for rllarsbi
      *  (l1 / least absolut residuals - estimate) */   
@@ -288,25 +288,28 @@ void R_lmrob_M_S(double *X1, double *X2, double *y,
 	F77_CALL(rllarsbi)(x1, y_work, &n, &p1, &n, &n, rel_tol, 
 			   &NIT, &K, &KODE, &SIGMA, t1, y_tilde, SC1, SC2, 
 			   SC3, SC4, &BET0);
-	COPY_beta(t1, ot1, p1); /* ot1 is named t1 in m&y 2000 paper */
+	COPY_beta(t1, ot1, p1); 
 	COPY_beta(y_tilde, y_work, n);
 	for (i=0; i < p2; i++) {
 	    COPY_beta(X1, x1, n*p1);
-	    F77_CALL(rllarsbi)(x1, x2+i*n, &n, &p1, &n, &n, rel_tol, 
-			       &NIT, &K, &KODE, &SIGMA, t1, res, SC1, SC2, 
+	    F77_CALL(rllarsbi)(x1, X2+i*n, &n, &p1, &n, &n, rel_tol, 
+			       &NIT, &K, &KODE, &SIGMA, t1, x2+i*n, SC1, SC2, 
 			       SC3, SC4, &BET0);
 	    ptr = oT2+i*p1; COPY_beta(t1, ptr, p1);
-	    ptr = x2+i*n; COPY_beta(res, ptr, n);
 	}
-	/* x2 now contains \tilde x2, oT2 is T2 */
-    }
+	/* compare with Maronna & Yohai 2000: 
+	 * y_work and y_tilde now contain \tilde y, ot1 -> t_1,
+	 * x2 -> \tilde x2, oT2 -> T_2 */
+    } else 
+	COPY_beta(X2, x2, n*p2);    
 
     /* STEP 2: Subsample */
-    m_s_subsample(X1, y_work, n, p1, p2, *nRes, rel_tol, bb, 
-		  rho_c, *ipsi, scale, trace_lev,
-		  b1, b2, t1, t2, y_tilde, res, x1, x2, 
-		  &NIT, &K, &KODE, &SIGMA, &BET0,
-		  SC1, SC2, SC3, SC4);
+    if (*subsample > 0)
+	m_s_subsample(X1, y_work, n, p1, p2, *nRes, rel_tol, bb, 
+		      rho_c, *ipsi, scale, trace_lev,
+		      b1, b2, t1, t2, y_tilde, res, x1, x2, 
+		      &NIT, &K, &KODE, &SIGMA, &BET0,
+		      SC1, SC2, SC3, SC4);
 
     /* STEP 3: Transform back */
     if (*orthogonalize > 0) {
@@ -316,8 +319,12 @@ void R_lmrob_M_S(double *X1, double *X2, double *y,
 	COPY_beta(t1, b1, p1);
     }
 
-    if (*do_descent > 0) {
+    if (*descent > 0) {
 	Rprintf("descent step not implemented yet");
+    }
+
+    if (*reweight > 0) {
+	Rprintf("hard reweighting step not implemented yet");
     }
 }
 
