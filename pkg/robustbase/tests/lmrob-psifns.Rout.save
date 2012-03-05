@@ -157,10 +157,10 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
-     k.m_s  trace.lev compute.rd  numpoints 
-        20          0          0         10 
-       psi     method        cov split.type 
-"bisquare"     "SMDM"  ".vcov.w"        "f" 
+ trace.lev compute.rd  numpoints 
+         0          0         10 
+       psi     method        cov 
+"bisquare"     "SMDM"  ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(2)
@@ -194,10 +194,10 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  0.4047000  0.5000000  1.0601580  0.0000001  0.0000001 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
-     k.m_s  trace.lev compute.rd  numpoints 
-        20          0          0         10 
-       psi     method        cov split.type 
- "optimal"     "SMDM"  ".vcov.w"        "f" 
+ trace.lev compute.rd  numpoints 
+         0          0         10 
+      psi    method       cov 
+"optimal"    "SMDM" ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(3)
@@ -235,10 +235,10 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol
     1.5e+00     9.5e-01          NA     1.0e-07     1.0e-07 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
-     k.m_s  trace.lev compute.rd  numpoints 
-        20          0          0         10 
-       psi     method        cov split.type 
-     "ggw"     "SMDM"  ".vcov.w"        "f" 
+ trace.lev compute.rd  numpoints 
+         0          0         10 
+      psi    method       cov 
+    "ggw"    "SMDM" ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(4)
@@ -274,10 +274,10 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  0.5773502  0.5000000  2.1100000  0.0000001  0.0000001 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
-     k.m_s  trace.lev compute.rd  numpoints 
-        20          0          0         10 
-       psi     method        cov split.type 
-   "welsh"     "SMDM"  ".vcov.w"        "f" 
+ trace.lev compute.rd  numpoints 
+         0          0         10 
+      psi    method       cov 
+  "welsh"    "SMDM" ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(5)
@@ -318,10 +318,10 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol
     1.5e+00     8.5e-01          NA     1.0e-07     1.0e-07 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
-     k.m_s  trace.lev compute.rd  numpoints 
-        20          0          0         10 
-       psi     method        cov split.type 
-     "ggw"     "SMDM"  ".vcov.w"        "f" 
+ trace.lev compute.rd  numpoints 
+         0          0         10 
+      psi    method       cov 
+    "ggw"    "SMDM" ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(6)
@@ -361,10 +361,10 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol
     1.0e+00     9.5e-01          NA     1.0e-07     1.0e-07 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
-     k.m_s  trace.lev compute.rd  numpoints 
-        20          0          0         10 
-       psi     method        cov split.type 
-     "ggw"     "SMDM"  ".vcov.w"        "f" 
+ trace.lev compute.rd  numpoints 
+         0          0         10 
+      psi    method       cov 
+    "ggw"    "SMDM" ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(7)
@@ -402,10 +402,10 @@ tuning.psi3  refine.tol     rel.tol
   7.2128680   0.0000001   0.0000001 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
-     k.m_s  trace.lev compute.rd  numpoints 
-        20          0          0         10 
-       psi     method        cov split.type 
-  "hampel"     "SMDM"  ".vcov.w"        "f" 
+ trace.lev compute.rd  numpoints 
+         0          0         10 
+      psi    method       cov 
+ "hampel"    "SMDM" ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(8)
@@ -452,10 +452,10 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol
     1.4e+00     9.5e-01          NA     1.0e-07     1.0e-07 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
-     k.m_s  trace.lev compute.rd  numpoints 
-        20          0          0         10 
-          psi        method           cov    split.type 
-        "ggw"          "MM" ".vcov.avar1"           "f" 
+ trace.lev compute.rd 
+         0          0 
+          psi        method           cov 
+        "ggw"          "MM" ".vcov.avar1" 
 seed : int(0) 
 > 
 > set.seed(9)
@@ -493,10 +493,10 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol
     1.5e+00     9.5e-01          NA     1.0e-07     1.0e-07 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
-     k.m_s  trace.lev compute.rd  numpoints 
-        20          0          0         10 
-       psi     method        cov split.type 
-     "lqq"     "SMDM"  ".vcov.w"        "f" 
+ trace.lev compute.rd  numpoints 
+         0          0         10 
+      psi    method       cov 
+    "lqq"    "SMDM" ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(10)
@@ -543,13 +543,13 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol
     1.4e+00     9.5e-01          NA     1.0e-07     1.0e-07 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
-     k.m_s  trace.lev compute.rd  numpoints 
-        20          0          0         10 
-          psi        method           cov    split.type 
-        "lqq"          "MM" ".vcov.avar1"           "f" 
+ trace.lev compute.rd 
+         0          0 
+          psi        method           cov 
+        "lqq"          "MM" ".vcov.avar1" 
 seed : int(0) 
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  5.691 0.112 6.007 0 0.009 
+Time elapsed:  5.687 0.125 5.998 0 0.001 
 > 

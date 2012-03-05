@@ -266,9 +266,37 @@ print.summary.lmrob <-
 	summarizeRobWeights(x$weights, digits = digits, ...)
 
     } else cat("\nNo Coefficients\n")
-
-    if (x$control$method == 'SM') x$control$method <- 'MM'
-    printControl(x$control, digits = digits)
+    
+    ## modify control list to contain only parameters
+    ## that were actually used
+    control <- x$control
+    switch(sub("^(S|M-S).*", "\\1", control$method),
+           S = { # remove all M-S specific control pars
+               control$k.m_s <- NULL
+               control$split.type <- NULL
+           },
+           `M-S` = { # remove all fast S specific control pars
+               control$refine.tol <- NULL
+               control$groups <- NULL
+               control$n.group <- NULL
+               control$best.r.s <- NULL
+               control$k.fast.s <- NULL
+           }, { # else: do not print any parameter used by initial ests. only
+               control$tuning.chi <- NULL
+               control$bb <- NULL
+               control$refine.tol <- NULL
+               control$nResample <- NULL
+               control$groups <- NULL
+               control$n.group <- NULL
+               control$best.r.s <- NULL
+               control$k.fast.s <- NULL
+               control$k.max <- NULL
+               control$k.m_s <- NULL
+               control$split.type <- NULL
+           } )
+    if (!grepl("D", control$method)) control$numpoints <- NULL
+    if (x$control$method == 'SM') control$method <- x$control$method <- 'MM'
+    printControl(control, digits = digits)
 
     invisible(x)
 }

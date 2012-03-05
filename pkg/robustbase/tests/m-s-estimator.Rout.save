@@ -122,7 +122,7 @@ Loading required package: robustbase
 +     res[[i]] <- unlist(within(tmp, b1 <- drop(t1 + b1 - T2 %*% b2)))
 + })
 > cat('Time elapsed in subsampling: ', time,'\n')
-Time elapsed in subsampling:  0.385 0 0.388 0 0 
+Time elapsed in subsampling:  0.386 0.001 0.389 0 0 
 > ## show a summary of the results
 > res1 <- do.call(rbind, res)
 > summary(res1[,1:8])
@@ -276,7 +276,7 @@ Time elapsed in subsampling:  0.385 0 0.388 0 0
 +     res3[[i]] <- unlist(m_s_descent(x1, x2, y, control, res[[i]][1:4], res[[i]][5:7], res[[i]][8]))
 + })
 > cat('Time elapsed in descent proc: ', time,'\n')
-Time elapsed in descent proc:  0.08 0 0.081 0 0 
+Time elapsed in descent proc:  0.08 0 0.08 0 0 
 > 
 > ## show a summary of the results
 > res4 <- do.call(rbind, res3)
@@ -360,12 +360,10 @@ Robustness weights:
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
  0.2995  0.8907  0.9518  0.8906  0.9867  0.9986 
 Algorithmic parameters: 
-tuning.chi         bb tuning.psi refine.tol    rel.tol 
- 1.5476400  0.5000000  4.6850610  0.0000001  0.0000001 
- nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
-       500         50          5        400          2          1        200 
-     k.m_s  trace.lev compute.rd  numpoints 
-        20          0          0         10 
+tuning.chi         bb tuning.psi    rel.tol 
+ 1.5476400  0.5000000  4.6850610  0.0000001 
+ nResample     max.it      k.max      k.m_s  trace.lev compute.rd 
+       500         50        200         20          0          0 
        psi     method        cov split.type 
 "bisquare"     "M-SM"  ".vcov.w"        "f" 
 seed : int(0) 
