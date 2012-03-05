@@ -32,12 +32,14 @@ lmrob.lar <- function(x, y, tol=1e-6)
                  SC3=tmpp,
                  SC4=tmpp,
                  BET0=as.double(bet0),
-                 PACKAGE = "robustbase")[c("THETA","SIGMA","RS","NIT")]
-  names(z1) <- c("coef", "scale","resid","iter")
-  ##           c("THETA","SIGMA", "RS",  "NIT")
+                 PACKAGE = "robustbase")[c("THETA","SIGMA","RS","NIT","KODE")]
+  if (z1[5] > 1)
+      stop("calculations stopped prematurely in rllarsbi\n",
+           "(probably because of rounding errors).")
+  names(z1) <- c("coef", "scale","resid","iter", "status")
+  ##           c("THETA","SIGMA", "RS",  "NIT", "KODE")
   length(z1$coef) <- p
   z1
-  ##list(coef=z1$THETA[1:p], scale=z1$SIGMA, resid=z1$RS)
 }
 
 lmrob.split <- function(mf, x = model.matrix(mt, mf), type = "f") {

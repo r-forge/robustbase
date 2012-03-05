@@ -32,7 +32,10 @@ lmrob.lar(x, y, tol = 1e-06)
   \item{coef }{The L1-estimate of the coefficient vector}
   \item{scale }{The residual scale estimate (mad)}
   \item{resid }{The residuals}
-  \item{iter }{The number of iterations required by the simplex algorithm}
+  \item{iter }{The number of iterations required by the simplex
+    algorithm}
+  \item{status }{Return status (0: optimal, but non unique solution, 1:
+    optimal unique solution)}
 }
 \references{
   Marazzi, A. (1993).
@@ -41,9 +44,6 @@ lmrob.lar(x, y, tol = 1e-06)
 }
 \author{
   Manuel Koller
-}
-\note{
-%%  ~~further notes~~
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
