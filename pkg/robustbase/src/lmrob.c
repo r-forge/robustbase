@@ -123,10 +123,19 @@ double sum_rho_sc(double *r, double scale, int n, int p, double *c, int ipsi);
 void get_weights_rhop(double *r, double s, int n,
 		      double *rrhoc, int ipsi, double *w);
 
-int refine_fast_s(double **x, double *y, double *weights,
-		  int n, int p, double *res,
-		  double *tmp, double *tmp2,
-		  double **tmp_mat, double **tmp_mat2,
+int refine_fast_s_old(double **x, double *y, double *weights,
+		      int n, int p, double *res,
+		      double *tmp, double *tmp2,
+		      double **tmp_mat, double **tmp_mat2,
+		      double *beta_cand,
+		      int kk, Rboolean *conv, int max_k, double rel_tol,
+		      int trace_lev,
+		      double b, double *rrhoc, int ipsi, double initial_scale,
+		      double *beta_ref, double *scale);
+
+int refine_fast_s(const double *X, double *wx, const double *y, double *wy, 
+		  double *weights, int n, int p, double *res,
+		  double *work, int lwork,
 		  double *beta_cand,
 		  int kk, Rboolean *conv, int max_k, double rel_tol,
 		  int trace_lev,
@@ -1616,7 +1625,7 @@ void fast_s_large_n(double *X, double *y,
 	    Rprintf("with scale %.15g\n", best_scales[i]);
 
 	}
-	refine_fast_s(xsamp, ysamp, weights, k, p, res,
+	refine_fast_s_old(xsamp, ysamp, weights, k, p, res,
 		      tmp, tmp2, tmp_mat, tmp_mat2, best_betas[i],
 		      kk, &conv/* = FALSE*/, *max_k, *rel_tol, *trace_lev,
 		      b, rrhoc, ipsi, best_scales[i], /* -> */ beta_ref, &sc);
@@ -1642,7 +1651,7 @@ void fast_s_large_n(double *X, double *y,
 
     for(i=0; i < *best_r; i++) {
 	conv = TRUE;
-	it_k = refine_fast_s(x, y, weights, n, p, res, tmp, tmp2,
+	it_k = refine_fast_s_old(x, y, weights, n, p, res, tmp, tmp2,
 			     tmp_mat, tmp_mat2, final_best_betas[i], kk,
 			     &conv/* = TRUE */, *max_k, *rel_tol, *trace_lev,
 			     b, rrhoc, ipsi, final_best_scales[i],
@@ -1776,7 +1785,7 @@ int fast_s_with_memory(double **x, double *y,
 	/* improve the re-sampling candidate */
 
 	/* conv = FALSE : do *K refining steps */
-	refine_fast_s(x, y, weights, n, p, res,
+	refine_fast_s_old(x, y, weights, n, p, res,
 		      tmp, tmp2, tmp_mat, tmp_mat2, beta_cand,
 		      *K, &conv/* = FALSE*/, *max_k, *rel_tol, *trace_lev,
 		      b, rrhoc, ipsi, -1., /* -> */ beta_ref, &sc);
@@ -1845,24 +1854,14 @@ void fast_s(double *X, double *y,
     /* Rprintf("fast_s %d\n", ipsi); */
 
     /* (Pointers to) Arrays - to be allocated */
-    double **x, *beta_cand, *beta_ref, *res;
-    double **best_betas, *best_scales, *weights;
-    double *tmp, *tmp2, **tmp_mat, **tmp_mat2;
+    double *wx, *wy, *beta_cand, *beta_ref, *res;
+    double **best_betas, *best_scales;
 
     SETUP_SUBSAMPLE(n, p);
 	 
-    res	    = (double *) R_alloc(n, sizeof(double));
-    weights = (double *) R_alloc(n, sizeof(double));
-    tmp	    = (double *) R_alloc(n, sizeof(double));
-    tmp2    = (double *) R_alloc(n, sizeof(double));
-    /* 'Matrices' (pointers to pointers): use Calloc(),
-     *  so we can Free() in precise order: */ 
-    tmp_mat  = (double **) Calloc(p, double *);
-    tmp_mat2 = (double **) Calloc(p, double *);
-    for(i=0; i < p; i++) {
-	tmp_mat [i] = (double *) Calloc( p,	 double);
-	tmp_mat2[i] = (double *) Calloc(p+1, double);
-    }
+    res	   = (double *) R_alloc(n, sizeof(double));
+    wx     = (double *) R_alloc(n*p, sizeof(double));
+    wy     = (double *) R_alloc(n,   sizeof(double));
 
     best_betas = (double **) Calloc(*best_r, double *);
     best_scales = (double *) Calloc(*best_r, double);
@@ -1872,13 +1871,11 @@ void fast_s(double *X, double *y,
     }
     beta_cand = (double *) Calloc(p, double);
     beta_ref  = (double *) Calloc(p, double);
-    x	  = (double **) Calloc(n, double *);
-    for(i=0; i < n; i++) {
-	x[i]	   = (double *) Calloc(p, double);
-    }
-    for(i=0; i < n; i++)
-	for(j=0; j < p; j++)
-	    x[i][j] = X[j*n+i];
+
+    /* avoid destruction of const... warnings */
+    COPY_beta(X, wx, n*p);
+    COPY_beta(y, wy, n);
+    INIT_DGELS(wx, wy, n, p);
 
     /* disp_mat(x, n, p); */
 
@@ -1900,10 +1897,10 @@ void fast_s(double *X, double *y,
 	/* improve the re-sampling candidate */
 
 	/* conv = FALSE : do *k refining steps */
-	refine_fast_s(x, y, weights, n, p, res,
-		      tmp, tmp2, tmp_mat, tmp_mat2, beta_cand,
-		      *K, &conv/* = FALSE*/, *max_k, *rel_tol, *trace_lev,
-		      b, rrhoc, ipsi, -1., /* -> */ beta_ref, &sc);
+	refine_fast_s(X, wx, y, wy, weights, n, p, res,
+		      work, lwork, beta_cand, *K, &conv/* = FALSE*/, 
+		      *max_k, *rel_tol, *trace_lev, b, rrhoc, ipsi, -1., 
+		      /* -> */ beta_ref, &sc);
 	if(*trace_lev >= 2) {
 	    double del = norm_diff(beta_cand, beta_ref, p);
 	    Rprintf("sample[%3d]: after refine_(*, conv=FALSE):\n", i);
@@ -1938,10 +1935,10 @@ void fast_s(double *X, double *y,
     best_sc = INFI; *converged = 1;  k = 0;
     for(i=0; i < *best_r; i++) {
 	conv = TRUE;
-	it_k = refine_fast_s(x, y, weights, n, p, res, tmp, tmp2,
-			     tmp_mat, tmp_mat2, best_betas[i], *K,
-			     &conv /* = TRUE */, *max_k, *rel_tol, *trace_lev,
-			     b, rrhoc, ipsi, best_scales[i], /* -> */ beta_ref, &aux);
+	it_k = refine_fast_s(X, wx, y, wy, weights, n, p, res, work, lwork, 
+			     best_betas[i], *K,  &conv /* = TRUE */, *max_k, 
+			     *rel_tol, *trace_lev, b, rrhoc, ipsi, 
+			     best_scales[i], /* -> */ beta_ref, &aux);
 	if(*trace_lev)
 	    Rprintf("i=%2d: %sconvergence (%d iter.):",
 		    i, (conv) ? "" : "NON ", it_k);
@@ -1970,27 +1967,18 @@ void fast_s(double *X, double *y,
     for(i=0; i < *best_r; i++)
 	Free(best_betas[i]);
     Free(best_betas);
-    for(i=0; i < n; i++) {
-	Free(x[i]);
-    }
-    Free(x);
-    for(i=0; i < p; i++) {
-	Free(tmp_mat[i]);
-	Free(tmp_mat2[i]);
-    }
-    Free(tmp_mat); Free(tmp_mat2);
 
     return;
 } /* fast_s() */
 
-int refine_fast_s(double **x, double *y, double *weights,
-		  int n, int p, double *res,
-		  double *tmp, double *tmp2,
-		  double **tmp_mat, double **tmp_mat2, double *beta_cand,
-		  int kk, Rboolean *conv, int max_k, double rel_tol,
-		  int trace_lev,
-		  double b, double *rrhoc, int ipsi, double initial_scale,
-		  double *beta_ref, double *scale)
+int refine_fast_s_old(double **x, double *y, double *weights,
+		      int n, int p, double *res,
+		      double *tmp, double *tmp2,
+		      double **tmp_mat, double **tmp_mat2, double *beta_cand,
+		      int kk, Rboolean *conv, int max_k, double rel_tol,
+		      int trace_lev,
+		      double b, double *rrhoc, int ipsi, double initial_scale,
+		      double *beta_ref, double *scale)
 {
 /*
  * x	   = matrix (n x p) of explanatory variables
@@ -2063,6 +2051,101 @@ int refine_fast_s(double **x, double *y, double *weights,
 	}
 	for(j=0; j < n; j++)
 	    res[j] = y[j] - F77_CALL(ddot)(&p, x[j], &one, beta_ref, &one);
+	COPY_beta(beta_ref, beta_cand, p);
+    } /* for(i = 0; i < kk ) */
+
+    if(*conv) {
+	/* was "if(0)",	 since default lead to 'NOT converged' */
+	if(!converged) {
+	    *conv = FALSE;
+	    warning("S refinements did not converge (to tol=%g) in %d iterations",
+		    rel_tol, i);
+	}
+	if(trace_lev >= 2)
+	    Rprintf("refinements %sconverged in %d iterations\n",
+		    converged ? " " : "NOT ", i);
+    }
+    *scale = s0;
+    return i; /* number of refinement steps */
+} /* refine_fast_s_old() */
+
+int refine_fast_s(const double *X, double *wx, const double *y, double *wy,
+		  double *weights,
+		  int n, int p, double *res,
+		  double *work, int lwork, double *beta_cand,
+		  int kk, Rboolean *conv, int max_k, double rel_tol,
+		  int trace_lev,
+		  double b, double *rrhoc, int ipsi, double initial_scale,
+		  double *beta_ref, double *scale)
+{
+/*
+ * X	   = matrix (n x p) of explanatory variables
+ * y	   = vector ( n )   of responses
+ * weights = robustness weights wt[] * y[]	(of length n)
+ * res	   = residuals	y[] - x[,] * beta	(of length n)
+ * conv:  FALSE means do kk refining steps
+ *	  TRUE  means refine until convergence(rel_tol, max_k)
+ *      In the latter case, 'conv' *returns* TRUE if refinements converged
+ * beta_cand= candidate beta[] (of length p)	Input *and* Output
+ * is	    = initial scale			input
+
+ * beta_ref = resulting beta[] (of length p)	Output
+ * scale    = final scale			Output
+
+ * for FIT_WLS, DGELS: 
+ * wx       = matrix (n x p) 
+ * wy       = vector of length n
+ * work     = vector of length lwork
+ * lwork    = length of vector work
+ */
+
+    int i,j,k, zeroes=0, one = 1, info = 1;
+    Rboolean converged = FALSE;/* Wall */
+    double s0, done = 1., dmone = -1., wtmp;
+    
+    /* calculate residuals */
+    COPY_beta(y, res, n);
+    F77_CALL(dgemv)("N", &n, &p, &dmone, X, &n, beta_cand, &one, &done, res, &one);
+    for(j=0; j < n; j++) {
+	if( fabs(res[j]) < ZERO )
+	    zeroes++;
+    }
+/* if "perfect fit", return it with a 0 assoc. scale */
+    if( zeroes > (((double)n + (double)p)/2.) ) /* <<- FIXME: depends on 'b' ! */
+	{
+	    COPY_beta(beta_cand, beta_ref, p);
+	    *scale = 0.;
+	    return 0;
+	}
+
+    if( initial_scale < 0. )
+	initial_scale = MAD(res, n, 0., wy, weights); /* wy and weights used as work arrays */
+    s0 = initial_scale;
+    if( *conv )
+	kk = max_k;
+
+    for(i=0; i < kk; i++) {
+	/* one step for the scale */
+	s0 = s0 * sqrt( sum_rho_sc(res, s0, n, p, rrhoc, ipsi) / b );
+	/* compute weights for IRWLS */
+	get_weights_rhop(res, s0, n, rrhoc, ipsi, weights);
+        /* solve weighted least squares problem */
+	COPY_beta(y, wy, n);
+	FIT_WLS(X, wx, wy, n, p);
+	COPY_beta(wy, beta_ref, p);
+	if(*conv) { /* check for convergence */
+	    double del = norm_diff(beta_cand, beta_ref, p);
+	    double nrmB= norm(beta_cand, p);
+	    if(trace_lev >= 3)
+		Rprintf(" i = %d, ||b[i]||= %.12g, ||b[i] - b[i-1]|| = %.15g\n",
+			i, nrmB, del);
+	    converged = (del < rel_tol * fmax2(rel_tol, nrmB));
+	    if(converged)
+		break;
+	}
+	/* calculate residuals */
+	COPY_beta(y, res, n);
+	F77_CALL(dgemv)("N", &n, &p, &dmone, X, &n, beta_ref, &one, &done, res, &one);
 	COPY_beta(beta_ref, beta_cand, p);
     } /* for(i = 0; i < kk ) */
 
