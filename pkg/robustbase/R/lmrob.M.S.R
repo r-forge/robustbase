@@ -47,14 +47,14 @@ lmrob.split <- function(mf, x = model.matrix(mt, mf), type = "f") {
     mt <- attr(mf, "terms")
     x <- as.matrix(x)
     p <- ncol(x)
-    
+
     ## --- split categorical and interactions of categorical vars.
     ##     from continuous variables
     factors <- attr(mt, "factors")
     factor.idx <- attr(mt, "dataClasses") == "factor"
     if (!any(factor.idx)) ## There are no factors
         return(list(x1.idx=rep(FALSE, p), x2=x))
-    switch(type, 
+    switch(type,
            ## --- include interactions cat * cont in x1:
            fi = { factor.asgn <- which(factor.idx %*% factors > 0) },
            ## --- include also continuous variables that interact with factors in x1:
@@ -86,23 +86,23 @@ lmrob.split <- function(mf, x = model.matrix(mt, mf), type = "f") {
            stop("unknown split type"))
     x1.idx <- attr(x, "assign") %in% c(0, factor.asgn) ## also include intercept
     names(x1.idx) <- colnames(x)
-    
+
     ## x1: factors and (depending on type) interactions of / with factors
     ## x2: continuous variables
     x1 <- x[, x1.idx, drop=FALSE]
     x2 <- x[, !x1.idx, drop=FALSE]
-    
+
     p1 <- ncol(x1)
     p2 <- ncol(x2)
 
     if (p2 == 0)
         return(list(x1=x1, x1.idx=x1.idx))
-    
+
     list(x1=x1, x1.idx=x1.idx, x2=x2)
 }
 
 lmrob.M.S <- function(x, y, control, mf, split) {
-    if (missing("split"))
+    if (missing(split))
         split <- lmrob.split(mf, x, control$split.type)
     x1 <- split$x1
     x2 <- split$x2
@@ -110,8 +110,10 @@ lmrob.M.S <- function(x, y, control, mf, split) {
     storage.mode(x2) <- "double"
     storage.mode(y) <- "double"
     c.chi <- lmrob.conv.cc(control$psi, control$tuning.chi)
-    
-    z <- .C(robustbase:::R_lmrob_M_S,
+
+
+
+    z <- .C(R_lmrob_M_S,
             X1=x1,
             X2=x2,
             y=y,
@@ -135,15 +137,14 @@ lmrob.M.S <- function(x, y, control, mf, split) {
             subsample=TRUE,
             descent=TRUE)
 
-    res <- list(coefficients = numeric(length(split$x1.idx)),
-                scale = z$scale,
-                residuals = z$res,
-                weights = lmrob.wgtfun(z$res / z$scale, control$tuning.chi, control$psi),
-                control = control)
-    res$coefficients[split$x1.idx] <- z$b1
-    res$coefficients[!split$x1.idx] <- z$b2    
-    
+    ## coefficients
+    idx <- split$x1.idx
+    cf <- numeric(length(idx))
+    cf[ idx] <- z$b1
+    cf[!idx] <- z$b2
     ## set method argument in control
-    res$control$method = 'M-S'
-    res    
+    control$method <- 'M-S'
+    list(coefficients = cf, scale = z$scale, residuals = z$res,
+         weights = lmrob.wgtfun(z$res / z$scale, control$tuning.chi, control$psi),
+         control = control)
 }

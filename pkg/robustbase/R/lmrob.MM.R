@@ -13,7 +13,6 @@ lmrob.control <- function  (setting, seed = NULL, nResample = 500,
 {
     if (!missing(setting)) {
         if (setting == 'KS2011') {
-            ## FIXME? Warn if settings are overridden?
             if (missing(method)) method <- 'SMDM'
             if (missing(psi)) psi <- 'lqq'
             if (missing(max.it)) max.it <- 500
@@ -281,7 +280,8 @@ lmrob.fit <- function(x, y, control, init=NULL) {
     cv
 }
 
-.vcov.avar1 <- function(obj, x=obj$x) { ## was .vcov.MM
+.vcov.avar1 <- function(obj, x=obj$x, posdef.meth = c("posdefify","orig"))
+{ ## was .vcov.MM
     ## this works only for MM (SM) estimates
     if (!is.null(obj$control$method) && !obj$control$method %in% c('SM', 'MM'))
         stop('.vcov.avar1: this function supports only MM estimates')
@@ -329,21 +329,40 @@ lmrob.fit <- function(x, y, control, init=NULL) {
     ret <- (u1 - u2 - u3 + u4)/n
 
     ## this might not be a positive definite matrix
-    ## check eigenvalues
-    ev <- eigen(ret)
-## Martin: FIXME -- the following, using solve(), is clearly less efficient than
-##         sfsmisc::posdefify()  and we should also consider  Matrix::nearPD()
-## Manuel: FIXME -- eigenvalues might be complex
-    if (any(ev$values < 0)) { ## there's a problem
-        ## remove negative eigenvalue:
-        ## transform covariance matrix into eigenbasis
-        levinv <- solve(ev$vectors)
-        cov.eb <- levinv %*% ret %*% ev$vectors
-        ## set vectors corresponding to negative ev to zero
-        cov.eb[,ev$values < 0] <- 0
-        ## cov.eb[cov.eb < 1e-16] <- 0
-        ## and transform back
-        ret <- ev$vectors %*% cov.eb %*% levinv
+    ## check eigenvalues (symmetric: ensure non-complex)
+    ev <- eigen(ret, symmetric = TRUE)
+    if (any(neg.ev <- ev$values < 0)) { ## there's a problem
+	posdef.meth <- match.arg(posdef.meth)
+	if(object$control$trace.lev)
+	    message("fixing ", sum(neg.ev),
+		    " negative eigen([",p,"])values")
+	Q <- ev$vectors
+	switch(posdef.meth,
+	       "orig" = {
+		   ## remove negative eigenvalue:
+		   ## transform covariance matrix into eigenbasis
+		   levinv <- solve(Q)
+		   cov.eb <- levinv %*% ret %*% Q
+		   ## set vectors corresponding to negative ev to zero
+		   cov.eb[, neg.ev] <- 0
+		   ## cov.eb[cov.eb < 1e-16] <- 0
+		   ## and transform back
+		   ret <- Q %*% cov.eb %*% levinv
+	       },
+	       "posdefify" = {
+		   ## Instead of using	require("sfsmisc") and
+		   ## ret <- posdefify(ret, "someEVadd",eigen.m = ev,eps.ev = 0)
+		   lam <- ev$values
+		   lam[neg.ev] <- 0
+		   o.diag <- diag(ret)# original one - for rescaling
+		   ret <- Q %*% (lam * t(Q)) ## == Q %*% diag(lam) %*% t(Q)
+		   ## rescale to the original diagonal values
+		   ## D <- sqrt(o.diag/diag(ret))
+		   ## where they are >= 0 :
+		   D <- sqrt(pmax(0, o.diag)/diag(ret))
+		   ret[] <- D * ret * rep(D, each = n) ## == diag(D) %*% m %*% diag(D)
+	       },
+	       stop("invalid 'posdef.meth': ", posdef.meth))
     }
     attr(ret,"weights") <- w / r.s
     attr(ret,"eigen") <- ev
@@ -586,7 +605,7 @@ lmrob.tau <- function(obj,x=obj$x, control = obj$control, h, fast = TRUE)
         else
             h <- lmrob.leverages(x, obj$weights, wqr = obj$qr)
     }
-    
+
     ## speed up: use approximation if possible
     if (fast && !control$method %in% c('S', 'SD')) {
         c.psi <- control$tuning.psi

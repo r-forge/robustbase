@@ -21,9 +21,9 @@ lmrob.control(setting, seed = NULL, nResample = 500,
               split.type = c("f", "fi", "fii"), ...)
 }
 \arguments{
-  \item{setting}{a string specifying alternative default values. Leave
-    empty for the defaults or use \code{KS2011} for the defaults
-    suggested by Koller and Stahel (2011). See \emph{Details}.}
+  \item{setting}{a string specifying alternative default values.  Leave
+    empty for the defaults or use \code{"KS2011"} for the defaults
+    suggested by Koller and Stahel (2011).  See \emph{Details}.}
   \item{seed}{an integer vector, the seed to be used for random
     re-sampling used in obtaining candidates for the initial
     S-estimator; see \code{\link{.Random.seed}}.  The current value of
@@ -36,7 +36,7 @@ lmrob.control(setting, seed = NULL, nResample = 500,
     which works well in most situations (see references).}
   \item{tuning.chi}{tuning constant vector for the S-estimator.
     Sensible defaults are set according to \code{psi} to yield a 50\%
-    breakdown estimator. See \emph{Details}.} 
+    breakdown estimator. See \emph{Details}.}
   \item{bb}{expected value under the normal model of the
     \dQuote{chi} (rather \eqn{\rho (rho)}{rho}) function with tuning
     constant equal to \code{tuning.chi}.  This is used to compute the
@@ -91,8 +91,8 @@ lmrob.control(setting, seed = NULL, nResample = 500,
   \item{...}{Further arguments are added to the control list.}
 }
 \details{The option \code{setting="KS2011"} alters the default
-  arguments. They are changed to \code{method = 'SMDM', psi = 'lqq',
-    max.it = 500, k.max = 2000, cov = '.vcov.w'}. The defaults of all
+  arguments.  They are changed to \code{method = 'SMDM', psi = 'lqq',
+    max.it = 500, k.max = 2000, cov = '.vcov.w'}.  The defaults of all
   the remaining arguments are not changed.
 
   By default, \code{tuning.chi} and \code{tuning.psi} are set to
@@ -147,6 +147,9 @@ lmrob.control(setting, seed = NULL, nResample = 500,
 \examples{
 ## Show the default settings:
 str(lmrob.control())
+
+## Use  Koller & Stahel(2011)'s recommendation but a larger  'max.it':
+str(ctrl <- lmrob.control("KS2011", max.it = 1000))
 }
 \keyword{robust}
 \keyword{regression}
