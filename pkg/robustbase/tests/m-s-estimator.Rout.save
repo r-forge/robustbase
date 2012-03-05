@@ -122,7 +122,7 @@ Loading required package: robustbase
 +     res[[i]] <- unlist(within(tmp, b1 <- drop(t1 + b1 - T2 %*% b2)))
 + })
 > cat('Time elapsed in subsampling: ', time,'\n')
-Time elapsed in subsampling:  0.341 0 0.343 0 0 
+Time elapsed in subsampling:  0.343 0.002 0.346 0 0 
 > ## show a summary of the results
 > res1 <- do.call(rbind, res)
 > summary(res1[,1:8])
@@ -276,7 +276,7 @@ Time elapsed in subsampling:  0.341 0 0.343 0 0
 +     res3[[i]] <- unlist(m_s_descent(x1, x2, y, control, res[[i]][1:4], res[[i]][5:7], res[[i]][8]))
 + })
 > cat('Time elapsed in descent proc: ', time,'\n')
-Time elapsed in descent proc:  0.083 0 0.084 0 0 
+Time elapsed in descent proc:  0.081 0 0.083 0 0 
 > 
 > ## show a summary of the results
 > res4 <- do.call(rbind, res3)
@@ -304,23 +304,23 @@ Time elapsed in descent proc:  0.083 0 0.084 0 0
 > set.seed(1001)
 > obj2 <- lmrob.M.S(x, y, control, obj$model)
 starting with subsampling procedure...
-Step 0: new candidate with sc = 104.088811486156
-Step 5: new candidate with sc = 68.4977242622214
-Step 7: new candidate with sc = 37.448652862062
-Step 12: new candidate with sc = 35.1596230289069
-Step 20: new candidate with sc = 31.8434476850534
-Step 355: new candidate with sc = 31.5276325001316
-Finished M-S subsampling with scale = 31.5276325001316
+Step 0: new candidate with sc = 104.08881
+Step 5: new candidate with sc = 68.49772
+Step 7: new candidate with sc = 37.44865
+Step 12: new candidate with sc = 35.15962
+Step 20: new candidate with sc = 31.84345
+Step 355: new candidate with sc = 31.52763
+Finished M-S subsampling with scale = 31.52763
 b1: -19.158290 10.753696 12.254664 25.192340 
 b2: -0.029633 0.051415 0.809801 
 starting with descent procedure...
-Refinement step 3: better fit, scale: 31.455369423292
-Refinement step 4: better fit, scale: 30.926639419427
-Refinement step 5: better fit, scale: 30.8115897477157
-Refinement step 6: better fit, scale: 30.7523424086512
-Refinement step 7: better fit, scale: 30.6926462718385
-Refinement step 8: better fit, scale: 30.5971249089057
-Refinement step 9: better fit, scale: 30.590129993075
+Refinement step 3: better fit, scale: 31.45537
+Refinement step 4: better fit, scale: 30.92664
+Refinement step 5: better fit, scale: 30.81159
+Refinement step 6: better fit, scale: 30.75234
+Refinement step 7: better fit, scale: 30.69265
+Refinement step 8: better fit, scale: 30.59712
+Refinement step 9: better fit, scale: 30.59013
 descent procedure: not converged.
 b1: -197.200233 -21.191192 -7.576516 27.056762 
 b2: 0.051531 0.045103 0.701954 

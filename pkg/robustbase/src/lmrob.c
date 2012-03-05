@@ -2244,7 +2244,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 	    /* STEP 5: Solve for sc */
 	    sc = find_scale(res, b, rrhoc, ipsi, sc, n, p);
 	    if(*trace_lev >= 2) {
-		Rprintf("Step %d: new candidate with sc = %.15g\n",i,sc);
+		Rprintf("Step %d: new candidate with sc = %.5f\n",i,sc);
 	    }
 	    /* STEP 6: Update best fit */
 	    *sscale = sc;
@@ -2261,7 +2261,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 
     /* STEP 7: Clean up and return */
     if (*trace_lev >= 1) {
-	Rprintf("Finished M-S subsampling with scale = %.15g\n",*sscale);
+	Rprintf("Finished M-S subsampling with scale = %.5f\n",*sscale);
 	if (*trace_lev > 2) {
 	     Rprintf("b1: "); disp_vec(b1,p1);
 	     Rprintf("b2: "); disp_vec(b2,p2);
@@ -2315,7 +2315,7 @@ void m_s_descent(double *X1, double *X2, double *y,
     work =  (double *) R_alloc(lwork, sizeof(double));
 
     if (*trace_lev > 4) {
-	Rprintf("scale: %.15g\n", *sscale); 
+	Rprintf("scale: %.5f\n", *sscale); 
 	Rprintf("res2: "); disp_vec(res2,n);
     }
 
@@ -2366,7 +2366,7 @@ void m_s_descent(double *X1, double *X2, double *y,
 	    Rprintf("t2: "); disp_vec(t2,p2);
 	    Rprintf("t1: "); disp_vec(t1,p1);
 	    Rprintf("res2: "); disp_vec(res2,n);
-	    Rprintf("sc: %.15g\n", sc); 
+	    Rprintf("sc: %.5f\n", sc); 
 	}
 	/* STEP 5: Update best fit */
 	if (sc < *sscale) {
@@ -2375,7 +2375,7 @@ void m_s_descent(double *X1, double *X2, double *y,
 	    COPY_beta(res2, res, n);
 	    *sscale = sc;
 	    if (*trace_lev > 2)
-		Rprintf("Refinement step %d: better fit, scale: %.15g\n",
+		Rprintf("Refinement step %d: better fit, scale: %.5f\n",
 			nref, sc);
 	    nnoimpr = 0;
 	} else nnoimpr++;
