@@ -9,21 +9,15 @@
   ordered factors.
 }
 \usage{
-lmrob.split(x, y, control, mf)
+lmrob.split(mf, x)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{
-    design matrix x to be split
-  }
-  \item{y}{
-    response vector
-  }
-  \item{control}{
-    control list (as returned by \code{lmrob.control}
-  }
   \item{mf}{
     model frame (as returned by \code{model.frame})
+  }
+  \item{x}{
+    design matrix (optional)
   }
 }
 \details{
@@ -38,14 +32,6 @@ lmrob.split(x, y, control, mf)
   \item{x1.idx }{logical vectors of the variables considered
     categorical in the original design matrix}
   \item{x2 }{design matrix containing the continuous variables}
-  \item{x2.tilde }{design matrix \code{x2} (L1) orthogonalized with
-    respect to \code{x1}}
-  \item{y.tilde }{response \code{y} (L1) orthogonalized with respect to
-    \code{x1}}
-  \item{t1 }{coefficient vector of the L1-regression of \code{y} onto
-    \code{x1}}
-  \item{T2 }{coefficient matrix of the L1-regression of \code{x2} onto
-    \code{x1}}
 }
 \references{
   Maronna, R. A., and Yohai, V. J. (2000).
@@ -62,7 +48,6 @@ lmrob.split(x, y, control, mf)
 data(education)
 education <- within(education, Region <- factor(Region))
 obj <- lm(Y ~ Region + X1 + X2 + X3, education)
-splt <- lmrob.split(model.matrix(obj), education$Y, lmrob.control(),
-                    obj$model)
+splt <- lmrob.split(obj$model)
 str(splt)
 }

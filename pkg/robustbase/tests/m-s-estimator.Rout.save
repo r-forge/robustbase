@@ -32,10 +32,7 @@ Loading required package: robustbase
 > testFun <- function(formula, x1.idx) {
 +     obj <- lm(formula, education2)
 +     mf <- obj$model
-+     mt <- attr(mf, "terms")
-+     x <- model.matrix(mt, mf) ## , contrasts)
-+     y <- model.response(mf, "numeric")
-+     ret <- lmrob.split(x, y, lmrob.control(), mf)
++     ret <- lmrob.split(mf)
 +     if (missing(x1.idx)) {
 +         print(ret$x1.idx)
 +         return(which(unname(ret$x1.idx)))
@@ -57,25 +54,25 @@ Loading required package: robustbase
 > testFun(Y ~ (X1+X2+X3+Region)^4, 1:32)
 > 
 > ## Test subsampling algorithm
-> m_s_subsample <- function(splt, control) {
-+     x1 <- as.matrix(splt$x1)
-+     x2.tilde <- as.matrix(splt$x2.tilde)
-+     y.tilde <- splt$y.tilde
+> m_s_subsample <- function(x1, x2, y, control, orthogonalize=TRUE) {
++     x1 <- as.matrix(x1)
++     x2 <- as.matrix(x2)
++     y <- y
 +     storage.mode(x1) <- "double"
-+     storage.mode(x2.tilde) <- "double"
-+     storage.mode(y.tilde) <- "double"
++     storage.mode(x2) <- "double"
++     storage.mode(y) <- "double"
 +     
 +     z <- .C(robustbase:::R_lmrob_M_S,
 +             X1=x1,
-+             X2=x2.tilde,
-+             y=y.tilde,
-+             n=length(y.tilde),
++             X2=x2,
++             y=y,
++             n=length(y),
 +             p1=ncol(x1),
-+             p2=ncol(x2.tilde),
++             p2=ncol(x2),
 +             nResample=as.integer(control$nResample),
 +             scale=double(1),
 +             b1=double(ncol(x1)),
-+             b2=double(ncol(x2.tilde)),
++             b2=double(ncol(x2)),
 +             tuning_chi=as.double(control$tuning.chi),
 +             ipsi=as.integer(lmrob.psi2ipsi(control$psi)),
 +             bb=as.double(control$bb),
@@ -84,36 +81,59 @@ Loading required package: robustbase
 +             rel_tol=as.double(control$rel.tol),
 +             converged=logical(1),
 +             trace_lev=as.integer(control$trace.lev),
-+             do.descent=FALSE)
-+ 
-+     b1 <- drop(splt$t1 + z$b1 - splt$T2 %*% z$b2)
-+     list(b1=b1, b2=z$b2, scale=z$scale)
++             do_descent=FALSE,
++             orthogonalize=as.logical(orthogonalize))
++     z[c("b1", "b2", "scale")]
 + }
 > 
 > control <- lmrob.control()
 > obj <- lm(Y ~ Region + X1 + X2 + X3, education)
-> splt <- lmrob.split(model.matrix(obj), education$Y, control, obj$model)
+> splt <- lmrob.split(obj$model)
+> y <- education$Y
+> 
+> ## test orthogonalizing
+> x1 <- splt$x1
+> x2 <- splt$x2
+> tmp <- lmrob.lar(x1, y, control$rel.tol)
+> y.tilde <- tmp$resid
+> t1 <- tmp$coef
+> x2.tilde <- x2
+> T2 <- matrix(0, nrow=ncol(x1), ncol=ncol(x2))
+> for (i in 1:ncol(x2)) {
++     tmp <- lmrob.lar(x1, x2[,i], control$rel.tol)
++     x2.tilde[,i] <- tmp$resid
++     T2[,i] <- tmp$coef
++ }
+> set.seed(10)
+> res1 <- m_s_subsample(x1, x2.tilde, y.tilde, control, FALSE)
+> res1 <- within(res1, b1 <- drop(t1 + b1 - T2 %*% b2))
+> set.seed(10)
+> res2 <- m_s_subsample(x1, x2, y, control, TRUE)
+> stopifnot(all.equal(res1, res2))
+> 
 > res <- list()
 > set.seed(0)
-> for (i in 1:100)
-+     res[[i]] <- unlist(m_s_subsample(splt, control))
+> for (i in 1:100) {
++     tmp <- m_s_subsample(x1, x2.tilde, y.tilde, control, FALSE)
++     res[[i]] <- unlist(within(tmp, b1 <- drop(t1 + b1 - T2 %*% b2)))
++ }
 > res <- do.call(rbind, res)
 > ## show a summary of the results
 > summary(res)
       b11               b12              b13               b14       
- Min.   :-318.21   Min.   :-32.84   Min.   :-22.054   Min.   :19.05  
- 1st Qu.:-224.09   1st Qu.:-23.39   1st Qu.: -8.350   1st Qu.:30.35  
- Median :-165.41   Median :-21.43   Median : -7.411   Median :32.55  
- Mean   :-166.29   Mean   :-21.51   Mean   : -7.708   Mean   :32.57  
- 3rd Qu.:-103.36   3rd Qu.:-18.42   3rd Qu.: -6.453   3rd Qu.:35.69  
- Max.   : -11.39   Max.   :-12.23   Max.   :  1.154   Max.   :42.25  
+ Min.   :-318.21   Min.   :-32.84   Min.   :-19.386   Min.   :19.97  
+ 1st Qu.:-220.48   1st Qu.:-23.36   1st Qu.: -8.376   1st Qu.:30.22  
+ Median :-165.13   Median :-21.37   Median : -7.415   Median :32.64  
+ Mean   :-160.86   Mean   :-21.20   Mean   : -7.436   Mean   :32.86  
+ 3rd Qu.: -98.35   3rd Qu.:-18.33   3rd Qu.: -6.331   3rd Qu.:36.26  
+ Max.   : -33.62   Max.   :-12.23   Max.   :  1.154   Max.   :42.25  
       b21                b22               b23             scale      
- Min.   :-0.03808   Min.   :0.02367   Min.   :0.2953   Min.   :29.79  
- 1st Qu.: 0.01963   1st Qu.:0.04017   1st Qu.:0.5024   1st Qu.:30.37  
- Median : 0.03095   Median :0.04672   Median :0.6391   Median :30.74  
- Mean   : 0.02985   Mean   :0.04575   Mean   :0.6378   Mean   :30.83  
- 3rd Qu.: 0.04718   3rd Qu.:0.05089   3rd Qu.:0.8068   3rd Qu.:31.29  
- Max.   : 0.10203   Max.   :0.06792   Max.   :0.9480   Max.   :32.12  
+ Min.   :-0.03808   Min.   :0.03168   Min.   :0.2953   Min.   :29.79  
+ 1st Qu.: 0.01643   1st Qu.:0.03996   1st Qu.:0.4928   1st Qu.:30.37  
+ Median : 0.02947   Median :0.04682   Median :0.6270   Median :30.82  
+ Mean   : 0.02987   Mean   :0.04567   Mean   :0.6217   Mean   :30.84  
+ 3rd Qu.: 0.04804   3rd Qu.:0.05110   3rd Qu.:0.7847   3rd Qu.:31.33  
+ Max.   : 0.09728   Max.   :0.06792   Max.   :0.9480   Max.   :32.12  
 > ## compare with fast S solution
 > obj <- lmrob(Y ~ Region + X1 + X2 + X3, education, init="S")
 > coef(obj)

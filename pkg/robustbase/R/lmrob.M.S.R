@@ -40,7 +40,7 @@ lmrob.lar <- function(x, y, tol=1e-6)
   ##list(coef=z1$THETA[1:p], scale=z1$SIGMA, resid=z1$RS)
 }
 
-lmrob.split <- function(x, y, control, mf) {
+lmrob.split <- function(mf, x = model.matrix(mt, mf)) {
     mt <- attr(mf, "terms")
     p <- ncol(x)
     
@@ -86,18 +86,5 @@ lmrob.split <- function(x, y, control, mf) {
     if (p2 == 0)
         return(list(x1=x1, x1.idx=x1.idx))
     
-    ## --- initial estimates: lar / L1
-    tmp <- lmrob.lar(x1, y, control$rel.tol)
-    y.tilde <- tmp$resid
-    t1 <- tmp$coef
-    x2.tilde <- x2
-    T2 <- matrix(0, nrow=p1, ncol=p2)
-    
-    for(i in 1:p2) {
-        tmp <- lmrob.lar(x1, x2[,i], control$rel.tol)
-        x2.tilde[,i] <- tmp$resid
-        T2[,i] <- tmp$coef
-    }
-    list(x1=x1, x1.idx=x1.idx, x2=x2, x2.tilde=x2.tilde,
-         y.tilde=y.tilde, t1=t1, T2=T2)
+    list(x1=x1, x1.idx=x1.idx, x2=x2)
 }

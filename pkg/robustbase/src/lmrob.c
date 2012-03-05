@@ -134,7 +134,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 		   int nResample, double *rel_tol, double *bb, 
 		   double *rrhoc, int ipsi, double *sscale, int *trace_lev,
 		   double *b1, double *b2, double *t1, double *t2,
-		   double *y_tilde, double *res, double *x1, double **x2,
+		   double *y_tilde, double *res, double *x1, double *x2,
 		   int *NIT, int *K, int *KODE, double *SIGMA, double *BET0,
 		   double *SC1, double *SC2, double *SC3, double *SC4);
 
@@ -249,29 +249,28 @@ void R_lmrob_M_S(double *X1, double *X2, double *y,
 		 double *scale, double *b1, double *b2,
 		 double *rho_c, int *ipsi, double *bb,
 		 int *K_m_s, int *max_k, double *rel_tol,
-		 int *converged, int *trace_lev, int *do_descent)
+		 int *converged, int *trace_lev, 
+		 int *do_descent, int *orthogonalize)
 {
     /* Initialize (some of the) memory here,
      * so that we have to do it only once */
-    int i, j, n = *nn, p1 = *pp1, p2 = *pp2;
+    int i, j, n = *nn, p1 = *pp1, p2 = *pp2, one = 1;
 
     /* (Pointers to) Arrays - to be allocated */
-    double *t1, *t2, *y_tilde, *res;
-    double *x1, **x2;
+    double *t1, *t2, *y_tilde, *y_work, *res, done = 1., dmone = -1.;
+    double *x1, *x2, *ot1, *oT2, *ptr;
     
     t1 =      (double *) R_alloc(n,  sizeof(double)); /* size n needed for rllarsbi */
     t2 =      (double *) R_alloc(p2, sizeof(double));
+    ot1 =     (double *) R_alloc(p1, sizeof(double));
+    oT2 =     (double *) R_alloc(p2*p1, sizeof(double));
+    y_work =  (double *) R_alloc(n,  sizeof(double));
+    COPY_beta(y, y_work, n);
     y_tilde = (double *) R_alloc(n,  sizeof(double));
     res =     (double *) R_alloc(n,  sizeof(double));
     x1 =      (double *) R_alloc(n*p1, sizeof(double));
-    /* 'Matrices' (pointers to pointers): use Calloc(),
-     *  so we can Free() in precise order: */
-    x2 =     (double **) Calloc(n,    double *);
-    for (i=0; i < n; i++)
-	x2[i] = (double *) Calloc(p2, double);
-    for(i=0; i < n; i++)
-	for(j=0; j < p2; j++)
-	    x2[i][j] = X2[j*n+i];
+    x2 =      (double *) R_alloc(n*p2, sizeof(double));
+    COPY_beta(X2, x2, n*p2);    
 
     /* Variables required for rllarsbi
      *  (l1 / least absolut residuals - estimate) */   
@@ -281,19 +280,45 @@ void R_lmrob_M_S(double *X1, double *X2, double *y,
     SC2 =     (double *) R_alloc(p1, sizeof(double));
     SC3 =     (double *) R_alloc(p1, sizeof(double));
     SC4 =     (double *) R_alloc(p1, sizeof(double));
-    double BET0 = 0.773372647623; /* = pnorm(0.75) */           
+    double BET0 = 0.773372647623; /* = pnorm(0.75) */
 
-    m_s_subsample(X1, y, n, p1, p2, *nRes, rel_tol, bb, 
+    /* STEP 1: Orthgonalize X2 and y from X1 */
+    if (*orthogonalize > 0) {
+	COPY_beta(X1, x1, n*p1);
+	F77_CALL(rllarsbi)(x1, y_work, &n, &p1, &n, &n, rel_tol, 
+			   &NIT, &K, &KODE, &SIGMA, t1, y_tilde, SC1, SC2, 
+			   SC3, SC4, &BET0);
+	COPY_beta(t1, ot1, p1); /* ot1 is named t1 in m&y 2000 paper */
+	COPY_beta(y_tilde, y_work, n);
+	for (i=0; i < p2; i++) {
+	    COPY_beta(X1, x1, n*p1);
+	    F77_CALL(rllarsbi)(x1, x2+i*n, &n, &p1, &n, &n, rel_tol, 
+			       &NIT, &K, &KODE, &SIGMA, t1, res, SC1, SC2, 
+			       SC3, SC4, &BET0);
+	    ptr = oT2+i*p1; COPY_beta(t1, ptr, p1);
+	    ptr = x2+i*n; COPY_beta(res, ptr, n);
+	}
+	/* x2 now contains \tilde x2, oT2 is T2 */
+    }
+
+    /* STEP 2: Subsample */
+    m_s_subsample(X1, y_work, n, p1, p2, *nRes, rel_tol, bb, 
 		  rho_c, *ipsi, scale, trace_lev,
 		  b1, b2, t1, t2, y_tilde, res, x1, x2, 
 		  &NIT, &K, &KODE, &SIGMA, &BET0,
 		  SC1, SC2, SC3, SC4);
-    
-    if (*do_descent == 1) {
-	Rprintf("descent step not implemented yet");
+
+    /* STEP 3: Transform back */
+    if (*orthogonalize > 0) {
+	/* t1 = ot1 + b1 - oT2 %*% b2 */
+	sum_vec(ot1, b1, t1, p1);
+	F77_CALL(dgemv)("N", &p1, &p2, &dmone, oT2, &p1, b2, &one, &done, t1, &one);
+	COPY_beta(t1, b1, p1);
     }
 
-    for (i=0; i < n; i++) Free(x2[i]); Free(x2); 
+    if (*do_descent > 0) {
+	Rprintf("descent step not implemented yet");
+    }
 }
 
 /* This function performs RWLS iterations starting from
@@ -2122,7 +2147,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 		   int nResample, double *rel_tol, double *bb, 
 		   double *rrhoc, int ipsi, double *sscale, int *trace_lev,
 		   double *b1, double *b2, double *t1, double *t2,
-		   double *y_tilde, double *res, double *x1, double **x2, 
+		   double *y_tilde, double *res, double *x1, double *x2, 
 		   int *NIT, int *K, int *KODE, double *SIGMA, double *BET0,
 		   double *SC1, double *SC2, double *SC3, double *SC4) 
 {
@@ -2130,7 +2155,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     int p = p1 + p2;
     Rboolean lu_sing;
     double b = *bb;
-    double sc = INFI;
+    double sc = INFI, done = 1., dmone = -1.;
     *sscale = INFI;
 
     /* (Pointers to) Arrays - to be allocated */
@@ -2164,17 +2189,17 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 	    /* STEP 2: Decompose sample matrix and solve equations */
 	    for(j=0; j < p2; j++) {
 		for(k=0; k < p2; k++)
-		    xx[j][k] = x2[b_i[j]][k];
+		    xx[j][k] = x2[k*n+b_i[j]];
 		xx[j][p2] = y[b_i[j]];
 	    }
 	    /* solve the system, lu() = TRUE means matrix is singular
 	     */
 	    lu_sing = lu(xx, &p2, t2);
 	} while(lu_sing);
-	for(j=0; j < n; j++)
-	    y_tilde[j] = y[j] - F77_CALL(ddot)(&p2, x2[j], &one, t2, &one);
+	COPY_beta(y, y_tilde, n);
+        F77_CALL(dgemv)("N", &n, &p2, &dmone, x2, &n, t2, &one, &done, y_tilde, &one);
 	/* STEP 3: Obtain L1-estimate of b1 */
-	for (j=0; j<n*p1; j++) x1[j] = X1[j]; /* rllarsbi destroys x1 */
+	COPY_beta(X1, x1, n*p1);
 	F77_CALL(rllarsbi)(x1, y_tilde, &n, &p1, &n, &n, rel_tol, 
 			   NIT, K, KODE, SIGMA, t1, res, SC1, SC2, 
 			   SC3, SC4, BET0);
@@ -2213,6 +2238,45 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 
     for (i=0; i < p2; i++) Free(xx[i]); Free(xx);
 } /* m_s_subsample() */
+
+/* /\* Descent step for M-S algorithm                        *\/ */
+/* void m_s_descent(double *X1, double *y, */
+/* 		 int n, int p1, int p2, int K_m_s, int max_k,  */
+/* 		 double *rel_tol, double *bb, double *rrhoc,  int ipsi, */
+/* 		 double *sscale, int *trace_lev, */
+/* 		 double *b1, double *b2, double *t1, double *t2, */
+/* 		 double *y_tilde, double *res, double *x1, double **x2, */
+/* 		 int *NIT, int *K, int *KODE, double *SIGMA,  double *BET0, */
+/* 		 double *SC1, double *SC2, double *SC3, double *SC4, */
+/* 		 int *conv) */
+/* { */
+/*     int i, j, k, one = 1, nnoimpr = 0, nref = 0; */
+/*     int p = p1 + p2; */
+/*     Rboolean lu_sing, converged = FALSE; */
+/*     double b = *bb; */
+/*     double sc = *sscale, done = 1., dmone = -1.; */
+/*     COPY_beta(b1, t1, p1); */
+/*     COPY_beta(b2, t2, p2); */
+
+/*     /\* (Pointers to) Arrays - to be allocated *\/ */
+/*     double *w; */
+
+/*      w = (double *) R_alloc(n, sizeof(double)); */
+
+/*     /\* Do descent steps until there is no improvement for   *\/ */
+/*     /\* K_m_s steps or we are converged                      *\/ */
+/*     /\* (convergence is not guaranteed)                      *\/ */
+/*     while ( (nref++ < max_k) & (!converged) & (nnoimpr < K_m_s) ) { */
+/* 	/\* STEP 1: update b2 *\/ */
+/* 	/\* y_tilde = y - x1 %*% t1 *\/ */
+/* 	COPY_beta(y, y_tilde, n); */
+/* 	F77_CALL(dgemv)("N", &n, &p1, &done, x1, &n, t1, &one, &dmone, y_tilde, &one); */
+/* 	get_weights_rhop(res, sc, n, rrhoc, ipsi, w); */
+
+/* 	COPY_beta(X1, x1, n*p1); */
+/*     } */
+
+/* } /\* m_s_descent() *\/ */
 
 void get_weights_rhop(double *r, double s, int n, double *rrhoc, int ipsi,
 		      double *w)
