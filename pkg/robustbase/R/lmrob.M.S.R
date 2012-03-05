@@ -40,7 +40,7 @@ lmrob.lar <- function(x, y, tol=1e-6)
   ##list(coef=z1$THETA[1:p], scale=z1$SIGMA, resid=z1$RS)
 }
 
-lmrob.split <- function(mf, x = model.matrix(mt, mf)) {
+lmrob.split <- function(mf, x = model.matrix(mt, mf), type = "f") {
     mt <- attr(mf, "terms")
     p <- ncol(x)
     
@@ -50,33 +50,35 @@ lmrob.split <- function(mf, x = model.matrix(mt, mf)) {
     factor.idx <- attr(mt, "dataClasses") == "factor"
     if (!any(factor.idx)) ## There are no factors
         return(list(x1.idx=rep(FALSE, p), x2=x))
-    ## --- include interactions cat * cont in x1:
-    ## factor.asgn <- which(factor.idx %*% factors > 0)
-    ## --- include also continuous variables that interact with factors in x1:
-    ##     make sure to include interactions of continuous variables
-    ##     interacting with categorical variables, too
-    factor.asgn <- numeric(0)
-    factors.cat <- factors[, factor.idx %*% factors > 0,drop=FALSE]
-    factors.cat[factors.cat > 0] <- 1 ## fix triple+ interactions
-    for (i in 1:ncol(factors)) {
-        comp <- factors[,i] == 1
-        ## if any of the components is a factor: include in x1 and continue
-        if (any(factor.idx[comp])) {
-            factor.asgn <- c(factor.asgn, i)
-        } else {
-            ## if there is an interaction of this term with a categorical var.
-            ## include in x1 and continue
-            if (any(colSums(factors.cat[comp,,drop=FALSE]) >= sum(comp)))
-                factor.asgn <- c(factor.asgn, i)
-        }
-    }
-    ## --- do not include interactions cat * cont in x1:
-    ## factor.asgn <- which(factor.idx %*% factors & !(!factor.idx) %*% factors)
+    switch(type, 
+           ## --- include interactions cat * cont in x1:
+           fi = { factor.asgn <- which(factor.idx %*% factors > 0) },
+           ## --- include also continuous variables that interact with factors in x1:
+           ##     make sure to include interactions of continuous variables
+           ##     interacting with categorical variables, too
+           fii = { factor.asgn <- numeric(0)
+                   factors.cat <- factors[, factor.idx %*% factors > 0,drop=FALSE]
+                   factors.cat[factors.cat > 0] <- 1 ## fix triple+ interactions
+                   for (i in 1:ncol(factors)) {
+                       comp <- factors[,i] == 1
+                       ## if any of the components is a factor: include in x1 and continue
+                       if (any(factor.idx[comp])) {
+                           factor.asgn <- c(factor.asgn, i)
+                       } else {
+                           ## if there is an interaction of this term with a categorical var.
+                           ## include in x1 and continue
+                           if (any(colSums(factors.cat[comp,,drop=FALSE]) >= sum(comp)))
+                               factor.asgn <- c(factor.asgn, i)
+                       }
+                   } },
+           ## --- do not include interactions cat * cont in x1:
+           f = { factor.asgn <- which(factor.idx %*% factors & !(!factor.idx) %*% factors) },
+           stop("unknown split type"))
     x1.idx <- attr(x, "assign") %in% c(0, factor.asgn) ## also include intercept
     names(x1.idx) <- colnames(x)
     
-    ## x1: factors and interactions of / with factors
-    ## x2: continuous variables (incl. intercept)
+    ## x1: factors and (depending on type) interactions of / with factors
+    ## x2: continuous variables
     x1 <- x[, x1.idx, drop=FALSE]
     x2 <- x[, !x1.idx, drop=FALSE]
     

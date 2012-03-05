@@ -7,7 +7,9 @@ lmrob.control <- function  (setting, seed = NULL, nResample = 500,
                             method = 'MM',
                             psi = c('bisquare', 'lqq', 'welsh', 'optimal', 'hampel',
                               'ggw'),
-                            numpoints = 10, cov = '.vcov.avar1', ...)
+                            numpoints = 10, cov = '.vcov.avar1',
+                            split.type = c("f", "fi", "fii"),
+                            ...)
 {
     if (!missing(setting)) {
         if (setting == 'KS2011') {
@@ -56,7 +58,7 @@ lmrob.control <- function  (setting, seed = NULL, nResample = 500,
            k.max = k.max, k.m_s = k.m_s, refine.tol = refine.tol,
            rel.tol = rel.tol, trace.lev = trace.lev,
            compute.rd = compute.rd, method = method, numpoints = numpoints,
-           cov = cov),
+           cov = cov, split.type = match.arg(split.type)),
       list(...))
 }
 

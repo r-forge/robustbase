@@ -9,7 +9,7 @@
   ordered factors.
 }
 \usage{
-lmrob.split(mf, x)
+lmrob.split(mf, x, type="f")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -19,12 +19,29 @@ lmrob.split(mf, x)
   \item{x}{
     design matrix (optional)
   }
+  \item{type}{
+    split type (see details)
+  }
 }
 \details{
-  Interactions of continuous and categorical variables are
-  considered as categorical variables. The M-S algorithm requires that
-  continuous variables that are part of an interaction with categorical
-  variables are considered categorical variables as well.
+  Which split type is used can be controlled with the setting
+  \code{split.type} in \code{\link{lmrob.control}}.
+
+  There are three split types. The only differences between the types
+  are how interactions between categorical and continuous variables are
+  handled. The extra types of splitting can be used to avoid
+  \emph{Too many singular resamples} errors.
+
+  Type \code{f}, the default, assigns only the intercept, categorical and
+  interactions of categorical variables to \code{x1}. Interactions of
+  categorical and continuous variables are assigned to \code{x2}.
+
+  Type \code{fi} assigns also interactions between categorical and
+  continuous variables to \code{x1}.
+
+  Type \code{fii} assigns not only interactions between categorical and
+  continuous variables to \code{x1}, but also the continuous variables
+  themselves. 
 }
 \value{
   A list that includes the following components:
@@ -50,4 +67,8 @@ education <- within(education, Region <- factor(Region))
 obj <- lm(Y ~ Region + X1 + X2 + X3, education)
 splt <- lmrob.split(obj$model)
 str(splt)
+obj <- lm(Y ~ Region:X1:X2 + X1*X2, education)
+lmrob.split(obj$model, type="f")$x1.idx
+lmrob.split(obj$model, type="fi")$x1.idx
+lmrob.split(obj$model, type="fii")$x1.idx
 }

@@ -16,7 +16,8 @@ lmrob.control(setting, seed = NULL, nResample = 500,
               refine.tol = 1e-7, rel.tol = 1e-7, trace.lev = 0,
               compute.rd = FALSE, method = 'MM',
               psi = c('bisquare', 'lqq', 'welsh', 'optimal', 'hampel',
-              'ggw'), numpoints = 10, cov = '.vcov.avar1', ...)
+              'ggw'), numpoints = 10, cov = '.vcov.avar1',
+              split.type = c("f", "fi", "fii"), ...)
 }
 \arguments{
   \item{setting}{a string specifying alternative default values. Leave
@@ -84,6 +85,8 @@ lmrob.control(setting, seed = NULL, nResample = 500,
   \item{cov}{Function or string with function name to be used to
     calculate covariance matrix estimate. See \emph{Details} of
     \code{\link{lmrob}}.}
+  \item{split.type}{Determines how categorical and continuous variables
+    are split. See \code{\link{lmrob.split}}.}
   \item{...}{Further arguments are added to the control list.}
 }
 \details{The option \code{setting="KS2011"} alters the default

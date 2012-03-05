@@ -2219,7 +2219,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 	do {
 	    R_CheckUserInterrupt();
 	    if( (++no_try_samples) > MAX_NO_TRY_SAMPLES ) {
-		REprintf("\nToo many singular resamples\n"
+		REprintf("\nToo many singular resamples, try another split.type.\n"
 			 "Aborting m_s_subsample()\n\n");
 		*sscale = -1.;
 		goto cleanup_and_return;

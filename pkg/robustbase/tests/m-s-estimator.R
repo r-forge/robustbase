@@ -10,11 +10,11 @@ education <- within(education, Region <- factor(Region))
 ## for testing purposes:
 education2 <- within(education, Group <- factor(rep(1:3, length.out=length(Region))))
                      
-## Test lmrob.split
+## Test lmrob.split (type fii is the only problematic type)
 testFun <- function(formula, x1.idx) {
     obj <- lm(formula, education2)
     mf <- obj$model
-    ret <- lmrob.split(mf)
+    ret <- lmrob.split(mf, type="fii")
     if (missing(x1.idx)) {
         print(ret$x1.idx)
         return(which(unname(ret$x1.idx)))

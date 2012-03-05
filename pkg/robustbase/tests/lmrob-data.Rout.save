@@ -55,8 +55,8 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
        500         50          5        400          2          1        200 
      k.m_s  trace.lev compute.rd  numpoints 
         20          0          0         10 
-          psi        method           cov 
-   "bisquare"          "MM" ".vcov.avar1" 
+          psi        method           cov    split.type 
+   "bisquare"          "MM" ".vcov.avar1"           "f" 
 seed : int(0) 
 > (A1 <- anova(m0.sali, Y ~ X1 + X3))
 Robust Wald Test Table
@@ -169,8 +169,8 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
        500         50          5        400          2          1        200 
      k.m_s  trace.lev compute.rd  numpoints 
         20          0          0         10 
-          psi        method           cov 
-   "bisquare"          "MM" ".vcov.avar1" 
+          psi        method           cov    split.type 
+   "bisquare"          "MM" ".vcov.avar1"           "f" 
 seed : int(0) 
 > stopifnot(c(3,18) == which(m1$w < 0.2))
 > 
@@ -215,8 +215,8 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
        500         50          5        400          2          1        200 
      k.m_s  trace.lev compute.rd  numpoints 
         20          0          0         10 
-          psi        method           cov 
-   "bisquare"          "MM" ".vcov.avar1" 
+          psi        method           cov    split.type 
+   "bisquare"          "MM" ".vcov.avar1"           "f" 
 seed : int(0) 
 > stopifnot(c(11,20,30,34) == which(RlmST$w < 0.01))
 > 
@@ -257,8 +257,8 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
        500         50          5        400          2          1        200 
      k.m_s  trace.lev compute.rd  numpoints 
         20          0          0         10 
-          psi        method           cov 
-   "bisquare"          "MM" ".vcov.avar1" 
+          psi        method           cov    split.type 
+   "bisquare"          "MM" ".vcov.avar1"           "f" 
 seed : int(0) 
 > stopifnot(1:10 == which(m.hbk$w < 0.01))
 > 
@@ -292,8 +292,8 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
        500         50          5        400          2          1        200 
      k.m_s  trace.lev compute.rd  numpoints 
         20          0          0         10 
-          psi        method           cov 
-   "bisquare"          "MM" ".vcov.avar1" 
+          psi        method           cov    split.type 
+   "bisquare"          "MM" ".vcov.avar1"           "f" 
 seed : int(0) 
 > stopifnot(8  == which(mhrt$w < 0.15),
 +           11 == which(0.61 < mhrt$w & mhrt$w < 0.62),
@@ -334,11 +334,11 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
        500         50          5        400          2          1        200 
      k.m_s  trace.lev compute.rd  numpoints 
         20          0          0         10 
-          psi        method           cov 
-   "bisquare"          "MM" ".vcov.avar1" 
+          psi        method           cov    split.type 
+   "bisquare"          "MM" ".vcov.avar1"           "f" 
 seed : int(0) 
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # "stats"
-Time elapsed:  0.489 0.067 0.72 0 0.009 
+Time elapsed:  0.455 0.065 0.678 0.004 0.006 
 > 
