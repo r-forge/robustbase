@@ -1539,8 +1539,10 @@ int fast_s_with_memory(double *X, double *y,
 	R_CheckUserInterrupt();
 	/* find a candidate */
 	sing = subsample(X, y, n, p, beta_cand, ind_space, idc, idr, lu, v, pivot, 1);
-	if (sing) 
+	if (sing) {
+	    for (k=0; k< *best_r; k++) best_scales[i] = -1.;
 	    goto cleanup_and_return;
+	}
 	/* FIXME: is_ok ?? */
 
 	/* disp_vec(beta_cand,p); */
@@ -1650,8 +1652,10 @@ void fast_s(double *X, double *y,
 	R_CheckUserInterrupt();
 	/* find a candidate */
 	sing = subsample(X, y, n, p, beta_cand, ind_space, idc, idr, lu, v, pivot, 1);
-	if (sing) 
+	if (sing) {
+	    *sscale = -1.;
 	    goto cleanup_and_return;
+	}
 
 	/* disp_vec(beta_cand,p); */
 

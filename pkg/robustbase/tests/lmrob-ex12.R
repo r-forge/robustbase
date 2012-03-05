@@ -150,4 +150,18 @@ lines(dd, fit.dd, col=2, type="o")
 predict(res2, new.d, se=TRUE)$se.fit
 matlines(dd, predict(res2, new.d, interval="confidence")[, 2:3], col=3)
 
+## Check handling of X of not full rank
+test <- function(n, ...) {
+    X <- matrix(c(rep(1:3, length.out = n), rnorm(2*n)), n, 4)
+    y <- rnorm(n)
+    X[,4] <- X[,2] + X[,3]
+    X <- data.frame(X)
+    X$X1 <- factor(X$X1)
+    fail <- suppressWarnings(try(lmrob(y ~ ., X, ...), silent=TRUE))
+    stopifnot(is(fail, "try-error"))
+}
+set.seed(0)
+test(12) ## fast_S()
+test(2500) ## fast_S_large_n()
+
 cat('Time elapsed: ', proc.time(),'\n') # "stats"
