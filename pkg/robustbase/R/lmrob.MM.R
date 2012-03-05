@@ -991,6 +991,7 @@ lmrob.lar <- function(x, y, tol=1e-6)
   x <- as.matrix(x)
   p <- ncol(x)
   n <- nrow(x)
+  stopifnot(n >= p, length(tol) == 1, is.numeric(tol))
   storage.mode(x) <- "double"
   storage.mode(y) <- "double"
   bet0 <- 0.773372647623  ## bet0 = pnorm(0.75)
