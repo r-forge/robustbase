@@ -2461,7 +2461,7 @@ int subsample(const double *x, const double *y, int n, int m,
     for(k=0;k<m;k++) idr[k] = k;
     
     /* STEP 2: Calculate LU decomposition of the first p cols of xt     *
-     *         using the order in b_i                                   */
+     *         using the order in idc                                   */
     for(j = 0; j < m; j++) {
 	sing=TRUE;
 	do {

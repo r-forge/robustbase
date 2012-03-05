@@ -47,7 +47,7 @@ LU.gaxpy <- function(A, pivot=TRUE) {
             }
             U[j, j] <- v[j]
             if (abs(v[j]) < 1e-7) {
-                warning("singularity detected in step ", j, " candidate: ", idc[j])
+                ##warning("singularity detected in step ", j, " candidate: ", idc[j])
                 idc <- idc[-j]
                 if (length(idc) < j)
                     break
@@ -63,10 +63,10 @@ subsample <- function(x, y=rnorm(nrow(x))) {
     p <- ncol(x)
     
     z <- .C(robustbase:::R_subsample,
-            x=as.double(t(x)), ## ! transpose here !
+            x=as.double(x),
             y=as.double(y),
             n=n,
-            m=ncol(x),
+            m=p,
             beta=double(p),
             ind_space=integer(n),
             idc=integer(n),
@@ -78,15 +78,15 @@ subsample <- function(x, y=rnorm(nrow(x))) {
             sample=FALSE)
     ## convert idc, idr and p to 1-based indexing
     idr <- z$idr + 1
-    idc <- z$idc + 1
+    idc <- z$idc[1:p] + 1
     pivot <- z$p + 1
     ## get L and U
     L <- U <- LU <- matrix(z$lu, p, p)
     L[upper.tri(L, diag=TRUE)] <- 0
     diag(L) <- 1
     U[lower.tri(U, diag=FALSE)] <- 0
-
-    cmp <- LU.gaxpy(x)
+    
+    cmp <- LU.gaxpy(t(x))
     stopifnot(all.equal(cmp$L, L),
               all.equal(cmp$U, U),
               all.equal(cmp$p, pivot),
@@ -94,7 +94,7 @@ subsample <- function(x, y=rnorm(nrow(x))) {
 
     ## compare with Matrix result
     if (gotMatrix & !cmp$singular) {
-        tmp <- lu(x)
+        tmp <- lu(t(x[idc, ]))
         stopifnot(all.equal(tmp@x, z$lu))
     }
 
@@ -110,7 +110,8 @@ subsample(A)
 ## test some random matrix
 set.seed(1002)
 A <- matrix(rnorm(100), 10)
+subsample(A)
 
 ## test singular matrix handling
-A <- matrix(c(1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1), 3)
+A <- matrix(c(1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1), 4, byrow=TRUE)
 subsample(A)
