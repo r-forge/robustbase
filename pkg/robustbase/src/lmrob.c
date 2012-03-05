@@ -130,12 +130,13 @@ int refine_fast_s(double **x, double *y, double *weights,
 		  double b, double *rrhoc, int ipsi, double initial_scale,
 		  double *beta_ref, double *scale);
 
-void m_s_subsample(double *x1,  double *x2,  double *y,
-		   int *nn,  int *pp1,  int *pp2, 
-		   int *nRes,  int *KK, double *rel_tol, double *bb, 
-		   double *rrhoc,  int *iipsi,
-		   double *bb1, double *bb2, double *sscale, 
-		   int *trace_lev);
+void m_s_subsample(double *X1, double *y, int n, int p1, int p2, 
+		   int nResample, double *rel_tol, double *bb, 
+		   double *rrhoc, int ipsi, double *sscale, int *trace_lev,
+		   double *b1, double *b2, double *t1, double *t2,
+		   double *y_tilde, double *res, double *x1, double **x2,
+		   int *NIT, int *K, int *KODE, double *SIGMA, double *BET0,
+		   double *SC1, double *SC2, double *SC3, double *SC4);
 
 #ifdef _UNUSED_
 void fast_s_irwls(double **x, double *y,
@@ -244,18 +245,55 @@ void R_lmrob_S(double *X, double *y, int *n, int *P,
 
 /* This function computes an M-S-regression estimator */
 void R_lmrob_M_S(double *X1, double *X2, double *y, 
-		 int *n, int *p1, int *p2, int *nRes, 
+		 int *nn, int *pp1, int *pp2, int *nRes, 
 		 double *scale, double *b1, double *b2,
 		 double *rho_c, int *ipsi, double *bb,
 		 int *K_m_s, int *max_k, double *rel_tol,
 		 int *converged, int *trace_lev, int *do_descent)
 {
-    m_s_subsample(X1, X2, y, n, p1, p2, nRes, K_m_s, rel_tol, 
-		  bb, rho_c, ipsi, b1, b2, scale, trace_lev);
+    /* Initialize (some of the) memory here,
+     * so that we have to do it only once */
+    int i, j, n = *nn, p1 = *pp1, p2 = *pp2;
+
+    /* (Pointers to) Arrays - to be allocated */
+    double *t1, *t2, *y_tilde, *res;
+    double *x1, **x2;
+    
+    t1 =      (double *) R_alloc(n,  sizeof(double)); /* size n needed for rllarsbi */
+    t2 =      (double *) R_alloc(p2, sizeof(double));
+    y_tilde = (double *) R_alloc(n,  sizeof(double));
+    res =     (double *) R_alloc(n,  sizeof(double));
+    x1 =      (double *) R_alloc(n*p1, sizeof(double));
+    /* 'Matrices' (pointers to pointers): use Calloc(),
+     *  so we can Free() in precise order: */
+    x2 =     (double **) Calloc(n,    double *);
+    for (i=0; i < n; i++)
+	x2[i] = (double *) Calloc(p2, double);
+    for(i=0; i < n; i++)
+	for(j=0; j < p2; j++)
+	    x2[i][j] = X2[j*n+i];
+
+    /* Variables required for rllarsbi
+     *  (l1 / least absolut residuals - estimate) */   
+    int NIT=0, K=0, KODE=0;
+    double SIGMA=0., *SC1, *SC2, *SC3, *SC4;
+    SC1 =     (double *) R_alloc(n, sizeof(double));
+    SC2 =     (double *) R_alloc(p1, sizeof(double));
+    SC3 =     (double *) R_alloc(p1, sizeof(double));
+    SC4 =     (double *) R_alloc(p1, sizeof(double));
+    double BET0 = 0.773372647623; /* = pnorm(0.75) */           
+
+    m_s_subsample(X1, y, n, p1, p2, *nRes, rel_tol, bb, 
+		  rho_c, *ipsi, scale, trace_lev,
+		  b1, b2, t1, t2, y_tilde, res, x1, x2, 
+		  &NIT, &K, &KODE, &SIGMA, &BET0,
+		  SC1, SC2, SC3, SC4);
     
     if (*do_descent == 1) {
 	Rprintf("descent step not implemented yet");
     }
+
+    for (i=0; i < n; i++) Free(x2[i]); Free(x2); 
 }
 
 /* This function performs RWLS iterations starting from
@@ -2080,56 +2118,32 @@ void fast_s_irwls(double **x, double *y,
 /* Subsampling part for M-S algorithm                    */
 /* Recreates RLFRSTML function found in src/lmrobml.f    */
 /* of the robust package                                 */
-void m_s_subsample(double *X1,  double *X2,  double *y,
-		   int *nn,  int *pp1,  int *pp2, 
-		   int *nRes,  int *KK, double *rel_tol, double *bb, 
-		   double *rrhoc,  int *iipsi,
-		   double *bb1, double *bb2, double *sscale, 
-		   int *trace_lev) 
+void m_s_subsample(double *X1, double *y, int n, int p1, int p2, 
+		   int nResample, double *rel_tol, double *bb, 
+		   double *rrhoc, int ipsi, double *sscale, int *trace_lev,
+		   double *b1, double *b2, double *t1, double *t2,
+		   double *y_tilde, double *res, double *x1, double **x2, 
+		   int *NIT, int *K, int *KODE, double *SIGMA, double *BET0,
+		   double *SC1, double *SC2, double *SC3, double *SC4) 
 {
     int i, j, k, no_try_samples, one = 1;
-    int n = *nn, p1 = *pp1, p2 = *pp2, nResample = *nRes;
-    int ipsi = *iipsi, p = p1 + p2;
+    int p = p1 + p2;
     Rboolean lu_sing;
     double b = *bb;
+    double sc = INFI;
+    *sscale = INFI;
 
     /* (Pointers to) Arrays - to be allocated */
     int *ind_space, *b_i;
-    double *b1, *b2, *t1, *t2, *y_tilde, *res;
-    double **xx, **x2, *x1;
+    double **xx;
     
-    double s0 = INFI, sc = INFI;
-    b1 =      (double *) R_alloc(p1, sizeof(double));
-    b2 =      (double *) R_alloc(p2, sizeof(double));
-    t1 =      (double *) R_alloc(n,  sizeof(double)); /* size n needed rllarsbi */
-    t2 =      (double *) R_alloc(p2, sizeof(double));
-    y_tilde = (double *) R_alloc(n,  sizeof(double));
-    res =     (double *) R_alloc(n,  sizeof(double));
     b_i =        (int *) R_alloc(p2, sizeof(int));
     ind_space =  (int *) R_alloc(n,  sizeof(int));
-    x1 =      (double *) R_alloc(n*p1, sizeof(double));
     /* 'Matrices' (pointers to pointers): use Calloc(),
      *  so we can Free() in precise order: */
-    x2 =     (double **) Calloc(n,    double *);
-    for (i=0; i < n; i++)
-	x2[i] = (double *) Calloc(p2, double);
     xx =     (double **) Calloc(p2, double *);
     for (i=0; i < p2; i++) 
 	xx[i] = (double *) Calloc(p2+1, double);
-    for(i=0; i < n; i++)
-	for(j=0; j < p2; j++)
-	    x2[i][j] = X2[j*n+i];
-
-    
-    /* Variables required for rllarsbi 
-     *  (l1 / least absolut residuals - estimate) */
-    int NIT=0, K=0, KODE=0;
-    double SIGMA=0., *SC1, *SC2, *SC3, *SC4;
-    SC1 =     (double *) R_alloc(n,  sizeof(double));
-    SC2 =     (double *) R_alloc(p1, sizeof(double));
-    SC3 =     (double *) R_alloc(p1, sizeof(double));
-    SC4 =     (double *) R_alloc(p1, sizeof(double));
-    double BET0 = 0.773372647623; /* = pnorm(0.75) */
 
     /*	set the seed */
     GetRNGstate();
@@ -2155,17 +2169,17 @@ void m_s_subsample(double *X1,  double *X2,  double *y,
 	    }
 	    /* solve the system, lu() = TRUE means matrix is singular
 	     */
-	    lu_sing = lu(xx, pp2, t2);
+	    lu_sing = lu(xx, &p2, t2);
 	} while(lu_sing);
 	for(j=0; j < n; j++)
-	    y_tilde[j] = y[j] - F77_CALL(ddot)(pp2, x2[j], &one, t2, &one);
+	    y_tilde[j] = y[j] - F77_CALL(ddot)(&p2, x2[j], &one, t2, &one);
 	/* STEP 3: Obtain L1-estimate of b1 */
 	for (j=0; j<n*p1; j++) x1[j] = X1[j]; /* rllarsbi destroys x1 */
-	F77_CALL(rllarsbi)(x1, y_tilde, nn, pp1, nn, nn, rel_tol, 
-			   &NIT, &K, &KODE, &SIGMA, t1, res, SC1, SC2, 
-			   SC3, SC4, &BET0);
+	F77_CALL(rllarsbi)(x1, y_tilde, &n, &p1, &n, &n, rel_tol, 
+			   NIT, K, KODE, SIGMA, t1, res, SC1, SC2, 
+			   SC3, SC4, BET0);
 	/* STEP 4: Check if candidate looks promising */
-	if (sum_rho_sc(res, s0, n, p, rrhoc, ipsi) < b) {
+	if (sum_rho_sc(res, *sscale, n, p, rrhoc, ipsi) < b) {
 	    /* scale will be better */
 	    /* STEP 5: Solve for sc */
 	    sc = find_scale(res, b, rrhoc, ipsi, sc, n, p);
@@ -2173,10 +2187,10 @@ void m_s_subsample(double *X1,  double *X2,  double *y,
 		Rprintf("Step %d: new candidate with sc = %.15g\n",i,sc);
 	    }
 	    /* STEP 6: Update best fit */
-	    s0 = sc;
+	    *sscale = sc;
 	    COPY_beta(t1, b1, p1);
 	    COPY_beta(t2, b2, p2);
-	    if (s0 < ZERO) {
+	    if (sc < ZERO) {
 		REprintf("\nScale too small\n",
 			 "Aborting m_s_subsample()\n\n");
 		*sscale = -1.;
@@ -2187,20 +2201,16 @@ void m_s_subsample(double *X1,  double *X2,  double *y,
 
     /* STEP 7: Clean up and return */
     if (*trace_lev >= 1) {
-	Rprintf("Finished M-S subsampling with s0 = %.15g\n",s0);
+	Rprintf("Finished M-S subsampling with scale = %.15g\n",*sscale);
 	if (*trace_lev >= 2) {
 	     Rprintf("b1: "); disp_vec(b1,p1);
 	     Rprintf("b2: "); disp_vec(b2,p2);
 	}
     }
-    *sscale = s0;
-    COPY_beta(b1, bb1, p1);
-    COPY_beta(b2, bb2, p2);
     
   cleanup_and_return:
     PutRNGstate();
 
-    for (i=0; i < n; i++) Free(x2[i]); Free(x2); 
     for (i=0; i < p2; i++) Free(xx[i]); Free(xx);
 } /* m_s_subsample() */
 
