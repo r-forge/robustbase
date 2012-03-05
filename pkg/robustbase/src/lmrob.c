@@ -2513,6 +2513,16 @@ int subsample(const double *x, const double *y, int n, int m,
     /* Rprintf("p:"); disp_veci(p, m-1); */
     /* Rprintf("idc:"); disp_veci(idc, m); */
 
+    /* STEP 3: Solve for candidate parameters */
+    for(k=0;k<m;k++) beta[k] = y[idc[k]];
+    /* solve U\tr L\tr \beta = y[subsample] */
+    F77_CALL(dtrsv)("U", "T", "N", &m, lu, &m, beta, &one);
+    F77_CALL(dtrsv)("L", "T", "U", &m, lu, &m, beta, &one);
+    /* undo pivoting */
+    for(k=m-2;k>=0;k--) {
+    	tmpd = beta[k]; beta[k] = beta[p[k]]; beta[p[k]] = tmpd;
+    }
+
     return(0);
 
 #undef Xt

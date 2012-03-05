@@ -92,10 +92,18 @@ subsample <- function(x, y=rnorm(nrow(x))) {
               all.equal(cmp$p, pivot),
               all.equal(cmp$idc, idc))
 
+    xsub <- x[idc, ]
+    ysub <- y[idc]
+    
     ## compare with Matrix result
     if (gotMatrix & !cmp$singular) {
-        tmp <- lu(t(x[idc, ]))
+        tmp <- lu(t(xsub))
         stopifnot(all.equal(tmp@x, z$lu))
+    }
+
+    ## test solved parameter
+    if (!cmp$singular) {
+      stopifnot(all.equal(z$beta, solve(xsub, ysub)))
     }
 
     invisible(z)
@@ -115,3 +123,5 @@ subsample(A)
 ## test singular matrix handling
 A <- matrix(c(1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1), 4, byrow=TRUE)
 subsample(A)
+
+
