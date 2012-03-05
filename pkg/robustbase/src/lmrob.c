@@ -218,14 +218,18 @@ void sum_vec(double *a, double *b, double *c, int n);
 
 #define SETUP_SUBSAMPLE(_n_, _p_)                               \
     /* (Pointers to) Arrays - to be allocated */                \
-    int *ind_space, *idc, *work, *pivot;                        \
+    int *ind_space, *idc, *idr, *pivot;                         \
     double *lu, *v;                                             \
-    ind_space = (int *)    R_alloc(_n_,     sizeof(int));       \
-    idc =       (int *)    R_alloc(_n_,     sizeof(int));       \
-    work =      (int *)    R_alloc(_p_,     sizeof(int));       \
-    pivot =     (int *)    R_alloc(_p_-1,   sizeof(int));       \
-    lu =        (double *) R_alloc(_p_*_p_, sizeof(double));    \
-    v =         (double *) R_alloc(_p_,     sizeof(double));
+    ind_space = (int *)    Calloc(_n_,     int);                \
+    idc =       (int *)    Calloc(_n_,     int);                \
+    idr =       (int *)    Calloc(_p_,     int);                \
+    pivot =     (int *)    Calloc(_p_-1,   int);                \
+    lu =        (double *) Calloc(_p_*_p_, double);             \
+    v =         (double *) Calloc(_p_,     double);
+
+#define CLEANUP_SUBSAMPLE                                       \
+    Free(ind_space); Free(idc); Free(idr); Free(pivot);         \
+    Free(lu); Free(v);
 
 /* This assumes that 'p' is correctly defined, and 'j' can be used in caller: */
 #define COPY_beta(BETA_FROM, BETA_TO, _p_)			\
@@ -2229,7 +2233,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     for(i=0; i < nResample; i++) {
 	R_CheckUserInterrupt();
 	/* STEP 1: Draw a subsample of size p2 from (X2, y) */
-	subsample(x2, y, n, p2, t2, ind_space, idc, work, lu, v, pivot, 1);
+	subsample(x2, y, n, p2, t2, ind_space, idc, idr, lu, v, pivot, 1);
 	/* calculate partial residuals */
 	COPY_beta(y, y_tilde, n);
         F77_CALL(dgemv)("N", &n, &p2, &dmone, x2, &n, t2, &one, &done, y_tilde, &one);
@@ -2274,6 +2278,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     }
     
   cleanup_and_return:
+    CLEANUP_SUBSAMPLE;
     PutRNGstate();
 } /* m_s_subsample() */
 
