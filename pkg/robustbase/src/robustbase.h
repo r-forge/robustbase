@@ -91,3 +91,10 @@ int F77_NAME(rfltsreg)(
     double *h__, double *hvec, double *c__,
     double *cstock, double *mstock, double *c1stock, double *m1stock,
     double *dath, double *sd, double *means, double *bmeans);
+
+/* ------- ./rllarsbi.f -------------- */
+int F77_NAME(rllarsbi)(
+    double *X, double *Y, int *N, int *NP, int *MDX, int *MDT, 
+    double *TOL, int *NIT, int *K, int *KODE, double *SIGMA, double *THETA, 
+    double *RS, double *SC1, double *SC2, double *SC3, double *SC4, 
+    double *BET0);
