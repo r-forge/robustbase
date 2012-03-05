@@ -134,7 +134,7 @@ int refine_fast_s(const double *X, double *wx, const double *y, double *wy,
 		  double *work, int lwork,
 		  double *beta_cand,
 		  int kk, Rboolean *conv, int max_k, double rel_tol,
-		  int trace_lev,
+		  int *trace_lev,
 		  double b, double *rrhoc, int ipsi, double initial_scale,
 		  double *beta_ref, double *scale);
 
@@ -212,9 +212,16 @@ void sum_vec(double *a, double *b, double *c, int n);
     /* solve weighted least squares problem */                  \
     F77_CALL(dgels)("N", &_n_, &_p_, &one, _x_, &_n_, _y_,      \
 		    &_n_, work, &lwork, &info);                 \
-    if (info) {					                \
-	Free(work); Free(weights);                              \
-	error("Problem in dgels. info=%d. Exiting.", info);     \
+    if (info) {					                \   
+	if (info < 0) {                                         \     
+	    Free(work); Free(weights);                          \
+	    error("dgels: illegal argument in %i. argument.", info); \
+	} else {                                                \
+	    Rprintf("robustness weights in last step: ");       \
+            disp_vec(weights, _n_);				\        
+	    Free(work); Free(weights);                          \
+	    error("dgels: weighted design matrix not of full rank (column %d). Exiting.", info); \
+	}                                                       \
     }
 
 #define CLEANUP_WLS                                             \
@@ -1410,7 +1417,7 @@ void fast_s_large_n(double *X, double *y,
 	}
 	refine_fast_s(xsamp, wx, ysamp, wy, weights, sg, p, res,
 		      work, lwork, best_betas[i],
-		      kk, &conv/* = FALSE*/, *max_k, *rel_tol, *trace_lev,
+		      kk, &conv/* = FALSE*/, *max_k, *rel_tol, trace_lev,
 		      b, rrhoc, ipsi, best_scales[i], /* -> */ beta_ref, &sc);
 	if(*trace_lev >= 3) {
 	    Rprintf("after refine: beta_ref : "); disp_vec(beta_ref,p);
@@ -1438,7 +1445,7 @@ void fast_s_large_n(double *X, double *y,
 	conv = TRUE;
 	it_k = refine_fast_s(X, wx, y, wy, weights, n, p, res, 
 			     work, lwork, final_best_betas[i], kk,
-			     &conv/* = TRUE */, *max_k, *rel_tol, *trace_lev,
+			     &conv/* = TRUE */, *max_k, *rel_tol, trace_lev,
 			     b, rrhoc, ipsi, final_best_scales[i],
 			     /* -> */ beta_ref, &sc);
 	if(*trace_lev)
@@ -1549,7 +1556,7 @@ int fast_s_with_memory(double *X, double *y,
 	/* conv = FALSE : do *K refining steps */
 	refine_fast_s(X, wx, y, wy, weights, n, p, res,
 		      work, lwork, beta_cand, *K, &conv/* = FALSE*/, 
-		      *max_k, *rel_tol, *trace_lev, b, rrhoc, ipsi, -1., 
+		      *max_k, *rel_tol, trace_lev, b, rrhoc, ipsi, -1., 
 		      /* -> */ beta_ref, &sc);
 
 	/* FIXME: if sc ~ 0 ---> return beta_cand and be done */
@@ -1658,7 +1665,7 @@ void fast_s(double *X, double *y,
 	/* conv = FALSE : do *k refining steps */
 	refine_fast_s(X, wx, y, wy, weights, n, p, res,
 		      work, lwork, beta_cand, *K, &conv/* = FALSE*/, 
-		      *max_k, *rel_tol, *trace_lev, b, rrhoc, ipsi, -1., 
+		      *max_k, *rel_tol, trace_lev, b, rrhoc, ipsi, -1., 
 		      /* -> */ beta_ref, &sc);
 	if(*trace_lev >= 2) {
 	    double del = norm_diff(beta_cand, beta_ref, p);
@@ -1696,7 +1703,7 @@ void fast_s(double *X, double *y,
 	conv = TRUE;
 	it_k = refine_fast_s(X, wx, y, wy, weights, n, p, res, work, lwork, 
 			     best_betas[i], *K,  &conv /* = TRUE */, *max_k, 
-			     *rel_tol, *trace_lev, b, rrhoc, ipsi, 
+			     *rel_tol, trace_lev, b, rrhoc, ipsi, 
 			     best_scales[i], /* -> */ beta_ref, &aux);
 	if(*trace_lev)
 	    Rprintf("i=%2d: %sconvergence (%d iter.):",
@@ -1736,7 +1743,7 @@ int refine_fast_s(const double *X, double *wx, const double *y, double *wy,
 		  int n, int p, double *res,
 		  double *work, int lwork, double *beta_cand,
 		  int kk, Rboolean *conv, int max_k, double rel_tol,
-		  int trace_lev,
+		  int *trace_lev,
 		  double b, double *rrhoc, int ipsi, double initial_scale,
 		  double *beta_ref, double *scale)
 {
@@ -1798,7 +1805,7 @@ int refine_fast_s(const double *X, double *wx, const double *y, double *wy,
 	if(*conv) { /* check for convergence */
 	    double del = norm_diff(beta_cand, beta_ref, p);
 	    double nrmB= norm(beta_cand, p);
-	    if(trace_lev >= 3)
+	    if(*trace_lev >= 3)
 		Rprintf(" i = %d, ||b[i]||= %.12g, ||b[i] - b[i-1]|| = %.15g\n",
 			i, nrmB, del);
 	    converged = (del < rel_tol * fmax2(rel_tol, nrmB));
@@ -1818,7 +1825,7 @@ int refine_fast_s(const double *X, double *wx, const double *y, double *wy,
 	    warning("S refinements did not converge (to tol=%g) in %d iterations",
 		    rel_tol, i);
 	}
-	if(trace_lev >= 2)
+	if(*trace_lev >= 2)
 	    Rprintf("refinements %sconverged in %d iterations\n",
 		    converged ? " " : "NOT ", i);
     }
