@@ -44,6 +44,13 @@ void R_lmrob_S(double *X, double *y, int *n, int *P,
 	       int *K_s, int *max_k, double *rel_tol,
 	       int* converged, int *trace_lev);
 
+void R_lmrob_M_S(double *X1, double *X2, double *y, 
+		 int *n, int *p1, int *p2, int *nRes, 
+		 double *scale, double *b1, double *b2,
+		 double *rho_c, int *ipsi, double *bb,
+		 int *K_m_s, int *max_k, double *rel_tol,
+		 int *converged, int *trace_lev);
+
 void R_lmrob_MM(double *X, double *y, int *n, int *P,
 		double *beta_initial, double *scale,
 		double *beta_m, double *resid,
@@ -93,7 +100,7 @@ int F77_NAME(rfltsreg)(
     double *dath, double *sd, double *means, double *bmeans);
 
 /* ------- ./rllarsbi.f -------------- */
-int F77_NAME(rllarsbi)(
+void  F77_NAME(rllarsbi)(
     double *X, double *Y, int *N, int *NP, int *MDX, int *MDT, 
     double *TOL, int *NIT, int *K, int *KODE, double *SIGMA, double *THETA, 
     double *RS, double *SC1, double *SC2, double *SC3, double *SC4, 

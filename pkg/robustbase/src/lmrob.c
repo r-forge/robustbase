@@ -64,6 +64,13 @@ int rwls(double **a, int n, int p,
 	 double scale, double epsilon,
 	 int *max_it, double *rho_c, const int ipsi, int trace_lev);
 
+void m_s_subsample(double *X1,  double *X2,  double *y,
+		   int *nn,  int *pp1,  int *pp2, 
+		   int *nRes,  int *KK, double *rel_tol, double *bb, 
+		   double *rrhoc,  int *iipsi,
+		   double *bb1, double *bb2, double *sscale, 
+		   int *trace_lev);
+
 #ifdef _NO_LONGUER_USED_
 void sample_n_outof_N(int n, int N, int *x);
 #endif
@@ -233,6 +240,19 @@ void R_lmrob_S(double *X, double *y, int *n, int *P,
     } else {
 	*scale = find_scale(y, *bb, rrhoc, *iipsi, *scale, *n, *P);
     }
+}
+
+/* This function computes an M-S-regression estimator */
+void R_lmrob_M_S(double *X1, double *X2, double *y, 
+		 int *n, int *p1, int *p2, int *nRes, 
+		 double *scale, double *b1, double *b2,
+		 double *rho_c, int *ipsi, double *bb,
+		 int *K_m_s, int *max_k, double *rel_tol,
+		 int *converged, int *trace_lev)
+{
+    m_s_subsample(X1, X2, y, n, P1, P2, nRes, K_m_s, bb, 
+		  rho_c, ipsi, b1, b2, scale, trace_lev);
+
 }
 
 /* This function performs RWLS iterations starting from
@@ -2053,6 +2073,88 @@ void fast_s_irwls(double **x, double *y,
     lu(tmp_mat, &p, beta_ref);
 }
 #endif
+
+/* Subsampling part for M-S algorithm */
+void m_s_subsample(double *X1,  double *X2,  double *y,
+		   int *nn,  int *pp1,  int *pp2, 
+		   int *nRes,  int *KK, double *rel_tol, double *bb, 
+		   double *rrhoc,  int *iipsi,
+		   double *bb1, double *bb2, double *sscale, 
+		   int *trace_lev) 
+{
+    int i, j, k, no_try_samples, one = 1;
+    int n = *nn, p1 = *pp1, p2 = *pp2, nResample = *nRes;
+    int ipsi = *iipsi, p = p1 + p2;
+    Rboolean lu_sing;
+    double b = *bb;
+    
+    double s0 = 0., s1 = 0.;
+    b1 =      (double *) R_alloc(p1, sizeof(double));
+    b2 =      (double *) R_alloc(p2, sizeof(double));
+    t1 =      (double *) R_alloc(p1, sizeof(double));
+    t2 =      (double *) R_alloc(p2, sizeof(double));
+    y_tilde = (double *) R_alloc(n,  sizeof(double));
+    res =     (double *) R_alloc(n,  sizeof(double));
+    b_i =        (int *) R_alloc(p2, sizeof(int));
+    ind_space =  (int *) R_alloc(n,  sizeof(int));
+    /* 'Matrices' (pointers to pointers): use Calloc(),
+     *  so we can Free() in precise order: */
+    xx =     (double **) Calloc(p2+1, double *);
+    for (i=0; i <= p2; i++) 
+	xx[i] = (double *) Calloc(p2+1, double);
+    
+    /* Variables required for rllarsbi 
+     *  (l1 / least absolut residuals - estimate) */
+    int* NIT, K, KODE;
+    double* SIGMA;
+    SC1 =     (double *) R_alloc(n,  sizeof(double));
+    SC2 =     (double *) R_alloc(p2, sizeof(double));
+    SC3 =     (double *) R_alloc(p2, sizeof(double));
+    SC4 =     (double *) R_alloc(p2, sizeouf(double));
+    double BET0 = 0.773372647623; /* = pnorm(0.75) */
+
+    /*	set the seed */
+    GetRNGstate();
+    
+    for(i=0; i < nResample; i++) {
+	/* STEP 1: Draw a subsample of size p2 from (X2, y) */
+	no_try_samples = 0;
+	do {
+	    R_CheckUserInterrupt();
+	    if( (++no_try_samples) > MAX_NO_TRY_SAMPLES ) {
+		REprintf("\nToo many singular resamples\n"
+			 "Aborting m_s_subsample()\n\n");
+		*sscale = -1.;
+		goto cleanup_and_return;
+	    }
+            /* take a sample of the indices  */
+	    sample_noreplace(b_i, n, p2, ind_space);
+	    /* STEP 2: Decompose sample matrix and solve equations */
+	    for(j=0; j < p2; j++) {
+		for(k=0; k < p2; k++)
+		    xx[j][k] = x2[b_i[j]][k];
+		xx[j][p2] = y[b_i[j]];
+	    }
+	    /* solve the system, lu() = TRUE means matrix is singular
+	     */
+	    lu_sing = lu(xx, pp2, t2);
+	} while(lu_sing);
+	for(j=0; j < n; j++)
+	    y_tilde[j] = y[j] - F77_CALL(ddot)(pp2, x2[j], &one, t2, &one);
+	/* STEP 3: Obtain M-estimate of b1 */
+	F77_CALL(rllarsbi)(x1, y_tilde, nn, pp1, nn, nn, rel_tol, 
+			   NIT, K, KODE, SIGMA, t1, res, SC1, SC2, 
+			   SC3, SC4, &BET0);
+	/* STEP 4: Compute the scale estimate */
+	if (s0 == 0.)
+	
+    } /* for(i ) */
+
+  cleanup_and_return:
+    PutRNGstate();
+
+    for (i=0; i <= p2; i++) Free(xx[i]); Free(xx);
+} /* m_s_subsample() */
 
 void get_weights_rhop(double *r, double s, int n, double *rrhoc, int ipsi,
 		      double *w)
