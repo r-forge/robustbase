@@ -333,6 +333,7 @@ lmrob.fit <- function(x, y, control, init=NULL) {
     ev <- eigen(ret)
 ## Martin: FIXME -- the following, using solve(), is clearly less efficient than
 ##         sfsmisc::posdefify()  and we should also consider  Matrix::nearPD()
+## Manuel: FIXME -- eigenvalues might be complex
     if (any(ev$values < 0)) { ## there's a problem
         ## remove negative eigenvalue:
         ## transform covariance matrix into eigenbasis
