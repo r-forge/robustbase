@@ -43,8 +43,11 @@ lmrob.lar <- function(x, y, control = lmrob.control(), mf = NULL)
   z1
 }
 
-lmrob.split <- function(mf, x = model.matrix(mt, mf), type = "f") {
+lmrob.split <- function(mf, x = model.matrix(mt, mf),
+			type = c("f","fi", "fii"))
+{
     mt <- attr(mf, "terms")
+    type <- match.arg(type)
     x <- as.matrix(x)
     p <- ncol(x)
 
@@ -53,7 +56,7 @@ lmrob.split <- function(mf, x = model.matrix(mt, mf), type = "f") {
     factors <- attr(mt, "factors")
     factor.idx <- attr(mt, "dataClasses") == "factor"
     if (!any(factor.idx)) ## There are no factors
-        return(list(x1.idx=rep(FALSE, p), x2=x))
+        return(list(x1.idx = rep.int(FALSE, p), x1=matrix(,nrow(x),0L), x2=x))
     switch(type,
            ## --- include interactions cat * cont in x1:
            fi = { factor.asgn <- which(factor.idx %*% factors > 0) },
@@ -89,16 +92,9 @@ lmrob.split <- function(mf, x = model.matrix(mt, mf), type = "f") {
 
     ## x1: factors and (depending on type) interactions of / with factors
     ## x2: continuous variables
-    x1 <- x[, x1.idx, drop=FALSE]
-    x2 <- x[, !x1.idx, drop=FALSE]
-
-    p1 <- ncol(x1)
-    p2 <- ncol(x2)
-
-    if (p2 == 0)
-        return(list(x1=x1, x1.idx=x1.idx))
-
-    list(x1=x1, x1.idx=x1.idx, x2=x2)
+    list(x1 = x[,  x1.idx, drop=FALSE],
+         x1.idx = x1.idx,
+         x2 = x[, !x1.idx, drop=FALSE])
 }
 
 lmrob.M.S <- function(x, y, control, mf, split) {
@@ -110,8 +106,6 @@ lmrob.M.S <- function(x, y, control, mf, split) {
     storage.mode(x2) <- "double"
     storage.mode(y) <- "double"
     c.chi <- lmrob.conv.cc(control$psi, control$tuning.chi)
-
-
 
     z <- .C(R_lmrob_M_S,
             X1=x1,
@@ -135,7 +129,7 @@ lmrob.M.S <- function(x, y, control, mf, split) {
             trace_lev=as.integer(control$trace.lev),
             orthogonalize=TRUE,
             subsample=TRUE,
-            descent=TRUE)
+            descent=TRUE)[c("b1","b2", "res","scale")]
 
     ## coefficients
     idx <- split$x1.idx

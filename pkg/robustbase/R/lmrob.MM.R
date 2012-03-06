@@ -63,6 +63,7 @@ lmrob.control <- function  (setting, seed = NULL, nResample = 500,
 
 lmrob.fit.MM <- function(x, y, control) ## deprecated
 {
+    .Deprecated("lmrob.fit(*, control) with control$method = 'SM'")
     control$method <- 'SM'
     lmrob.fit(x, y, control)
 }## lmrob.MM.fit()
@@ -282,17 +283,15 @@ lmrob.fit <- function(x, y, control, init=NULL) {
 
 .vcov.avar1 <- function(obj, x=obj$x, posdef.meth = c("posdefify","orig"))
 { ## was .vcov.MM
-    ## this works only for MM (SM) estimates
-    if (!is.null(obj$control$method) && !obj$control$method %in% c('SM', 'MM'))
-        stop('.vcov.avar1: this function supports only MM estimates')
+    stopifnot(is.list(ctrl <- obj$control))
+    ## works only for MM & SM estimates:
+    if (!is.null(ctrl$method) && !ctrl$method %in% c('SM', 'MM'))
+        stop('.vcov.avar1() supports only SM or MM estimates')
     ## set psi and chi constants
-    psi <- chi <- obj$control$psi
-    if (is.null(psi)) stop('.vcov.avar1: parameter psi is not defined')
-    c.chi <- obj$control$tuning.chi
-    c.psi <- if (obj$control$method %in% c('S', 'SD'))
-        obj$control$tuning.chi else obj$control$tuning.psi
-    if (!is.numeric(c.psi)) stop('.vcov.avar1: parameter tuning.psi is not numeric')
-    if (!is.numeric(c.chi)) stop('.vcov.avar1: parameter tuning.chi is not numeric')
+    psi <- chi <- ctrl$psi
+    if (is.null(psi)) stop('parameter psi is not defined')
+    stopifnot(is.numeric(c.chi <- ctrl$tuning.chi),
+	      is.numeric(c.psi <- ctrl$tuning.psi))
 
     ## need (r0, r, scale, x, c.psi,c.chi, bb)
     r0 <- obj$init$resid
@@ -333,7 +332,7 @@ lmrob.fit <- function(x, y, control, init=NULL) {
     ev <- eigen(ret, symmetric = TRUE)
     if (any(neg.ev <- ev$values < 0)) { ## there's a problem
 	posdef.meth <- match.arg(posdef.meth)
-	if(object$control$trace.lev)
+	if(ctrl$trace.lev)
 	    message("fixing ", sum(neg.ev),
 		    " negative eigen([",p,"])values")
 	Q <- ev$vectors
@@ -367,7 +366,7 @@ lmrob.fit <- function(x, y, control, init=NULL) {
     attr(ret,"weights") <- w / r.s
     attr(ret,"eigen") <- ev
     ret
-}
+}## end{.vcov.avar1}
 
 lmrob..M..fit <- function (x=obj$x, y=obj$y, beta.initial=obj$coef,
                            scale=obj$scale, control=obj$control, obj)
@@ -433,8 +432,7 @@ lmrob..M..fit <- function (x=obj$x, y=obj$y, beta.initial=obj$coef,
         ret$qr <- qr(x * sqrt(ret$weights))
         ret$rank <- ret$qr$rank
         ## if there is a covariance matrix estimate available in obj
-        ## update it, if possible, else replace it by the default
-        ## .vcov.w
+        ## update it, if possible, else replace it by the default .vcov.w
         if (!is.null(obj$cov)) {
             if (!control$method %in% c('SM', 'MM') &&
                 ret$control$cov == '.vcov.avar1') ret$control$cov <- '.vcov.w'
@@ -511,7 +509,7 @@ lmrob.S <- function (x, y, control, trace.lev = 0, mf = NULL)
     ## robustness weights
     b$weights <- lmrob.wgtfun(b$residuals / b$scale, control$tuning.chi, control$psi)
     ## set method argument in control
-    control$method = 'S'
+    control$method <- 'S'
     b$control <- control
     b
 }

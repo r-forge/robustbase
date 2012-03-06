@@ -2,11 +2,20 @@
 
 DRIVERS = lmrob_simulation
 
+#R_PROG = R-devel
+R_PROG = R
+
 ## "Writing R Extensions" requires: 1st target must also clean up
 doc: all
 	${MAKE} clean
 
 all: $(DRIVERS:=.tex) $(DRIVERS:=.pdf)
+
+%.tex: %.Rnw
+	${R_PROG} CMD Sweave $<
+
+%.R: %.Rnw
+	${R_PROG} CMD Stangle $<
 
 ## render pdf and compress it using qpdf
 %.pdf: %.tex *.bib

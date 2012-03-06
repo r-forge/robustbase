@@ -1,10 +1,8 @@
 \name{lmrob.M.S}
 \alias{lmrob.M.S}
-\title{
-  M-S regression estimators
-}
+\title{ M-S regression estimators }
 \description{
-  Computes and M-S-estimator for linear regression using the
+  Computes an M-S-estimator for linear regression using the
   \dQuote{M-S} algorithm.
 }
 \usage{
@@ -26,23 +24,24 @@ lmrob.M.S(x, y, control, mf, split)
   continuous variables and an L1-estimator for the categorical
   variables.
 
-  The S-estimator is estimated using a subsampling algorithm. If the
-  model includes interactions between categorical and continuous
-  variables, the subsampling algorithm might fail. In this case, one can
-  choose to assign the interaction to the categorical side of variables
-  rather than to the continuous side. This can be done via the control
-  argument \code{split.type}, see \code{\link{lmrob.split}}.
+  The S-estimator is estimated using a subsampling algorithm.  If the
+  model includes interactions between categorical (\code{\link{factor}})
+  and continuous variables, the subsampling algorithm might fail.  In
+  this case, one can choose to assign the interaction to the categorical
+  side of variables rather than to the continuous side.  This can be
+  accomplished via the control argument \code{split.type} or by
+  specifying \code{split}, see \code{\link{lmrob.split}}.
 
   Note that the return status \code{converged} does not refer to the
-  actual convergence status. The algorithm used does not guarantee
+  actual convergence status.  The algorithm used does not guarantee
   convergence and thus true convergence is almost never reached. This
   is, however, not a problem if the estimate is only used as initial
   estimate part of an MM or SMDM estimate.
 }
 \value{
-  A list with compontents
+  A list with components
   \item{coefficients}{numeric vector (length \eqn{p}) of M-S-regression
-    coefficient estimates.} 
+    coefficient estimates.}
   \item{scale}{the M-S-scale residual estimate}
   \item{residuals}{numeric vector (legnth \eqn{n}) of the residuals.}
   \item{weights}{numeric vector (length \eqn{n}) of the robustness weights.}
@@ -59,24 +58,24 @@ lmrob.M.S(x, y, control, mf, split)
   Manuel Koller
 }
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
 \seealso{
-  \code{\link{lmrob}}, for a description of the available split types,
-  see \code{\link{lmrob.split}}.
+  \code{\link{lmrob}}; for a description of the available split types, see
+  \code{\link{lmrob.split}}.
+
+  \code{\link[robust]{lmRob}} in package \pkg{robust} uses a version of
+  the M-S algorithm automatically when the formula contains factors.
+  Our version however follows Maronna and Yohai (2000) more closely.
 }
 \examples{
 data(education)
 education <- within(education, Region <- factor(Region))
-obj <- lm(Y ~ Region + X1 + X2 + X3, education)
-x <- model.matrix(obj)
-y <- education$Y
-control <- lmrob.control()
-str(lmrob.M.S(x, y, control, obj$model))
+flm <- lm(Y ~ Region + X1 + X2 + X3, education)
+x <- model.matrix(flm)
+y <- education$Y # == model.response(model.frame(flm))
+str(lmrob.M.S(x, y, control = lmrob.control(),
+              mf = model.frame(flm)))
 }
 
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
 \keyword{ M-S }
 \keyword{ robust }
-\keyword{ regression }% __ONLY ONE__ keyword per line
+\keyword{ regression }

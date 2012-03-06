@@ -5,23 +5,18 @@
 }
 \description{
   Splits the design matrix into categorical and continuous
-  predictors. Categorical variables are variables that are factors or
+  predictors.  Categorical variables are variables that are factors or
   ordered factors.
 }
 \usage{
-lmrob.split(mf, x, type="f")
+lmrob.split(mf, x = model.matrix(mt, mf),
+ 	    type = c("f","fi", "fii"))
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{mf}{
-    model frame (as returned by \code{model.frame})
-  }
-  \item{x}{
-    design matrix (optional)
-  }
-  \item{type}{
-    split type (see details)
-  }
+  \item{mf}{model frame (as returned by \code{\link{model.frame}}).}
+  \item{x}{(optional) design matrix, defaulting to the derived
+    \code{\link{model.matrix}}.}
+  \item{type}{a character string specifying the split type (see details).}
 }
 \details{
   Which split type is used can be controlled with the setting
@@ -32,16 +27,16 @@ lmrob.split(mf, x, type="f")
   handled. The extra types of splitting can be used to avoid
   \emph{Too many singular resamples} errors.
 
-  Type \code{f}, the default, assigns only the intercept, categorical and
-  interactions of categorical variables to \code{x1}. Interactions of
+  Type \code{"f"}, the default, assigns only the intercept, categorical and
+  interactions of categorical variables to \code{x1}.  Interactions of
   categorical and continuous variables are assigned to \code{x2}.
 
-  Type \code{fi} assigns also interactions between categorical and
+  Type \code{"fi"} assigns also interactions between categorical and
   continuous variables to \code{x1}.
 
-  Type \code{fii} assigns not only interactions between categorical and
-  continuous variables to \code{x1}, but also the continuous variables
-  themselves. 
+  Type \code{"fii"} assigns not only interactions between categorical and
+  continuous variables to \code{x1},  but also the (corresponding)
+  continuous variables themselves.
 }
 \value{
   A list that includes the following components:
@@ -64,11 +59,20 @@ lmrob.split(mf, x, type="f")
 \examples{
 data(education)
 education <- within(education, Region <- factor(Region))
-obj <- lm(Y ~ Region + X1 + X2 + X3, education)
-splt <- lmrob.split(obj$model)
+
+## no interactions -- same split for all types:
+fm1 <- lm(Y ~ Region + X1 + X2 + X3, education)
+splt <- lmrob.split(fm1$model)
 str(splt)
-obj <- lm(Y ~ Region:X1:X2 + X1*X2, education)
-lmrob.split(obj$model, type="f")$x1.idx
-lmrob.split(obj$model, type="fi")$x1.idx
-lmrob.split(obj$model, type="fii")$x1.idx
+
+## with interactions:
+fm2 <- lm(Y ~ Region:X1:X2 + X1*X2, education)
+s1 <- lmrob.split(fm2$model, type="f"  )
+s2 <- lmrob.split(fm2$model, type="fi" )
+s3 <- lmrob.split(fm2$model, type="fii")
+cbind(s1$x1.idx,
+      s2$x1.idx,
+      s3$x1.idx)
+rbind(p.x1 = c(ncol(s1$x1), ncol(s2$x1), ncol(s3$x1)),
+      p.x2 = c(ncol(s1$x2), ncol(s2$x2), ncol(s3$x2)))
 }

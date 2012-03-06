@@ -1,15 +1,15 @@
 ## Test implementation of M-S estimator
 require(robustbase)
-lmrob.conv.cc <- robustbase:::lmrob.conv.cc
-lmrob.psi2ipsi <- robustbase:::lmrob.psi2ipsi
-lmrob.wgtfun <- robustbase:::lmrob.wgtfun
+lmrob.conv.cc  <- robustbase::: lmrob.conv.cc
+lmrob.psi2ipsi <- robustbase::: lmrob.psi2ipsi
+lmrob.wgtfun   <- robustbase::: lmrob.wgtfun
 
 ## dataset with factors and continuous variables:
 data(education)
 education <- within(education, Region <- factor(Region))
 ## for testing purposes:
 education2 <- within(education, Group <- factor(rep(1:3, length.out=length(Region))))
-                     
+
 ## Test lmrob.split (type fii is the only problematic type)
 testFun <- function(formula, x1.idx) {
     obj <- lm(formula, education2)
@@ -19,7 +19,7 @@ testFun <- function(formula, x1.idx) {
         print(ret$x1.idx)
         return(which(unname(ret$x1.idx)))
     }
-    stopifnot(all.equal(x1.idx, which(unname(ret$x1.idx))))
+    stopifnot(identical(x1.idx, which(unname(ret$x1.idx))))
 }
 testFun(Y ~ 1, integer(0))
 testFun(Y ~ X1*X2*X3, integer(0))
@@ -34,7 +34,7 @@ testFun(Y ~ Region*X1 + X2*X3 + Region:Group:X2, c(1:6, 8:10, 12:23))
 testFun(Y ~ (X1+X2+X3+Region)^2, c(1:7,10:12,14:19))
 testFun(Y ~ (X1+X2+X3+Region)^3, c(1:19, 21:29))
 testFun(Y ~ (X1+X2+X3+Region)^4, 1:32)
-testFun(Y ~ Region:X1:X2 + X1*X2, c(1, 4:7))
+testFun(Y ~ Region:X1:X2 + X1*X2, c(1:1, 4:7))
 
 ## Test subsampling algorithm
 m_s_subsample <- function(x1, x2, y, control, orthogonalize=TRUE) {
@@ -44,7 +44,7 @@ m_s_subsample <- function(x1, x2, y, control, orthogonalize=TRUE) {
     storage.mode(x1) <- "double"
     storage.mode(x2) <- "double"
     storage.mode(y) <- "double"
-    
+
     z <- .C(robustbase:::R_lmrob_M_S,
             X1=x1,
             X2=x2,
@@ -72,8 +72,8 @@ m_s_subsample <- function(x1, x2, y, control, orthogonalize=TRUE) {
 }
 
 control <- lmrob.control()
-obj <- lm(Y ~ Region + X1 + X2 + X3, education)
-splt <- lmrob.split(obj$model)
+f.lm <- lm(Y ~ Region + X1 + X2 + X3, education)
+splt <- lmrob.split(f.lm$model)
 y <- education$Y
 
 ## test orthogonalizing
@@ -96,7 +96,7 @@ set.seed(10)
 res2 <- m_s_subsample(x1, x2, y, control, TRUE)
 stopifnot(all.equal(res1, res2))
 
-res <- list()
+res <- vector("list", 100)
 set.seed(0)
 time <- system.time(for (i in 1:100) {
     tmp <- m_s_subsample(x1, x2.tilde, y.tilde, control, FALSE)
@@ -104,12 +104,11 @@ time <- system.time(for (i in 1:100) {
 })
 cat('Time elapsed in subsampling: ', time,'\n')
 ## show a summary of the results
-res1 <- do.call(rbind, res)
-summary(res1[,1:8])
+summary(res1 <- do.call(rbind, res))
 ## compare with fast S solution
-obj <- lmrob(Y ~ Region + X1 + X2 + X3, education, init="S")
-coef(obj)
-obj$scale
+fmS <- lmrob(Y ~ Region + X1 + X2 + X3, education, init="S")
+coef(fmS)
+fmS$scale
 
 ## Test descent algorithm
 m_s_descent <- function(x1, x2, y, control, b1, b2, scale) {
@@ -119,7 +118,7 @@ m_s_descent <- function(x1, x2, y, control, b1, b2, scale) {
     storage.mode(x1) <- "double"
     storage.mode(x2) <- "double"
     storage.mode(y) <- "double"
-    
+
     z <- .C(robustbase:::R_lmrob_M_S,
             X1=x1,
             X2=x2,
@@ -148,7 +147,7 @@ m_s_descent <- function(x1, x2, y, control, b1, b2, scale) {
 
 find_scale <- function(r, s0, n, p, control) {
     c.chi <- lmrob.conv.cc(control$psi, control$tuning.chi)
-    
+
     b <- .C(robustbase:::R_lmrob_S,
             x = double(1),
             y = as.double(r),
@@ -220,21 +219,22 @@ m_s_descent_Ronly<- function(x1, x2, y, control, b1, b2, scale) {
     ## STEP 6: FINISH
     if (nref == control$k.max)
         warning("M-S estimate: maximum number of refinement steps reached.")
-    
+
     list(b1=b1, b2=b2, scale=scale, res=rs)
 }
 
 control2 <- control
 #control2$trace.lev <- 5
 control2$k.max <- 1
-stopifnot(all.equal(m_s_descent(x1, x2, y, control2, res2$b1, res2$b2, res2$scale+10),
-                    m_s_descent_Ronly(x1, x2, y, control2, res2$b1, res2$b2, res2$scale+10),
-                    check.attr=FALSE))
+stopifnot(all.equal(m_s_descent      (x1, x2, y, control2, res2$b1, res2$b2, res2$scale+10),
+		    m_s_descent_Ronly(x1, x2, y, control2, res2$b1, res2$b2, res2$scale+10),
+		    check.attr = FALSE))
 
 ## control$k.m_s <- 100
-res3 <- list()
+res3 <- vector("list", 100)
 time <- system.time(for (i in 1:100) {
-    res3[[i]] <- unlist(m_s_descent(x1, x2, y, control, res[[i]][1:4], res[[i]][5:7], res[[i]][8]))
+    res3[[i]] <- unlist(m_s_descent(x1, x2, y, control,
+                                    res[[i]][1:4], res[[i]][5:7], res[[i]][8]))
 })
 cat('Time elapsed in descent proc: ', time,'\n')
 
@@ -243,22 +243,25 @@ res4 <- do.call(rbind, res3)
 summary(res4[,1:8])
 
 plot(res1[, "scale"], res4[,"scale"])
+abline(0,1, col=adjustcolor("gray", 0.5))
 
 ## Test lmrob.M.S
-x <- model.matrix(obj)
+x <- model.matrix(fmS)
 control$trace.lev <- 3
 set.seed(1003)
-obj2 <- lmrob.M.S(x, y, control, obj$model)
-resid <- drop(y - x %*% obj2$coef)
-stopifnot(all.equal(resid, obj2$resid, check.attr=FALSE))
+fMS <- lmrob.M.S(x, y, control, fmS$model)
+resid <- drop(y - x %*% fMS$coef)
+stopifnot(all.equal(resid, fMS$resid, check.attr=FALSE))
 
 ## Test direct call to lmrob
 set.seed(13)
-obj2 <- lmrob(Y ~ Region + X1 + X2 + X3, education, init="M-S")
-out2 <- capture.output(summary(obj2))
+fiMS <- lmrob(Y ~ Region + X1 + X2 + X3, education, init="M-S")
+out2 <- capture.output(summary(fiMS))
+writeLines(out2)
 
 set.seed(13)
-obj3 <- lmrob(Y ~ Region + X1 + X2 + X3, education, init=lmrob.M.S)
-out3 <- capture.output(summary(obj3))
+fiM.S <- lmrob(Y ~ Region + X1 + X2 + X3, education, init=lmrob.M.S)
+out3 <- capture.output(summary(fiM.S))
 
-stopifnot(all.equal(out2[-4], out3[-4]))
+## must be the same {apart from the "init=" in the call}:
+stopifnot(identical(out2[-4], out3[-4]))
