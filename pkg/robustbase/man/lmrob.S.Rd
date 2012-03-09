@@ -6,7 +6,7 @@
   using the \dQuote{fast S} algorithm.% of Matias Salibian & Victor Yohai ...
 }
 \usage{
-lmrob.S(x, y, control, trace.lev = 0, mf = NULL)
+lmrob.S(x, y, control, trace.lev = control$trace.lev, mf = NULL)
 }
 \arguments{
   \item{x}{ design matrix }

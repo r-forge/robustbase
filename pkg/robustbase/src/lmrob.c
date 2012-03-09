@@ -217,8 +217,10 @@ void sum_vec(double *a, double *b, double *c, int n);
 	    Free(work); Free(weights);                          \
 	    error("dgels: illegal argument in %i. argument.", info); \
 	} else {                                                \
-	    Rprintf("robustness weights in last step: ");       \
-            disp_vec(weights, _n_);				\        
+	    if (*trace_lev > 2) {				\
+		Rprintf("robustness weights in last step: ");	\
+		disp_vec(weights, _n_);				\
+	    }                                                   \
 	    Free(work); Free(weights);                          \
 	    error("dgels: weighted design matrix not of full rank (column %d). Exiting.", info); \
 	}                                                       \
