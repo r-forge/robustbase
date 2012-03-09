@@ -1,6 +1,6 @@
 
-R version 2.14.1 (2011-12-22)
-Copyright (C) 2011 The R Foundation for Statistical Computing
+R version 2.14.2 (2012-02-29)
+Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
@@ -157,8 +157,8 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
- trace.lev compute.rd  numpoints 
-         0          0         10 
+ trace.lev        mts compute.rd  numpoints 
+         0          0          0         10 
        psi     method        cov 
 "bisquare"     "SMDM"  ".vcov.w" 
 seed : int(0) 
@@ -194,8 +194,8 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  0.4047000  0.5000000  1.0601580  0.0000001  0.0000001 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
- trace.lev compute.rd  numpoints 
-         0          0         10 
+ trace.lev        mts compute.rd  numpoints 
+         0          0          0         10 
       psi    method       cov 
 "optimal"    "SMDM" ".vcov.w" 
 seed : int(0) 
@@ -235,8 +235,8 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol
     1.5e+00     9.5e-01          NA     1.0e-07     1.0e-07 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
- trace.lev compute.rd  numpoints 
-         0          0         10 
+ trace.lev        mts compute.rd  numpoints 
+         0          0          0         10 
       psi    method       cov 
     "ggw"    "SMDM" ".vcov.w" 
 seed : int(0) 
@@ -274,8 +274,8 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  0.5773502  0.5000000  2.1100000  0.0000001  0.0000001 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
- trace.lev compute.rd  numpoints 
-         0          0         10 
+ trace.lev        mts compute.rd  numpoints 
+         0          0          0         10 
       psi    method       cov 
   "welsh"    "SMDM" ".vcov.w" 
 seed : int(0) 
@@ -318,8 +318,8 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol
     1.5e+00     8.5e-01          NA     1.0e-07     1.0e-07 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
- trace.lev compute.rd  numpoints 
-         0          0         10 
+ trace.lev        mts compute.rd  numpoints 
+         0          0          0         10 
       psi    method       cov 
     "ggw"    "SMDM" ".vcov.w" 
 seed : int(0) 
@@ -361,8 +361,8 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol
     1.0e+00     9.5e-01          NA     1.0e-07     1.0e-07 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
- trace.lev compute.rd  numpoints 
-         0          0         10 
+ trace.lev        mts compute.rd  numpoints 
+         0          0          0         10 
       psi    method       cov 
     "ggw"    "SMDM" ".vcov.w" 
 seed : int(0) 
@@ -402,8 +402,8 @@ tuning.psi3  refine.tol     rel.tol
   7.2128680   0.0000001   0.0000001 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
- trace.lev compute.rd  numpoints 
-         0          0         10 
+ trace.lev        mts compute.rd  numpoints 
+         0          0          0         10 
       psi    method       cov 
  "hampel"    "SMDM" ".vcov.w" 
 seed : int(0) 
@@ -428,7 +428,7 @@ converged        1    -none-     logical
 fitted.values   23    -none-     numeric
 residuals       23    -none-     numeric
 weights         23    -none-     numeric
-control         21    -none-     list   
+control         22    -none-     list   
 qr               4    qr         list   
 rank             1    -none-     numeric
 cov              1    -none-     logical
@@ -478,8 +478,8 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol
     1.5e+00     9.5e-01          NA     1.0e-07     1.0e-07 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
- trace.lev compute.rd  numpoints 
-         0          0         10 
+ trace.lev        mts compute.rd  numpoints 
+         0          0          0         10 
       psi    method       cov 
     "lqq"    "SMDM" ".vcov.w" 
 seed : int(0) 
@@ -528,13 +528,13 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol
     1.4e+00     9.5e-01          NA     1.0e-07     1.0e-07 
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
- trace.lev compute.rd 
-         0          0 
+ trace.lev        mts compute.rd 
+         0          0          0 
           psi        method           cov 
         "lqq"          "MM" ".vcov.avar1" 
 seed : int(0) 
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  5.671 0.124 6.004 0 0.009 
+Time elapsed:  9.164 0.194 9.656 0.001 0.009 
 > 

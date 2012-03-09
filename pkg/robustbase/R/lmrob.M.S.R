@@ -129,7 +129,9 @@ lmrob.M.S <- function(x, y, control, mf, split) {
             trace_lev=as.integer(control$trace.lev),
             orthogonalize=TRUE,
             subsample=TRUE,
-            descent=TRUE)[c("b1","b2", "res","scale")]
+            descent=TRUE,
+            mts=as.integer(control$mts)
+            )[c("b1","b2", "res","scale")]
 
     ## coefficients
     idx <- split$x1.idx

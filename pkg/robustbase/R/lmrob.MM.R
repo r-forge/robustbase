@@ -3,7 +3,7 @@ lmrob.control <- function  (setting, seed = NULL, nResample = 500,
                             tuning.psi = NULL, max.it = 50,
                             groups = 5, n.group = 400, k.fast.s = 1, best.r.s = 2,
                             k.max = 200, k.m_s = 20, refine.tol = 1e-07, rel.tol = 1e-07,
-                            trace.lev = 0, compute.rd = FALSE,
+                            trace.lev = 0, mts = 0, compute.rd = FALSE,
                             method = 'MM',
                             psi = c('bisquare', 'lqq', 'welsh', 'optimal', 'hampel',
                               'ggw'),
@@ -55,7 +55,7 @@ lmrob.control <- function  (setting, seed = NULL, nResample = 500,
            max.it = max.it, groups = groups, n.group = n.group,
            best.r.s = best.r.s, k.fast.s = k.fast.s,
            k.max = k.max, k.m_s = k.m_s, refine.tol = refine.tol,
-           rel.tol = rel.tol, trace.lev = trace.lev,
+           rel.tol = rel.tol, trace.lev = trace.lev, mts = mts,
            compute.rd = compute.rd, method = method, numpoints = numpoints,
            cov = cov, split.type = match.arg(split.type)),
       list(...))
@@ -397,7 +397,8 @@ lmrob..M..fit <- function (x=obj$x, y=obj$y, beta.initial=obj$coef,
               loss = double(1),
               rel.tol = as.double(control$rel.tol),
               converged = logical(1),
-              trace.lev = as.integer(control$trace.lev)
+              trace.lev = as.integer(control$trace.lev),
+              mts = as.integer(control$mts)
               )[c("coefficients",  "scale", "residuals", "loss", "converged", "iter")]
     ## FIXME?: Should rather warn *here* in case of non-convergence
     names(ret$coefficients) <- colnames(x)
@@ -495,7 +496,8 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev, mf = NULL)
             k.iter = as.integer(control$k.max),
             refine.tol = as.double(control$refine.tol),
             converged = logical(1),
-            trace.lev = as.integer(trace.lev)
+            trace.lev = as.integer(trace.lev),
+            mts = as.integer(control$mts)
             )[c("coefficients", "scale", "k.iter", "converged")]
     scale <- b$scale
     if (scale < 0)

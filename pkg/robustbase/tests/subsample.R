@@ -75,7 +75,8 @@ subsample <- function(x, y=rnorm(nrow(x))) {
             v=double(p),
             pivot=integer(p-1),
             status=integer(1),
-            sample=FALSE)
+            sample=FALSE,
+            mts=0L)
     ## convert idc, idr and p to 1-based indexing
     idr <- z$idr + 1
     idc <- z$idc[1:p] + 1
@@ -125,3 +126,28 @@ A <- matrix(c(1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1), 4, byrow=TRUE)
 subsample(A)
 
 
+## test subsample with mts > 0
+data <- data.frame(y = rnorm(9), expand.grid(A = letters[1:3], B = letters[1:3]))
+x <- model.matrix(y ~ ., data)
+y <- data$y
+n <- length(y)
+p <- ncol(x)
+
+set.seed(1)
+## this should produce a warning and return status == 1
+z <- .C(robustbase:::R_subsample,
+        x=as.double(x),
+        y=as.double(y),
+        n=n,
+        m=p,
+        beta=double(p),
+        ind_space=integer(n),
+        idc=integer(n),
+        idr=integer(n),
+        lu=double(p^2),
+        v=double(p),
+        pivot=integer(p-1),
+        status=integer(1),
+        sample=FALSE,
+        mts=2L)
+stopifnot(z$status == 1)

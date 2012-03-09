@@ -63,13 +63,13 @@ void fast_s_large_n(double *X, double *y,
 		    int *ggroups, int *nn_group,
 		    int *K, int *max_k, double *rel_tol, int *converged,
 		    int *best_r, double *bb, double *rrhoc, int *iipsi,
-		    double *bbeta, double *sscale, int *trace_lev);
+		    double *bbeta, double *sscale, int *trace_lev, int *mts);
 
 void fast_s(double *X, double *y,
 	    int *nn, int *pp, int *nRes,
 	    int *K, int *max_k, double *rel_tol, int *converged,
 	    int *best_r, double *bb, double *rrhoc, int *iipsi,
-	    double *bbeta, double *sscale, int *trace_lev);
+	    double *bbeta, double *sscale, int *trace_lev, int *mts);
 
 int rwls(const double *X, const double *y, int n, int p,
 	 double *estimate, double *i_estimate,
@@ -144,7 +144,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 		   double *b1, double *b2, double *t1, double *t2,
 		   double *y_tilde, double *res, double *x1, double *x2,
 		   int *NIT, int *K, int *KODE, double *SIGMA, double *BET0,
-		   double *SC1, double *SC2, double *SC3, double *SC4);
+		   double *SC1, double *SC2, double *SC3, double *SC4, int *mts);
 
 void m_s_descent(double *X1, double *X2, double *y,
 		 int n, int p1, int p2, int K_m_s, int max_k,
@@ -158,13 +158,13 @@ void m_s_descent(double *X1, double *X2, double *y,
 
 int subsample(const double *x, const double *y, int n, int m, 
 	       double *beta, int *ind_space, int *idc, int *idr, 
-	      double *lu, double *v, int *p, int sample);
+	      double *lu, double *v, int *p, int sample, int *mts);
 
 int fast_s_with_memory(double *X, double *y,
 		       int *nn, int *pp, int *nRes,
 		       int *K, int *max_k, double *rel_tol, int *trace_lev,
 		       int *best_r, double *bb, double *rrhoc, int *iipsi,
-		       double **best_betas, double *best_scales);
+		       double **best_betas, double *best_scales, int *mts);
 
 /* for "tracing" only : */
 void disp_mat(double **a, int n, int m);
@@ -212,8 +212,8 @@ void sum_vec(double *a, double *b, double *c, int n);
     /* solve weighted least squares problem */                  \
     F77_CALL(dgels)("N", &_n_, &_p_, &one, _x_, &_n_, _y_,      \
 		    &_n_, work, &lwork, &info);                 \
-    if (info) {					                \   
-	if (info < 0) {                                         \     
+    if (info) {					                \
+	if (info < 0) {                                         \
 	    Free(work); Free(weights);                          \
 	    error("dgels: illegal argument in %i. argument.", info); \
 	} else {                                                \
@@ -255,8 +255,6 @@ void sum_vec(double *a, double *b, double *c, int n);
 
 #define ZERO 1e-10
 #define INFI 1e+20
-/*UNUSED #define MAX_ITER_REFINE_S 50 */
-#define MAX_NO_TRY_SAMPLES 1000 /* was 500 */
 #define MAX_ITER_FIND_SCALE 200
 #define TOL_INVERSE ZERO
 
@@ -266,7 +264,7 @@ void R_lmrob_S(double *X, double *y, int *n, int *P,
 	       double *rrhoc, int *iipsi, double *bb,
 	       int *best_r, int *Groups, int *N_group,
 	       int *K_s, int *max_k, double *rel_tol, int *converged,
-	       int *trace_lev)
+	       int *trace_lev, int *mts)
 {
     /* best_r = 't' of Salibian-Barrera_Yohai(2006),
      *	      = no. of best candidates to be iterated further
@@ -279,11 +277,11 @@ void R_lmrob_S(double *X, double *y, int *n, int *P,
 	    fast_s_large_n(X, y, n, P, nRes,
 			   Groups, N_group,
 			   K_s, max_k, rel_tol, converged,
-			   best_r, bb, rrhoc, iipsi, beta_s, scale, trace_lev);
+			   best_r, bb, rrhoc, iipsi, beta_s, scale, trace_lev, mts);
 	else
 	    fast_s(X, y, n, P, nRes,
 		   K_s, max_k, rel_tol, converged,
-		   best_r, bb, rrhoc, iipsi, beta_s, scale, trace_lev);
+		   best_r, bb, rrhoc, iipsi, beta_s, scale, trace_lev, mts);
     } else {
 	*scale = find_scale(y, *bb, rrhoc, *iipsi, *scale, *n, *P);
     }
@@ -297,7 +295,7 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
 		 int *K_m_s, int *max_k, double *rel_tol,
 		 int *converged, int *trace_lev, 
 		 int *orthogonalize, int *subsample, 
-		 int *descent)
+		 int *descent, int *mts)
 {
     /* Initialize (some of the) memory here,
      * so that we have to do it only once */
@@ -355,7 +353,7 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
 		      rho_c, *ipsi, scale, trace_lev,
 		      b1, b2, t1, t2, y_tilde, res, x1, x2, 
 		      &NIT, &K, &KODE, &SIGMA, &BET0,
-		      SC1, SC2, SC3, SC4);
+		      SC1, SC2, SC3, SC4, mts);
 
 	if (*scale < 0)
 	    error("m_s_subsample() stopped prematurely.");
@@ -398,7 +396,7 @@ void R_lmrob_MM(double *X, double *y, int *n, int *P,
 		double *beta_initial, double *scale,
 		double *beta_m, double *resid,
 		int *max_it, double *rho_c, int *ipsi, double *loss,
-		double *rel_tol, int *converged, int *trace_lev)
+		double *rel_tol, int *converged, int *trace_lev, int *mts)
 {
     int j;
 
@@ -415,12 +413,13 @@ void R_lmrob_MM(double *X, double *y, int *n, int *P,
 /* Call subsample() from R, just for testing purposes */
 void R_subsample(const double *x, const double *y, int *n, int *m, 
 		 double *beta, int *ind_space, int *idc, int *idr, 
-		 double *lu, double *v, int *p, int *status, int *sample)
+		 double *lu, double *v, int *p, int *status, int *sample, 
+		 int *mts)
 {
     /*	set the seed */
     GetRNGstate();
 
-    *status = subsample(x, y, *n, *m, beta, ind_space, idc, idr, lu, v, p, *sample);
+    *status = subsample(x, y, *n, *m, beta, ind_space, idc, idr, lu, v, p, *sample, mts);
 
     PutRNGstate();
 }
@@ -1286,7 +1285,7 @@ void fast_s_large_n(double *X, double *y,
 		    int *K, int *max_k, double *rel_tol, int *converged,
 		    int *best_r, double *bb, double *rrhoc, int *iipsi,
 		    double *bbeta, double *sscale,
-		    int *trace_lev)
+		    int *trace_lev, int *mts)
 {
 /* *X  = the n x p  design matrix (incl. intercept if appropriate),
  *	 in column order as sent by R)
@@ -1369,7 +1368,7 @@ void fast_s_large_n(double *X, double *y,
 			      &n_group, pp, nRes, K, max_k, rel_tol,
 			      trace_lev, best_r, bb, rrhoc,
 			      iipsi, best_betas + i* *best_r,
-			      best_scales+ i* *best_r)) {
+			      best_scales+ i* *best_r, mts)) {
 	    *sscale = -1.; /* problem */
 	    goto cleanup_and_return;
 	}
@@ -1495,7 +1494,7 @@ int fast_s_with_memory(double *X, double *y,
 		       int *nn, int *pp, int *nRes,
 		       int *K, int *max_k, double *rel_tol, int *trace_lev,
 		       int *best_r, double *bb, double *rrhoc, int *iipsi,
-		       double **best_betas, double *best_scales)
+		       double **best_betas, double *best_scales, int *mts)
 {
 /*
  * Called from fast_s_large_n(), the adjustment for large "n",
@@ -1544,7 +1543,7 @@ int fast_s_with_memory(double *X, double *y,
     for(i=0; i < nResample; i++) {
 	R_CheckUserInterrupt();
 	/* find a candidate */
-	sing = subsample(X, y, n, p, beta_cand, ind_space, idc, idr, lu, v, pivot, 1);
+	sing = subsample(X, y, n, p, beta_cand, ind_space, idc, idr, lu, v, pivot, 1, mts);
 	if (sing) {
 	    for (k=0; k< *best_r; k++) best_scales[i] = -1.;
 	    goto cleanup_and_return;
@@ -1590,7 +1589,7 @@ void fast_s(double *X, double *y,
 	    int *nn, int *pp, int *nRes,
 	    int *K, int *max_k, double *rel_tol, int *converged,
 	    int *best_r, double *bb, double *rrhoc, int *iipsi,
-	    double *bbeta, double *sscale, int *trace_lev)
+	    double *bbeta, double *sscale, int *trace_lev, int *mts)
 {
 /* *X  = the n x p  design matrix (incl. intercept if appropriate),
  *	 in column order as sent by R)
@@ -1654,7 +1653,7 @@ void fast_s(double *X, double *y,
 
 	R_CheckUserInterrupt();
 	/* find a candidate */
-	sing = subsample(X, y, n, p, beta_cand, ind_space, idc, idr, lu, v, pivot, 1);
+	sing = subsample(X, y, n, p, beta_cand, ind_space, idc, idr, lu, v, pivot, 1, mts);
 	if (sing) {
 	    *sscale = -1.;
 	    goto cleanup_and_return;
@@ -1844,7 +1843,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 		   double *b1, double *b2, double *t1, double *t2,
 		   double *y_tilde, double *res, double *x1, double *x2, 
 		   int *NIT, int *K, int *KODE, double *SIGMA, double *BET0,
-		   double *SC1, double *SC2, double *SC3, double *SC4) 
+		   double *SC1, double *SC2, double *SC3, double *SC4, int *mts) 
 {
     int i, j, one = 1;
     int p = p1 + p2, sing;
@@ -1863,7 +1862,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     for(i=0; i < nResample; i++) {
 	R_CheckUserInterrupt();
 	/* STEP 1: Draw a subsample of size p2 from (X2, y) */
-	sing = subsample(x2, y, n, p2, t2, ind_space, idc, idr, lu, v, pivot, 1);
+	sing = subsample(x2, y, n, p2, t2, ind_space, idc, idr, lu, v, pivot, 1, mts);
 	if (sing) {
 	    *sscale = -1.;
 	    goto cleanup_and_return;
@@ -2024,14 +2023,14 @@ void m_s_descent(double *X1, double *X2, double *y,
  * starting value for S estimates                                       *
  * uses a custom LU decomposition, which acts on the transposed design  *
  * matrix. In case of a singular subsample, the subsample is modified   *
- * until it is non-singular.                                            *
+ * until it is non-singular (for mts == 0).                             *
  *                                                                      *
  * Parts of the algorithm are based on the Gaxpy version of the LU      *
  * decomposition with partial pivoting by                               *
  * Golub G. H., Van Loan C. F. (1996) - MATRIX Computations             */
 int subsample(const double *x, const double *y, int n, int m, 
 	      double *beta, int *ind_space, int *idc, int *idr, 
-	      double *lu, double *v, int *pivot, int sample) 
+	      double *lu, double *v, int *pivot, int sample, int *mts)
 {
     /* x:         design matrix (n x m)
        y:         response vector
@@ -2047,12 +2046,15 @@ int subsample(const double *x, const double *y, int n, int m,
        v:         work array of length m
        pivot:     [out] pivoting table of LU decomposition (length m-1) 
        sample:    whether to sample or not
+       mts:       for > 0, the number of singular samples allowed before
+                  giving up (Max Try Samples), 
+		  for == 0 constrained resampling is used.
        
        return condition:
              0: success
              1: singular (matrix xt does not contain a m dim. full rank 
                           submatrix)                                    */
-    int j, k, l, one = 1, mu = 0, tmpi, len_idc = n;
+    int j, k, l, one = 1, mu = 0, tmpi, len_idc = n, attempt = 0;
     double tmpd;
     Rboolean sing;
 
@@ -2062,6 +2064,7 @@ int subsample(const double *x, const double *y, int n, int m,
 #define L(_k_, _j_) lu[_j_*m+_k_]
 #define l(_k_, _j_) lu + (_j_*m+_k_)
 
+Start:
     /* STEP 1: Calculate permutation of 1:n */
     if (sample > 0) {
 	sample_noreplace(idc, n, n, ind_space);
@@ -2105,6 +2108,14 @@ int subsample(const double *x, const double *y, int n, int m,
 		}
 	    }
 	    if (fabs(v[j]) < TOL_INVERSE) {
+		if (*mts > 0) {
+		    attempt++;
+		    if (attempt >= *mts) {
+			warning("Too many singular resamples. Aborting subsample(). Use mts = 0.");
+			return(1);
+		    }
+		    goto Start;
+		}
 		idc[j] = idc[--len_idc];
 		if (len_idc <= j) {
 		    warning("subsample: could not find non-singular subsample.");

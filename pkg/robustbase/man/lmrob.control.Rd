@@ -15,7 +15,7 @@ lmrob.control(setting, seed = NULL, nResample = 500,
               max.it = 50, groups = 5, n.group = 400,
               k.fast.s = 1, best.r.s = 2, k.max = 200, k.m_s = 20,
               refine.tol = 1e-7, rel.tol = 1e-7, trace.lev = 0,
-              compute.rd = FALSE, method = 'MM',
+              mts = 0, compute.rd = FALSE, method = 'MM',
               psi = c('bisquare', 'lqq', 'welsh', 'optimal', 'hampel',
               'ggw'), numpoints = 10, cov = '.vcov.avar1',
               split.type = c("f", "fi", "fii"), ...)
@@ -68,7 +68,9 @@ lmrob.control(setting, seed = NULL, nResample = 500,
   \item{trace.lev}{integer indicating if the progress of the MM-algorithm
     should be traced (increasingly); default \code{trace.lev = 0} does
     no tracing.}
-  %% NOTE that lmrob.S() has its "own"  'trace.lev' !
+  \item{mts}{maximum number of samples to try in subsampling
+    algorithm. For \code{mts=0} constrained subsampling is used, see
+    \code{\link{lmrob.S}}.}
   \item{compute.rd}{logical indicating if robust distances (based on
     the MCD robust covariance estimator \code{\link{covMcd}}) are to be
     computed for the robust diagnostic plots.  This may take some

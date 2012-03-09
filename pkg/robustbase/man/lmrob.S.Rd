@@ -22,10 +22,14 @@ lmrob.S(x, y, control, trace.lev = control$trace.lev, mf = NULL)
   intended to be used on its own (because an S-estimator has too low
   efficiency \sQuote{on its own}).
 
-  The subsampling algorithm uses a customized LU decomposition which
-  ensures a non singular subsample (if this is at all possible). This
-  makes the Fast-S algorithm also feasible for categorical and mixed
-  continuous-categorical data.
+  By default, the subsampling algorithm uses a customized LU
+  decomposition which ensures a non singular subsample (if this is at
+  all possible). This makes the Fast-S algorithm also feasible for
+  categorical and mixed continuous-categorical data.
+
+  One can revert to the old (unconstrained) subsampling scheme by
+  setting the parameter \code{mts} in \code{control} to a value larger
+  than \eqn{0}. The old default value used to be \code{mts = 1000}. 
 }
 \value{
   A list with components
@@ -35,7 +39,7 @@ lmrob.S(x, y, control, trace.lev = control$trace.lev, mf = NULL)
   %   coefficient estimates.}
   \item{fitted.values}{numeric vector (length \eqn{n}) of the fitted
     values.}
-  \item{residuals}{numeric vector (legnth \eqn{n}) of the residuals.}
+  \item{residuals}{numeric vector (length \eqn{n}) of the residuals.}
   \item{weights}{numeric vector (length \eqn{n}) of the robustness weights.}
   \item{k.iter}{(maximal) number of refinement iterations used.}
   \item{converged}{logical indicating if \bold{all} refinement

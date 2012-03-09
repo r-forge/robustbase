@@ -1,5 +1,5 @@
 
-R version 2.15.0 alpha (2012-03-05 r58604)
+R version 2.14.2 (2012-02-29)
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: x86_64-unknown-linux-gnu (64-bit)
@@ -86,7 +86,8 @@ Loading required package: robustbase
 +             trace_lev=as.integer(control$trace.lev),
 +             orthogonalize=as.logical(orthogonalize),
 +             subsample=TRUE,
-+             descent=FALSE)
++             descent=FALSE,
++             mts = 0L)
 +     z[c("b1", "b2", "scale")]
 + }
 > 
@@ -122,11 +123,11 @@ Loading required package: robustbase
 +     res[[i]] <- unlist(within(tmp, b1 <- drop(t1 + b1 - T2 %*% b2)))
 + })
 > cat('Time elapsed in subsampling: ', time,'\n')
-Time elapsed in subsampling:  0.569 0 0.573 0 0 
+Time elapsed in subsampling:  0.636 0.001 0.64 0 0 
 > ## show a summary of the results
 > summary(res1 <- do.call(rbind, res))
       b11               b12              b13                b14       
- Min.   :-316.24   Min.   :-33.92   Min.   :-35.8704   Min.   :16.43  
+ Min.   :-316.24   Min.   :-33.92   Min.   :-35.8703   Min.   :16.43  
  1st Qu.:-225.08   1st Qu.:-23.56   1st Qu.: -8.9603   1st Qu.:29.92  
  Median :-165.13   Median :-21.67   Median : -7.1102   Median :32.20  
  Mean   :-162.74   Mean   :-22.07   Mean   : -8.1134   Mean   :32.12  
@@ -180,7 +181,8 @@ Time elapsed in subsampling:  0.569 0 0.573 0 0
 +             trace_lev=as.integer(control$trace.lev),
 +             orthogonalize=FALSE,
 +             subsample=FALSE,
-+             descent=TRUE)
++             descent=TRUE,
++             mts = 0L)
 +     z[c("b1", "b2", "scale", "res")]
 + }
 > 
@@ -205,7 +207,8 @@ Time elapsed in subsampling:  0.569 0 0.573 0 0
 +             k.iter = 0L,
 +             refine.tol = as.double(control$refine.tol),
 +             converged = logical(1),
-+             trace.lev = 0L
++             trace.lev = 0L,
++             mts = 0L
 +             )[c("coefficients", "scale", "k.iter", "converged")]
 +     b$scale
 + }
@@ -276,7 +279,7 @@ Time elapsed in subsampling:  0.569 0 0.573 0 0
 +                                     res[[i]][1:4], res[[i]][5:7], res[[i]][8]))
 + })
 > cat('Time elapsed in descent proc: ', time,'\n')
-Time elapsed in descent proc:  0.108 0 0.109 0 0 
+Time elapsed in descent proc:  0.122 0 0.122 0 0 
 > 
 > ## show a summary of the results
 > res4 <- do.call(rbind, res3)
@@ -361,8 +364,8 @@ Robustness weights:
 Algorithmic parameters: 
 tuning.chi         bb tuning.psi    rel.tol 
  1.5476400  0.5000000  4.6850610  0.0000001 
- nResample     max.it      k.max      k.m_s  trace.lev compute.rd 
-       500         50        200         20          0          0 
+ nResample     max.it      k.max      k.m_s  trace.lev        mts compute.rd 
+       500         50        200         20          0          0          0 
        psi     method        cov split.type 
 "bisquare"     "M-SM"  ".vcov.w"        "f" 
 seed : int(0) 
@@ -374,6 +377,3 @@ seed : int(0)
 > ## must be the same {apart from the "init=" in the call}:
 > stopifnot(identical(out2[-4], out3[-4]))
 > 
-> proc.time()
-   user  system elapsed 
-  1.351   0.059   1.504 
