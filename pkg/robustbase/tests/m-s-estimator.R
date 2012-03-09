@@ -10,11 +10,11 @@ education <- within(education, Region <- factor(Region))
 ## for testing purposes:
 education2 <- within(education, Group <- factor(rep(1:3, length.out=length(Region))))
 
-## Test lmrob.split (type fii is the only problematic type)
+## Test splitFrame (type fii is the only problematic type)
 testFun <- function(formula, x1.idx) {
     obj <- lm(formula, education2)
     mf <- obj$model
-    ret <- lmrob.split(mf, type="fii")
+    ret <- splitFrame(mf, type="fii")
     if (missing(x1.idx)) {
         print(ret$x1.idx)
         return(which(unname(ret$x1.idx)))
@@ -73,7 +73,7 @@ m_s_subsample <- function(x1, x2, y, control, orthogonalize=TRUE) {
 
 control <- lmrob.control()
 f.lm <- lm(Y ~ Region + X1 + X2 + X3, education)
-splt <- lmrob.split(f.lm$model)
+splt <- splitFrame(f.lm$model)
 y <- education$Y
 
 ## test orthogonalizing

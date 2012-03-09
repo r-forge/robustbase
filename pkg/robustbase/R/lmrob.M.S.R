@@ -43,8 +43,8 @@ lmrob.lar <- function(x, y, control = lmrob.control(), mf = NULL)
   z1
 }
 
-lmrob.split <- function(mf, x = model.matrix(mt, mf),
-			type = c("f","fi", "fii"))
+splitFrame <- function(mf, x = model.matrix(mt, mf),
+                       type = c("f","fi", "fii"))
 {
     mt <- attr(mf, "terms")
     type <- match.arg(type)
@@ -99,7 +99,7 @@ lmrob.split <- function(mf, x = model.matrix(mt, mf),
 
 lmrob.M.S <- function(x, y, control, mf, split) {
     if (missing(split))
-        split <- lmrob.split(mf, x, control$split.type)
+        split <- splitFrame(mf, x, control$split.type)
     x1 <- split$x1
     x2 <- split$x2
     storage.mode(x1) <- "double"

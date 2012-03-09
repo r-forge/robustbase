@@ -1,5 +1,5 @@
-\name{lmrob.split}
-\alias{lmrob.split}
+\name{splitFrame}
+\alias{splitFrame}
 \title{
   Split Continuous and Categorical Predictors
 }
@@ -9,8 +9,8 @@
   ordered factors.
 }
 \usage{
-lmrob.split(mf, x = model.matrix(mt, mf),
- 	    type = c("f","fi", "fii"))
+splitFrame(mf, x = model.matrix(mt, mf),
+ 	   type = c("f","fi", "fii"))
 }
 \arguments{
   \item{mf}{model frame (as returned by \code{\link{model.frame}}).}
@@ -62,14 +62,14 @@ education <- within(education, Region <- factor(Region))
 
 ## no interactions -- same split for all types:
 fm1 <- lm(Y ~ Region + X1 + X2 + X3, education)
-splt <- lmrob.split(fm1$model)
+splt <- splitFrame(fm1$model)
 str(splt)
 
 ## with interactions:
 fm2 <- lm(Y ~ Region:X1:X2 + X1*X2, education)
-s1 <- lmrob.split(fm2$model, type="f"  )
-s2 <- lmrob.split(fm2$model, type="fi" )
-s3 <- lmrob.split(fm2$model, type="fii")
+s1 <- splitFrame(fm2$model, type="f"  )
+s2 <- splitFrame(fm2$model, type="fi" )
+s3 <- splitFrame(fm2$model, type="fii")
 cbind(s1$x1.idx,
       s2$x1.idx,
       s3$x1.idx)

@@ -39,7 +39,7 @@ export(Sn, Qn, Qn.old,
        lmrob.fit.MM, lmrob..M..fit, lmrob..D..fit,
        lmrob.S, lmrob.lar, lmrob.M.S,
        lmrob.control,
-       lmrob.split,
+       splitFrame,
 
        mc, # Mia Hubers's medcouple
        adjbox,

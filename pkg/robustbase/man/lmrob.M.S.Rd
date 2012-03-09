@@ -13,7 +13,7 @@ lmrob.M.S(x, y, control, mf, split)
   \item{y}{ numeric vector for the response }
   \item{control}{ list as returned by \code{\link{lmrob.control}} }
   \item{mf}{ model.frame as returned by \code{\link{model.frame}} }
-  \item{split}{ (optional) list as returned by \code{\link{lmrob.split}} }
+  \item{split}{ (optional) list as returned by \code{\link{splitFrame}} }
 }
 \details{
   This function is used by \code{\link{lmrob}} and not intended to be
@@ -30,7 +30,7 @@ lmrob.M.S(x, y, control, mf, split)
   this case, one can choose to assign the interaction to the categorical
   side of variables rather than to the continuous side.  This can be
   accomplished via the control argument \code{split.type} or by
-  specifying \code{split}, see \code{\link{lmrob.split}}.
+  specifying \code{split}, see \code{\link{splitFrame}}.
 
   Note that the return status \code{converged} does not refer to the
   actual convergence status.  The algorithm used does not guarantee
@@ -60,7 +60,7 @@ lmrob.M.S(x, y, control, mf, split)
 
 \seealso{
   \code{\link{lmrob}}; for a description of the available split types, see
-  \code{\link{lmrob.split}}.
+  \code{\link{splitFrame}}.
 
   \code{\link[robust]{lmRob}} in package \pkg{robust} uses a version of
   the M-S algorithm automatically when the formula contains factors.

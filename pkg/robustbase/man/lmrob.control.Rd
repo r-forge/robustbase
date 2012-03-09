@@ -87,7 +87,7 @@ lmrob.control(setting, seed = NULL, nResample = 500,
     calculate covariance matrix estimate. See \emph{Details} of
     \code{\link{lmrob}}.}
   \item{split.type}{Determines how categorical and continuous variables
-    are split. See \code{\link{lmrob.split}}.}
+    are split. See \code{\link{splitFrame}}.}
   \item{...}{Further arguments are added to the control list.}
 }
 \details{The option \code{setting="KS2011"} alters the default
