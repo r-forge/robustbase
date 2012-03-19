@@ -7,8 +7,7 @@
 ##	e_jk where (e_jk)_i = 1_[i \in {j,k}]
 
 
-### Construct the Rotation matrix, that rotates (1,0,....0) onto
-### (1,1,1,...1)/sqrt(p), or more generally to  u / ||u||  (u := unit.image)
+### Construct the Rotation matrix, that rotates (1,0,....0) onto ### (1,1,1,...1)/sqrt(p), or more generally to  u / ||u||  (u := unit.image)
 Qrot <- function(p, transpose = FALSE, unit.image = rep(1,p))
 {
     ## Purpose: Construct a  p x p  rotation matrix which rotates
@@ -83,11 +82,11 @@ rbwheel <- function(n,		# observations
 
     maybeScale <- function(x) if(scaleAfter) scale.simply(x) else x
     if(fullResult) { ## for didactical reasons mainly, see example
-	A <- Qrot(p, u = U1)
+	A <- Qrot(p, unit.image = U1)
 	list(X = maybeScale(d1 %*% A), X0 = d0, A = A, n1 = n1, n2 = n2,
              scale = c(before=scaleBefore, after=scaleAfter, spherize=spherize))
     }
-    else ## by default
-	structure(maybeScale(d1 %*% Qrot(p, u = U1)), n1 = n1) # 'n1' as attribute
+    else ## by default -- 'n1' as attribute :
+	structure(maybeScale(d1 %*% Qrot(p, unit.image = U1)), n1 = n1)
 }
 
