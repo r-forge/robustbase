@@ -31,6 +31,7 @@ p.rbwheel <- function(n, p, frac = 1/p,
     invisible(rb)
 }
 
+library(robustX)
 library(lattice)
 
 p.rbwheel(500,4)
