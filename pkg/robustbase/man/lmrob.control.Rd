@@ -41,7 +41,7 @@ lmrob.control(setting, seed = NULL, nResample = 500,
     \dQuote{chi} (rather \eqn{\rho (rho)}{rho}) function with tuning
     constant equal to \code{tuning.chi}.  This is used to compute the
     S-estimator.}
-  \item{tuning.psi}{tuning constant vector for the re-descending M-estimator.
+  \item{tuning.psi}{tuning constant vector for the redescending M-estimator.
     Depending on the value of \code{psi} this constant is set to yield
     an estimator with asymptotic efficiency of 95\% for normal errors.
     See \emph{Details}.}
@@ -82,8 +82,8 @@ lmrob.control(setting, seed = NULL, nResample = 500,
     is interpreted as \code{SM}. See \emph{Details} of
     \code{\link{lmrob}} for a description of the possible values.}
   \item{psi}{string specifying the type \eqn{\psi}-function
-    used. See \emph{Details} of \code{\link{lmrob}}. Defaults to
-    \code{bisquare} for S and MM-estimates, otherwise \code{lqq}.}
+    used.  See \emph{Details} of \code{\link{lmrob}}.  Defaults to
+    \code{"bisquare"} for S and MM-estimates, otherwise \code{"lqq"}.}
   \item{numpoints}{Number of points used in Gauss quadrature.}
   \item{cov}{Function or string with function name to be used to
     calculate covariance matrix estimate. See \emph{Details} of

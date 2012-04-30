@@ -112,7 +112,7 @@ lmrob.fit <- function(x, y, control, init=NULL) {
             if (!init$converged) {
                 warning(step, "-step did NOT converge. Returning unconverged ", est,
                         "-estimate.")
-                break;
+                break
             }
         }
     }
@@ -740,9 +740,7 @@ lmrob.leverages <- function(x, w = rep(1, NROW(x)), ...)
 lmrob.psi2ipsi <- function(psi)
 {
     switch(casefold(psi),
-           'tukey' =,
-           'biweight' = ,
-           'bisquare' = 1L,
+           'tukey' = , 'biweight' = , 'bisquare' = 1L,
            'welsh' = 2L,
            'optimal' = 3L,
            'hampel' = 4L,

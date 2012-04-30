@@ -1,16 +1,3 @@
-### FIXME:
-### ----- MM wants to change
-
-### 3) allow the 'control' entries to enter via "..." as well -- Done
-
-### 4) lmrob() should really behave like lm() {in R; not S !}
-###		--> 'subset' etc			      -- Done
-
-### 5) There are still quite a few things hard-coded in ../src/lmrob.c
-###    E.g., 'nResample' is used, but MAX_NO_RESAMPLES = 500 cannot be changed.
-
-### 6) Use ' method = "MM" ' and a general scheme for "plugin" of other estimators!!
-
 
 ### The first part of lmrob()  much cut'n'paste from lm() - on purpose!
 lmrob <-
@@ -44,7 +31,7 @@ lmrob <-
                       length(offset), NROW(y)), domain = NA)
     if (!missing(control) && !missing(method) && method != control$method) {
         warning("Methods argument set by method is different from method in control\n",
-                "Using method = ", method)
+                "Using the former, method = ", method)
         control$method <- method
     }
 
@@ -85,8 +72,8 @@ lmrob <-
             ## check for control$cov argument
             if (class(init)[1] != "lmrob.S" && control$cov == '.vcov.avar1')
                 control$cov <- ".vcov.w"
-        } 
-        z <- lmrob.fit(x, y, control, init=init)
+        }
+        z <- lmrob.fit(x, y, control, init=init) #-> ./lmrob.MM.R
     }
 
     z$na.action <- attr(mf, "na.action")
@@ -106,7 +93,8 @@ lmrob <-
     z
 }
 
-## internal function, used in lmrob() and maybe plot.lmrob()
+##' Robust Mahalanobis Distances
+##' internal function, used in lmrob() and maybe plot.lmrob()
 robMD <- function(x, intercept, ...) {
     if(intercept == 1) x <- x[, -1, drop=FALSE]
     if(ncol(x) >= 1) {
@@ -255,7 +243,7 @@ print.summary.lmrob <-
 	summarizeRobWeights(x$weights, digits = digits, ...)
 
     } else cat("\nNo Coefficients\n")
-    
+
     ## modify control list to contain only parameters
     ## that were actually used
     control <- x$control

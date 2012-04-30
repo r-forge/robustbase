@@ -5,8 +5,8 @@
 }
 \description{
   This method implements the routine L1 in Barrodale and Roberts (1974),
-  which is based on the simplex method of linear programming. It is a
-  copy of the method lmRob.lar in the robust package.  
+  which is based on the simplex method of linear programming.  It is a
+  copy of \code{\link[robust]{lmRob.lar}} in the \pkg{robust} package.
 }
 \usage{
 lmrob.lar(x, y, control, mf)
@@ -52,9 +52,6 @@ lmrob.lar(x, y, control, mf)
 \author{
   Manuel Koller
 }
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
 \seealso{
   \code{\link[quantreg]{rq}} from package \pkg{quantreg}.
 }
@@ -64,7 +61,5 @@ X <- model.matrix(stack.loss ~ . , data = stackloss)
 y <- stack.loss
 lmrob.lar(X, y)
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
 \keyword{ L1 }
-\keyword{ regression }% __ONLY ONE__ keyword per line
+\keyword{ regression }

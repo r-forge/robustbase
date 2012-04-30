@@ -59,62 +59,75 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
 
   \item{init}{an optional argument to specify or supply the initial
   estimate. See \emph{Details}.}
-  
+
   \item{\dots}{can be used to specify control parameters directly
     instead of via \code{control}.}
 }
 \details{
-  This function computes an MM-type regression estimator
-  as described in Yohai (1987) and Koller and Stahel (2011).  By default
-  it uses a bi-square re-desceding score function, and it returns a
-  highly robust and highly efficient estimator (with 50\% breakdown
-  point and 95\% asymptotic efficiency for normal errors). The
-  computation is carried out by a call to \code{\link{lmrob.fit}()}.
+  \describe{
+    \item{Overview}{
+      This function computes an MM-type regression estimator as
+      described in Yohai (1987) and Koller and Stahel (2011).  By
+      default it uses a bi-square redescending score function, and it
+      returns a highly robust and highly efficient estimator (with 50\%
+      breakdown point and 95\% asymptotic efficiency for normal errors).
+      The computation is carried out by a call to \code{\link{lmrob.fit}()}.
 
-  The argument \code{setting} of \code{\link{lmrob.control}} is provided
-  to set alternative defaults as suggested in Koller and Stahel (2011)
-  (use \code{setting='KS2011'}). For details, see
-  \code{\link{lmrob.control}}.
+      The argument \code{setting} of \code{\link{lmrob.control}} is provided
+      to set alternative defaults as suggested in Koller and Stahel (2011)
+      (use \code{setting='KS2011'}).  For details, see
+      \code{\link{lmrob.control}}.
+    }
+    \item{Initial Estimator \code{init}:}{
+      The initial estimator may be specified using the argument
+      \code{init}. This argument can either be a string, a function or a
+      list.  A \emph{string} can be used to specify built in internal
+      estimators (currently \code{S} and \code{M-S}, see \emph{See also}
+      below).  A \emph{function} taking arguments \code{x, y, control,
+      mf} (where \code{mf} stands for \code{model.frame}) and returning
+      a list containing at least the initial coefficients as
+      \code{coefficients} and the initial scale estimate
+      \code{scale}. Or a \emph{list} giving the initial coefficients and
+      scale as \code{coefficients} and \code{scale}. See also \emph{Examples}.
 
-  The initial estimator may be specified using the argument
-  \code{init}. This argument can either be a string, a function or a
-  list. A \emph{string} can be used to specify built in internal
-  estimators (currently \code{S} and \code{M-S}, see \emph{See also}
-  below). A \emph{function} taking arguments \code{x, y, control, mf}
-  (where \code{mf} stands for \code{model.frame}) and returning a list
-  containing at least the initial coefficients as \code{coefficients}
-  and the initial scale estimate \code{scale}. Or a \emph{list} giving
-  the initial coefficients and scale as \code{coefficients} and
-  \code{scale}. See also \emph{Examples}.
-  
-  Note that if the init argument supplied is a function or list, the
-  method argument must not contain the initial estimator, e.g.,
-  \code{MDM} instead of \code{SMDM}.
+      Note that if the init argument supplied is a function or list, the
+      method argument must \emph{not} contain the initial estimator, e.g.,
+      use \code{MDM} instead of \code{SMDM}.
 
-  As initial estimator it uses an S-estimator (Rousseeuw and Yohai,
-  1984) which is computed using the Fast-S algorithm of Salibian-Barrera
-  and Yohai (2006), calling the function \code{\link{lmrob.S}}. The
-  function used constrained subsampling, that makes the Fast-S algorithm
-  feasible for categorical data as well.
+      The default, equivalent to \code{init = "S"}, uses as initial
+      estimator an S-estimator (Rousseeuw and Yohai, 1984) which is
+      computed using the Fast-S algorithm of Salibian-Barrera and Yohai
+      (2006), calling \code{\link{lmrob.S}()}.  That function, since
+      March 2012, uses \emph{constrained} subsampling which makes the
+      Fast-S algorithm feasible for categorical data as well.
+    }
+    \item{Method \code{method}:}{
+      The following chain of estimates is customizable via the
+      \code{method} argument of \code{\link{lmrob.control}}.  There are
+      currently two types of estimates available,
+      \describe{
+	\item{\code{"M"}:}{corresponds to the standard M-regression
+	  estimate.}
+	\item{\code{"D"}:}{stands for the Design Adaptive Scale estimate
+	  as proposed in Koller and Stahel (2011).}
+      }
+      The \code{method} argument takes a string that specifies the
+      estimates to be calculated as a chain.  Setting
+      \code{method='SMDM'} will result in an intial S-estimate, followed
+      by an M-estimate, a Design Adaptive Scale estimate and a final
+      M-step.  For methods involving a \code{D}-step, the default value
+      of \code{psi} (see \code{\link{lmrob.control}}) is changed to
+      \code{"lqq"}.
 
-  The following chain of estimates is customizable via the \code{method}
-  argument of \code{\link{lmrob.control}}. There are currently two types
-  of estimates available: \code{M} and \code{D}. The first corresponds
-  to the standard M-regression estimate. \code{D} stands for the Design
-  Adaptive Scale estimate as proposed in Koller and Stahel (2011). The
-  \code{method} argument takes a string that specifies the estimates to
-  be calculated as a chain. Setting \code{method='SMDM'} will result in
-  an intial S-estimate, followed by an M-estimate, a Design Adaptive
-  Scale estimate and a final M-step. For methods involving a
-  \code{D}-step, the default psi value of psi is changed to \code{lqq}.
-
-  By default, standard errors are computed using the formulas of Croux,
-  Dhaene and Hoorelbeke (2003) (\code{\link{lmrob.control}} option
-  \code{cov=".vcov.avar1"}). This method, however, works only for
-  MM-estimates. For other \code{method} arguments, the covariance matrix
-  estimate used is based on the asymptotic normality of the estimated
-  coefficients (\code{cov=".vcov.w"}) as described in Koller and Stahel
-  (2011).
+      By default, standard errors are computed using the formulas of
+      Croux, Dhaene and Hoorelbeke (2003) (\code{\link{lmrob.control}}
+      option \code{cov=".vcov.avar1"}).  This method, however, works only
+      for MM-estimates. For other \code{method} arguments, the
+      covariance matrix estimate used is based on the asymptotic
+      normality of the estimated coefficients (\code{cov=".vcov.w"}) as
+      described in Koller and Stahel (2011).
+    }
+  }%end {describe}
 }
 \value{
   An object of class \code{lmrob}. A list that includes the
@@ -139,7 +152,7 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   Koller, M. and Stahel, W.A. (2011), Sharpening Wald-type inference in
   robust regression for small samples, \emph{Computational Statistics &
     Data Analysis} \bold{55}(8), 2504--2515.
-  
+
   Maronna, R. A., and Yohai, V. J. (2000).
   Robust regression with both continuous and categorical predictors.
   \emph{Journal of Statistical Planning and Inference} \bold{89}, 197--214.
@@ -164,7 +177,7 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
 \seealso{
   \code{\link{lmrob.control}};
   for the algorithms \code{\link{lmrob.S}}, \code{\link{lmrob.M.S}} and
-  \code{\link{lmrob.fit}}; 
+  \code{\link{lmrob.fit}};
   and for methods,
   \code{\link{predict.lmrob}}, \code{\link{summary.lmrob}},
   \code{\link{print.lmrob}}, and \code{\link{plot.lmrob}}.
