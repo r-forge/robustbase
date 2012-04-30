@@ -1,6 +1,6 @@
 \documentclass[a4paper]{article}
 
-%\VignetteIndexEntry{lmrob_simulation.Rnw}
+%\VignetteIndexEntry{Simulations for Robust Regression Inference in Small Samples}
 %\VignetteDepends{robustbase, xtable, ggplot2, RColorBrewer, grid, reshape2}
 
 \usepackage{amsmath}
