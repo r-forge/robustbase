@@ -2093,7 +2093,15 @@ Start:
 	    if (j < m-1) {
 		/* find pivot */
 		tmpd=fabs(v[j]); mu = j;
-		for(k=j+1;k<m;k++) if (tmpd < fabs(v[k])) { mu = k; tmpd = fabs(v[k]); }
+		for(k=j+1;k<m;k++) if (tmpd < fabs(v[k])) { mu = k; tmpd = fabs(v[k]); } 
+                /* debug possumDiv example, see tests/subsample.R */
+		/* if (j == 36) { */
+		/*     Rprintf("Step %d: ", j+1); */
+		/*     for(k=j;k<m;k++) Rprintf("%lf ", fabs(v[k])); */
+		/*     Rprintf("\n %d %lf\n", mu+1, v[mu]); */
+		/*     Rprintf("47 > 51: %x\n", fabs(v[46]) > fabs(v[50])); */
+		/*     Rprintf("47 < 51: %x\n", fabs(v[46]) < fabs(v[50])); */
+		/* } */
 		/* continue only if pivot is large enough */
 		if (tmpd >= TOL_INVERSE) {
 		    pivot[j] = mu;
