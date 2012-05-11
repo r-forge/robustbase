@@ -10,15 +10,13 @@
 g.scale_y_log10_0.05 <- function(breaks =  c(0.00001, 0.0001, 0.001, 0.01,
                                    0.02, 0.03, 0.05, 0.07, 0.1, 0.14,
                                    0.2, 0.4, 0.8),
-                                 minor_breaks = seq(0,1,by = 0.01),
-                                 labels = breaks, ...)
+                                 minor_breaks = seq(0,1,by = 0.01), ...)
   ## Purpose: add nice breaks and labels 
   ## ----------------------------------------------------------------------
   ## Arguments: just like scale_y_log10
   ## ----------------------------------------------------------------------
   ## Author: Manuel Koller, Date: 11 Nov 2009, 11:52
-  scale_y_log10(breaks = breaks, minor_breaks = minor_breaks,
-                labels = labels, ...)
+  scale_y_log10(breaks = breaks, minor_breaks = minor_breaks, ...)
 
 ## the same for lattice:
 g.scale_y_log10_0.05_lattice <- list(at = log10(c(seq(0.1, 0.01, by = -0.01), 0.001,
@@ -27,25 +25,23 @@ g.scale_y_log10_0.05_lattice <- list(at = log10(c(seq(0.1, 0.01, by = -0.01), 0.
                                        "", 0.01, 0.001, 0.0001, 0.00001))
 
 g.scale_y_log10_1 <- function(breaks = c(seq(0,1,by=0.1), seq(1.2, 3.5,by=0.2)),
-                              minor_breaks = seq(0,10,by = 0.1),
-                              labels = breaks, ...)
+                              minor_breaks = seq(0,10,by = 0.1), ...)
   ## Purpose: add nice breaks and labels 
   ## ----------------------------------------------------------------------
   ## Arguments: just like scale_y_log10
   ## ----------------------------------------------------------------------
   ## Author: Manuel Koller, Date: 11 Nov 2009, 11:52
-  scale_y_log10(breaks = breaks, minor_breaks = minor_breaks, labels = labels, ...)
+  scale_y_log10(breaks = breaks, minor_breaks = minor_breaks, ...)
 
 g.scale_y_log10_1_l <- function(breaks = c(seq(0,.4,by=0.1), seq(0.6,1.4,by=0.2),
                                   seq(1.6, 3.4, by = 0.4)),
-                                minor_breaks = seq(0,10,by = 0.1),
-                                labels = breaks, ...)
+                                minor_breaks = seq(0,10,by = 0.1), ...)
   ## Purpose: add nice breaks and labels 
   ## ----------------------------------------------------------------------
   ## Arguments: just like scale_y_log10
   ## ----------------------------------------------------------------------
   ## Author: Manuel Koller, Date: 11 Nov 2009, 11:52
-  scale_y_log10(breaks = breaks, minor_breaks = minor_breaks, labels = labels, ...)
+  scale_y_log10(breaks = breaks, minor_breaks = minor_breaks, ...)
 
 g.scale_shape_defaults = c(16, 17, 15, 3, 7, 8)
 g.scale_shape_defaults2 = c(g.scale_shape_defaults,9,1,2,4)
