@@ -270,6 +270,8 @@ print.summary.lmrob <-
                control$k.max <- NULL
                control$k.m_s <- NULL
                control$split.type <- NULL
+               control$mts <- NULL
+               control$subsampling <- NULL
            } )
     if (!grepl("D", control$method)) control$numpoints <- NULL
     if (x$control$method == 'SM') control$method <- x$control$method <- 'MM'

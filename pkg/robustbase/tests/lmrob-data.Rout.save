@@ -1,5 +1,5 @@
 
-R version 2.14.2 (2012-02-29)
+R version 2.15.0 (2012-03-30)
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: x86_64-unknown-linux-gnu (64-bit)
@@ -54,9 +54,9 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
  trace.lev        mts compute.rd 
-         0          0          0 
-          psi        method           cov 
-   "bisquare"          "MM" ".vcov.avar1" 
+         0       1000          0 
+          psi   subsampling        method           cov 
+   "bisquare" "constrained"          "MM" ".vcov.avar1" 
 seed : int(0) 
 > (A1 <- anova(m0.sali, Y ~ X1 + X3))
 Robust Wald Test Table
@@ -168,9 +168,9 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
  trace.lev        mts compute.rd 
-         0          0          0 
-          psi        method           cov 
-   "bisquare"          "MM" ".vcov.avar1" 
+         0       1000          0 
+          psi   subsampling        method           cov 
+   "bisquare" "constrained"          "MM" ".vcov.avar1" 
 seed : int(0) 
 > stopifnot(c(3,18) == which(m1$w < 0.2))
 > 
@@ -214,9 +214,9 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
  trace.lev        mts compute.rd 
-         0          0          0 
-          psi        method           cov 
-   "bisquare"          "MM" ".vcov.avar1" 
+         0       1000          0 
+          psi   subsampling        method           cov 
+   "bisquare" "constrained"          "MM" ".vcov.avar1" 
 seed : int(0) 
 > stopifnot(c(11,20,30,34) == which(RlmST$w < 0.01))
 > 
@@ -256,9 +256,9 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
  trace.lev        mts compute.rd 
-         0          0          0 
-          psi        method           cov 
-   "bisquare"          "MM" ".vcov.avar1" 
+         0       1000          0 
+          psi   subsampling        method           cov 
+   "bisquare" "constrained"          "MM" ".vcov.avar1" 
 seed : int(0) 
 > stopifnot(1:10 == which(m.hbk$w < 0.01))
 > 
@@ -291,9 +291,9 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
  trace.lev        mts compute.rd 
-         0          0          0 
-          psi        method           cov 
-   "bisquare"          "MM" ".vcov.avar1" 
+         0       1000          0 
+          psi   subsampling        method           cov 
+   "bisquare" "constrained"          "MM" ".vcov.avar1" 
 seed : int(0) 
 > stopifnot(8  == which(mhrt$w < 0.15),
 +           11 == which(0.61 < mhrt$w & mhrt$w < 0.62),
@@ -333,12 +333,15 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
  trace.lev        mts compute.rd 
-         0          0          0 
-          psi        method           cov 
-   "bisquare"          "MM" ".vcov.avar1" 
+         0       1000          0 
+          psi   subsampling        method           cov 
+   "bisquare" "constrained"          "MM" ".vcov.avar1" 
 seed : int(0) 
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # "stats"
-Time elapsed:  0.657 0.089 0.944 0.001 0.008 
+Time elapsed:  0.33 0.035 0.518 0 0.001 
 > 
+> proc.time()
+   user  system elapsed 
+  0.330   0.036   0.518 

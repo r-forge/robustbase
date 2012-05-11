@@ -68,7 +68,8 @@ m_s_subsample <- function(x1, x2, y, control, orthogonalize=TRUE) {
             orthogonalize=as.logical(orthogonalize),
             subsample=TRUE,
             descent=FALSE,
-            mts = 0L)
+            mts = 0L,
+            ss = 1L)
     z[c("b1", "b2", "scale")]
 }
 
@@ -143,7 +144,8 @@ m_s_descent <- function(x1, x2, y, control, b1, b2, scale) {
             orthogonalize=FALSE,
             subsample=FALSE,
             descent=TRUE,
-            mts = 0L)
+            mts = 0L,
+            ss = 1L)
     z[c("b1", "b2", "scale", "res")]
 }
 
@@ -169,7 +171,8 @@ find_scale <- function(r, s0, n, p, control) {
             refine.tol = as.double(control$refine.tol),
             converged = logical(1),
             trace.lev = 0L,
-            mts = 0L
+            mts = 0L,
+            ss = 1L
             )[c("coefficients", "scale", "k.iter", "converged")]
     b$scale
 }

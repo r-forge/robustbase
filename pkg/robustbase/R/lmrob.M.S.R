@@ -130,7 +130,8 @@ lmrob.M.S <- function(x, y, control, mf, split) {
             orthogonalize=TRUE,
             subsample=TRUE,
             descent=TRUE,
-            mts=as.integer(control$mts)
+            mts=as.integer(control$mts),
+            ss=.convSs(control$subsampling)
             )[c("b1","b2", "res","scale")]
 
     ## coefficients

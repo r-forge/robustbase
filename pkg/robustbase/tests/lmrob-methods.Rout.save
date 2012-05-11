@@ -1,5 +1,5 @@
 
-R version 2.14.2 (2012-02-29)
+R version 2.15.0 (2012-03-30)
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: x86_64-unknown-linux-gnu (64-bit)
@@ -33,7 +33,7 @@ converged       1     -none-     logical
 fitted.values  21     -none-     numeric
 residuals      21     -none-     numeric
 weights        21     -none-     numeric
-control        22     -none-     list   
+control        23     -none-     list   
 qr              4     qr         list   
 rank            1     -none-     numeric
 cov            16     -none-     numeric
@@ -88,9 +88,9 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
  trace.lev        mts compute.rd 
-         0          0          0 
-          psi        method           cov 
-   "bisquare"          "MM" ".vcov.avar1" 
+         0       1000          0 
+          psi   subsampling        method           cov 
+   "bisquare" "constrained"          "MM" ".vcov.avar1" 
 seed : int(0) 
 > 
 > set.seed(0)
@@ -138,9 +138,9 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
  trace.lev        mts compute.rd  numpoints 
-         0          0          0         10 
-       psi     method        cov 
-"bisquare"      "SMD"  ".vcov.w" 
+         0       1000          0         10 
+          psi   subsampling        method           cov 
+   "bisquare" "constrained"         "SMD"     ".vcov.w" 
 seed : int(0) 
 > summary(m4a <- lmrob..D..fit(m3))
 
@@ -175,9 +175,9 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
  trace.lev        mts compute.rd  numpoints 
-         0          0          0         10 
-       psi     method        cov 
-"bisquare"      "SMD"  ".vcov.w" 
+         0       1000          0         10 
+          psi   subsampling        method           cov 
+   "bisquare" "constrained"         "SMD"     ".vcov.w" 
 seed : int(0) 
 > 
 > ## rearrange m4a and update call
@@ -222,9 +222,9 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
  trace.lev        mts compute.rd  numpoints 
-         0          0          0         10 
-       psi     method        cov 
-"bisquare"     "SMDM"  ".vcov.w" 
+         0       1000          0         10 
+          psi   subsampling        method           cov 
+   "bisquare" "constrained"        "SMDM"     ".vcov.w" 
 seed : int(0) 
 > summary(m5a <- lmrob..M..fit(obj=m4))
 
@@ -258,9 +258,9 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
  trace.lev        mts compute.rd  numpoints 
-         0          0          0         10 
-       psi     method        cov 
-"bisquare"     "SMDM"  ".vcov.w" 
+         0       1000          0         10 
+          psi   subsampling        method           cov 
+   "bisquare" "constrained"        "SMDM"     ".vcov.w" 
 seed : int(0) 
 > 
 > ## rearrange m5a
@@ -270,3 +270,6 @@ seed : int(0)
 > all.equal(m5, m5a)
 [1] TRUE
 > 
+> proc.time()
+   user  system elapsed 
+  0.357   0.033   0.528 

@@ -85,7 +85,8 @@ Rsubsample <- function(x, y, mts=0) {
        pivot=integer(p-1),
        status=integer(1),
        sample=FALSE,
-       mts=as.integer(mts))
+       mts=as.integer(mts),
+       ss=as.integer(mts == 0))
 }
 
 subsample <- function(x, y=rnorm(nrow(x))) {
@@ -152,9 +153,9 @@ subsample(A)
 data <- data.frame(y = rnorm(9), expand.grid(A = letters[1:3], B = letters[1:3]))
 x <- model.matrix(y ~ ., data)
 y <- data$y
-## this should produce a warning and return status == 1
+## this should produce a warning and return status == 2
 z <- Rsubsample(x, y, mts=2)
-stopifnot(z$status == 1)
+stopifnot(z$status == 2)
 
 ## test real data example
 data(possumDiv)## 151 * 9; the last two variables are factors

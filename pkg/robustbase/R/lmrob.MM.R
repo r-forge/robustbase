@@ -3,8 +3,9 @@ lmrob.control <- function  (setting, seed = NULL, nResample = 500,
                             tuning.psi = NULL, max.it = 50,
                             groups = 5, n.group = 400, k.fast.s = 1, best.r.s = 2,
                             k.max = 200, k.m_s = 20, refine.tol = 1e-07, rel.tol = 1e-07,
-                            trace.lev = 0, mts = 0, compute.rd = FALSE,
-                            method = 'MM',
+                            trace.lev = 0, mts = 1000,
+                            subsampling = c("constrained", "simple"),
+                            compute.rd = FALSE, method = 'MM',
                             psi = c('bisquare', 'lqq', 'welsh', 'optimal', 'hampel',
                               'ggw'),
                             numpoints = 10, cov = '.vcov.avar1',
@@ -26,7 +27,8 @@ lmrob.control <- function  (setting, seed = NULL, nResample = 500,
         psi <- if (missing(psi) && grepl('D', method)) 'lqq' else match.arg(psi)
         if (missing(cov) && !method %in% c('SM', 'MM')) cov <- '.vcov.w'
     }
-
+    subsampling <- match.arg(subsampling)
+    
     if (missing(tuning.chi) || is.null(tuning.chi))
         tuning.chi <- switch(psi,
                              'bisquare' = 1.54764,
@@ -56,6 +58,7 @@ lmrob.control <- function  (setting, seed = NULL, nResample = 500,
            best.r.s = best.r.s, k.fast.s = k.fast.s,
            k.max = k.max, k.m_s = k.m_s, refine.tol = refine.tol,
            rel.tol = rel.tol, trace.lev = trace.lev, mts = mts,
+           subsampling = subsampling,
            compute.rd = compute.rd, method = method, numpoints = numpoints,
            cov = cov, split.type = match.arg(split.type)),
       list(...))
@@ -400,7 +403,8 @@ lmrob..M..fit <- function (x=obj$x, y=obj$y, beta.initial=obj$coef,
               rel.tol = as.double(control$rel.tol),
               converged = logical(1),
               trace.lev = as.integer(control$trace.lev),
-              mts = as.integer(control$mts)
+              mts = as.integer(control$mts),
+              ss = .convSs(control$subsampling)
               )[c("coefficients",  "scale", "residuals", "loss", "converged", "iter")]
     ## FIXME?: Should rather warn *here* in case of non-convergence
     names(ret$coefficients) <- colnames(x)
@@ -499,7 +503,8 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev, mf = NULL)
             refine.tol = as.double(control$refine.tol),
             converged = logical(1),
             trace.lev = as.integer(trace.lev),
-            mts = as.integer(control$mts)
+            mts = as.integer(control$mts),
+            ss = .convSs(control$subsampling)
             )[c("coefficients", "scale", "k.iter", "converged")]
     scale <- b$scale
     if (scale < 0)
@@ -1009,3 +1014,10 @@ ghq <- function(n = 1, modify = TRUE) {
     x <- vd$values[n..1] # = rev(..)
     list(nodes=x, weights= if (modify) w*exp(x^2) else w)
 }
+
+.convSs <- function(ss)
+    switch(ss,
+           simple=0L,
+           constrained=1L,
+           stop("unknown setting for parameter ss"))
+           

@@ -28,8 +28,8 @@ lmrob.S(x, y, control, trace.lev = control$trace.lev, mf = NULL)
   categorical and mixed continuous-categorical data.
 
   One can revert to the old (unconstrained) subsampling scheme by
-  setting the parameter \code{mts} in \code{control} to a value larger
-  than \eqn{0}. The old default value used to be \code{mts = 1000}. 
+  setting the parameter \code{subsampling} in \code{control} to
+  \code{simple}.
 }
 \value{
   A list with components

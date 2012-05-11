@@ -1,5 +1,5 @@
 
-R version 2.14.2 (2012-02-29)
+R version 2.15.0 (2012-03-30)
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: x86_64-unknown-linux-gnu (64-bit)
@@ -158,9 +158,9 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
  trace.lev        mts compute.rd  numpoints 
-         0          0          0         10 
-       psi     method        cov 
-"bisquare"     "SMDM"  ".vcov.w" 
+         0       1000          0         10 
+          psi   subsampling        method           cov 
+   "bisquare" "constrained"        "SMDM"     ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(2)
@@ -195,9 +195,9 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
  trace.lev        mts compute.rd  numpoints 
-         0          0          0         10 
-      psi    method       cov 
-"optimal"    "SMDM" ".vcov.w" 
+         0       1000          0         10 
+          psi   subsampling        method           cov 
+    "optimal" "constrained"        "SMDM"     ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(3)
@@ -236,9 +236,9 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
  trace.lev        mts compute.rd  numpoints 
-         0          0          0         10 
-      psi    method       cov 
-    "ggw"    "SMDM" ".vcov.w" 
+         0       1000          0         10 
+          psi   subsampling        method           cov 
+        "ggw" "constrained"        "SMDM"     ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(4)
@@ -275,9 +275,9 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
  trace.lev        mts compute.rd  numpoints 
-         0          0          0         10 
-      psi    method       cov 
-  "welsh"    "SMDM" ".vcov.w" 
+         0       1000          0         10 
+          psi   subsampling        method           cov 
+      "welsh" "constrained"        "SMDM"     ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(5)
@@ -319,9 +319,9 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
  trace.lev        mts compute.rd  numpoints 
-         0          0          0         10 
-      psi    method       cov 
-    "ggw"    "SMDM" ".vcov.w" 
+         0       1000          0         10 
+          psi   subsampling        method           cov 
+        "ggw" "constrained"        "SMDM"     ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(6)
@@ -362,9 +362,9 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
  trace.lev        mts compute.rd  numpoints 
-         0          0          0         10 
-      psi    method       cov 
-    "ggw"    "SMDM" ".vcov.w" 
+         0       1000          0         10 
+          psi   subsampling        method           cov 
+        "ggw" "constrained"        "SMDM"     ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(7)
@@ -403,9 +403,9 @@ tuning.psi3  refine.tol     rel.tol
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
  trace.lev        mts compute.rd  numpoints 
-         0          0          0         10 
-      psi    method       cov 
- "hampel"    "SMDM" ".vcov.w" 
+         0       1000          0         10 
+          psi   subsampling        method           cov 
+     "hampel" "constrained"        "SMDM"     ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(8)
@@ -428,7 +428,7 @@ converged        1    -none-     logical
 fitted.values   23    -none-     numeric
 residuals       23    -none-     numeric
 weights         23    -none-     numeric
-control         22    -none-     list   
+control         23    -none-     list   
 qr               4    qr         list   
 rank             1    -none-     numeric
 cov              1    -none-     logical
@@ -479,9 +479,9 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
  trace.lev        mts compute.rd  numpoints 
-         0          0          0         10 
-      psi    method       cov 
-    "lqq"    "SMDM" ".vcov.w" 
+         0       1000          0         10 
+          psi   subsampling        method           cov 
+        "lqq" "constrained"        "SMDM"     ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(10)
@@ -529,12 +529,15 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol
  nResample     max.it     groups    n.group   best.r.s   k.fast.s      k.max 
        500         50          5        400          2          1        200 
  trace.lev        mts compute.rd 
-         0          0          0 
-          psi        method           cov 
-        "lqq"          "MM" ".vcov.avar1" 
+         0       1000          0 
+          psi   subsampling        method           cov 
+        "lqq" "constrained"          "MM" ".vcov.avar1" 
 seed : int(0) 
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  9.164 0.194 9.656 0.001 0.009 
+Time elapsed:  5.906 0.1 6.217 0 0 
 > 
+> proc.time()
+   user  system elapsed 
+  5.906   0.100   6.217 
