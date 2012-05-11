@@ -351,87 +351,81 @@ print.ggplot <- function(x, newpage = is.null(vp), vp = NULL, ...,
                          footnote.just = c("right", "bottom"),
                          legend.mod = NULL)
 {
-  ## Purpose: print ggplot and add footnote
-  ## ----------------------------------------------------------------------
-  ## Arguments: x, newpage, vp, ...: see ?print.ggplot
-  ##            footnote: text to be added as footnote
-  ##            footnote.col: color of footnote
-  ##                    .size: size of footnote text (cex)
-  ##                    .just: justification of footnote
-  ##            legend.mod: named list on what legend entries to replace
-  ##                        by value
-  ## ----------------------------------------------------------------------
-  ## Author: Manuel Koller, Date: 26 Jan 2010, 09:01
-  
-  if (missing(footnote) && missing(legend.mod))
-    return(ggplot2:::print.ggplot(x, newpage, vp, ...))
+    ## Purpose: print ggplot and add footnote
+    ## ----------------------------------------------------------------------
+    ## Arguments: x, newpage, vp, ...: see ?print.ggplot
+    ##            footnote: text to be added as footnote
+    ##            footnote.col: color of footnote
+    ##                    .size: size of footnote text (cex)
+    ##                    .just: justification of footnote
+    ##            legend.mod: named list on what legend entries to replace
+    ##                        by value
+    ## ----------------------------------------------------------------------
+    ## Author: Manuel Koller, Date: 26 Jan 2010, 09:01
+    
+    if (missing(footnote) && missing(legend.mod))
+        return(ggplot2:::print.ggplot(x, newpage, vp, ...))
 
-  ## this is mostly a copy of ggplot2::print.ggplot
-  ggplot2:::set_last_plot(x)
-  if (newpage)
-    grid.newpage()
-  if (!missing(legend.mod)) {
+    ## this is mostly a copy of ggplot2::print.ggplot
+    ggplot2:::set_last_plot(x)
+    if (newpage)
+        grid.newpage()
     grob <- ggplotGrob(x, ...)
-    ## edit grob: change legends and strip text
-    lls <- getGrob(grob, gPath='(legend.text.text|strip.text.x.text)',
-                         grep=TRUE, global=TRUE)
-    ## walk all legend texts
-    for(le in lls) {
-      if (!is.expression(le$label) && le$label %in% names(legend.mod)) {
-        grob <- editGrob(grob, gPath=le$name, label = legend.mod[[le$label]])
-      }
+    if (!missing(legend.mod)) {
+        ## edit grob: change legends and strip text
+        lls <- getGrob(grob, gPath='(xlab-|ylab-|title-|label-|legend.text.text|strip.text.x.text|strip.text.y.text)',
+                       grep=TRUE, global=TRUE)
+        ## walk all legend texts
+        for(le in lls) {
+            if (!is.null(le$label) && !is.expression(le$label) &&
+                length(le$label) > 0 && le$label %in% names(legend.mod)) {
+                grob <- editGrob(grob, gPath=le$name, label = legend.mod[[le$label]])
+            }
+        }
+        ## also: remove alpha in legend key points
+        lls <- getGrob(grob, gPath='key.points', grep=TRUE, global=TRUE)
+        for (le in lls) {
+            if (is.character(le$gp$col) && grepl('^\\#', le$gp$col)) {
+                lgp <- le$gp
+                lgp$col <- substr(lgp$col, 1, 7)
+                grob <- editGrob(grob, gPath=le$name, gp=lgp)
+            }
+        }
+        ## also: change spacing of legends
+        grob$children$legends$framevp$layout$heights <-
+            grob$children$legends$framevp$layout$heights * .91
     }
-    ## walk axis labels
-    lls <- getGrob(grob, gPath='axis.text...text', grep=TRUE, global=TRUE)
-    for(le in lls) {
-      if (any(lidx <- ((llab <- le$label) %in% names(legend.mod)))) {
-        llab[lidx] <- do.call(c, legend.mod[llab[lidx]])
-        grob <- editGrob(grob, gPath=le$name, label = llab)
-      }
+    if (missing(footnote))
+        grid.draw(grob)
+    else {
+        if (is.null(vp)) {
+            ## add footnote to grob
+            grob$children$footnote <- grid.text(label=footnote,
+                                                x = unit(1, "npc") - unit(2, "mm"),
+                                                y = unit(2, "mm"), just = footnote.just,
+                                                gp=gpar(cex = footnote.size,
+                                                col = footnote.col), draw = FALSE)
+            llen <- length(grob$childrenOrder)
+            grob$childrenOrder[llen+1] <- 'footnote'
+            grid.draw(grob)
+        } else {
+            if (is.character(vp)) 
+                seekViewport(vp)
+            else pushViewport(vp)
+            grid.draw(grob)
+            upViewport()
+            ## add footnote to plot (from makeFootnote)
+            pushViewport(viewport())
+            grid.text(label=footnote,
+                      x = unit(1, "npc") - unit(2, "mm"),
+                      y = unit(2, "mm"), just = footnote.just,
+                      gp=gpar(cex = footnote.size,
+                      col = footnote.col))
+            popViewport() 
+        }
     }
-    ## also: remove alpha in legend key points
-    lls <- getGrob(grob, gPath='key.points', grep=TRUE, global=TRUE)
-    for (le in lls) {
-      if (is.character(le$gp$col) && grepl('^\\#', le$gp$col)) {
-        lgp <- le$gp
-        lgp$col <- substr(lgp$col, 1, 7)
-        grob <- editGrob(grob, gPath=le$name, gp=lgp)
-      }
-    }
-    ## also: change spacing of legends
-    grob$children$legends$framevp$layout$heights <-
-      grob$children$legends$framevp$layout$heights * .91
-  }
-  if (missing(footnote))
-    grid.draw(grob)
-  else {
-    if (is.null(vp)) {
-      ## add footnote to grob
-      grob$children$footnote <- grid.text(label=footnote,
-                                          x = unit(1, "npc") - unit(2, "mm"),
-                                          y = unit(2, "mm"), just = footnote.just,
-                                          gp=gpar(cex = footnote.size,
-                                            col = footnote.col), draw = FALSE)
-      llen <- length(grob$childrenOrder)
-      grob$childrenOrder[llen+1] <- 'footnote'
-      grid.draw(grob)
-    } else {
-      if (is.character(vp)) 
-        seekViewport(vp)
-      else pushViewport(vp)
-      grid.draw(grob)
-      upViewport()
-      ## add footnote to plot (from makeFootnote)
-      pushViewport(viewport())
-      grid.text(label=footnote,
-                x = unit(1, "npc") - unit(2, "mm"),
-                y = unit(2, "mm"), just = footnote.just,
-                gp=gpar(cex = footnote.size,
-                  col = footnote.col))
-      popViewport() 
-    }
-  }
 }
+
 
 ## guide_legends_box <- function (scales, layers, default_mapping, horizontal = FALSE, 
 ##     theme) 
