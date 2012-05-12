@@ -1,6 +1,6 @@
 Package: robustbase
 Version: 0.9-0
-Date: 2012-..-..
+Date: 2012-05-12
 Title: Basic Robust Statistics
 Author: Original code by many authors, notably
 	Peter Rousseeuw and Christophe Croux, see file 'Copyrights';
@@ -11,9 +11,6 @@ Author: Original code by many authors, notably
 	Manuel Koller <koller@stat.math.ethz.ch>,
 	Martin Maechler
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
-NOTE: SEVERAL PARTS ARE STILL PRELIMINARY AND MAY BE CHANGED IN THE FUTURE.
-      THIS TYPICALLY INCLUDES ARGUMENT NAMES,
-      DEFAULTS FOR ARGUMENTS AND RETURN VALUES.
 URL: http://robustbase.r-forge.r-project.org/
 Description: "Essential" Robust Statistics.  The goal is to provide
  tools allowing to analyze data with robust methods.  This includes
