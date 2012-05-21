@@ -158,7 +158,7 @@ void m_s_descent(double *X1, double *X2, double *y,
 
 int subsample(const double *x, const double *y, int n, int m, 
 	       double *beta, int *ind_space, int *idc, int *idr, 
-	      double *lu, double *v, int *p, int sample, int *mts, int *ss);
+	      double *lu, double *v, int *p, double *cf, int sample, int *mts, int *ss);
 
 int fast_s_with_memory(double *X, double *y,
 		       int *nn, int *pp, int *nRes,
@@ -229,16 +229,19 @@ void sum_vec(double *a, double *b, double *c, int n);
 #define CLEANUP_WLS                                             \
     Free(work); Free(weights);
 
-#define SETUP_SUBSAMPLE(_n_, _p_)                               \
+#define SETUP_SUBSAMPLE(_n_, _p_, _X_)				\
     /* (Pointers to) Arrays - to be allocated */                \
     int *ind_space, *idc, *idr, *pivot;                         \
-    double *lu, *v;                                             \
+    double *lu, *v, cf = 0.;					\
     ind_space = (int *)    Calloc(_n_,     int);                \
     idc =       (int *)    Calloc(_n_,     int);                \
     idr =       (int *)    Calloc(_p_,     int);                \
     pivot =     (int *)    Calloc(_p_-1,   int);                \
     lu =        (double *) Calloc(_p_*_p_, double);             \
-    v =         (double *) Calloc(_p_,     double);
+    v =         (double *) Calloc(_p_,     double);             \
+    for (j = 0; j < _n_ * _p_; j++)                             \
+	if (fabs(_X_[j]) > cf) cf = fabs(_X_[j]);               \
+    cf = 1. / cf;
 
 #define CLEANUP_SUBSAMPLE                                       \
     Free(ind_space); Free(idc); Free(idr); Free(pivot);         \
@@ -256,7 +259,7 @@ void sum_vec(double *a, double *b, double *c, int n);
 #define ZERO 1e-10
 #define INFI 1e+20
 #define MAX_ITER_FIND_SCALE 200
-#define TOL_INVERSE ZERO
+#define TOL_INVERSE 1e-7
 
 /* This function computes an S-regression estimator */
 void R_lmrob_S(double *X, double *y, int *n, int *P,
@@ -416,10 +419,23 @@ void R_subsample(const double *x, const double *y, int *n, int *m,
 		 double *lu, double *v, int *p, int *status, int *sample, 
 		 int *mts, int *ss)
 {
+    int i,j;
+
     /*	set the seed */
     GetRNGstate();
 
-    *status = subsample(x, y, *n, *m, beta, ind_space, idc, idr, lu, v, p, *sample, mts, ss);
+    /* get scaling constant */
+    double cf0 = 0., cf;
+    for (j = 0; j < *n * *m; j++) 
+	if (fabs(x[j]) > cf0) cf0 = fabs(x[j]);
+    cf = 1. / cf0;
+
+    *status = subsample(x, y, *n, *m, beta, ind_space, idc, idr, lu, v, p, &cf, *sample, mts, ss);
+
+    /* rescale U */
+    for (i = 0; i < *m; i++) 
+	for (j = 0; j <= i; j++) 
+	    lu[i * *m + j] *= cf0;
 
     PutRNGstate();
 }
@@ -1525,7 +1541,7 @@ int fast_s_with_memory(double *X, double *y,
     int lwork = -1, one = 1, info = 1;
     int pos_worst_scale, sing=0;
 
-    SETUP_SUBSAMPLE(n, p);
+    SETUP_SUBSAMPLE(n, p, X);
     INIT_WLS(X, y, n, p);
 
     res	=       (double *) Calloc(n,   double);
@@ -1543,7 +1559,7 @@ int fast_s_with_memory(double *X, double *y,
     for(i=0; i < nResample; i++) {
 	R_CheckUserInterrupt();
 	/* find a candidate */
-	sing = subsample(X, y, n, p, beta_cand, ind_space, idc, idr, lu, v, pivot, 1, mts, ss);
+	sing = subsample(X, y, n, p, beta_cand, ind_space, idc, idr, lu, v, pivot, &cf, 1, mts, ss);
 	if (sing) {
 	    for (k=0; k< *best_r; k++) best_scales[i] = -1.;
 	    goto cleanup_and_return;
@@ -1623,7 +1639,7 @@ void fast_s(double *X, double *y,
     double *wx, *wy, *beta_cand, *beta_ref, *res;
     double **best_betas, *best_scales;
 
-    SETUP_SUBSAMPLE(n, p);
+    SETUP_SUBSAMPLE(n, p, X);
 	 
     res	   = (double *) R_alloc(n, sizeof(double));
     wx     = (double *) R_alloc(n*p, sizeof(double));
@@ -1653,7 +1669,7 @@ void fast_s(double *X, double *y,
 
 	R_CheckUserInterrupt();
 	/* find a candidate */
-	sing = subsample(X, y, n, p, beta_cand, ind_space, idc, idr, lu, v, pivot, 1, mts, ss);
+	sing = subsample(X, y, n, p, beta_cand, ind_space, idc, idr, lu, v, pivot, &cf, 1, mts, ss);
 	if (sing) {
 	    *sscale = -1.;
 	    goto cleanup_and_return;
@@ -1861,7 +1877,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     if (*trace_lev > 1) 
 	Rprintf("starting with subsampling procedure...\n");
 
-    SETUP_SUBSAMPLE(n, p2);
+    SETUP_SUBSAMPLE(n, p2, x2);
 
     /*	set the seed */
     GetRNGstate();
@@ -1869,7 +1885,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     for(i=0; i < nResample; i++) {
 	R_CheckUserInterrupt();
 	/* STEP 1: Draw a subsample of size p2 from (X2, y) */
-	sing = subsample(x2, y, n, p2, t2, ind_space, idc, idr, lu, v, pivot, 1, mts, ss);
+	sing = subsample(x2, y, n, p2, t2, ind_space, idc, idr, lu, v, pivot, &cf, 1, mts, ss);
 	if (sing) {
 	    *sscale = -1.;
 	    goto cleanup_and_return;
@@ -2030,14 +2046,14 @@ void m_s_descent(double *X1, double *X2, double *y,
  * starting value for S estimates                                       *
  * uses a custom LU decomposition, which acts on the transposed design  *
  * matrix. In case of a singular subsample, the subsample is modified   *
- * until it is non-singular (for mts == 0).                             *
+ * until it is non-singular (for ss == 1).                              *
  *                                                                      *
  * Parts of the algorithm are based on the Gaxpy version of the LU      *
  * decomposition with partial pivoting by                               *
  * Golub G. H., Van Loan C. F. (1996) - MATRIX Computations             */
 int subsample(const double *x, const double *y, int n, int m, 
 	      double *beta, int *ind_space, int *idc, int *idr, 
-	      double *lu, double *v, int *pivot, int sample, int *mts, int *ss)
+	      double *lu, double *v, int *pivot, double *cf, int sample, int *mts, int *ss)
 {
     /* x:         design matrix (n x m)
        y:         response vector
@@ -2050,8 +2066,12 @@ int subsample(const double *x, const double *y, int n, int m,
 		  [out] index of observations used in subsample
        idr:       work array of length m
        lu:        [out] LU decomposition of subsample of xt (m x m)
+                  Note: U has is not rescaled by 1 / *cf, as it should, 
+		        this is done R_subsample().
        v:         work array of length m
-       pivot:     [out] pivoting table of LU decomposition (length m-1) 
+       pivot:     [out] pivoting table of LU decomposition (length m-1)
+       cf:        simple pre-conditioning factor for x, as calculated in
+                  SETUP_SUBSAMPLE (maximum absolute value of x)
        sample:    whether to sample or not
        mts:       the number of singular samples allowed before
                   giving up (Max Try Samples)
@@ -2068,7 +2088,7 @@ int subsample(const double *x, const double *y, int n, int m,
     double tmpd;
     Rboolean sing;
 
-#define xt(_k_, _j_) x[idr[_k_]*n+idc[_j_]]
+#define xt(_k_, _j_) x[idr[_k_]*n+idc[_j_]] * *cf
 #define U(_k_, _j_) lu[_j_*m+_k_]
 #define u(_k_, _j_) lu + (_j_*m+_k_)
 #define L(_k_, _j_) lu[_j_*m+_k_]
@@ -2153,7 +2173,7 @@ Start:
     /* Rprintf("idc:"); disp_veci(idc, m); */
 
     /* STEP 3: Solve for candidate parameters */
-    for(k=0;k<m;k++) beta[k] = y[idc[k]];
+    for(k=0;k<m;k++) beta[k] = y[idc[k]] * *cf;
     /* solve U\tr L\tr \beta = y[subsample] */
     F77_CALL(dtrsv)("U", "T", "N", &m, lu, &m, beta, &one);
     F77_CALL(dtrsv)("L", "T", "U", &m, lu, &m, beta, &one);

@@ -8,6 +8,9 @@ gotMatrix <- require(Matrix) ## to test lu decomposition
 ## Modified from Golub G. H., Van Loan, C. F., Matrix Computations, 3rd edition
 LU.gaxpy <- function(A, pivot=TRUE) {
     A <- as.matrix(A)
+    ## precondition:
+    cf0 <- max(abs(A))
+    A <- A / cf0
     stopifnot(ncol(A) >= nrow(A))
     m <- nrow(A)
     n <- ncol(A)
@@ -38,7 +41,7 @@ LU.gaxpy <- function(A, pivot=TRUE) {
                 ## debug possumDiv example
                 ## cat(sprintf("R-Step: %i: ", j), round(abs(v[j:m]), 6), "\n"); 
                 ## cat(mu, v[mu], "\n")
-                if (abs(v[mu]) >= 1e-10) { ## singular: can stop here already
+                if (abs(v[mu]) >= 1e-7) { ## singular: can stop here already
                     p[j] <- mu
                     if (pivot) {
                         tmp <- v[j]; v[j] <- v[mu]; v[mu] <- tmp
@@ -51,7 +54,7 @@ LU.gaxpy <- function(A, pivot=TRUE) {
                 }
             }
             U[j, j] <- v[j]
-            if (abs(v[j]) < 1e-10) {
+            if (abs(v[j]) < 1e-7) {
                 ##warning("singularity detected in step ", j, " candidate: ", idc[j])
                 idc[j] <- idc[lenidc]
                 lenidc <- lenidc - 1
@@ -60,7 +63,7 @@ LU.gaxpy <- function(A, pivot=TRUE) {
             } else sing <- FALSE
         }
     }
-    list(L = L, U = U, p = p, idc = idc[1L:m], singular = sing)
+    list(L = L, U = U * cf0, p = p, idc = idc[1L:m], singular = sing)
 }
 
 Rsubsample <- function(x, y, mts=0) {
@@ -118,13 +121,16 @@ subsample <- function(x, y=rnorm(nrow(x))) {
     
     ## compare with Matrix result
     if (gotMatrix & !cmp$singular) {
-        tmp <- lu(t(xsub))
+        cf0 <- max(abs(x))
+        tmp <- lu(t(xsub / cf0))
+        idx <- upper.tri(xsub, diag=TRUE)
+        tmp@x[idx] <- tmp@x[idx] * cf0
         stopifnot(all.equal(tmp@x, z$lu))
     }
 
     ## test solved parameter
     if (!cmp$singular) {
-      stopifnot(all.equal(z$beta, solve(xsub, ysub)))
+        stopifnot(all.equal(z$beta, unname(solve(xsub, ysub))))
     }
 
     invisible(z)
@@ -163,7 +169,11 @@ X <- model.matrix(mf, possumDiv)
 y <- model.response(mf)
 stopifnot(qr(X)$rank == ncol(X))
 
-## subsample(X, y) ## fails: different pivots in step 37
+## test pre-conditioning
+## this used to fail: different pivots in step 37
+subsample(X, y) 
+subsample(X / max(abs(X)), y / max(abs(X)))
+subsample(X * 2^-50, y * 2^-50)
 
 ## test subsampling
 testSubSampling <- function(X, y) {
@@ -192,9 +202,9 @@ stopifnot(nsing == 0)
 ## test example with many categorical predictors
 set.seed(10)
 r1 <- lmrob(Diversity ~ .^2 , data = possumDiv, cov="none")
-## lmrob.S fails for this seed:
-## set.seed(108)
-## lmrob(Diversity ~ .^2 , data = possumDiv, cov="none", trace=4)
+## lmrob.S used to fail for this seed:
+set.seed(108)
+lmrob(Diversity ~ .^2 , data = possumDiv, cov="none") #, trace=4)
 
 ## investigate problematic subsample:
 idc <- 1 + c(140, 60, 12, 13, 89, 90, 118, 80, 17, 134, 59, 94, 36,
@@ -210,7 +220,11 @@ y <- possumDiv$Diversity[idc]
 subsample(X, y)
 
 lu <- LU.gaxpy(t(X))
+stopifnot(lu$sing)
 zc <- Rsubsample(X, y)
+stopifnot(zc$status > 0)
+## column 52 is linearly dependent and should have been discarded
+## qr(t(X))$pivot 
 
 image(as(round(zc$lu - (lu$L + lu$U - diag(nrow(lu$U))), 10), "Matrix"))
 image(as(sign(zc$lu) - sign(lu$L + lu$U - diag(nrow(lu$U))), "Matrix"))
