@@ -1658,6 +1658,9 @@ void fast_s(double *X, double *y,
 	    *sscale = -1.;
 	    goto cleanup_and_return;
 	}
+	if (*trace_lev > 3) {
+	    Rprintf("sample[%3d]: idc = ", i); disp_veci(idc, p);
+	}
 
 	/* disp_vec(beta_cand,p); */
 
@@ -1773,6 +1776,10 @@ int refine_fast_s(const double *X, double *wx, const double *y, double *wy,
     Rboolean converged = FALSE;/* Wall */
     double s0, done = 1., dmone = -1., wtmp;
     
+    if (*trace_lev > 3) {
+	Rprintf("beta_cand before refinement : "); disp_vec(beta_cand,p);
+    }
+
     /* calculate residuals */
     COPY(y, res, n);
     F77_CALL(dgemv)("N", &n, &p, &dmone, X, &n, beta_cand, &one, &done, res, &one);
@@ -2085,7 +2092,9 @@ Start:
 		for(k=0;k<j;k++) U(k,j) = xt(k, j);
 		/* z = solve(lu[0:(j-1), 0:(j-1)], xt[0:(j-1), j]) */
 		F77_CALL(dtrsv)("L", "N", "U", &j, lu, &m, u(0, j), &one);
-		/* Rprintf("Step %d: z = ", j); disp_vec(u(0,j), j); */
+		/* Rprintf("Step %d: z = ", j);  */
+		/* for(i=0; i < n; i++) Rprintf("%lf ",a[i]); */
+		/* Rprintf("\n"); */
 		/* v[j:(m-1)] = xt[j:(m-1), j] - L[j:(m-1), 0:(j-1)] %*% z */
 		for(k=j;k<m;k++) {
 		    v[k] = xt(k, j);

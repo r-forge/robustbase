@@ -27,7 +27,7 @@ LU.gaxpy <- function(A, pivot=TRUE) {
             } else {
                 rows <- 1L:(j-1L)
                 z <- forwardsolve(L[rows, rows, drop=FALSE], A[idr[rows], idc[j]])
-                ## cat("Step", j, "z=", z, "\n");
+                ## cat("Step", j, "z=", sapply(z, function(x) sprintf("%.15f", x)), "\n");
                 U[rows, j] <- z
                 v[j:m] <- A[idr[j:m], idc[j]] - L[j:m, rows, drop=FALSE] %*% z
                 ## cat("v=", v, "\n");
@@ -36,11 +36,8 @@ LU.gaxpy <- function(A, pivot=TRUE) {
                 mu <- j
                 mu <- if (pivot) which.max(abs(v[j:m])) + j - 1L else j
                 ## debug possumDiv example
-                ## if (j == 37) {
-                ##     print(round(abs(v[j:m]), 6)); print(max(abs(v[j:m])))
-                ##     print(c(mu, v[mu]))
-                ##     print(c(abs(v[47]) > abs(v[51]), abs(v[47]) < abs(v[51])))
-                ## }
+                ## cat(sprintf("R-Step: %i: ", j), round(abs(v[j:m]), 6), "\n"); 
+                ## cat(mu, v[mu], "\n")
                 if (abs(v[mu]) >= 1e-10) { ## singular: can stop here already
                     p[j] <- mu
                     if (pivot) {
@@ -192,6 +189,28 @@ nsing <- 0
 for (i in 1:200) if (testSubSampling(X, y)) nsing <- nsing + 1
 stopifnot(nsing == 0)
 
+## test example with many categorical predictors
+set.seed(10)
+r1 <- lmrob(Diversity ~ .^2 , data = possumDiv, cov="none")
 ## lmrob.S fails for this seed:
 ## set.seed(108)
-## lmrob(Diversity ~ .^2 , data = possumDiv, cov="none", trace=3)
+## lmrob(Diversity ~ .^2 , data = possumDiv, cov="none", trace=4)
+
+## investigate problematic subsample:
+idc <- 1 + c(140, 60, 12, 13, 89, 90, 118, 80, 17, 134, 59, 94, 36,
+         43, 46, 93, 107, 62, 57, 116, 11, 45, 35, 38, 120, 34, 29,
+         33, 147, 105, 115, 92, 61, 91, 104, 141, 138, 129, 130, 84,
+         119, 132, 6, 135, 112, 16, 67, 41, 102, 76, 111, 82, 148, 24,
+         131, 10, 96, 0, 87, 21, 127, 56, 124)
+
+rc <- lm(Diversity ~ .^2 , data = possumDiv, subset = idc)
+
+X <- model.matrix(rc)
+y <- possumDiv$Diversity[idc]
+subsample(X, y)
+
+lu <- LU.gaxpy(t(X))
+zc <- Rsubsample(X, y)
+
+image(as(round(zc$lu - (lu$L + lu$U - diag(nrow(lu$U))), 10), "Matrix"))
+image(as(sign(zc$lu) - sign(lu$L + lu$U - diag(nrow(lu$U))), "Matrix"))
