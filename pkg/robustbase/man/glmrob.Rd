@@ -23,11 +23,10 @@ glmrob(formula, family, data, weights, subset, na.action,
     of the model to be fit (cf. \code{\link{glm}} or \code{\link{lm}}).}
 
   \item{family}{a description of the error distribution and link function to
-    be used in the model. This can be a character string naming a
-    family function, a family function or the result of a call to
-    a family function.  (See \code{\link{family}} for details of
-    family functions.)  As mentioned, currently this must be
-    \code{binomial} or \code{poisson}.}
+    be used in the model.  This can be a character string naming a
+    family function, a family \code{\link{function}} or the result of a
+    call to a family function.  (See \code{\link{family}} for details of
+    family functions.)
 
   \item{data}{an optional data frame containing the variables
     in the model.  If not found in \code{data}, the variables are taken
