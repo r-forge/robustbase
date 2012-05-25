@@ -38,7 +38,7 @@
    - Modified subsampling behaviour: avoiding singular resamples by using
      customized LU decomposition.
 
-   - Replaced C style matrices with Fortran style matrices, with as little 
+   - Replaced C style matrices with Fortran style matrices, with as little
      copying as possible.
 
    - Using LAPACK's DGELS instead of local lu() decomposition.
@@ -129,7 +129,7 @@ double sum_rho_sc(double *r, double scale, int n, int p, double *c, int ipsi);
 void get_weights_rhop(double *r, double s, int n,
 		      double *rrhoc, int ipsi, double *w);
 
-int refine_fast_s(const double *X, double *wx, const double *y, double *wy, 
+int refine_fast_s(const double *X, double *wx, const double *y, double *wy,
 		  double *weights, int n, int p, double *res,
 		  double *work, int lwork,
 		  double *beta_cand,
@@ -138,8 +138,8 @@ int refine_fast_s(const double *X, double *wx, const double *y, double *wy,
 		  double b, double *rrhoc, int ipsi, double initial_scale,
 		  double *beta_ref, double *scale);
 
-void m_s_subsample(double *X1, double *y, int n, int p1, int p2, 
-		   int nResample, double *rel_tol, double *bb, 
+void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
+		   int nResample, double *rel_tol, double *bb,
 		   double *rrhoc, int ipsi, double *sscale, int *trace_lev,
 		   double *b1, double *b2, double *t1, double *t2,
 		   double *y_tilde, double *res, double *x1, double *x2,
@@ -156,8 +156,8 @@ void m_s_descent(double *X1, double *X2, double *y,
 		 double *SC1, double *SC2, double *SC3, double *SC4,
 		 int *conv);
 
-int subsample(const double *x, const double *y, int n, int m, 
-	       double *beta, int *ind_space, int *idc, int *idr, 
+int subsample(const double *x, const double *y, int n, int m,
+	      double *beta, int *ind_space, int *idc, int *idr,
 	      double *lu, double *v, int *p, double *cf, int sample, int *mts, int *ss);
 
 int fast_s_with_memory(double *X, double *y,
@@ -247,9 +247,10 @@ void sum_vec(double *a, double *b, double *c, int n);
     Free(ind_space); Free(idc); Free(idr); Free(pivot);         \
     Free(lu); Free(v);
 
+#define COPY(from, to, len) Memcpy(to, from, len)
 /* This assumes that 'p' is correctly defined, and 'j' can be used in caller: */
-#define COPY(BETA_FROM, BETA_TO, _p_)			\
-    for(j=0; j < _p_; j++) BETA_TO[j] = BETA_FROM[j];
+/* #define COPY(BETA_FROM, BETA_TO, _p_)			\ */
+/*     for(j=0; j < _p_; j++) BETA_TO[j] = BETA_FROM[j]; */
 /* In theory BLAS should be fast, but this seems slightly slower,
  * particularly for non-optimized BLAS :*/
 /* static int one = 1; */
@@ -292,12 +293,12 @@ void R_lmrob_S(double *X, double *y, int *n, int *P,
 
 /* This function computes an M-S-regression estimator */
 void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
-		 int *nn, int *pp1, int *pp2, int *nRes, 
+		 int *nn, int *pp1, int *pp2, int *nRes,
 		 double *scale, double *b1, double *b2,
 		 double *rho_c, int *ipsi, double *bb,
 		 int *K_m_s, int *max_k, double *rel_tol,
-		 int *converged, int *trace_lev, 
-		 int *orthogonalize, int *subsample, 
+		 int *converged, int *trace_lev,
+		 int *orthogonalize, int *subsample,
 		 int *descent, int *mts, int *ss)
 {
     /* Initialize (some of the) memory here,
@@ -307,7 +308,7 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
     /* (Pointers to) Arrays - to be allocated */
     double *t1, *t2, *y_tilde, *y_work, done = 1., dmone = -1.;
     double *x1, *x2, *ot1, *oT2, *ptr;
-    
+
     t1 =      (double *) R_alloc(n,  sizeof(double)); /* size n needed for rllarsbi */
     t2 =      (double *) R_alloc(p2, sizeof(double));
     ot1 =     (double *) R_alloc(p1, sizeof(double));
@@ -320,41 +321,41 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
     COPY(X2, x2, n*p2);
 
     /* Variables required for rllarsbi
-     *  (l1 / least absolut residuals - estimate) */   
+     *  (l1 / least absolut residuals - estimate) */
     int NIT=0, K=0, KODE=0;
-    double SIGMA=0., *SC1, *SC2, *SC3, *SC4;
-    SC1 =     (double *) R_alloc(n, sizeof(double));
-    SC2 =     (double *) R_alloc(p1, sizeof(double));
-    SC3 =     (double *) R_alloc(p1, sizeof(double));
-    SC4 =     (double *) R_alloc(p1, sizeof(double));
+    double SIGMA = 0.,
+	*SC1 = (double *) R_alloc(n,  sizeof(double)),
+	*SC2 = (double *) R_alloc(p1, sizeof(double)),
+	*SC3 = (double *) R_alloc(p1, sizeof(double)),
+	*SC4 = (double *) R_alloc(p1, sizeof(double));
     double BET0 = 0.773372647623; /* = pnorm(0.75) */
 
     /* STEP 1: Orthgonalize X2 and y from X1 */
     if (*orthogonalize > 0) {
 	COPY(X1, x1, n*p1);
-	F77_CALL(rllarsbi)(x1, y_work, &n, &p1, &n, &n, rel_tol, 
-			   &NIT, &K, &KODE, &SIGMA, t1, y_tilde, SC1, SC2, 
+	F77_CALL(rllarsbi)(x1, y_work, &n, &p1, &n, &n, rel_tol,
+			   &NIT, &K, &KODE, &SIGMA, t1, y_tilde, SC1, SC2,
 			   SC3, SC4, &BET0);
-	COPY(t1, ot1, p1); 
+	COPY(t1, ot1, p1);
 	for (i=0; i < p2; i++) {
 	    COPY(X1, x1, n*p1);
 	    ptr = X2+i*n; COPY(ptr, y_work, n);
-	    F77_CALL(rllarsbi)(x1, y_work, &n, &p1, &n, &n, rel_tol, 
-			       &NIT, &K, &KODE, &SIGMA, t1, x2+i*n, SC1, SC2, 
+	    F77_CALL(rllarsbi)(x1, y_work, &n, &p1, &n, &n, rel_tol,
+			       &NIT, &K, &KODE, &SIGMA, t1, x2+i*n, SC1, SC2,
 			       SC3, SC4, &BET0);
 	    ptr = oT2+i*p1; COPY(t1, ptr, p1);
 	}
 	COPY(y_tilde, y_work, n);
-	/* compare with Maronna & Yohai 2000: 
+	/* compare with Maronna & Yohai 2000:
 	 * y_work and y_tilde now contain \tilde y, ot1 -> t_1,
 	 * x2 -> \tilde x2, oT2 -> T_2 */
-    } 
+    }
 
     /* STEP 2: Subsample */
     if (*subsample > 0) {
-	m_s_subsample(X1, y_work, n, p1, p2, *nRes, rel_tol, bb, 
+	m_s_subsample(X1, y_work, n, p1, p2, *nRes, rel_tol, bb,
 		      rho_c, *ipsi, scale, trace_lev,
-		      b1, b2, t1, t2, y_tilde, res, x1, x2, 
+		      b1, b2, t1, t2, y_tilde, res, x1, x2,
 		      &NIT, &K, &KODE, &SIGMA, &BET0,
 		      SC1, SC2, SC3, SC4, mts, ss);
 
@@ -379,7 +380,7 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
 
     /* STEP 4: Descent procedure */
     if (*descent > 0) {
-	m_s_descent(X1, X2, y, n, p1, p2, *K_m_s, *max_k, rel_tol, bb, 
+	m_s_descent(X1, X2, y, n, p1, p2, *K_m_s, *max_k, rel_tol, bb,
 		    rho_c, *ipsi, scale, trace_lev,
 		    b1, b2, t1, t2, y_tilde, res, y_work, x1, x2,
 		    &NIT, &K, &KODE, &SIGMA, &BET0, SC1, SC2, SC3, SC4,
@@ -414,9 +415,9 @@ void R_lmrob_MM(double *X, double *y, int *n, int *P,
 }
 
 /* Call subsample() from R, just for testing purposes */
-void R_subsample(const double *x, const double *y, int *n, int *m, 
-		 double *beta, int *ind_space, int *idc, int *idr, 
-		 double *lu, double *v, int *p, int *status, int *sample, 
+void R_subsample(const double *x, const double *y, int *n, int *m,
+		 double *beta, int *ind_space, int *idc, int *idr,
+		 double *lu, double *v, int *p, int *status, int *sample,
 		 int *mts, int *ss)
 {
     int i,j;
@@ -426,15 +427,15 @@ void R_subsample(const double *x, const double *y, int *n, int *m,
 
     /* get scaling constant */
     double cf0 = 0., cf;
-    for (j = 0; j < *n * *m; j++) 
+    for (j = 0; j < *n * *m; j++)
 	if (fabs(x[j]) > cf0) cf0 = fabs(x[j]);
     cf = 1. / cf0;
 
     *status = subsample(x, y, *n, *m, beta, ind_space, idc, idr, lu, v, p, &cf, *sample, mts, ss);
 
     /* rescale U */
-    for (i = 0; i < *m; i++) 
-	for (j = 0; j <= i; j++) 
+    for (i = 0; i < *m; i++)
+	for (j = 0; j <= i; j++)
 	    lu[i * *m + j] *= cf0;
 
     PutRNGstate();
@@ -1268,7 +1269,7 @@ int rwls(const double *X, const double *y, int n, int p,
     CLEANUP_WLS;
 
     return (int)converged;
-    
+
 } /* rwls() */
 
 /* sets the entries of a matrix to zero */
@@ -1333,7 +1334,7 @@ void fast_s_large_n(double *X, double *y,
     int groups = *ggroups, n_group = *nn_group, sg = groups * n_group;
     double b = *bb, sc, best_sc, worst_sc;
     int pos_worst_scale;
-    Rboolean conv; 
+    Rboolean conv;
     /* (Pointers to) Arrays - to be allocated */
     int *indices, *ind_space;
     double **best_betas, *best_scales;
@@ -1403,7 +1404,7 @@ void fast_s_large_n(double *X, double *y,
     wx =  (double *) R_alloc(n*p, sizeof(double)); // need only k here,
     wy =  (double *) R_alloc(n,   sizeof(double)); // but n in the last step
     xsamp =     (double *) Calloc(sg*p, double);
-    ysamp =     (double *) Calloc(sg,   double); 
+    ysamp =     (double *) Calloc(sg,   double);
     freedsamp = 0;
 
 #define xsamp(_k_,_j_) xsamp[_j_*sg+_k_]
@@ -1460,7 +1461,7 @@ void fast_s_large_n(double *X, double *y,
 
     for(i=0; i < *best_r; i++) {
 	conv = TRUE;
-	it_k = refine_fast_s(X, wx, y, wy, weights, n, p, res, 
+	it_k = refine_fast_s(X, wx, y, wy, weights, n, p, res,
 			     work, lwork, final_best_betas[i], kk,
 			     &conv/* = TRUE */, *max_k, *rel_tol, trace_lev,
 			     b, rrhoc, ipsi, final_best_scales[i],
@@ -1572,8 +1573,8 @@ int fast_s_with_memory(double *X, double *y,
 
 	/* conv = FALSE : do *K refining steps */
 	refine_fast_s(X, wx, y, wy, weights, n, p, res,
-		      work, lwork, beta_cand, *K, &conv/* = FALSE*/, 
-		      *max_k, *rel_tol, trace_lev, b, rrhoc, ipsi, -1., 
+		      work, lwork, beta_cand, *K, &conv/* = FALSE*/,
+		      *max_k, *rel_tol, trace_lev, b, rrhoc, ipsi, -1.,
 		      /* -> */ beta_ref, &sc);
 
 	/* FIXME: if sc ~ 0 ---> return beta_cand and be done */
@@ -1629,7 +1630,7 @@ void fast_s(double *X, double *y,
     Rboolean conv;
     double b = *bb;
     double sc, best_sc, worst_sc, aux;
-    int pos_worst_scale;    
+    int pos_worst_scale;
     int lwork = -1, one = 1, info = 1;
     double work0, *work, *weights, sing=0;
 
@@ -1640,7 +1641,7 @@ void fast_s(double *X, double *y,
     double **best_betas, *best_scales;
 
     SETUP_SUBSAMPLE(n, p, X);
-	 
+
     res	   = (double *) R_alloc(n, sizeof(double));
     wx     = (double *) R_alloc(n*p, sizeof(double));
     wy     = (double *) R_alloc(n,   sizeof(double));
@@ -1684,8 +1685,8 @@ void fast_s(double *X, double *y,
 
 	/* conv = FALSE : do *k refining steps */
 	refine_fast_s(X, wx, y, wy, weights, n, p, res,
-		      work, lwork, beta_cand, *K, &conv/* = FALSE*/, 
-		      *max_k, *rel_tol, trace_lev, b, rrhoc, ipsi, -1., 
+		      work, lwork, beta_cand, *K, &conv/* = FALSE*/,
+		      *max_k, *rel_tol, trace_lev, b, rrhoc, ipsi, -1.,
 		      /* -> */ beta_ref, &sc);
 	if(*trace_lev >= 2) {
 	    double del = norm_diff(beta_cand, beta_ref, p);
@@ -1721,9 +1722,9 @@ void fast_s(double *X, double *y,
     best_sc = INFI; *converged = 1;  k = 0;
     for(i=0; i < *best_r; i++) {
 	conv = TRUE;
-	it_k = refine_fast_s(X, wx, y, wy, weights, n, p, res, work, lwork, 
-			     best_betas[i], *K,  &conv /* = TRUE */, *max_k, 
-			     *rel_tol, trace_lev, b, rrhoc, ipsi, 
+	it_k = refine_fast_s(X, wx, y, wy, weights, n, p, res, work, lwork,
+			     best_betas[i], *K,  &conv /* = TRUE */, *max_k,
+			     *rel_tol, trace_lev, b, rrhoc, ipsi,
 			     best_scales[i], /* -> */ beta_ref, &aux);
 	if(*trace_lev)
 	    Rprintf("i=%2d: %sconvergence (%d iter.):",
@@ -1781,8 +1782,8 @@ int refine_fast_s(const double *X, double *wx, const double *y, double *wy,
  * beta_ref = resulting beta[] (of length p)	Output
  * scale    = final scale			Output
 
- * for FIT_WLS, DGELS: 
- * wx       = matrix (n x p) 
+ * for FIT_WLS, DGELS:
+ * wx       = matrix (n x p)
  * wy       = vector of length n
  * work     = vector of length lwork
  * lwork    = length of vector work
@@ -1791,7 +1792,7 @@ int refine_fast_s(const double *X, double *wx, const double *y, double *wy,
     int i,j,k, zeroes=0, one = 1, info = 1;
     Rboolean converged = FALSE;/* Wall */
     double s0, done = 1., dmone = -1., wtmp;
-    
+
     if (*trace_lev > 3) {
 	Rprintf("beta_cand before refinement : "); disp_vec(beta_cand,p);
     }
@@ -1860,13 +1861,13 @@ int refine_fast_s(const double *X, double *wx, const double *y, double *wy,
 /* Subsampling part for M-S algorithm                    */
 /* Recreates RLFRSTML function found in src/lmrobml.f    */
 /* of the robust package                                 */
-void m_s_subsample(double *X1, double *y, int n, int p1, int p2, 
-		   int nResample, double *rel_tol, double *bb, 
+void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
+		   int nResample, double *rel_tol, double *bb,
 		   double *rrhoc, int ipsi, double *sscale, int *trace_lev,
 		   double *b1, double *b2, double *t1, double *t2,
-		   double *y_tilde, double *res, double *x1, double *x2, 
+		   double *y_tilde, double *res, double *x1, double *x2,
 		   int *NIT, int *K, int *KODE, double *SIGMA, double *BET0,
-		   double *SC1, double *SC2, double *SC3, double *SC4, int *mts, int *ss) 
+		   double *SC1, double *SC2, double *SC3, double *SC4, int *mts, int *ss)
 {
     int i, j, one = 1;
     int p = p1 + p2, sing;
@@ -1874,14 +1875,14 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     double sc = INFI, done = 1., dmone = -1.;
     *sscale = INFI;
 
-    if (*trace_lev > 1) 
+    if (*trace_lev > 1)
 	Rprintf("starting with subsampling procedure...\n");
 
     SETUP_SUBSAMPLE(n, p2, x2);
 
     /*	set the seed */
     GetRNGstate();
-    
+
     for(i=0; i < nResample; i++) {
 	R_CheckUserInterrupt();
 	/* STEP 1: Draw a subsample of size p2 from (X2, y) */
@@ -1895,11 +1896,11 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
         F77_CALL(dgemv)("N", &n, &p2, &dmone, x2, &n, t2, &one, &done, y_tilde, &one);
 	/* STEP 3: Obtain L1-estimate of b1 */
 	COPY(X1, x1, n*p1);
-	F77_CALL(rllarsbi)(x1, y_tilde, &n, &p1, &n, &n, rel_tol, 
-			   NIT, K, KODE, SIGMA, t1, res, SC1, SC2, 
+	F77_CALL(rllarsbi)(x1, y_tilde, &n, &p1, &n, &n, rel_tol,
+			   NIT, K, KODE, SIGMA, t1, res, SC1, SC2,
 			   SC3, SC4, BET0);
 	if (*KODE > 1) {
-	    REprintf("\nm_s_subsample(): Problem in rllarsbi (rilars). KODE=%d. Exiting.\n", 
+	    REprintf("\nm_s_subsample(): Problem in rllarsbi (rilars). KODE=%d. Exiting.\n",
 		     *KODE);
 	    *sscale = -1.;
 	    goto cleanup_and_return;
@@ -1922,7 +1923,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 		*sscale = -1.;
 		goto cleanup_and_return;
 	    }
-	}	
+	}
     } /* for(i ) */
 
     /* STEP 7: Clean up and return */
@@ -1933,7 +1934,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 	     Rprintf("b2: "); disp_vec(b2,p2);
 	}
     }
-    
+
   cleanup_and_return:
     CLEANUP_SUBSAMPLE;
     PutRNGstate();
@@ -1954,7 +1955,7 @@ void m_s_descent(double *X1, double *X2, double *y,
     int p = p1 + p2;
     Rboolean converged = FALSE;
     double b = *bb;
-    double sc = *sscale, done = 1., dmone = -1.; 
+    double sc = *sscale, done = 1., dmone = -1.;
     int lwork = -1, one = 1, info = 1;
     double work0, *work, wtmp, *weights;
 
@@ -1962,13 +1963,13 @@ void m_s_descent(double *X1, double *X2, double *y,
     COPY(b2, t2, p2);
     COPY(res, res2, n);
 
-    if (*trace_lev > 1) 
+    if (*trace_lev > 1)
 	Rprintf("starting with descent procedure...\n");
-    
+
     INIT_WLS(x2, y, n, p2);
 
     if (*trace_lev > 4) {
-	Rprintf("scale: %.5f\n", *sscale); 
+	Rprintf("scale: %.5f\n", *sscale);
 	Rprintf("res2: "); disp_vec(res2,n);
     }
 
@@ -1997,7 +1998,7 @@ void m_s_descent(double *X1, double *X2, double *y,
 			   SC1, SC2, SC3, SC4, BET0);
 	if (*KODE > 1) {
 	    CLEANUP_WLS;
-	    error("m_s_descent(): Problem in rllarsbi (rilars). KODE=%d. Exiting.", 
+	    error("m_s_descent(): Problem in rllarsbi (rilars). KODE=%d. Exiting.",
 		  *KODE);
 	}
 	/* STEP 3: Compute the scale estimate */
@@ -2012,7 +2013,7 @@ void m_s_descent(double *X1, double *X2, double *y,
 	    Rprintf("t2: "); disp_vec(t2,p2);
 	    Rprintf("t1: "); disp_vec(t1,p1);
 	    Rprintf("res2: "); disp_vec(res2,n);
-	    Rprintf("sc: %.5f\n", sc); 
+	    Rprintf("sc: %.5f\n", sc);
 	}
 	/* STEP 5: Update best fit */
 	if (sc < *sscale) {
@@ -2030,7 +2031,7 @@ void m_s_descent(double *X1, double *X2, double *y,
     if ( (!converged) & (nref == max_k) )
 	warning("M-S estimate: maximum number of refinement steps reached.");
     *conv = converged;
-    
+
     if (*trace_lev >= 1) {
 	Rprintf("descent procedure: %sconverged.\n", converged ? "" : "not " );
 	if (*trace_lev > 2) {
@@ -2051,8 +2052,8 @@ void m_s_descent(double *X1, double *X2, double *y,
  * Parts of the algorithm are based on the Gaxpy version of the LU      *
  * decomposition with partial pivoting by                               *
  * Golub G. H., Van Loan C. F. (1996) - MATRIX Computations             */
-int subsample(const double *x, const double *y, int n, int m, 
-	      double *beta, int *ind_space, int *idc, int *idr, 
+int subsample(const double *x, const double *y, int n, int m,
+	      double *beta, int *ind_space, int *idc, int *idr,
 	      double *lu, double *v, int *pivot, double *cf, int sample, int *mts, int *ss)
 {
     /* x:         design matrix (n x m)
@@ -2061,12 +2062,12 @@ int subsample(const double *x, const double *y, int n, int m,
        m:         ncol of x  ( == p )
        beta:      [out] candidate parameters (length m)
        ind_space: (required in sample_noreplace, length n)
-       idc:       (required in sample_noreplace, !! length n !!) 
-                  holds the index permutation, 
+       idc:       (required in sample_noreplace, !! length n !!)
+                  holds the index permutation,
 		  [out] index of observations used in subsample
        idr:       work array of length m
        lu:        [out] LU decomposition of subsample of xt (m x m)
-                  Note: U has is not rescaled by 1 / *cf, as it should, 
+                  Note: U has is not rescaled by 1 / *cf, as it should,
 		        this is done R_subsample().
        v:         work array of length m
        pivot:     [out] pivoting table of LU decomposition (length m-1)
@@ -2078,10 +2079,10 @@ int subsample(const double *x, const double *y, int n, int m,
        ss:        type of subsampling to be used:
                   0: simple subsampling
                   1: constrained subsampling
-       
+
        return condition:
              0: success
-             1: singular (matrix xt does not contain a m dim. full rank 
+             1: singular (matrix xt does not contain a m dim. full rank
                           submatrix)
              2: too many singular resamples (simple subsampling case)    */
     int j, k, l, one = 1, mu = 0, tmpi, len_idc = n, attempt = 0;
@@ -2100,7 +2101,7 @@ Start:
 	sample_noreplace(idc, n, n, ind_space);
     } else for(k=0;k<n;k++) idc[k] = k;
     for(k=0;k<m;k++) idr[k] = k;
-    
+
     /* STEP 2: Calculate LU decomposition of the first m cols of xt     *
      *         using the order in idc                                   */
     for(j = 0; j < m; j++) {
@@ -2125,7 +2126,7 @@ Start:
 	    if (j < m-1) {
 		/* find pivot */
 		tmpd=fabs(v[j]); mu = j;
-		for(k=j+1;k<m;k++) if (tmpd < fabs(v[k])) { mu = k; tmpd = fabs(v[k]); } 
+		for(k=j+1;k<m;k++) if (tmpd < fabs(v[k])) { mu = k; tmpd = fabs(v[k]); }
                 /* debug possumDiv example, see tests/subsample.R */
 		/* if (j == 36) { */
 		/*     Rprintf("Step %d: ", j+1); */
@@ -2141,7 +2142,7 @@ Start:
 		    tmpi = idr[j]; idr[j] = idr[mu]; idr[mu] = tmpi;
 		    for(k=j+1;k<m;k++) L(k, j) = v[k] / v[j];
 		    if (j > 0) {
-			for(k=0;k<j;k++) { 
+			for(k=0;k<j;k++) {
 			    tmpd = L(j, k); L(j, k) = L(mu, k); L(mu, k) = tmpd;
 			}
 		    }
@@ -2167,7 +2168,7 @@ Start:
 	    }
 	} while(sing);
     } /* end for loop */
-    
+
     /* Rprintf("lu:"); disp_vec(lu, m*m); */
     /* Rprintf("pivot:"); disp_veci(pivot, m-1); */
     /* Rprintf("idc:"); disp_veci(idc, m); */
@@ -2436,7 +2437,7 @@ void R_calc_fitted(double *XX, double *bbeta, double *RR, int *nn, int *pp, int 
 		   int *nnproc, int *nnerr)
 {
     unsigned long A, B, C, D, E;
-    A = (unsigned long)*nnerr; B = (unsigned long)*nnproc; C = (unsigned long)*nnrep; 
+    A = (unsigned long)*nnerr; B = (unsigned long)*nnproc; C = (unsigned long)*nnrep;
     D = (unsigned long)*nn; E = (unsigned long)*pp;
     // calculate fitted values over errstr, procstr and replicates
     for(unsigned long a = 0; a < A; a++) { // errstr
@@ -2447,7 +2448,7 @@ void R_calc_fitted(double *XX, double *bbeta, double *RR, int *nn, int *pp, int 
 		    for(unsigned long d = 0; d < D; d++) { // observations
 			RR[d + c*D + b*C*D + a*B*C*D] = 0; // initialize result
 			for(unsigned long e = 0; e < E; e++) { // predictors
-			    RR[d + c*D + b*C*D + a*B*C*D] += bbeta[c + e*C + b*C*E + a*B*E*C] * 
+			    RR[d + c*D + b*C*D + a*B*C*D] += bbeta[c + e*C + b*C*E + a*B*E*C] *
 				XX[d + e*D + c*E*D + a*C*E*D];
 			}
 		    }
