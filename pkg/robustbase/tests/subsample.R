@@ -24,7 +24,7 @@ LU.gaxpy <- function(A, pivot=TRUE) {
     lenidc <- length(idc)
     for(j in 1L:m) {
         sing <- TRUE
-        while(sing) {        
+        while(sing) {
             if (j == 1L) {
                 v[j:m] <- A[idr[j:m], idc[j]]
             } else {
@@ -70,7 +70,7 @@ Rsubsample <- function(x, y, mts=0) {
     x <- as.matrix(x)
     n <- length(y)
     p <- ncol(x)
-    
+
     .C(robustbase:::R_subsample,
        x=as.double(x),
        y=as.double(y),
@@ -93,7 +93,7 @@ subsample <- function(x, y=rnorm(nrow(x))) {
     x <- as.matrix(x)
     n <- length(y)
     p <- ncol(x)
-    
+
     z <- Rsubsample(x, y)
     ## convert idc, idr and p to 1-based indexing
     idr <- z$idr + 1
@@ -104,7 +104,7 @@ subsample <- function(x, y=rnorm(nrow(x))) {
     L[upper.tri(L, diag=TRUE)] <- 0
     diag(L) <- 1
     U[lower.tri(U, diag=FALSE)] <- 0
-    
+
     cmp <- LU.gaxpy(t(x))
     if (!isTRUE(all.equal(cmp$p, pivot))) {
         print(cmp$p)
@@ -118,7 +118,7 @@ subsample <- function(x, y=rnorm(nrow(x))) {
 
     xsub <- x[idc, ]
     ysub <- y[idc]
-    
+
     ## compare with Matrix result
     if (gotMatrix & !cmp$singular) {
         cf0 <- max(abs(x))
