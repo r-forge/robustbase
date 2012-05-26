@@ -1,6 +1,7 @@
 ### test subsample
 ### LU decomposition and singular subsamples handling
 require(robustbase)
+source(system.file("xtraR/subsample-fns.R", package = "robustbase", mustWork=TRUE))
 
 gotMatrix <- require(Matrix) ## to test lu decomposition
 
@@ -137,7 +138,8 @@ subsample <- function(x, y=rnorm(nrow(x))) {
 }
 
 A <- matrix(c(0.001, 1, 1, 2), 2)
-subsample(A)
+set.seed(11)
+str(sa <- subsample(A))
 
 A <- matrix(c(3, 2, 6, 17, 4, 18, 10, -2, 12), 3)
 subsample(A)
@@ -171,9 +173,13 @@ stopifnot(qr(X)$rank == ncol(X))
 
 ## test pre-conditioning
 ## this used to fail: different pivots in step 37
-subsample(X, y) 
-subsample(X / max(abs(X)), y / max(abs(X)))
-subsample(X * 2^-50, y * 2^-50)
+str(s1 <- subsample(X, y))
+s2 <- subsample(X / max(abs(X)), y / max(abs(X)))
+s3 <- subsample(X * 2^-50, y * 2^-50)
+## all components *BUT*  x, y, lu :
+nm <- names(s1); nm <- nm[is.na(match(nm, c("x","y","lu")))]
+stopifnot(all.equal(s1[nm], s2[nm], tol=1e-10),
+	  all.equal(s1[nm], s3[nm], tol=1e-10))
 
 ## test subsampling
 testSubSampling <- function(X, y) {
@@ -195,8 +201,7 @@ testSubSampling <- function(X, y) {
 }
 
 set.seed(10)
-nsing <- 0
-for (i in 1:200) if (testSubSampling(X, y)) nsing <- nsing + 1
+nsing <- sum(replicate(200, testSubSampling(X, y)))
 stopifnot(nsing == 0)
 
 ## test example with many categorical predictors
@@ -224,7 +229,7 @@ stopifnot(lu$sing)
 zc <- Rsubsample(X, y)
 stopifnot(zc$status > 0)
 ## column 52 is linearly dependent and should have been discarded
-## qr(t(X))$pivot 
+## qr(t(X))$pivot
 
 image(as(round(zc$lu - (lu$L + lu$U - diag(nrow(lu$U))), 10), "Matrix"))
 image(as(sign(zc$lu) - sign(lu$L + lu$U - diag(nrow(lu$U))), "Matrix"))
