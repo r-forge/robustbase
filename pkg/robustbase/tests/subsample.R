@@ -3,140 +3,6 @@
 require(robustbase)
 source(system.file("xtraR/subsample-fns.R", package = "robustbase", mustWork=TRUE))
 
-gotMatrix <- require(Matrix) ## to test lu decomposition
-
-## R version of LU decomposition in subsample() in lmrob.c
-## Modified from Golub G. H., Van Loan, C. F., Matrix Computations, 3rd edition
-LU.gaxpy <- function(A, pivot=TRUE) {
-    A <- as.matrix(A)
-    ## precondition:
-    cf0 <- max(abs(A))
-    A <- A / cf0
-    stopifnot(ncol(A) >= nrow(A))
-    m <- nrow(A)
-    n <- ncol(A)
-    v <- double(m) ## work matrix
-    ## these matrices will contain the results
-    L <- diag(m)
-    U <- matrix(0, m, m)
-    p <- integer(m-1) ## pivots
-    idc <- 1L:n ## which columns of A are used
-    idr <- 1L:m ## how to rows of A are permuted
-    lenidc <- length(idc)
-    for(j in 1L:m) {
-        sing <- TRUE
-        while(sing) {
-            if (j == 1L) {
-                v[j:m] <- A[idr[j:m], idc[j]]
-            } else {
-                rows <- 1L:(j-1L)
-                z <- forwardsolve(L[rows, rows, drop=FALSE], A[idr[rows], idc[j]])
-                ## cat("Step", j, "z=", sapply(z, function(x) sprintf("%.15f", x)), "\n");
-                U[rows, j] <- z
-                v[j:m] <- A[idr[j:m], idc[j]] - L[j:m, rows, drop=FALSE] %*% z
-                ## cat("v=", v, "\n");
-            }
-            if (j < m) {
-                mu <- j
-                mu <- if (pivot) which.max(abs(v[j:m])) + j - 1L else j
-                ## debug possumDiv example
-                ## cat(sprintf("R-Step: %i: ", j), round(abs(v[j:m]), 6), "\n"); 
-                ## cat(mu, v[mu], "\n")
-                if (abs(v[mu]) >= 1e-7) { ## singular: can stop here already
-                    p[j] <- mu
-                    if (pivot) {
-                        tmp <- v[j]; v[j] <- v[mu]; v[mu] <- tmp
-                        tmp <- idr[j]; idr[j] <- idr[mu]; idr[mu] <- tmp
-                    }
-                    L[(j+1L):m, j] <- v[(j+1L):m]/v[j]
-                    if (pivot & j > 1) {
-                        tmp <- L[j, rows]; L[j, rows] <- L[mu, rows]; L[mu, rows] <- tmp
-                    }
-                }
-            }
-            U[j, j] <- v[j]
-            if (abs(v[j]) < 1e-7) {
-                ##warning("singularity detected in step ", j, " candidate: ", idc[j])
-                idc[j] <- idc[lenidc]
-                lenidc <- lenidc - 1
-                if (lenidc < j)
-                    break
-            } else sing <- FALSE
-        }
-    }
-    list(L = L, U = U * cf0, p = p, idc = idc[1L:m], singular = sing)
-}
-
-Rsubsample <- function(x, y, mts=0) {
-    x <- as.matrix(x)
-    n <- length(y)
-    p <- ncol(x)
-
-    .C(robustbase:::R_subsample,
-       x=as.double(x),
-       y=as.double(y),
-       n=n,
-       m=p,
-       beta=double(p),
-       ind_space=integer(n),
-       idc=integer(n),
-       idr=integer(n),
-       lu=double(p^2),
-       v=double(p),
-       pivot=integer(p-1),
-       status=integer(1),
-       sample=FALSE,
-       mts=as.integer(mts),
-       ss=as.integer(mts == 0))
-}
-
-subsample <- function(x, y=rnorm(nrow(x))) {
-    x <- as.matrix(x)
-    n <- length(y)
-    p <- ncol(x)
-
-    z <- Rsubsample(x, y)
-    ## convert idc, idr and p to 1-based indexing
-    idr <- z$idr + 1
-    idc <- z$idc[1:p] + 1
-    pivot <- z$p + 1
-    ## get L and U
-    L <- U <- LU <- matrix(z$lu, p, p)
-    L[upper.tri(L, diag=TRUE)] <- 0
-    diag(L) <- 1
-    U[lower.tri(U, diag=FALSE)] <- 0
-
-    cmp <- LU.gaxpy(t(x))
-    if (!isTRUE(all.equal(cmp$p, pivot))) {
-        print(cmp$p)
-        print(pivot)
-        print(which(cmp$p != pivot))
-    }
-    stopifnot(all.equal(cmp$L, L),
-              all.equal(cmp$U, U),
-              all.equal(cmp$p, pivot),
-              all.equal(cmp$idc, idc))
-
-    xsub <- x[idc, ]
-    ysub <- y[idc]
-
-    ## compare with Matrix result
-    if (gotMatrix & !cmp$singular) {
-        cf0 <- max(abs(x))
-        tmp <- lu(t(xsub / cf0))
-        idx <- upper.tri(xsub, diag=TRUE)
-        tmp@x[idx] <- tmp@x[idx] * cf0
-        stopifnot(all.equal(tmp@x, z$lu))
-    }
-
-    ## test solved parameter
-    if (!cmp$singular) {
-        stopifnot(all.equal(z$beta, unname(solve(xsub, ysub))))
-    }
-
-    invisible(z)
-}
-
 A <- matrix(c(0.001, 1, 1, 2), 2)
 set.seed(11)
 str(sa <- subsample(A))
@@ -173,6 +39,7 @@ stopifnot(qr(X)$rank == ncol(X))
 
 ## test pre-conditioning
 ## this used to fail: different pivots in step 37
+## MM: *still* fails -- however *only* on 32-bit (not 64-)
 str(s1 <- subsample(X, y))
 s2 <- subsample(X / max(abs(X)), y / max(abs(X)))
 s3 <- subsample(X * 2^-50, y * 2^-50)
