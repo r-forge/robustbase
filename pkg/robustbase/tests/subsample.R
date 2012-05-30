@@ -28,6 +28,24 @@ y <- data$y
 z <- Rsubsample(x, y, mts=2)
 stopifnot(z$status == 2)
 
+
+## test equilibration
+## columns only
+X <- matrix(c(1e-7, 2, 1e-10, 0.2), 2)
+y <- 1:2
+subsample(t(X), y)
+
+## rows only
+X <- matrix(c(1e-7, 2, 1e10, 0.2), 2)
+y <- 1:2
+subsample(X, y)
+
+## both
+X <- matrix(c(1e-7, 1e10, 2, 2e12), 2)
+y <- 1:2
+subsample(X, y)
+
+
 ## test real data example
 data(possumDiv)## 151 * 9; the last two variables are factors
 with(possumDiv, table(eucalyptus, aspect))
@@ -37,14 +55,12 @@ X <- model.matrix(mf, possumDiv)
 y <- model.response(mf)
 stopifnot(qr(X)$rank == ncol(X))
 
-## test pre-conditioning
 ## this used to fail: different pivots in step 37
-## MM: *still* fails -- however *only* on 32-bit (not 64-)
 str(s1 <- subsample(X, y))
 s2 <- subsample(X / max(abs(X)), y / max(abs(X)))
 s3 <- subsample(X * 2^-50, y * 2^-50)
-## all components *BUT*  x, y, lu :
-nm <- names(s1); nm <- nm[is.na(match(nm, c("x","y","lu")))]
+## all components *BUT*  x, y, lu, Dr, Dc, rowequ, colequ :
+nm <- names(s1); nm <- nm[is.na(match(nm, c("x","y","lu", "Dr", "Dc", "rowequ", "colequ")))]
 stopifnot(all.equal(s1[nm], s2[nm], tol=1e-10),
 	  all.equal(s1[nm], s3[nm], tol=1e-10))
 
@@ -100,3 +116,20 @@ stopifnot(zc$status > 0)
 
 image(as(round(zc$lu - (lu$L + lu$U - diag(nrow(lu$U))), 10), "Matrix"))
 image(as(sign(zc$lu) - sign(lu$L + lu$U - diag(nrow(lu$U))), "Matrix"))
+
+
+## test equilibration
+## colequ only
+X <- matrix(c(1e-7, 2, 1e-10, 0.2), 2)
+y <- 1:2
+subsample(t(X), y)
+
+## rowequ only
+X <- matrix(c(1e-7, 2, 1e10, 0.2), 2)
+y <- 1:2
+subsample(X, y)
+
+## both
+X <- matrix(c(1e-7, 1e10, 2, 2e12), 2)
+y <- 1:2
+subsample(X, y)

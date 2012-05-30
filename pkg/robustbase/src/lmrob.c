@@ -158,7 +158,9 @@ void m_s_descent(double *X1, double *X2, double *y,
 
 int subsample(const double *x, const double *y, int n, int m,
 	      double *beta, int *ind_space, int *idc, int *idr,
-	      double *lu, double *v, int *p, double *cf, int sample, int *mts, int *ss);
+	      double *lu, double *v, int *p, 
+	      double *Dr, double *Dc, int rowequ, int colequ,
+	      int sample, int *mts, int *ss);
 
 int fast_s_with_memory(double *X, double *y,
 		       int *nn, int *pp, int *nRes,
@@ -201,6 +203,17 @@ void sum_vec(double *a, double *b, double *c, int n);
     work =    (double *) Calloc(lwork, double);                 \
     weights = (double *) Calloc(n,     double);
 
+#define CLEANUP_WLS                                             \
+    Free(work); Free(weights);
+
+#define CLEANUP_EQUILIBRATION                                   \
+    Free(Dr); Free(Dc); Free(Xe);
+
+#define CLEANUP_SUBSAMPLE                                       \
+    Free(ind_space); Free(idc); Free(idr); Free(pivot);         \
+    Free(lu); Free(v);                                          \
+    CLEANUP_EQUILIBRATION;
+
 #define FIT_WLS(_X_, _x_, _y_, _n_, _p_)			\
     /* add weights to _y_ and _x_ */                            \
     for (j=0; j<_n_; j++) {                                     \
@@ -214,38 +227,62 @@ void sum_vec(double *a, double *b, double *c, int n);
 		    &_n_, work, &lwork, &info);                 \
     if (info) {					                \
 	if (info < 0) {                                         \
-	    Free(work); Free(weights);                          \
+	    CLEANUP_WLS;					\
 	    error("dgels: illegal argument in %i. argument.", info); \
 	} else {                                                \
 	    if (*trace_lev > 2) {				\
 		Rprintf("robustness weights in last step: ");	\
 		disp_vec(weights, _n_);				\
 	    }                                                   \
-	    Free(work); Free(weights);                          \
+	    CLEANUP_WLS;					\
 	    error("dgels: weighted design matrix not of full rank (column %d). Exiting.", info); \
 	}                                                       \
     }
 
-#define CLEANUP_WLS                                             \
-    Free(work); Free(weights);
+#define SETUP_EQUILIBRATION(_n_, _p_, _X_)	                \
+    /* equilibration of matrix _X_                          */  \
+    /* solve (Dr X Dc) b = Dr y with beta = Dc b instead of */  \
+    /*            X beta = y                                */  \
+    /* see Demmel (1997) APPLIED NUMERICAL LINEAR ALGEBRA   */  \
+    /*     Section 2.5.2 Equilibration                      */  \
+    double *Dr, *Dc, *Xe, rowcnd, colcnd, amax;			\
+    Dr =        (double *) Calloc(_n_,     double);             \
+    Dc =        (double *) Calloc(_p_,     double);             \
+    Xe =        (double *) Calloc(_n_*_p_, double);             \
+    COPY(_X_, Xe, _n_*_p_);                                     \
+    F77_CALL(dgeequ)(&_n_, &_p_, Xe, &_n_, Dr, Dc, &rowcnd,	\
+    		     &colcnd, &amax, &info);                    \
+    if (info) {                                                 \
+	CLEANUP_EQUILIBRATION;                                  \
+	if (info < 0) {                                         \
+	    error("dgeequ: illegal argument in %i. argument", &info); \
+	} else if (info > _n_) {                                \
+            error("dgeequ: column %i is exactly zero.", _n_ - info); \
+	} else {                                                \
+	    error("dgeequ: row %i is exactly zero.", info);     \
+	}                                                       \
+    }                                                           \
+    /* scale _X_ */                                             \
+    char equed;                                                 \
+    F77_CALL(dlaqge)(&_n_, &_p_, Xe, &_n_, Dr, Dc, &rowcnd,     \
+                     &colcnd, &amax, &equed);                   \
+    int rowequ = equed == 'B' || equed == 'R';                  \
+    int colequ = equed == 'B' || equed == 'C';/*                   \ */
+    /* Rprintf(" rowequ = %i, colequ = %i, equed = %i\n", rowequ, colequ, equed); \ */
+    /* Rprintf(" Dr = "); disp_vec(Dr, _n_);                       \ */
+    /* Rprintf(" Dc = "); disp_vec(Dc, _p_); */
 
 #define SETUP_SUBSAMPLE(_n_, _p_, _X_)				\
     /* (Pointers to) Arrays - to be allocated */                \
-    int *ind_space, *idc, *idr, *pivot;                         \
-    double *lu, *v, cf = 0.;					\
+    int *ind_space, *idc, *idr, *pivot;				\
+    double *lu, *v;						\
     ind_space = (int *)    Calloc(_n_,     int);                \
     idc =       (int *)    Calloc(_n_,     int);                \
     idr =       (int *)    Calloc(_p_,     int);                \
     pivot =     (int *)    Calloc(_p_-1,   int);                \
     lu =        (double *) Calloc(_p_*_p_, double);             \
     v =         (double *) Calloc(_p_,     double);             \
-    for (j = 0; j < _n_ * _p_; j++)                             \
-	if (fabs(_X_[j]) > cf) cf = fabs(_X_[j]);               \
-    cf = 1. / cf;
-
-#define CLEANUP_SUBSAMPLE                                       \
-    Free(ind_space); Free(idc); Free(idr); Free(pivot);         \
-    Free(lu); Free(v);
+    SETUP_EQUILIBRATION(_n_, _p_, _X_);
 
 #define COPY(from, to, len) Memcpy(to, from, len)
 /* This assumes that 'p' is correctly defined, and 'j' can be used in caller: */
@@ -303,7 +340,7 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
 {
     /* Initialize (some of the) memory here,
      * so that we have to do it only once */
-    int i, j, n = *nn, p1 = *pp1, p2 = *pp2, one = 1;
+    int i, n = *nn, p1 = *pp1, p2 = *pp2, one = 1;
 
     /* (Pointers to) Arrays - to be allocated */
     double *t1, *t2, *y_tilde, *y_work, done = 1., dmone = -1.;
@@ -402,8 +439,6 @@ void R_lmrob_MM(double *X, double *y, int *n, int *P,
 		int *max_it, double *rho_c, int *ipsi, double *loss,
 		double *rel_tol, int *converged, int *trace_lev, int *mts, int *ss)
 {
-    int j;
-
 /* starting from the S-estimate (beta_initial), use
  * irwls to compute the MM-estimate (beta_m)  */
 
@@ -417,26 +452,26 @@ void R_lmrob_MM(double *X, double *y, int *n, int *P,
 /* Call subsample() from R, just for testing purposes */
 void R_subsample(const double *x, const double *y, int *n, int *m,
 		 double *beta, int *ind_space, int *idc, int *idr,
-		 double *lu, double *v, int *p, int *status, int *sample,
-		 int *mts, int *ss)
+		 double *lu, double *v, int *p, 
+		 double *_Dr, double *_Dc, int *_rowequ, int *_colequ,
+		 int *status, int *sample, int *mts, int *ss)
 {
-    int i,j;
+    int info;
 
     /*	set the seed */
     GetRNGstate();
 
-    /* get scaling constant */
-    double cf0 = 0., cf;
-    for (j = 0; j < *n * *m; j++)
-	if (fabs(x[j]) > cf0) cf0 = fabs(x[j]);
-    cf = 1. / cf0;
+    SETUP_EQUILIBRATION(*n, *m, x);
 
-    *status = subsample(x, y, *n, *m, beta, ind_space, idc, idr, lu, v, p, &cf, *sample, mts, ss);
+    *status = subsample(Xe, y, *n, *m, beta, ind_space, idc, idr, lu, v, p, 
+			Dr, Dc, rowequ, colequ, *sample, mts, ss);
 
-    /* rescale U */
-    for (i = 0; i < *m; i++)
-	for (j = 0; j <= i; j++)
-	    lu[i * *m + j] *= cf0;
+    COPY(Dr, _Dr, *n);
+    COPY(Dc, _Dc, *m);
+    *_rowequ = rowequ;
+    *_colequ = colequ;
+
+    CLEANUP_EQUILIBRATION;
 
     PutRNGstate();
 }
@@ -1560,7 +1595,8 @@ int fast_s_with_memory(double *X, double *y,
     for(i=0; i < nResample; i++) {
 	R_CheckUserInterrupt();
 	/* find a candidate */
-	sing = subsample(X, y, n, p, beta_cand, ind_space, idc, idr, lu, v, pivot, &cf, 1, mts, ss);
+	sing = subsample(Xe, y, n, p, beta_cand, ind_space, idc, idr, lu, v, pivot, 
+			 Dr, Dc, rowequ, colequ, 1, mts, ss);
 	if (sing) {
 	    for (k=0; k< *best_r; k++) best_scales[i] = -1.;
 	    goto cleanup_and_return;
@@ -1670,7 +1706,8 @@ void fast_s(double *X, double *y,
 
 	R_CheckUserInterrupt();
 	/* find a candidate */
-	sing = subsample(X, y, n, p, beta_cand, ind_space, idc, idr, lu, v, pivot, &cf, 1, mts, ss);
+	sing = subsample(Xe, y, n, p, beta_cand, ind_space, idc, idr, lu, v, pivot, 
+			 Dr, Dc, rowequ, colequ, 1, mts, ss);
 	if (sing) {
 	    *sscale = -1.;
 	    goto cleanup_and_return;
@@ -1869,7 +1906,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 		   int *NIT, int *K, int *KODE, double *SIGMA, double *BET0,
 		   double *SC1, double *SC2, double *SC3, double *SC4, int *mts, int *ss)
 {
-    int i, j, one = 1;
+    int i, one = 1, info;
     int p = p1 + p2, sing;
     double b = *bb;
     double sc = INFI, done = 1., dmone = -1.;
@@ -1886,7 +1923,8 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     for(i=0; i < nResample; i++) {
 	R_CheckUserInterrupt();
 	/* STEP 1: Draw a subsample of size p2 from (X2, y) */
-	sing = subsample(x2, y, n, p2, t2, ind_space, idc, idr, lu, v, pivot, &cf, 1, mts, ss);
+	sing = subsample(Xe, y, n, p2, t2, ind_space, idc, idr, lu, v, pivot, 
+			 Dr, Dc, rowequ, colequ, 1, mts, ss);
 	if (sing) {
 	    *sscale = -1.;
 	    goto cleanup_and_return;
@@ -2054,7 +2092,9 @@ void m_s_descent(double *X1, double *X2, double *y,
  * Golub G. H., Van Loan C. F. (1996) - MATRIX Computations             */
 int subsample(const double *x, const double *y, int n, int m,
 	      double *beta, int *ind_space, int *idc, int *idr,
-	      double *lu, double *v, int *pivot, double *cf, int sample, int *mts, int *ss)
+	      double *lu, double *v, int *pivot, 
+	      double *Dr, double *Dc, int rowequ, int colequ, 
+	      int sample, int *mts, int *ss)
 {
     /* x:         design matrix (n x m)
        y:         response vector
@@ -2071,8 +2111,10 @@ int subsample(const double *x, const double *y, int n, int m,
 		        this is done R_subsample().
        v:         work array of length m
        pivot:     [out] pivoting table of LU decomposition (length m-1)
-       cf:        simple pre-conditioning factor for x, as calculated in
-                  SETUP_SUBSAMPLE (maximum absolute value of x)
+       Dr:        row equilibration (as calculated in SETUP_EQUILIBRATION)
+       Dc:        column equilibration
+       rowequ:    whether rows were equilibrated
+       coleq:     whether cols were equilibrated
        sample:    whether to sample or not
        mts:       the number of singular samples allowed before
                   giving up (Max Try Samples)
@@ -2089,7 +2131,7 @@ int subsample(const double *x, const double *y, int n, int m,
     double tmpd;
     Rboolean sing;
 
-#define xt(_k_, _j_) x[idr[_k_]*n+idc[_j_]] * *cf
+#define xt(_k_, _j_) x[idr[_k_]*n+idc[_j_]]
 #define U(_k_, _j_) lu[_j_*m+_k_]
 #define u(_k_, _j_) lu + (_j_*m+_k_)
 #define L(_k_, _j_) lu[_j_*m+_k_]
@@ -2152,7 +2194,7 @@ Start:
 		if (*ss == 0) {
 		    attempt++;
 		    if (attempt >= *mts) {
-			warning("Too many singular resamples. Aborting subsample(). Use ss > 0.");
+			warning("Too many singular resamples. Aborting subsample().\n See parameter subsampling in help of lmrob.config().");
 			return(2);
 		    }
 		    goto Start;
@@ -2174,10 +2216,14 @@ Start:
     /* Rprintf("idc:"); disp_veci(idc, m); */
 
     /* STEP 3: Solve for candidate parameters */
-    for(k=0;k<m;k++) beta[k] = y[idc[k]] * *cf;
+    for(k=0;k<m;k++) beta[k] = y[idc[k]];
+    /* scale y ( = beta ) */
+    if (rowequ) for(k=0;k<m;k++) beta[k] *= Dr[idc[k]];
     /* solve U\tr L\tr \beta = y[subsample] */
     F77_CALL(dtrsv)("U", "T", "N", &m, lu, &m, beta, &one);
     F77_CALL(dtrsv)("L", "T", "U", &m, lu, &m, beta, &one);
+    /* scale the solution */
+    if (colequ) for(k=0;k<m;k++) beta[k] *= Dc[idr[k]];
     /* undo pivoting */
     for(k=m-2;k>=0;k--) {
     	tmpd = beta[k]; beta[k] = beta[pivot[k]]; beta[pivot[k]] = tmpd;

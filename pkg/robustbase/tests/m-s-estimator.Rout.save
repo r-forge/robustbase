@@ -1,5 +1,5 @@
 
-R version 2.15.0 Patched (2012-05-23 r59426) -- "Easter Beagle"
+R version 2.15.0 (2012-03-30)
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: x86_64-unknown-linux-gnu (64-bit)
@@ -90,23 +90,23 @@ Loading required package: robustbase
 +     res[[i]] <- unlist(within(tmp, b1 <- drop(t1 + b1 - T2 %*% b2)))
 + })
 > cat('Time elapsed in subsampling: ', time,'\n')
-Time elapsed in subsampling:  0.456 0 0.458 0 0 
+Time elapsed in subsampling:  0.363 0.002 0.366 0 0 
 > ## show a summary of the results
 > summary(res1 <- do.call(rbind, res))
       b11               b12              b13                b14       
- Min.   :-396.71   Min.   :-39.00   Min.   :-35.8704   Min.   :16.30  
- 1st Qu.:-224.09   1st Qu.:-23.55   1st Qu.: -8.9603   1st Qu.:30.17  
- Median :-163.19   Median :-21.67   Median : -7.1441   Median :32.52  
- Mean   :-162.66   Mean   :-22.07   Mean   : -7.7680   Mean   :32.25  
- 3rd Qu.:-103.36   3rd Qu.:-18.42   3rd Qu.: -5.6747   3rd Qu.:36.02  
+ Min.   :-316.24   Min.   :-33.92   Min.   :-35.8704   Min.   :16.43  
+ 1st Qu.:-223.37   1st Qu.:-23.66   1st Qu.: -8.9603   1st Qu.:29.92  
+ Median :-163.19   Median :-21.37   Median : -7.2929   Median :32.20  
+ Mean   :-161.00   Mean   :-22.02   Mean   : -8.1235   Mean   :32.14  
+ 3rd Qu.:-103.36   3rd Qu.:-18.42   3rd Qu.: -5.9055   3rd Qu.:35.72  
  Max.   :  61.83   Max.   :-12.03   Max.   :  0.7015   Max.   :42.23  
       b21                b22               b23             scale      
- Min.   :-0.03808   Min.   :0.02111   Min.   :0.2555   Min.   :29.79  
- 1st Qu.:-0.00158   1st Qu.:0.03960   1st Qu.:0.4956   1st Qu.:30.42  
- Median : 0.02179   Median :0.04716   Median :0.6381   Median :31.05  
- Mean   : 0.02686   Mean   :0.04620   Mean   :0.6271   Mean   :30.95  
- 3rd Qu.: 0.05561   3rd Qu.:0.05211   3rd Qu.:0.7554   3rd Qu.:31.35  
- Max.   : 0.10074   Max.   :0.06765   Max.   :1.1121   Max.   :32.06  
+ Min.   :-0.03808   Min.   :0.01744   Min.   :0.2752   Min.   :29.79  
+ 1st Qu.:-0.00397   1st Qu.:0.03927   1st Qu.:0.4956   1st Qu.:30.43  
+ Median : 0.02160   Median :0.04716   Median :0.6381   Median :30.91  
+ Mean   : 0.02740   Mean   :0.04612   Mean   :0.6224   Mean   :30.95  
+ 3rd Qu.: 0.05561   3rd Qu.:0.05224   3rd Qu.:0.7473   3rd Qu.:31.35  
+ Max.   : 0.10427   Max.   :0.06938   Max.   :0.9172   Max.   :32.18  
 > ## compare with fast S solution
 > fmS <- lmrob(Y ~ Region + X1 + X2 + X3, education, init="S")
 > coef(fmS)
@@ -134,25 +134,25 @@ Time elapsed in subsampling:  0.456 0 0.458 0 0
 +                                     res[[i]][1:4], res[[i]][5:7], res[[i]][8]))
 + })
 > cat('Time elapsed in descent proc: ', time,'\n')
-Time elapsed in descent proc:  0.108 0 0.107 0 0 
+Time elapsed in descent proc:  0.084 0 0.084 0 0 
 > 
 > ## show a summary of the results
 > res4 <- do.call(rbind, res3)
 > summary(res4[,1:8])
       b11              b12              b13               b14       
- Min.   :-396.7   Min.   :-39.00   Min.   :-36.501   Min.   :16.30  
- 1st Qu.:-223.9   1st Qu.:-23.02   1st Qu.: -8.956   1st Qu.:27.96  
- Median :-157.1   Median :-20.45   Median : -7.904   Median :30.31  
- Mean   :-158.6   Mean   :-20.29   Mean   : -8.896   Mean   :30.50  
- 3rd Qu.:-102.3   3rd Qu.:-15.99   3rd Qu.: -6.858   3rd Qu.:32.59  
- Max.   : 101.7   Max.   :-12.24   Max.   : -4.032   Max.   :42.23  
+ Min.   :-316.3   Min.   :-30.56   Min.   :-36.478   Min.   :16.43  
+ 1st Qu.:-222.4   1st Qu.:-23.09   1st Qu.: -8.960   1st Qu.:27.96  
+ Median :-160.7   Median :-21.00   Median : -7.868   Median :30.46  
+ Mean   :-158.2   Mean   :-20.60   Mean   : -9.045   Mean   :30.83  
+ 3rd Qu.:-102.7   3rd Qu.:-17.40   3rd Qu.: -6.842   3rd Qu.:32.75  
+ Max.   : 101.1   Max.   :-12.24   Max.   : -4.032   Max.   :42.23  
       b21                b22               b23             scale      
- Min.   :-0.02122   Min.   :0.01459   Min.   :0.2034   Min.   :29.79  
- 1st Qu.: 0.02142   1st Qu.:0.03838   1st Qu.:0.4956   1st Qu.:30.37  
- Median : 0.04687   Median :0.04154   Median :0.6293   Median :30.57  
- Mean   : 0.04289   Mean   :0.04320   Mean   :0.6263   Mean   :30.72  
- 3rd Qu.: 0.06124   3rd Qu.:0.04764   3rd Qu.:0.7395   3rd Qu.:31.05  
- Max.   : 0.09102   Max.   :0.06476   Max.   :1.1121   Max.   :32.01  
+ Min.   :-0.02141   Min.   :0.01464   Min.   :0.2043   Min.   :29.79  
+ 1st Qu.: 0.02048   1st Qu.:0.03873   1st Qu.:0.5007   1st Qu.:30.37  
+ Median : 0.04169   Median :0.04271   Median :0.6381   Median :30.57  
+ Mean   : 0.03911   Mean   :0.04359   Mean   :0.6270   Mean   :30.70  
+ 3rd Qu.: 0.06102   3rd Qu.:0.04798   3rd Qu.:0.7460   3rd Qu.:30.96  
+ Max.   : 0.09102   Max.   :0.06367   Max.   :0.9172   Max.   :31.84  
 > 
 > plot(res1[, "scale"], res4[,"scale"])
 > abline(0,1, col=adjustcolor("gray", 0.5))
@@ -194,28 +194,28 @@ lmrob(formula = Y ~ Region + X1 + X2 + X3, data = education,
 
 Weighted Residuals:
     Min      1Q  Median      3Q     Max 
--61.780 -15.565  -1.574  23.457 174.698 
+-62.729 -15.529  -1.572  23.392 174.750 
 
 Coefficients:
               Estimate Std. Error t value Pr(>|t|)   
-(Intercept) -148.76973  142.58750  -1.043   0.3026   
-Region2      -13.51425   16.60314  -0.814   0.4202   
-Region3      -10.55037   15.86600  -0.665   0.5096   
-Region4       22.21989   16.89960   1.315   0.1955   
-X1             0.04079    0.05016   0.813   0.4206   
-X2             0.04337    0.01368   3.170   0.0028 **
-X3             0.60797    0.35014   1.736   0.0897 . 
+(Intercept) -150.07630  143.09300  -1.049  0.30013   
+Region2      -12.76767   16.63758  -0.767  0.44704   
+Region3      -10.63954   15.92865  -0.668  0.50774   
+Region4       21.95445   16.96484   1.294  0.20253   
+X1             0.04146    0.05040   0.823  0.41525   
+X2             0.04337    0.01373   3.159  0.00289 **
+X3             0.61106    0.35153   1.738  0.08932 . 
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
 
-Robust residual standard error: 30.2 
-Convergence in 21 IRWLS iterations
+Robust residual standard error: 30.82 
+Convergence in 19 IRWLS iterations
 
 Robustness weights: 
  observation 50 is an outlier with |weight| = 0 ( < 0.002); 
  7 weights are ~= 1. The remaining 42 ones are summarized as
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
- 0.2591  0.8877  0.9483  0.8848  0.9865  0.9983 
+ 0.2884  0.8904  0.9508  0.8890  0.9867  0.9985 
 Algorithmic parameters: 
 tuning.chi         bb tuning.psi    rel.tol 
  1.5476400  0.5000000  4.6850610  0.0000001 
@@ -234,4 +234,4 @@ seed : int(0)
 > 
 > proc.time()
    user  system elapsed 
-  1.100   0.016   1.110 
+  0.874   0.044   1.081 

@@ -79,6 +79,10 @@ Rsubsample <- function(x, y, mts=0) {
        lu = matrix(double(1), p,p),
        v=double(p),
        pivot = integer(p-1),
+       Dr=double(n),
+       Dc=double(p),
+       rowequ=integer(1),
+       colequ=integer(1),
        status=integer(1),
        sample = FALSE,
        mts = as.integer(mts),
@@ -88,7 +92,7 @@ Rsubsample <- function(x, y, mts=0) {
 subsample <- function(x, y=rnorm(n), compareMatrix = TRUE,
 		      lu.tol = 1e-7, lu.verbose=FALSE,
 		      eq.tol = .Machine$double.eps^0.5) {
-    x <- as.matrix(x)
+    x0 <- x <- as.matrix(x)
     n <- nrow(x)
     p <- ncol(x)
     stopifnot(length(y) == n)
@@ -104,7 +108,19 @@ subsample <- function(x, y=rnorm(n), compareMatrix = TRUE,
     L[upper.tri(L, diag=TRUE)] <- 0
     diag(L) <- 1
     U[lower.tri(U, diag=FALSE)] <- 0
+    
+    ## test solved parameter
+    if (z$status == 0) {
+	stopifnot(all.equal(z$beta, unname(solve(x[idc, ], y[idc])), tol=eq.tol))
+    }
 
+    if (z$rowequ) x <- diag(z$Dr) %*% x
+    if (z$colequ) x <- x %*% diag(z$Dc)
+
+    if (z$rowequ || z$colequ)
+        cat(sprintf("kappa before equilibration = %g, after = %g\n", kappa(x0), kappa(x)))
+        
+    
     LU. <- LU.gaxpy(t(x), tol=lu.tol, verbose=lu.verbose)
     ##	   --------
     if (!isTRUE(all.equal(LU.$p, pivot, tol=0))) {
@@ -113,28 +129,20 @@ subsample <- function(x, y=rnorm(n), compareMatrix = TRUE,
 	print(pivot)
 	cat("  ... are different at indices:\n ")
 	print(which(LU.$p != pivot))
+    } else {
+        stopifnot(all.equal(LU.$L, L, tol=eq.tol),
+                  all.equal(LU.$U, U, tol=eq.tol),
+                  all.equal(LU.$p, pivot, tol=0),
+                  all.equal(LU.$idc, idc, tol=0))
     }
-    stopifnot(all.equal(LU.$L, L, tol=eq.tol),
-	      all.equal(LU.$U, U, tol=eq.tol),
-	      all.equal(LU.$p, pivot, tol=0),
-	      all.equal(LU.$idc, idc, tol=0))
-
-    xsub <- x[idc, ]
-    ysub <- y[idc]
-
+    
     ## compare with Matrix result
-    if (compareMatrix & !LU.$singular) {
+    if (compareMatrix & z$status == 0) {
+        xsub <- x[idc, ]
 	stopifnot(require("Matrix"))
-	cf0 <- max(abs(x))
-	tmp <- lu(t(xsub / cf0))
+	tmp <- lu(t(xsub))
 	idx <- upper.tri(xsub, diag=TRUE)
-	tmp@x[idx] <- tmp@x[idx] * cf0
 	stopifnot(all.equal(tmp@x, as.vector(z$lu), tol=eq.tol))
-    }
-
-    ## test solved parameter
-    if (!LU.$singular) {
-	stopifnot(all.equal(z$beta, unname(solve(xsub, ysub)), tol=eq.tol))
     }
 
     invisible(z)
