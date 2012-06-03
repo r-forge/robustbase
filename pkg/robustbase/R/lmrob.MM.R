@@ -314,17 +314,23 @@ if(getRversion() > "2.15.0" || as.numeric(R.Version()$`svn rev`) > 59233)
     w  <- lmrob.psifun(r.s, cc = c.psi, psi = psi, deriv = 1)
     w0 <- lmrob.chifun(r0.s, cc = c.chi, psi = chi, deriv = 1)
     ## FIXME for multivariate y :
-    A <- solve(crossprod(x, x * w)) * (n * scale)
-    a <- A %*% (crossprod(x, w * r.s) / (n * mean(w0 * r0.s)))
+    x.wx <- crossprod(x, x * w)
+    if(inherits(A <- tryCatch(solve(x.wx) * scale,
+			      error=function(e)e), "error")) {
+	warning("X'WX is almost singular. Consider rather using cov = \".vcov.w\"")
+	A <- tryCatch(solve(x.wx, tol = 0) * scale, error=function(e)e)
+	if(inherits(A, "error"))
+	    stop("X'WX is singular. Rather use cov = \".vcov.w\"")
+    }
+    a <- A %*% (crossprod(x, w * r.s) / mean(w0 * r0.s))
     w <- lmrob.psifun( r.s, cc = c.psi, psi = psi)
 
     ## 3) now the standard part  (w, x, r0.s,  n, A,a, c.chi, bb)
     w0 <- lmrob.chifun(r0.s, cc = c.chi, psi = chi)
     Xww <- crossprod(x, w*w0)
-    u1 <- crossprod(x, x * w^2) / n
-    u1 <- A %*% u1 %*% A
-    u2 <- a %*% crossprod(Xww, A) / n
-    u3 <- A %*% tcrossprod(Xww, a) / n
+    u1 <- A %*% crossprod(x, x * w^2) %*% (n * A)
+    u2 <- a %*% crossprod(Xww, A)
+    u3 <- A %*% tcrossprod(Xww, a)
     u4 <- mean(w0^2 - bb^2) * tcrossprod(a)
 
     ## list(cov = matrix((u1 - u2 - u3 + u4)/n, p, p),
@@ -440,14 +446,14 @@ lmrob..M..fit <- function (x=obj$x, y=obj$y, beta.initial=obj$coef,
         ret$rank <- ret$qr$rank
         ## if there is a covariance matrix estimate available in obj
         ## update it, if possible, else replace it by the default .vcov.w
-        if (!is.null(obj$cov)) {
-            if (!control$method %in% c('SM', 'MM') &&
-                ret$control$cov == '.vcov.avar1') ret$control$cov <- '.vcov.w'
-
-            lf.cov <- if (!is.function(ret$control$cov))
-                get(ret$control$cov, mode='function') else ret$control$cov
-            ret$cov <- lf.cov(ret, x)
-        }
+	if (!is.null(obj$cov)) {
+	    if (!control$method %in% c('SM', 'MM') &&
+		ret$control$cov == '.vcov.avar1')
+		ret$control$cov <- '.vcov.w'
+	    lf.cov <- if (!is.function(ret$control$cov))
+		get(ret$control$cov, mode='function') else ret$control$cov
+	    ret$cov <- lf.cov(ret, x)
+	}
     }
     class(ret) <- "lmrob"
     ret
@@ -584,7 +590,8 @@ lmrob..D..fit <- function(obj, x=obj$x, control = obj$control)
     ## update it, if possible, else replace it by the default
     ## .vcov.w
     if (!is.null(obj$cov)) {
-        if (control$cov == '.vcov.avar1') control$cov <- '.vcov.w'
+        if (control$cov == '.vcov.avar1')
+            control$cov <- '.vcov.w'
 
         lf.cov <- if (!is.function(control$cov))
             get(control$cov, mode='function') else control$cov

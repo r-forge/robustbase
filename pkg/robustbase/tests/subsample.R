@@ -133,3 +133,42 @@ subsample(X, y)
 X <- matrix(c(1e-7, 1e10, 2, 2e12), 2)
 y <- 1:2
 subsample(X, y)
+
+
+### real data, see MM's ~/R/MM/Pkg-ex/robustbase/hedlmrob.R
+##  close to singular cov():
+attach(system.file("external", "d1k27.rda", package="robustbase", mustWork=TRUE))
+
+fm1 <- lmrob(y ~ a + I(a^2) + tf + I(tf^2) + A + I(A^2) + . , data = d1k27)
+##     ^^^^^ gave error, earlier, now with a warning -- use ".vcov.w"
+## --> cov = ".vcov.w"
+fm2 <- lmrob(y ~ a + I(a^2) + tf + I(tf^2) + A + I(A^2) + . , data = d1k27,
+             cov = ".vcov.w", trace = TRUE)
+
+## Q: does it change to use numeric instead of binary factors ?
+## A: not really ..
+d1k.n <- d1k27
+d1k.n[-(1:5)] <- lapply(d1k27[,-(1:5)], as.numeric)
+
+fm1.n <- lmrob(y ~ a + I(a^2) + tf + I(tf^2) + A + I(A^2) + . , data = d1k.n)
+fm2.n <- lmrob(y ~ a + I(a^2) + tf + I(tf^2) + A + I(A^2) + . , data = d1k.n,
+             cov = ".vcov.w", trace = 2)
+
+summary(weights(fm1))
+hist(weights(fm1), main="robustness weights of fm1"); rug(weights(fm1))
+
+##
+fmc <- lm   (y ~ poly(a,2)-a + poly(tf, 2)-tf + poly(A, 2)-A + . , data = d1k27)
+summary(fmc)
+## -> has NA's for  'a, tf, A'  --- bad that it did *not* work to remove them
+
+nform <- update(formula(fm1), ~ .
+                +poly(A,2)  -A  -I(A^2)
+                +poly(a,2)  -a  -I(a^2)
+                +poly(tf,2) -tf -I(tf^2))
+
+fm1. <- lmrob(nform, data = d1k27)# now w/o warning !? !!
+fm2. <- lmrob(nform, data = d1k27, cov = ".vcov.w", trace = TRUE)
+
+
+cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
