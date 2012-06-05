@@ -1,5 +1,5 @@
 
-R version 2.15.0 (2012-03-30)
+R version 2.15.0 Patched (2012-06-04 r59517) -- "Easter Beagle"
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: x86_64-unknown-linux-gnu (64-bit)
@@ -90,7 +90,7 @@ Loading required package: robustbase
 +     res[[i]] <- unlist(within(tmp, b1 <- drop(t1 + b1 - T2 %*% b2)))
 + })
 > cat('Time elapsed in subsampling: ', time,'\n')
-Time elapsed in subsampling:  0.363 0.002 0.366 0 0 
+Time elapsed in subsampling:  0.564 0 0.567 0 0 
 > ## show a summary of the results
 > summary(res1 <- do.call(rbind, res))
       b11               b12              b13                b14       
@@ -134,7 +134,7 @@ Time elapsed in subsampling:  0.363 0.002 0.366 0 0
 +                                     res[[i]][1:4], res[[i]][5:7], res[[i]][8]))
 + })
 > cat('Time elapsed in descent proc: ', time,'\n')
-Time elapsed in descent proc:  0.084 0 0.084 0 0 
+Time elapsed in descent proc:  0.108 0 0.109 0 0 
 > 
 > ## show a summary of the results
 > res4 <- do.call(rbind, res3)
@@ -217,10 +217,12 @@ Robustness weights:
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
  0.2884  0.8904  0.9508  0.8890  0.9867  0.9985 
 Algorithmic parameters: 
-tuning.chi         bb tuning.psi    rel.tol 
- 1.5476400  0.5000000  4.6850610  0.0000001 
- nResample     max.it      k.max      k.m_s  trace.lev        mts compute.rd 
-       500         50        200         20          0       1000          0 
+tuning.chi         bb tuning.psi    rel.tol  solve.tol 
+ 1.5476400  0.5000000  4.6850610  0.0000001  0.0000001 
+  nResample      max.it       k.max maxit.scale       k.m_s   trace.lev 
+        500          50         200         200          20           0 
+        mts  compute.rd 
+       1000           0 
           psi   subsampling        method           cov    split.type 
    "bisquare" "constrained"        "M-SM"     ".vcov.w"           "f" 
 seed : int(0) 
@@ -234,4 +236,4 @@ seed : int(0)
 > 
 > proc.time()
    user  system elapsed 
-  0.874   0.044   1.081 
+  1.299   0.059   1.503 

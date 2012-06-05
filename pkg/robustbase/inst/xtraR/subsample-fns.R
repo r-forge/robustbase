@@ -62,7 +62,7 @@ LU.gaxpy <- function(A, pivot=TRUE, tol = 1e-7, verbose = FALSE)
     list(L = L, U = U * cf0, p = p, idc = idc[1L:m], singular = sing)
 }
 
-Rsubsample <- function(x, y, mts=0) {
+Rsubsample <- function(x, y, mts=0, tolInverse = 1e-7) {
     if(!is.matrix(x)) x <- as.matrix(x)
     stopifnot((n <- length(y)) == nrow(x))
     p <- ncol(x)
@@ -86,18 +86,19 @@ Rsubsample <- function(x, y, mts=0) {
        status=integer(1),
        sample = FALSE,
        mts = as.integer(mts),
-       ss = as.integer(mts == 0))
+       ss = as.integer(mts == 0),
+       tolinv = as.double(tolInverse))
 }
 
 subsample <- function(x, y=rnorm(n), compareMatrix = TRUE,
-		      lu.tol = 1e-7, lu.verbose=FALSE,
+		      lu.tol = 1e-7, lu.verbose=FALSE, tolInverse = lu.tol,
 		      eq.tol = .Machine$double.eps^0.5) {
     x0 <- x <- as.matrix(x)
     n <- nrow(x)
     p <- ncol(x)
     stopifnot(length(y) == n)
 
-    z <- Rsubsample(x, y)
+    z <- Rsubsample(x, y, tolInverse=tolInverse)
     ##	 ----------
     ## convert idc, idr and p to 1-based indexing:
     idr <- z$idr      + 1L
@@ -108,7 +109,7 @@ subsample <- function(x, y=rnorm(n), compareMatrix = TRUE,
     L[upper.tri(L, diag=TRUE)] <- 0
     diag(L) <- 1
     U[lower.tri(U, diag=FALSE)] <- 0
-    
+
     ## test solved parameter
     if (z$status == 0) {
 	stopifnot(all.equal(z$beta, unname(solve(x[idc, ], y[idc])), tol=eq.tol))
@@ -119,8 +120,8 @@ subsample <- function(x, y=rnorm(n), compareMatrix = TRUE,
 
     if (z$rowequ || z$colequ)
         cat(sprintf("kappa before equilibration = %g, after = %g\n", kappa(x0), kappa(x)))
-        
-    
+
+
     LU. <- LU.gaxpy(t(x), tol=lu.tol, verbose=lu.verbose)
     ##	   --------
     if (!isTRUE(all.equal(LU.$p, pivot, tol=0))) {
@@ -135,7 +136,7 @@ subsample <- function(x, y=rnorm(n), compareMatrix = TRUE,
                   all.equal(LU.$p, pivot, tol=0),
                   all.equal(LU.$idc, idc, tol=0))
     }
-    
+
     ## compare with Matrix result
     if (compareMatrix & z$status == 0) {
         xsub <- x[idc, ]

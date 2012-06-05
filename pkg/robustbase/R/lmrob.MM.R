@@ -1,8 +1,12 @@
 lmrob.control <- function  (setting, seed = NULL, nResample = 500,
-                            tuning.chi = NULL,  bb = 0.5,
+                            tuning.chi = NULL, bb = 0.5,
                             tuning.psi = NULL, max.it = 50,
                             groups = 5, n.group = 400, k.fast.s = 1, best.r.s = 2,
-                            k.max = 200, k.m_s = 20, refine.tol = 1e-07, rel.tol = 1e-07,
+                            k.max = 200, maxit.scale = 200, k.m_s = 20,
+                            ##           ^^^^^^^^^^^ had MAX_ITER_FIND_SCALE 200 in ../src/lmrob.c
+                            refine.tol = 1e-7, rel.tol = 1e-7,
+                            solve.tol = 1e-7,
+                            ## had  ^^^^^^^^  TOL_INVERSE 1e-7 in ../src/lmrob.c
                             trace.lev = 0, mts = 1000,
                             subsampling = c("constrained", "simple"),
                             compute.rd = FALSE, method = 'MM',
@@ -25,6 +29,9 @@ lmrob.control <- function  (setting, seed = NULL, nResample = 500,
         }
     } else {
         psi <- if (missing(psi) && grepl('D', method)) 'lqq' else match.arg(psi)
+        ## MM: FIXME -- I'd rather have default argument NULL and
+        ## if (missing(cov) || is.null(cov))
+        ##     cov <- if(method %in% c('SM', 'MM')) "vcov.avar1" else ".vcov.w"
         if (missing(cov) && !method %in% c('SM', 'MM')) cov <- '.vcov.w'
     }
     subsampling <- match.arg(subsampling)
@@ -52,15 +59,15 @@ lmrob.control <- function  (setting, seed = NULL, nResample = 500,
         tuning.chi <- lmrob.const(tuning.chi, psi)
     }
 
-    c(list(seed = as.integer(seed), nResample = nResample, psi = psi,
-           tuning.chi = tuning.chi, bb = bb, tuning.psi = tuning.psi,
-           max.it = max.it, groups = groups, n.group = n.group,
-           best.r.s = best.r.s, k.fast.s = k.fast.s,
-           k.max = k.max, k.m_s = k.m_s, refine.tol = refine.tol,
-           rel.tol = rel.tol, trace.lev = trace.lev, mts = mts,
-           subsampling = subsampling,
-           compute.rd = compute.rd, method = method, numpoints = numpoints,
-           cov = cov, split.type = match.arg(split.type)),
+    c(list(seed = as.integer(seed), nResample=nResample, psi=psi,
+           tuning.chi=tuning.chi, bb=bb, tuning.psi=tuning.psi,
+           max.it=max.it, groups=groups, n.group=n.group,
+           best.r.s=best.r.s, k.fast.s=k.fast.s,
+           k.max=k.max, maxit.scale=maxit.scale, k.m_s=k.m_s, refine.tol=refine.tol,
+           rel.tol=rel.tol, solve.tol=solve.tol, trace.lev=trace.lev, mts=mts,
+           subsampling=subsampling,
+           compute.rd=compute.rd, method=method, numpoints=numpoints,
+           cov=cov, split.type = match.arg(split.type)),
       list(...))
 }
 
@@ -506,7 +513,9 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev, mf = NULL)
             n.group = nGr,
             k.fast.s = as.integer(control$k.fast.s),
             k.iter = as.integer(control$k.max),
+            maxit.scale = as.integer(control$maxit.scale),
             refine.tol = as.double(control$refine.tol),
+            inv.tol = as.double(control$solve.tol),
             converged = logical(1),
             trace.lev = as.integer(trace.lev),
             mts = as.integer(control$mts),
@@ -571,7 +580,7 @@ lmrob..D..fit <- function(obj, x=obj$x, control = obj$control)
               type = 3L, ## dt1 as only remaining option
               rel.tol = as.double(control$rel.tol),
               k.max = as.integer(control$k.max),
-              converged = integer(1))
+              converged = logical(1))[c("converged", "scale")]
     obj$scale <- if(ret$converged) ret$scale else NA
     obj$converged <- ret$converged
 
