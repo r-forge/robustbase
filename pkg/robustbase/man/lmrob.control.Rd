@@ -19,8 +19,8 @@ lmrob.control(setting, seed = NULL, nResample = 500,
               trace.lev = 0,
               mts = 1000, subsampling = c("constrained", "simple"),
               compute.rd = FALSE, method = 'MM',
-              psi = c('bisquare', 'lqq', 'welsh', 'optimal', 'hampel',
-              'ggw'), numpoints = 10, cov = '.vcov.avar1',
+              psi = c('bisquare', 'lqq', 'welsh', 'optimal', 'hampel', 'ggw'),
+              numpoints = 10, cov = NULL,
               split.type = c("f", "fi", "fii"), ...)
 }
 \arguments{
@@ -96,11 +96,12 @@ lmrob.control(setting, seed = NULL, nResample = 500,
     \code{"bisquare"} for S and MM-estimates, otherwise \code{"lqq"}.}
   \item{numpoints}{number of points used in Gauss quadrature.}
   \item{cov}{function or string with function name to be used to
-    calculate covariance matrix estimate.  See \emph{Details} of
-    \code{\link{lmrob}}.}
+    calculate covariance matrix estimate.  The default is
+    \code{if(method \%in\% c('SM', 'MM')) ".vcov.avar1" else ".vcov.w"}.
+    See \emph{Details} of \code{\link{lmrob}}.}
   \item{split.type}{determines how categorical and continuous variables
     are split. See \code{\link{splitFrame}}.}
-  \item{...}{Further arguments are added to the control list.}
+  \item{...}{further arguments to be added to \code{control}.}
 }
 \details{The option \code{setting="KS2011"} alters the default
   arguments.  They are changed to \code{method = 'SMDM', psi = 'lqq',

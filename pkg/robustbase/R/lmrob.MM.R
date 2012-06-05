@@ -12,7 +12,7 @@ lmrob.control <- function  (setting, seed = NULL, nResample = 500,
                             compute.rd = FALSE, method = 'MM',
                             psi = c('bisquare', 'lqq', 'welsh', 'optimal', 'hampel',
                               'ggw'),
-                            numpoints = 10, cov = '.vcov.avar1',
+			    numpoints = 10, cov = NULL,
                             split.type = c("f", "fi", "fii"),
                             ...)
 {
@@ -22,17 +22,15 @@ lmrob.control <- function  (setting, seed = NULL, nResample = 500,
             if (missing(psi)) psi <- 'lqq'
             if (missing(max.it)) max.it <- 500
             if (missing(k.max)) k.max <- 2000
-            if (missing(cov)) cov <- '.vcov.w'
+            if (missing(cov) || is.null(cov)) cov <- '.vcov.w'
         } else {
             warning("Unknown setting '", setting, "'. Using defaults.")
             psi <- match.arg(psi)
         }
     } else {
         psi <- if (missing(psi) && grepl('D', method)) 'lqq' else match.arg(psi)
-        ## MM: FIXME -- I'd rather have default argument NULL and
-        ## if (missing(cov) || is.null(cov))
-        ##     cov <- if(method %in% c('SM', 'MM')) "vcov.avar1" else ".vcov.w"
-        if (missing(cov) && !method %in% c('SM', 'MM')) cov <- '.vcov.w'
+	if (missing(cov) || is.null(cov))
+	    cov <- if(method %in% c('SM', 'MM')) ".vcov.avar1" else ".vcov.w"
     }
     subsampling <- match.arg(subsampling)
 
