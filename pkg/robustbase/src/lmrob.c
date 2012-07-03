@@ -59,14 +59,14 @@
  *  but first make many of these 'static' <<< FIXME!
  */
 void fast_s_large_n(double *X, double *y,
-		    int *nn, int *pp, int *nRes,
+		    int *nn, int *pp, int *nRes, int *max_it_scale,
 		    int *ggroups, int *nn_group,
 		    int *K, int *max_k, double rel_tol, double inv_tol, int *converged,
 		    int *best_r, double *bb, double *rrhoc, int *iipsi,
 		    double *bbeta, double *sscale, int trace_lev, int mts, int ss);
 
 void fast_s(double *X, double *y,
-	    int *nn, int *pp, int *nRes,
+	    int *nn, int *pp, int *nRes, int *max_it_scale,
 	    int *K, int *max_k, double rel_tol, double inv_tol, int *converged,
 	    int *best_r, double *bb, double *rrhoc, int *iipsi,
 	    double *bbeta, double *sscale, int trace_lev, int mts, int ss);
@@ -138,7 +138,7 @@ int refine_fast_s(const double X[], double *wx, const double y[], double *wy,
 		  double *beta_ref, double *scale);
 
 void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
-		   int nResample, double rel_tol, double inv_tol, double *bb,
+		   int nResample, int max_it_scale, double rel_tol, double inv_tol, double *bb,
 		   double *rrhoc, int ipsi, double *sscale, int trace_lev,
 		   double *b1, double *b2, double *t1, double *t2,
 		   double *y_tilde, double *res, double *x1, double *x2,
@@ -146,7 +146,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 		   double *SC1, double *SC2, double *SC3, double *SC4, int mts, int ss);
 
 void m_s_descent(double *X1, double *X2, double *y,
-		 int n, int p1, int p2, int K_m_s, int max_k,
+		 int n, int p1, int p2, int K_m_s, int max_k, int max_it_scale,
 		 double rel_tol, double *bb, double *rrhoc, int ipsi,
 		 double *sscale, int trace_lev,
 		 double *b1, double *b2, double *t1, double *t2,
@@ -162,7 +162,7 @@ int subsample(const double x[], const double y[], int n, int m,
 	      int sample, int mts, int ss, double tol_inv);
 
 int fast_s_with_memory(double *X, double *y,
-		       int *nn, int *pp, int *nRes,
+		       int *nn, int *pp, int *nRes, int *max_it_scale,
 		       int *K, int *max_k, double rel_tol, double inv_tol,  int trace_lev,
 		       int *best_r, double *bb, double *rrhoc, int *iipsi,
 		       double **best_betas, double *best_scales, int mts, int ss);
@@ -313,12 +313,12 @@ void R_lmrob_S(double *X, double *y, int *n, int *P,
 
     if ( *nRes > 0) {
 	if( *n > 2000 )
-	    fast_s_large_n(X, y, n, P, nRes,
+	    fast_s_large_n(X, y, n, P, nRes, max_it_scale,
 			   Groups, N_group,
 			   K_s, max_k, *rel_tol, *inv_tol, converged,
 			   best_r, bb, rrhoc, iipsi, beta_s, scale, *trace_lev, *mts, *ss);
 	else
-	    fast_s(X, y, n, P, nRes,
+	    fast_s(X, y, n, P, nRes, max_it_scale,
 		   K_s, max_k, *rel_tol, *inv_tol, converged,
 		   best_r, bb, rrhoc, iipsi, beta_s, scale, *trace_lev, *mts, *ss);
     } else {
@@ -329,7 +329,7 @@ void R_lmrob_S(double *X, double *y, int *n, int *P,
 
 /* Called from R, this function computes an M-S-regression estimator */
 void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
-		 int *nn, int *pp1, int *pp2, int *nRes,
+		 int *nn, int *pp1, int *pp2, int *nRes, int *max_it_scale,
 		 double *scale, double *b1, double *b2,
 		 double *rho_c, int *ipsi, double *bb,
 		 int *K_m_s, int *max_k, double *rel_tol, double *inv_tol,
@@ -389,7 +389,8 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
 
     /* STEP 2: Subsample */
     if (*subsample > 0) {
-	m_s_subsample(X1, y_work, n, p1, p2, *nRes, *rel_tol, *inv_tol, bb,
+	m_s_subsample(X1, y_work, n, p1, p2, *nRes, *max_it_scale, 
+		      *rel_tol, *inv_tol, bb,
 		      rho_c, *ipsi, scale, *trace_lev,
 		      b1, b2, t1, t2, y_tilde, res, x1, x2,
 		      &NIT, &K, &KODE, &SIGMA, &BET0,
@@ -416,8 +417,8 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
 
     /* STEP 4: Descent procedure */
     if (*descent > 0) {
-	m_s_descent(X1, X2, y, n, p1, p2, *K_m_s, *max_k, *rel_tol, bb,
-		    rho_c, *ipsi, scale, *trace_lev,
+	m_s_descent(X1, X2, y, n, p1, p2, *K_m_s, *max_k, *max_it_scale, 
+		    *rel_tol, bb, rho_c, *ipsi, scale, *trace_lev,
 		    b1, b2, t1, t2, y_tilde, res, y_work, x1, x2,
 		    &NIT, &K, &KODE, &SIGMA, &BET0, SC1, SC2, SC3, SC4,
 		    converged);
@@ -1325,7 +1326,7 @@ void zero_mat(double **a, int n, int m)
 /* This function implements the "large n" strategy
  */
 void fast_s_large_n(double *X, double *y,
-		    int *nn, int *pp, int *nRes,
+		    int *nn, int *pp, int *nRes, int *max_it_scale,
 		    int *ggroups, int *nn_group,
 		    int *K, int *max_k, double rel_tol, double inv_tol, int *converged,
 		    int *best_r, double *bb, double *rrhoc, int *iipsi,
@@ -1410,7 +1411,7 @@ void fast_s_large_n(double *X, double *y,
 	    ysamp[j] = y[indices[ij]];
 	}
 	if(fast_s_with_memory(xsamp, ysamp,
-			      &n_group, pp, nRes, K, max_k, rel_tol, inv_tol,
+			      &n_group, pp, nRes, max_it_scale, K, max_k, rel_tol, inv_tol,
 			      trace_lev, best_r, bb, rrhoc,
 			      iipsi, best_betas + i* *best_r,
 			      best_scales+ i* *best_r, mts, ss)) {
@@ -1471,7 +1472,7 @@ void fast_s_large_n(double *X, double *y,
 	}
 	if ( sum_rho_sc(res, worst_sc, sg, p, rrhoc, ipsi) < b ) {
 	    /* scale will be better */
-	    sc = find_scale(res, b, rrhoc, ipsi, sc, sg, p, /*max_iter*/ 200);
+	    sc = find_scale(res, b, rrhoc, ipsi, sc, sg, p, *max_it_scale);
 	    k2 = pos_worst_scale;
 	    final_best_scales[ k2 ] = sc;
 	    COPY(beta_ref, final_best_betas[k2], p);
@@ -1536,7 +1537,7 @@ void fast_s_large_n(double *X, double *y,
 } /* fast_s_large_n() */
 
 int fast_s_with_memory(double *X, double *y,
-		       int *nn, int *pp, int *nRes,
+		       int *nn, int *pp, int *nRes, int *max_it_scale,
 		       int *K, int *max_k, double rel_tol, double inv_tol,  int trace_lev,
 		       int *best_r, double *bb, double *rrhoc, int *iipsi,
 		       double **best_betas, double *best_scales, int mts, int ss)
@@ -1610,7 +1611,7 @@ int fast_s_with_memory(double *X, double *y,
 
 	if ( sum_rho_sc(res, worst_sc, n, p, rrhoc, ipsi) < b )	{
 	    /* scale will be better */
-	    sc = find_scale(res, b, rrhoc, ipsi, sc, n, p, /*max_iter*/ 200);
+	    sc = find_scale(res, b, rrhoc, ipsi, sc, n, p, *max_it_scale);
 	    k = pos_worst_scale;
 	    best_scales[ k ] = sc;
 	    for(j=0; j < p; j++)
@@ -1632,7 +1633,7 @@ int fast_s_with_memory(double *X, double *y,
 } /* fast_s_with_memory() */
 
 void fast_s(double *X, double *y,
-	    int *nn, int *pp, int *nRes,
+	    int *nn, int *pp, int *nRes, int *max_it_scale,
 	    int *K, int *max_k, double rel_tol, double inv_tol, int *converged,
 	    int *best_r, double *bb, double *rrhoc, int *iipsi,
 	    double *bbeta, double *sscale, int trace_lev, int mts, int ss)
@@ -1734,7 +1735,7 @@ void fast_s(double *X, double *y,
 	}
 	if ( sum_rho_sc(res, worst_sc, n, p, rrhoc, ipsi) < b )	{
 	    /* scale will be better */
-	    sc = find_scale(res, b, rrhoc, ipsi, sc, n, p, /* max_iter*/ 200);
+	    sc = find_scale(res, b, rrhoc, ipsi, sc, n, p, *max_it_scale);
 	    k = pos_worst_scale;
 	    best_scales[ k ] = sc;
 	    COPY(beta_ref, best_betas[k], p);
@@ -1892,7 +1893,7 @@ int refine_fast_s(const double X[], double *wx, const double y[], double *wy,
 /* Recreates RLFRSTML function found in src/lmrobml.f    */
 /* of the robust package                                 */
 void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
-		   int nResample, double rel_tol, double inv_tol, double *bb,
+		   int nResample, int max_it_scale, double rel_tol, double inv_tol, double *bb,
 		   double *rrhoc, int ipsi, double *sscale, int trace_lev,
 		   double *b1, double *b2, double *t1, double *t2,
 		   double *y_tilde, double *res, double *x1, double *x2,
@@ -1940,7 +1941,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 	if (sum_rho_sc(res, *sscale, n, p, rrhoc, ipsi) < b) {
 	    /* scale will be better */
 	    /* STEP 5: Solve for sc */
-	    sc = find_scale(res, b, rrhoc, ipsi, sc, n, p, /*max_iter*/ 200);
+	    sc = find_scale(res, b, rrhoc, ipsi, sc, n, p, max_it_scale);
 	    if(trace_lev >= 2) {
 		Rprintf("Step %d: new candidate with sc = %.5f\n",i,sc);
 	    }
@@ -1973,7 +1974,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 
 /* Descent step for M-S algorithm                        */
 void m_s_descent(double *X1, double *X2, double *y,
-		 int n, int p1, int p2, int K_m_s, int max_k,
+		 int n, int p1, int p2, int K_m_s, int max_k, int max_it_scale,
 		 double rel_tol, double *bb, double *rrhoc,  int ipsi,
 		 double *sscale, int trace_lev,
 		 double *b1, double *b2, double *t1, double *t2,
@@ -2033,7 +2034,7 @@ void m_s_descent(double *X1, double *X2, double *y,
 		  *KODE);
 	}
 	/* STEP 3: Compute the scale estimate */
-	sc = find_scale(res2, b, rrhoc, ipsi, sc, n, p, /*max_iter*/ 200);
+	sc = find_scale(res2, b, rrhoc, ipsi, sc, n, p, max_it_scale);
 	/* STEP 4: Check for convergence */
 	/* FIXME: check convergence using scale ? */
 	double del = sqrt(norm_diff2(b1, t1, p1) + norm_diff2(b2, t2, p2));

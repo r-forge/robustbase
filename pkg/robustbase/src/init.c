@@ -71,7 +71,7 @@ static R_NativePrimitiveArgType R_calc_fitted_t[] = {
 
 static R_NativePrimitiveArgType R_lmrob_M_S_t[] = {
     REALSXP, REALSXP, REALSXP, REALSXP,
-    INTSXP, INTSXP, INTSXP, INTSXP,
+    INTSXP, INTSXP, INTSXP, INTSXP, INTSXP,
     REALSXP, REALSXP, REALSXP,
     REALSXP, INTSXP, REALSXP,
     INTSXP, INTSXP, REALSXP, REALSXP,
