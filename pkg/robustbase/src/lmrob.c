@@ -245,6 +245,7 @@ void zero_mat(double **a, int n, int m);
     /* see Demmel (1997) APPLIED NUMERICAL LINEAR ALGEBRA   */  \
     /*     Section 2.5.2 Equilibration                      */  \
     double *Dr, *Dc, *Xe, rowcnd, colcnd, amax;			\
+    int rowequ = 0 , colequ = 0;                                \
     Dr =        (double *) Calloc(_n_,     double);             \
     Dc =        (double *) Calloc(_p_,     double);             \
     Xe =        (double *) Calloc(_n_*_p_, double);             \
@@ -252,24 +253,24 @@ void zero_mat(double **a, int n, int m);
     F77_CALL(dgeequ)(&_n_, &_p_, Xe, &_n_, Dr, Dc, &rowcnd,	\
     		     &colcnd, &amax, &info);                    \
     if (info) {                                                 \
-	CLEANUP_EQUILIBRATION;                                  \
 	if (info < 0) {                                         \
+	    CLEANUP_EQUILIBRATION;				\
 	    error("dgeequ: illegal argument in %i. argument", &info); \
 	} else if (info > _n_) {                                \
             error("dgeequ: column %i is exactly zero.", _n_ - info); \
 	} else {                                                \
-	    error("dgeequ: row %i is exactly zero.", info);     \
+	/* FIXME: replace dgeequ by our own version */          \
+	/* that does not treat this as error */                 \
+	    warning("Skipping design matrix equilibration (dgeequ): row %i is exactly zero.", info); \
 	}                                                       \
-    }                                                           \
-    /* scale _X_ */                                             \
-    char equed;                                                 \
-    F77_CALL(dlaqge)(&_n_, &_p_, Xe, &_n_, Dr, Dc, &rowcnd,     \
-                     &colcnd, &amax, &equed);                   \
-    int rowequ = equed == 'B' || equed == 'R';                  \
-    int colequ = equed == 'B' || equed == 'C';/*                   \ */
-    /* Rprintf(" rowequ = %i, colequ = %i, equed = %i\n", rowequ, colequ, equed); \ */
-    /* Rprintf(" Dr = "); disp_vec(Dr, _n_);                       \ */
-    /* Rprintf(" Dc = "); disp_vec(Dc, _p_); */
+    } else {							\
+        /* scale _X_ */                                         \
+        char equed;         					\
+	F77_CALL(dlaqge)(&_n_, &_p_, Xe, &_n_, Dr, Dc, &rowcnd,	\
+			 &colcnd, &amax, &equed);		\
+        rowequ = equed == 'B' || equed == 'R';                  \
+	colequ = equed == 'B' || equed == 'C';                  \
+    }
 
 #define SETUP_SUBSAMPLE(_n_, _p_, _X_)				\
     /* (Pointers to) Arrays - to be allocated */                \
