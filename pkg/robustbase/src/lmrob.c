@@ -159,7 +159,7 @@ int subsample(const double x[], const double y[], int n, int m,
 	      double *beta, int *ind_space, int *idc, int *idr,
 	      double *lu, double *v, int *p,
 	      double *Dr, double *Dc, int rowequ, int colequ,
-	      int sample, int mts, int ss, double tol_inv);
+	      int sample, int mts, int ss, double tol_inv, int do_solve);
 
 int fast_s_with_memory(double *X, double *y,
 		       int *nn, int *pp, int *nRes, int *max_it_scale,
@@ -466,7 +466,7 @@ void R_subsample(const double x[], const double y[], int *n, int *m,
     SETUP_EQUILIBRATION(*n, *m, x);
 
     *status = subsample(Xe, y, *n, *m, beta, ind_space, idc, idr, lu, v, p,
-			Dr, Dc, rowequ, colequ, *sample, *mts, *ss, *tol_inv);
+			Dr, Dc, rowequ, colequ, *sample, *mts, *ss, *tol_inv, 1);
 
     COPY(Dr, _Dr, *n);
     COPY(Dc, _Dc, *m);
@@ -1591,7 +1591,7 @@ int fast_s_with_memory(double *X, double *y,
 	R_CheckUserInterrupt();
 	/* find a candidate */
 	sing = subsample(Xe, y, n, p, beta_cand, ind_space, idc, idr, lu, v, pivot,
-			 Dr, Dc, rowequ, colequ, 1, mts, ss, inv_tol);
+			 Dr, Dc, rowequ, colequ, 1, mts, ss, inv_tol, 1);
 	if (sing) {
 	    for (k=0; k< *best_r; k++) best_scales[i] = -1.;
 	    goto cleanup_and_return;
@@ -1702,7 +1702,7 @@ void fast_s(double *X, double *y,
 	R_CheckUserInterrupt();
 	/* find a candidate */
 	sing = subsample(Xe, y, n, p, beta_cand, ind_space, idc, idr, lu, v, pivot,
-			 Dr, Dc, rowequ, colequ, 1, mts, ss, inv_tol);
+			 Dr, Dc, rowequ, colequ, 1, mts, ss, inv_tol, 1);
 	if (sing) {
 	    *sscale = -1.;
 	    goto cleanup_and_return;
@@ -1919,7 +1919,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 	R_CheckUserInterrupt();
 	/* STEP 1: Draw a subsample of size p2 from (X2, y) */
 	sing = subsample(Xe, y, n, p2, t2, ind_space, idc, idr, lu, v, pivot,
-			 Dr, Dc, rowequ, colequ, 1, mts, ss, inv_tol);
+			 Dr, Dc, rowequ, colequ, 1, mts, ss, inv_tol, 1);
 	if (sing) {
 	    *sscale = -1.;
 	    goto cleanup_and_return;
@@ -2089,7 +2089,7 @@ int subsample(const double x[], const double y[], int n, int m,
 	      double *beta, int *ind_space, int *idc, int *idr,
 	      double *lu, double *v, int *pivot,
 	      double *Dr, double *Dc, int rowequ, int colequ,
-	      int sample, int mts, int ss, double tol_inv)
+	      int sample, int mts, int ss, double tol_inv, int do_solve)
 {
     /* x:         design matrix (n x m)
        y:         response vector
@@ -2099,23 +2099,30 @@ int subsample(const double x[], const double y[], int n, int m,
        ind_space: (required in sample_noreplace, length n)
        idc:       (required in sample_noreplace, !! length n !!)
                   holds the index permutation,
-		  [out] index of observations used in subsample
+		  [out] index of observations used in subsample 
+                  (first m elements only)
        idr:       work array of length m
        lu:        [out] LU decomposition of subsample of xt (m x m)
-                  Note: U has is not rescaled by 1 / *cf, as it should,
-		        this is done R_subsample().
+                  Note: U is not rescaled by 1 / *cf, as one would normally 
+                        assume, this is done R_subsample().
        v:         work array of length m
        pivot:     [out] pivoting table of LU decomposition (length m-1)
        Dr:        row equilibration (as calculated in SETUP_EQUILIBRATION)
        Dc:        column equilibration
        rowequ:    whether rows were equilibrated
        coleq:     whether cols were equilibrated
-       sample:    whether to sample or not
+       sample:    whether to sample or not:
+                  0: initialize idc with 1:n, i.e., no random sampling
+		  > 0: initialize idc with a random sample
+		  < 0: do not touch idc (assume it to be initialized already)
        mts:       the number of singular samples allowed before
                   giving up (Max Try Samples)
        ss:        type of subsampling to be used:
                   0: simple subsampling
                   1: constrained subsampling
+       tol_inv:   tolerance used to determine singularity of matrices
+       do_solve:  != 0: solve X %*% b = y (on the subsample only)
+                  0: do nothing
 
        return condition:
              0: success
@@ -2136,7 +2143,7 @@ Start:
     /* STEP 1: Calculate permutation of 1:n */
     if (sample > 0) {
 	sample_noreplace(idc, n, n, ind_space);
-    } else for(k=0;k<n;k++) idc[k] = k;
+    } else if (sample == 0) for(k=0;k<n;k++) idc[k] = k;
     for(k=0;k<m;k++) idr[k] = k;
 
     /* STEP 2: Calculate LU decomposition of the first m cols of xt     *
@@ -2194,11 +2201,12 @@ Start:
 		    }
 		    goto Start;
 		}
-		idc[j] = idc[--len_idc];
-		if (len_idc <= j) {
+		if (--len_idc <= j) { /* decrease len_idc by 1 */
 		    warning("subsample: could not find non-singular subsample.");
 		    return(1);
 		}
+		/* swap idc[j] and idc[len_icd] */
+		tmpi = idc[j]; idc[j] = idc[len_idc]; idc[len_idc] = tmpi;
 	    } else {
 		sing = FALSE;
 		U(j, j) = v[j];
@@ -2211,17 +2219,19 @@ Start:
     /* Rprintf("idc:"); disp_veci(idc, m); */
 
     /* STEP 3: Solve for candidate parameters */
-    for(k=0;k<m;k++) beta[k] = y[idc[k]];
-    /* scale y ( = beta ) */
-    if (rowequ) for(k=0;k<m;k++) beta[k] *= Dr[idc[k]];
-    /* solve U\tr L\tr \beta = y[subsample] */
-    F77_CALL(dtrsv)("U", "T", "N", &m, lu, &m, beta, &one);
-    F77_CALL(dtrsv)("L", "T", "U", &m, lu, &m, beta, &one);
-    /* scale the solution */
-    if (colequ) for(k=0;k<m;k++) beta[k] *= Dc[idr[k]];
-    /* undo pivoting */
-    for(k=m-2;k>=0;k--) {
-    	tmpd = beta[k]; beta[k] = beta[pivot[k]]; beta[pivot[k]] = tmpd;
+    if (do_solve != 0) {
+	for(k=0;k<m;k++) beta[k] = y[idc[k]];
+	/* scale y ( = beta ) */
+	if (rowequ) for(k=0;k<m;k++) beta[k] *= Dr[idc[k]];
+	/* solve U\tr L\tr \beta = y[subsample] */
+	F77_CALL(dtrsv)("U", "T", "N", &m, lu, &m, beta, &one);
+	F77_CALL(dtrsv)("L", "T", "U", &m, lu, &m, beta, &one);
+	/* scale the solution */
+	if (colequ) for(k=0;k<m;k++) beta[k] *= Dc[idr[k]];
+	/* undo pivoting */
+	for(k=m-2;k>=0;k--) {
+	    tmpd = beta[k]; beta[k] = beta[pivot[k]]; beta[pivot[k]] = tmpd;
+	}
     }
 
     return(0);
