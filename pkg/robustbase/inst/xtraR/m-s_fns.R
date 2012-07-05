@@ -102,7 +102,8 @@ find_scale <- function(r, s0, n, p, control) {
             converged = logical(1),
             trace.lev = 0L,
             mts = 0L,
-            ss = 1L
+            ss = 1L,
+            fast.s.large.n = as.integer(n+1)
             )[c("coefficients", "scale", "k.iter", "converged")]
     b$scale
 }

@@ -1,5 +1,5 @@
 
-R version 2.15.0 Patched (2012-06-04 r59517) -- "Easter Beagle"
+R version 2.15.1 (2012-06-22) -- "Roasted Marshmallows"
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: x86_64-unknown-linux-gnu (64-bit)
@@ -51,10 +51,12 @@ Robustness weights:
 Algorithmic parameters: 
 tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol 
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001  0.0000001 
-  nResample      max.it      groups     n.group    best.r.s    k.fast.s 
-        500          50           5         400           2           1 
-      k.max maxit.scale   trace.lev         mts  compute.rd 
-        200         200           0        1000           0 
+     nResample         max.it         groups        n.group       best.r.s 
+           500             50              5            400              2 
+      k.fast.s          k.max    maxit.scale      trace.lev            mts 
+             1            200            200              0           1000 
+    compute.rd fast.s.large.n 
+             0           2000 
           psi   subsampling        method           cov 
    "bisquare" "constrained"          "MM" ".vcov.avar1" 
 seed : int(0) 
@@ -165,10 +167,12 @@ Robustness weights:
 Algorithmic parameters: 
 tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol 
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001  0.0000001 
-  nResample      max.it      groups     n.group    best.r.s    k.fast.s 
-        500          50           5         400           2           1 
-      k.max maxit.scale   trace.lev         mts  compute.rd 
-        200         200           0        1000           0 
+     nResample         max.it         groups        n.group       best.r.s 
+           500             50              5            400              2 
+      k.fast.s          k.max    maxit.scale      trace.lev            mts 
+             1            200            200              0           1000 
+    compute.rd fast.s.large.n 
+             0           2000 
           psi   subsampling        method           cov 
    "bisquare" "constrained"          "MM" ".vcov.avar1" 
 seed : int(0) 
@@ -211,10 +215,12 @@ Robustness weights:
 Algorithmic parameters: 
 tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol 
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001  0.0000001 
-  nResample      max.it      groups     n.group    best.r.s    k.fast.s 
-        500          50           5         400           2           1 
-      k.max maxit.scale   trace.lev         mts  compute.rd 
-        200         200           0        1000           0 
+     nResample         max.it         groups        n.group       best.r.s 
+           500             50              5            400              2 
+      k.fast.s          k.max    maxit.scale      trace.lev            mts 
+             1            200            200              0           1000 
+    compute.rd fast.s.large.n 
+             0           2000 
           psi   subsampling        method           cov 
    "bisquare" "constrained"          "MM" ".vcov.avar1" 
 seed : int(0) 
@@ -253,10 +259,12 @@ Robustness weights:
 Algorithmic parameters: 
 tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol 
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001  0.0000001 
-  nResample      max.it      groups     n.group    best.r.s    k.fast.s 
-        500          50           5         400           2           1 
-      k.max maxit.scale   trace.lev         mts  compute.rd 
-        200         200           0        1000           0 
+     nResample         max.it         groups        n.group       best.r.s 
+           500             50              5            400              2 
+      k.fast.s          k.max    maxit.scale      trace.lev            mts 
+             1            200            200              0           1000 
+    compute.rd fast.s.large.n 
+             0           2000 
           psi   subsampling        method           cov 
    "bisquare" "constrained"          "MM" ".vcov.avar1" 
 seed : int(0) 
@@ -288,10 +296,12 @@ Robustness weights:
 Algorithmic parameters: 
 tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol 
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001  0.0000001 
-  nResample      max.it      groups     n.group    best.r.s    k.fast.s 
-        500          50           5         400           2           1 
-      k.max maxit.scale   trace.lev         mts  compute.rd 
-        200         200           0        1000           0 
+     nResample         max.it         groups        n.group       best.r.s 
+           500             50              5            400              2 
+      k.fast.s          k.max    maxit.scale      trace.lev            mts 
+             1            200            200              0           1000 
+    compute.rd fast.s.large.n 
+             0           2000 
           psi   subsampling        method           cov 
    "bisquare" "constrained"          "MM" ".vcov.avar1" 
 seed : int(0) 
@@ -333,18 +343,20 @@ Robustness weights:
 Algorithmic parameters: 
 tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol 
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001  0.0000001 
-  nResample      max.it      groups     n.group    best.r.s    k.fast.s 
-        500          50           5         400           2           1 
-      k.max maxit.scale   trace.lev         mts  compute.rd 
-        200         200           0        1000           0 
+     nResample         max.it         groups        n.group       best.r.s 
+           500             50              5            400              2 
+      k.fast.s          k.max    maxit.scale      trace.lev            mts 
+             1            200            200              0           1000 
+    compute.rd fast.s.large.n 
+             0           2000 
           psi   subsampling        method           cov 
    "bisquare" "constrained"          "MM" ".vcov.avar1" 
 seed : int(0) 
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # "stats"
-Time elapsed:  0.43 0.049 0.549 0 0.007 
+Time elapsed:  0.338 0.031 0.55 0 0 
 > 
 > proc.time()
    user  system elapsed 
-  0.430   0.056   0.550 
+  0.338   0.031   0.550 

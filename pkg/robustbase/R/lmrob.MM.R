@@ -14,6 +14,7 @@ lmrob.control <- function  (setting, seed = NULL, nResample = 500,
                               'ggw'),
 			    numpoints = 10, cov = NULL,
                             split.type = c("f", "fi", "fii"),
+                            fast.s.large.n = 2000,
                             ...)
 {
     if (!missing(setting)) {
@@ -65,7 +66,8 @@ lmrob.control <- function  (setting, seed = NULL, nResample = 500,
            rel.tol=rel.tol, solve.tol=solve.tol, trace.lev=trace.lev, mts=mts,
            subsampling=subsampling,
            compute.rd=compute.rd, method=method, numpoints=numpoints,
-           cov=cov, split.type = match.arg(split.type)),
+           cov=cov, split.type = match.arg(split.type),
+           fast.s.large.n=fast.s.large.n),
       list(...))
 }
 
@@ -475,7 +477,7 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev, mf = NULL)
     nGr <- as.integer(control$n.group)
     if (nGr <= p)
         stop("'control$n.group' must be larger than 'p'")
-    large_n <- (n > 2000)
+    large_n <- (n > control$fast.s.large.n)
     if (large_n & nGr * groups > n)
         stop("'groups * n.group' must be smaller than 'n' for 'large_n' algorithm")
     if (nGr <= p + 10) ## FIXME (be smarter ..)
@@ -517,7 +519,9 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev, mf = NULL)
             converged = logical(1),
             trace.lev = as.integer(trace.lev),
             mts = as.integer(control$mts),
-            ss = .convSs(control$subsampling)
+            ss = .convSs(control$subsampling),
+            fast.s.large.n = as.integer(if (large_n) control$fast.s.large.n else n+1)
+            ## avoids the use of NAOK = TRUE for control$fast.s.large.n == Inf
             )[c("coefficients", "scale", "k.iter", "converged")]
     scale <- b$scale
     if (scale < 0)

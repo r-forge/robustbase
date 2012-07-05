@@ -134,7 +134,7 @@ Time elapsed in subsampling:  0.366 0 0.367 0 0
 +                                     res[[i]][1:4], res[[i]][5:7], res[[i]][8]))
 + })
 > cat('Time elapsed in descent proc: ', time,'\n')
-Time elapsed in descent proc:  0.084 0 0.085 0 0 
+Time elapsed in descent proc:  0.084 0 0.083 0 0 
 > 
 > ## show a summary of the results
 > res4 <- do.call(rbind, res3)
@@ -219,10 +219,10 @@ Robustness weights:
 Algorithmic parameters: 
 tuning.chi         bb tuning.psi    rel.tol  solve.tol 
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001 
-  nResample      max.it       k.max maxit.scale       k.m_s   trace.lev 
-        500          50         200         200          20           0 
-        mts  compute.rd 
-       1000           0 
+     nResample         max.it          k.max    maxit.scale          k.m_s 
+           500             50            200            200             20 
+     trace.lev            mts     compute.rd fast.s.large.n 
+             0           1000              0           2000 
           psi   subsampling        method           cov    split.type 
    "bisquare" "constrained"        "M-SM"     ".vcov.w"           "f" 
 seed : int(0) 
@@ -295,4 +295,4 @@ In lmrob.M.S(x, y, control, mf) :
 > 
 > proc.time()
    user  system elapsed 
-  0.894   0.037   1.076 
+  0.902   0.033   1.115 

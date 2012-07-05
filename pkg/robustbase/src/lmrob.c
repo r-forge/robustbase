@@ -238,7 +238,7 @@ void zero_mat(double **a, int n, int m);
 	}                                                       \
     }
 
-#define SETUP_EQUILIBRATION(_n_, _p_, _X_)	                \
+#define SETUP_EQUILIBRATION(_n_, _p_, _X_, _large_n_)           \
     /* equilibration of matrix _X_                          */  \
     /* solve (Dr X Dc) b = Dr y with beta = Dc b instead of */  \
     /*            X beta = y                                */  \
@@ -257,7 +257,11 @@ void zero_mat(double **a, int n, int m);
 	    CLEANUP_EQUILIBRATION;				\
 	    error("dgeequ: illegal argument in %i. argument", -1 * info); \
 	} else if (info > _n_) {                                \
-            error("dgeequ: column %i of the design matrix is exactly zero.", info - _n_); \
+	    if (_large_n_) {                                    \
+	        error("Fast S large n strategy failed. Use control parameter 'fast.s.large.n = Inf'."); \
+	    } else {						\
+                error("dgeequ: column %i of the design matrix is exactly zero.", info - _n_); \
+	    }                                                   \
 	} else {                                                \
 	/* FIXME: replace dgeequ by our own version */          \
 	/* that does not treat this as error */                 \
@@ -272,7 +276,7 @@ void zero_mat(double **a, int n, int m);
 	colequ = equed == 'B' || equed == 'C';                  \
     }
 
-#define SETUP_SUBSAMPLE(_n_, _p_, _X_)				\
+#define SETUP_SUBSAMPLE(_n_, _p_, _X_, _large_n_)		\
     /* (Pointers to) Arrays - to be allocated */                \
     int *ind_space, *idc, *idr, *pivot;				\
     double *lu, *v;						\
@@ -282,7 +286,7 @@ void zero_mat(double **a, int n, int m);
     pivot =     (int *)    Calloc(_p_-1,   int);                \
     lu =        (double *) Calloc(_p_*_p_, double);             \
     v =         (double *) Calloc(_p_,     double);             \
-    SETUP_EQUILIBRATION(_n_, _p_, _X_);
+    SETUP_EQUILIBRATION(_n_, _p_, _X_, _large_n_);
 
 #define COPY(from, to, len) Memcpy(to, from, len)
 /* This assumes that 'p' is correctly defined, and 'j' can be used in caller: */
@@ -304,7 +308,7 @@ void R_lmrob_S(double *X, double *y, int *n, int *P,
 	       int *best_r, int *Groups, int *N_group,
 	       int *K_s, int *max_k, int *max_it_scale, //double *rel_tol_scale,
 	       double *rel_tol, double *inv_tol, int *converged,
-	       int *trace_lev, int *mts, int *ss)
+	       int *trace_lev, int *mts, int *ss, int *cutoff)
 {
     /* best_r = 't' of Salibian-Barrera_Yohai(2006),
      *	      = no. of best candidates to be iterated further
@@ -313,7 +317,7 @@ void R_lmrob_S(double *X, double *y, int *n, int *P,
     /* Rprintf("R_lmrob_s %d\n", *iipsi); */
 
     if ( *nRes > 0) {
-	if( *n > 2000 )
+	if( *n > *cutoff )
 	    fast_s_large_n(X, y, n, P, nRes, max_it_scale,
 			   Groups, N_group,
 			   K_s, max_k, *rel_tol, *inv_tol, converged,
@@ -463,7 +467,7 @@ void R_subsample(const double x[], const double y[], int *n, int *m,
     /*	set the seed */
     GetRNGstate();
 
-    SETUP_EQUILIBRATION(*n, *m, x);
+    SETUP_EQUILIBRATION(*n, *m, x, 0);
 
     *status = subsample(Xe, y, *n, *m, beta, ind_space, idc, idr, lu, v, p,
 			Dr, Dc, rowequ, colequ, *sample, *mts, *ss, *tol_inv, 1);
@@ -1575,7 +1579,7 @@ int fast_s_with_memory(double *X, double *y,
     int lwork = -1, one = 1, info = 1;
     int pos_worst_scale, sing=0;
 
-    SETUP_SUBSAMPLE(n, p, X);
+    SETUP_SUBSAMPLE(n, p, X, 1);
     INIT_WLS(X, y, n, p);
 
     res	=       (double *) Calloc(n,   double);
@@ -1674,7 +1678,7 @@ void fast_s(double *X, double *y,
     double *wx, *wy, *beta_cand, *beta_ref, *res;
     double **best_betas, *best_scales;
 
-    SETUP_SUBSAMPLE(n, p, X);
+    SETUP_SUBSAMPLE(n, p, X, 0);
 
     res	   = (double *) R_alloc(n, sizeof(double));
     wx     = (double *) R_alloc(n*p, sizeof(double));
@@ -1913,7 +1917,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     if (trace_lev > 1)
 	Rprintf("starting with subsampling procedure...\n");
 
-    SETUP_SUBSAMPLE(n, p2, x2);
+    SETUP_SUBSAMPLE(n, p2, x2, 0);
 
     /*	set the seed */
     GetRNGstate();

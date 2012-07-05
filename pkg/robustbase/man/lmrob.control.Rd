@@ -21,7 +21,7 @@ lmrob.control(setting, seed = NULL, nResample = 500,
               compute.rd = FALSE, method = 'MM',
               psi = c('bisquare', 'lqq', 'welsh', 'optimal', 'hampel', 'ggw'),
               numpoints = 10, cov = NULL,
-              split.type = c("f", "fi", "fii"), ...)
+              split.type = c("f", "fi", "fii"), fast.s.large.n = 2000, ...)
 }
 \arguments{
   \item{setting}{a string specifying alternative default values.  Leave
@@ -101,6 +101,9 @@ lmrob.control(setting, seed = NULL, nResample = 500,
     See \emph{Details} of \code{\link{lmrob}}.}
   \item{split.type}{determines how categorical and continuous variables
     are split. See \code{\link{splitFrame}}.}
+  \item{fast.s.large.n}{minimum number of observations required to
+    switch from ordinary \dQuote{fast S} algorithm to an efficient
+    \dQuote{large n} strategy.}
   \item{...}{further arguments to be added to \code{control}.}
 }
 \details{The option \code{setting="KS2011"} alters the default

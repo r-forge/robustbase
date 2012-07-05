@@ -35,7 +35,7 @@ static R_NativePrimitiveArgType R_lmrob_S_t[] = {
     /* best_r */ INTSXP, INTSXP, INTSXP,
     /* K_s */ INTSXP, INTSXP, INTSXP,
     /* rel_tol*/ REALSXP, REALSXP,
-    /* converged */ LGLSXP, INTSXP, INTSXP, INTSXP
+    /* converged */ LGLSXP, INTSXP, INTSXP, INTSXP, INTSXP
 };
 
 static R_NativePrimitiveArgType R_lmrob_MM_t[] = {
