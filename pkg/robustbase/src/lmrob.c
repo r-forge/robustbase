@@ -255,9 +255,9 @@ void zero_mat(double **a, int n, int m);
     if (info) {                                                 \
 	if (info < 0) {                                         \
 	    CLEANUP_EQUILIBRATION;				\
-	    error("dgeequ: illegal argument in %i. argument", &info); \
+	    error("dgeequ: illegal argument in %i. argument", -1 * info); \
 	} else if (info > _n_) {                                \
-            error("dgeequ: column %i is exactly zero.", _n_ - info); \
+            error("dgeequ: column %i of the design matrix is exactly zero.", info - _n_); \
 	} else {                                                \
 	/* FIXME: replace dgeequ by our own version */          \
 	/* that does not treat this as error */                 \
