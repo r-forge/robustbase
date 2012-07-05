@@ -1394,6 +1394,9 @@ void fast_s_large_n(double *X, double *y,
 
     /* get a sample of k indices */
     sample_noreplace(indices, n, sg, ind_space);
+    /* FIXME: define groups using constrained subsampling? */
+    /*        would also need to allow observations to be part */
+    /*        of multiple groups at the same time */
     Free(ind_space);
     /* FIXME: Also look at lqs_setup(),
      * -----  and  xr[.,.] "fortran-like" matrix can be used from there!*/
