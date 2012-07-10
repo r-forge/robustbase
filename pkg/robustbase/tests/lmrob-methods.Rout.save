@@ -85,12 +85,10 @@ Robustness weights:
 Algorithmic parameters: 
 tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol 
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001  0.0000001 
-     nResample         max.it         groups        n.group       best.r.s 
-           500             50              5            400              2 
-      k.fast.s          k.max    maxit.scale      trace.lev            mts 
-             1            200            200              0           1000 
-    compute.rd fast.s.large.n 
-             0           2000 
+     nResample         max.it       best.r.s       k.fast.s          k.max 
+           500             50              2              1            200 
+   maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
+           200              0           1000              0           2000 
           psi   subsampling        method           cov 
    "bisquare" "constrained"          "MM" ".vcov.avar1" 
 seed : int(0) 
@@ -137,12 +135,12 @@ Robustness weights:
 Algorithmic parameters: 
 tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol 
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001  0.0000001 
-     nResample         max.it         groups        n.group       best.r.s 
-           500             50              5            400              2 
-      k.fast.s          k.max    maxit.scale      trace.lev            mts 
-             1            200            200              0           1000 
-    compute.rd      numpoints fast.s.large.n 
-             0             10           2000 
+     nResample         max.it       best.r.s       k.fast.s          k.max 
+           500             50              2              1            200 
+   maxit.scale      trace.lev            mts     compute.rd      numpoints 
+           200              0           1000              0             10 
+fast.s.large.n 
+          2000 
           psi   subsampling        method           cov 
    "bisquare" "constrained"         "SMD"     ".vcov.w" 
 seed : int(0) 
@@ -176,12 +174,12 @@ Robustness weights:
 Algorithmic parameters: 
 tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol 
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001  0.0000001 
-     nResample         max.it         groups        n.group       best.r.s 
-           500             50              5            400              2 
-      k.fast.s          k.max    maxit.scale      trace.lev            mts 
-             1            200            200              0           1000 
-    compute.rd      numpoints fast.s.large.n 
-             0             10           2000 
+     nResample         max.it       best.r.s       k.fast.s          k.max 
+           500             50              2              1            200 
+   maxit.scale      trace.lev            mts     compute.rd      numpoints 
+           200              0           1000              0             10 
+fast.s.large.n 
+          2000 
           psi   subsampling        method           cov 
    "bisquare" "constrained"         "SMD"     ".vcov.w" 
 seed : int(0) 
@@ -225,12 +223,12 @@ Robustness weights:
 Algorithmic parameters: 
 tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol 
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001  0.0000001 
-     nResample         max.it         groups        n.group       best.r.s 
-           500             50              5            400              2 
-      k.fast.s          k.max    maxit.scale      trace.lev            mts 
-             1            200            200              0           1000 
-    compute.rd      numpoints fast.s.large.n 
-             0             10           2000 
+     nResample         max.it       best.r.s       k.fast.s          k.max 
+           500             50              2              1            200 
+   maxit.scale      trace.lev            mts     compute.rd      numpoints 
+           200              0           1000              0             10 
+fast.s.large.n 
+          2000 
           psi   subsampling        method           cov 
    "bisquare" "constrained"        "SMDM"     ".vcov.w" 
 seed : int(0) 
@@ -263,12 +261,12 @@ Robustness weights:
 Algorithmic parameters: 
 tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol 
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001  0.0000001 
-     nResample         max.it         groups        n.group       best.r.s 
-           500             50              5            400              2 
-      k.fast.s          k.max    maxit.scale      trace.lev            mts 
-             1            200            200              0           1000 
-    compute.rd      numpoints fast.s.large.n 
-             0             10           2000 
+     nResample         max.it       best.r.s       k.fast.s          k.max 
+           500             50              2              1            200 
+   maxit.scale      trace.lev            mts     compute.rd      numpoints 
+           200              0           1000              0             10 
+fast.s.large.n 
+          2000 
           psi   subsampling        method           cov 
    "bisquare" "constrained"        "SMDM"     ".vcov.w" 
 seed : int(0) 
@@ -300,4 +298,4 @@ Error in lmrob.S(model.matrix(model, NOxEmissions)[1:682, ], NOxEmissions$LNOx[1
 > 
 > proc.time()
    user  system elapsed 
-  0.475   0.038   0.647 
+  0.478   0.037   0.648 
