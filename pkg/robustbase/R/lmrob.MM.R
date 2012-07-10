@@ -475,13 +475,15 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev, mf = NULL)
     nResample <- as.integer(control$nResample)
     groups <- as.integer(control$groups)
     nGr <- as.integer(control$n.group)
-    if (nGr <= p)
-        stop("'control$n.group' must be larger than 'p'")
     large_n <- (n > control$fast.s.large.n)
-    if (large_n & nGr * groups > n)
-        stop("'groups * n.group' must be smaller than 'n' for 'large_n' algorithm")
-    if (nGr <= p + 10) ## FIXME (be smarter ..)
-        warning("'control$n.group' is not much larger than 'p', probably too small")
+    if (large_n) {
+        if (nGr <= p)
+            stop("'control$n.group' must be larger than 'p' for 'large_n' algorithm")
+        if (nGr * groups > n)
+            stop("'groups * n.group' must be smaller than 'n' for 'large_n' algorithm")
+        if (nGr <= p + 10) ## FIXME (be smarter ..)
+            warning("'control$n.group' is not much larger than 'p', probably too small")
+    }
     if (length(seed <- control$seed) > 0) {
         if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
             seed.keep <- get(".Random.seed", envir = .GlobalEnv,
