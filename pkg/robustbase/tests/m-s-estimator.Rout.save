@@ -224,7 +224,7 @@ tuning.chi         bb tuning.psi    rel.tol  solve.tol
      trace.lev            mts     compute.rd fast.s.large.n 
              0           1000              0           2000 
           psi   subsampling        method           cov    split.type 
-   "bisquare" "constrained"        "M-SM"     ".vcov.w"           "f" 
+   "bisquare" "nonsingular"        "M-SM"     ".vcov.w"           "f" 
 seed : int(0) 
 > 
 > set.seed(13)

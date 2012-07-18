@@ -56,7 +56,7 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol
    maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
            200              0           1000              0           2000 
           psi   subsampling        method           cov 
-   "bisquare" "constrained"          "MM" ".vcov.avar1" 
+   "bisquare" "nonsingular"          "MM" ".vcov.avar1" 
 seed : int(0) 
 > (A1 <- anova(m0.sali, Y ~ X1 + X3))
 Robust Wald Test Table
@@ -170,7 +170,7 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol
    maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
            200              0           1000              0           2000 
           psi   subsampling        method           cov 
-   "bisquare" "constrained"          "MM" ".vcov.avar1" 
+   "bisquare" "nonsingular"          "MM" ".vcov.avar1" 
 seed : int(0) 
 > stopifnot(c(3,18) == which(m1$w < 0.2))
 > 
@@ -216,7 +216,7 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol
    maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
            200              0           1000              0           2000 
           psi   subsampling        method           cov 
-   "bisquare" "constrained"          "MM" ".vcov.avar1" 
+   "bisquare" "nonsingular"          "MM" ".vcov.avar1" 
 seed : int(0) 
 > stopifnot(c(11,20,30,34) == which(RlmST$w < 0.01))
 > 
@@ -258,7 +258,7 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol
    maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
            200              0           1000              0           2000 
           psi   subsampling        method           cov 
-   "bisquare" "constrained"          "MM" ".vcov.avar1" 
+   "bisquare" "nonsingular"          "MM" ".vcov.avar1" 
 seed : int(0) 
 > stopifnot(1:10 == which(m.hbk$w < 0.01))
 > 
@@ -293,7 +293,7 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol
    maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
            200              0           1000              0           2000 
           psi   subsampling        method           cov 
-   "bisquare" "constrained"          "MM" ".vcov.avar1" 
+   "bisquare" "nonsingular"          "MM" ".vcov.avar1" 
 seed : int(0) 
 Warning message:
 In lmrob.S(x, y, control = control) :
@@ -338,7 +338,7 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol
    maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
            200              0           1000              0           2000 
           psi   subsampling        method           cov 
-   "bisquare" "constrained"          "MM" ".vcov.avar1" 
+   "bisquare" "nonsingular"          "MM" ".vcov.avar1" 
 seed : int(0) 
 > 
 > 

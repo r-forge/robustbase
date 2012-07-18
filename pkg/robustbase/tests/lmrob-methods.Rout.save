@@ -90,7 +90,7 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol
    maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
            200              0           1000              0           2000 
           psi   subsampling        method           cov 
-   "bisquare" "constrained"          "MM" ".vcov.avar1" 
+   "bisquare" "nonsingular"          "MM" ".vcov.avar1" 
 seed : int(0) 
 > 
 > set.seed(0)
@@ -142,7 +142,7 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol
 fast.s.large.n 
           2000 
           psi   subsampling        method           cov 
-   "bisquare" "constrained"         "SMD"     ".vcov.w" 
+   "bisquare" "nonsingular"         "SMD"     ".vcov.w" 
 seed : int(0) 
 > summary(m4a <- lmrob..D..fit(m3))
 
@@ -181,7 +181,7 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol
 fast.s.large.n 
           2000 
           psi   subsampling        method           cov 
-   "bisquare" "constrained"         "SMD"     ".vcov.w" 
+   "bisquare" "nonsingular"         "SMD"     ".vcov.w" 
 seed : int(0) 
 > 
 > ## rearrange m4a and update call
@@ -230,7 +230,7 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol
 fast.s.large.n 
           2000 
           psi   subsampling        method           cov 
-   "bisquare" "constrained"        "SMDM"     ".vcov.w" 
+   "bisquare" "nonsingular"        "SMDM"     ".vcov.w" 
 seed : int(0) 
 > summary(m5a <- lmrob..M..fit(obj=m4))
 
@@ -268,7 +268,7 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol
 fast.s.large.n 
           2000 
           psi   subsampling        method           cov 
-   "bisquare" "constrained"        "SMDM"     ".vcov.w" 
+   "bisquare" "nonsingular"        "SMDM"     ".vcov.w" 
 seed : int(0) 
 > 
 > ## rearrange m5a

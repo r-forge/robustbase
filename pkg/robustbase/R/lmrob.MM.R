@@ -8,7 +8,7 @@ lmrob.control <- function  (setting, seed = NULL, nResample = 500,
                             solve.tol = 1e-7,
                             ## had  ^^^^^^^^  TOL_INVERSE 1e-7 in ../src/lmrob.c
                             trace.lev = 0, mts = 1000,
-                            subsampling = c("constrained", "simple"),
+                            subsampling = c("nonsingular", "simple"),
                             compute.rd = FALSE, method = 'MM',
                             psi = c('bisquare', 'lqq', 'welsh', 'optimal', 'hampel',
                               'ggw'),
@@ -1038,5 +1038,5 @@ ghq <- function(n = 1, modify = TRUE) {
 .convSs <- function(ss)
     switch(ss,
            simple=0L,
-           constrained=1L,
+           nonsingular=1L,
            stop("unknown setting for parameter ss"))

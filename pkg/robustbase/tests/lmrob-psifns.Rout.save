@@ -162,7 +162,7 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol
 fast.s.large.n 
           2000 
           psi   subsampling        method           cov 
-   "bisquare" "constrained"        "SMDM"     ".vcov.w" 
+   "bisquare" "nonsingular"        "SMDM"     ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(2)
@@ -201,7 +201,7 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol
 fast.s.large.n 
           2000 
           psi   subsampling        method           cov 
-    "optimal" "constrained"        "SMDM"     ".vcov.w" 
+    "optimal" "nonsingular"        "SMDM"     ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(3)
@@ -244,7 +244,7 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol   solve.tol
 fast.s.large.n 
           2000 
           psi   subsampling        method           cov 
-        "ggw" "constrained"        "SMDM"     ".vcov.w" 
+        "ggw" "nonsingular"        "SMDM"     ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(4)
@@ -285,7 +285,7 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol
 fast.s.large.n 
           2000 
           psi   subsampling        method           cov 
-      "welsh" "constrained"        "SMDM"     ".vcov.w" 
+      "welsh" "nonsingular"        "SMDM"     ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(5)
@@ -331,7 +331,7 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol   solve.tol
 fast.s.large.n 
           2000 
           psi   subsampling        method           cov 
-        "ggw" "constrained"        "SMDM"     ".vcov.w" 
+        "ggw" "nonsingular"        "SMDM"     ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(6)
@@ -376,7 +376,7 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol   solve.tol
 fast.s.large.n 
           2000 
           psi   subsampling        method           cov 
-        "ggw" "constrained"        "SMDM"     ".vcov.w" 
+        "ggw" "nonsingular"        "SMDM"     ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(7)
@@ -419,7 +419,7 @@ tuning.psi3  refine.tol     rel.tol   solve.tol
 fast.s.large.n 
           2000 
           psi   subsampling        method           cov 
-     "hampel" "constrained"        "SMDM"     ".vcov.w" 
+     "hampel" "nonsingular"        "SMDM"     ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(8)
@@ -497,7 +497,7 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol   solve.tol
 fast.s.large.n 
           2000 
           psi   subsampling        method           cov 
-        "lqq" "constrained"        "SMDM"     ".vcov.w" 
+        "lqq" "nonsingular"        "SMDM"     ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(10)
@@ -547,7 +547,7 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol   solve.tol
    maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
            200              0           1000              0           2000 
           psi   subsampling        method           cov 
-        "lqq" "constrained"          "MM" ".vcov.avar1" 
+        "lqq" "nonsingular"          "MM" ".vcov.avar1" 
 seed : int(0) 
 > 
 > 

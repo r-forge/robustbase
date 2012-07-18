@@ -1398,7 +1398,7 @@ void fast_s_large_n(double *X, double *y,
 
     /* get a sample of k indices */
     sample_noreplace(indices, n, sg, ind_space);
-    /* FIXME: define groups using constrained subsampling? */
+    /* FIXME: define groups using nonsingular subsampling? */
     /*        would also need to allow observations to be part */
     /*        of multiple groups at the same time */
     Free(ind_space);
@@ -2122,7 +2122,7 @@ int subsample(const double x[], const double y[], int n, int m,
                   giving up (Max Try Samples)
        ss:        type of subsampling to be used:
                   0: simple subsampling
-                  1: constrained subsampling
+                  1: nonsingular subsampling
 
        return condition:
              0: success
