@@ -5,6 +5,5 @@ R/glmrobMqle\.R\+-
 .*/.*-not-yet
 inst/doc/Makefile
 inst/doc/.*\.eps
-inst/doc/plot.*
 inst/doc/.*\.(tex|toc|aux|log|bbl|blg)
 inst/doc/r.*\.Rdata
