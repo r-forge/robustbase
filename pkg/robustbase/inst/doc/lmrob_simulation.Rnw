@@ -1,8 +1,8 @@
 \documentclass[a4paper]{article}
 
-%% To regenerate the vignette's plots, replace 
+%% To regenerate the vignette's plots, replace
 %%  "eval=FALSE," with "eval=TRUE,"
-%% everywhere (without quotes, don't forget the ",")
+%% everywhere (without quotes but *WITH* the ",")
 
 %\VignetteIndexEntry{Simulations for Robust Regression Inference in Small Samples}
 %\VignetteDepends{robustbase, xtable, ggplot2, RColorBrewer, grid, reshape2}
@@ -954,7 +954,7 @@ print(ggplot(test.3, aes(p/n, sdlogsigma.1*sqrt(n), color = Est.Scale)) +
       stat_summary(data=test.lm.2, aes(x=ratio, color = Est.Scale),
                    fun.y=median, geom='line') +
       scale_shape_discrete(expression(n)) +
-      scale_colour_discrete("Scale Est.", labels=lab(test.3$Est.Scale, 
+      scale_colour_discrete("Scale Est.", labels=lab(test.3$Est.Scale,
                                           test.lm.2$Est.Scale)))
 @
 \includegraphics{plot-fig-sdscale-1}
@@ -978,8 +978,8 @@ print(ggplot(test.4, aes(p/n, sdlogsigma.1*sqrt(n),
       stat_summary(data=test.lm, aes(x=ratio, color = Est.Scale),
                    fun.y=median, geom='line') +
       ylim(with(test.4, range(sdlogsigma.1*sqrt(n)))) +
-      g.scale_shape(labels=lab(test.4$Error)) + 
-      scale_colour_discrete("Scale Est.", labels=lab(test.4$Est.Scale, 
+      g.scale_shape(labels=lab(test.4$Error)) +
+      scale_colour_discrete("Scale Est.", labels=lab(test.4$Est.Scale,
                                           test.lm$Est.Scale)))
 @
 \includegraphics{plot-fig-sdscale-all}
@@ -1115,7 +1115,7 @@ print(ggplot(tmp <- droplevels(subset(test.1, Error != 't1')),
                     labels=lab(tmp$Error)) +
       facet_wrap(~ Psi) +
       ylab(expression(paste('efficiency of ',hat(beta)))) +
-      scale_colour_discrete(name = "Estimator", 
+      scale_colour_discrete(name = "Estimator",
                             labels = lab(tmp$Estimator)))
 @
 \includegraphics{plot-fig-efficiency-all}
