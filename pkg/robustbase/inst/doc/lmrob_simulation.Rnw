@@ -1,4 +1,5 @@
-\documentclass[a4paper]{article}
+\documentclass[11pt, a4paper]{article}
+\usepackage[a4paper, text={16cm,25cm}]{geometry}
 
 %% To regenerate the vignette's plots, replace
 %%  "eval=FALSE," with "eval=TRUE,"
@@ -1079,7 +1080,7 @@ print(ggplot(tmp <- droplevels(subset(test.1, Estimator %in% c("SMD", "MMqE") &
 \label{fig:Mscale-all}
 \end{figure}
 
-\clearpage
+\clearpage% not nice, but needed against  LaTeX Error: Too many unprocessed floats.
 
 \begin{figure}
 \begin{center}
@@ -1364,7 +1365,7 @@ print(ggplot(tmp <- subset(test.1, n == 25),
 \label{fig:power-1-1}
 \end{figure}
 
-\clearpage
+%\clearpage
 
 \begin{figure}
 \begin{center}
