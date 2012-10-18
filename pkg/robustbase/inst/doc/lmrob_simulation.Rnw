@@ -405,11 +405,11 @@ where $\bld W = \diag\left(\wgt\left(\frac{r_1}{\hat\sigma}\right), \dots,
 \section{Simulation}
 The main loop of the simulation is fairly simple. (This code is only run if
 there are no aggregate results available.)
+%% set eval to TRUE for chunks simulation-run and simulation-aggr
+%% if you really want to run the simulations again.
+%% (better fail with an error than run for weeks)
 <<results=hide>>=
 aggrResultsFile <- file.path(robustDoc, "aggr_results.Rdata")
-## set eval to TRUE for chunks simulation-run and simulation-aggr
-## if you really want to run the simulations again.
-## (better fail with an error than run for weeks)
 <<simulation-run,results=hide,eval=FALSE>>=
 if (!file.exists(aggrResultsFile)) {
   ## load packages required only for simulation
@@ -1459,10 +1459,10 @@ inv.g1 <- function(value, theta, mu, ...) {
 }
 inv.g1.MM <- function(value, theta, mu, ...) {
   g <- if (mu == 0) g.2.MM else g.3.MM
-  ret <- try(uniroot(function(s) g(s, theta, mu, ...) - value, c(0.01, 100)),
-             silent = TRUE)
-  if (class(ret)[1] == 'try-error') {
-    warning('inv.g1.MM: ', value, ' ', theta, ' ', mu)
+  ret <- tryCatch(uniroot(function(s) g(s, theta, mu, ...) - value, c(0.01, 100)),
+                  error = function(e)e)
+  if (inherits(ret, 'error')) {
+    warning('inv.g1.MM: ', value, ' ', theta, ' ', mu,' -> Error: ', ret$message)
     NA
   } else {
     ret$root
