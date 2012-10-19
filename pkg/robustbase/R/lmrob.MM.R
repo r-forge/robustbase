@@ -228,26 +228,25 @@ if(getRversion() > "2.15.0" || as.numeric(R.Version()$`svn rev`) > 59233)
             } else lmrob.E(psi(r)^2, obj=obj) / lmrob.E(psi(r,1), obj=obj)^2
         varcorr <- 1
     } else { ## empirical, approx or hybrid correction factor
-        if (cov.resid == 'initial') {
-            ## if the last estimator was a D or T estimator
-            ## then use obj$init$init otherwise use obj$init
-            ## that way for SMD we use the S residuals (and S scale)
-            ## and for SMDM we use the M residuals (and D scale)
-            lobj <-
-                if (grepl('[DT]$',ctrl$method)) obj$init$init
-                else obj$init
-            rstand <- resid(lobj) / lobj$scale
-        } else if (cov.resid == 'trick')
-            ## residuals are in fact from earlier estimator, use its scale to standardize them
-            rstand <- obj$init$resid / obj$init$scale
-        else rstand <- obj$resid / scale
+	rstand <- if (cov.resid == 'initial') {
+	    ## if the last estimator was a D or T estimator
+	    ## then use obj$init$init otherwise use obj$init
+	    ## that way for SMD we use the S residuals (and S scale)
+	    ## and for SMDM we use the M residuals (and D scale)
+	    lobj <-
+		if (grepl('[DT]$',ctrl$method)) obj$init$init else obj$init
+	    resid(lobj) / lobj$scale
+	} else if (cov.resid == 'trick') {
+	    ## residuals are in fact from earlier estimator, use its scale to standardize them
+	    obj$init$resid / obj$init$scale
+	} else obj$resid / scale
+
         tau <- if (cov.corrfact %in% c('tau', 'hybrid')) { ## added hybrid here
             if (!is.null(obj$tau)) obj$tau
             else if (!is.null(obj$init$tau)) obj$init$tau
-            else stop(':.vcov.w: tau not found') }
-        else rep(1,n)
-       rstand <- rstand / tau
-        r.psi <- lmrob.psifun(rstand, c.psi, psi)
+            else stop("(tau / hybrid): tau not found in 'obj'") } else rep(1,n)
+	rstand <- rstand / tau
+        r.psi   <- lmrob.psifun(rstand, c.psi, psi)
         r.psipr <- lmrob.psifun(rstand, c.psi, psi, deriv = 1)
         if (any(is.na(r.psipr))) warning(":.vcov.w: Caution. Some psiprime are NA")
         mpp2 <- (mpp <- mean(r.psipr, na.rm=TRUE))^2
@@ -626,7 +625,8 @@ lmrob.kappa <- function(obj, control = obj$control)
     uniroot(fun.min, c(0.1, 1))$root
 }
 
-## "FIXME" How can we \hat{tau} for a simple *M* estimate here ??
+## "FIXME" How to get \hat{tau} for a simple *M* estimate here ??
+## lmrob.tau() is used in lmrob..D..fit()
 lmrob.tau <- function(obj, x=obj$x, control = obj$control, h, fast = TRUE)
 {
     if(is.null(control)) stop("'control' is missing")
@@ -655,7 +655,7 @@ lmrob.tau <- function(obj, x=obj$x, control = obj$control, h, fast = TRUE)
                },
                ggw = if (isTRUE(all.equal(c.psi, c(-.5, 1.0, 0.95, NA)))) {
                    tfact <- 0.9473787
-                   tcorr <- -0.1143846
+                    tcorr <- -0.1143846
                } else if (isTRUE(all.equal(c.psi, c(-.5, 1.5, 0.95, NA)))) {
                    tfact <- 0.94741036
                    tcorr <- -0.08424648
@@ -687,15 +687,12 @@ lmrob.tau <- function(obj, x=obj$x, control = obj$control, h, fast = TRUE)
     if (!is.numeric(c.psi)) stop('parameter tuning.psi is not numeric')
 
     ## constant for stderr of u_{-i} part and other constants
-    inta <- function(r)
-        lmrob.psifun(r, c.psi, psi)^2*dnorm(r)
-    ta <- (integrate(inta,-Inf,Inf))$value
-    intb <- function(r)
-        lmrob.psifun(r, c.psi, psi, deriv = 1)*dnorm(r)
-    tb <- (integrate(intb,-Inf,Inf))$value
-    intc <- function(r)
-        lmrob.psifun(r, c.psi, psi)*r*dnorm(r) ## changed from psi/e to psi*e
-    tE <- (integrate(intc,-Inf,Inf))$value
+    inta <- function(r) lmrob.psifun(r, c.psi, psi)^2 * dnorm(r)
+    intb <- function(r) lmrob.psifun(r, c.psi, psi, deriv = 1) * dnorm(r)
+    intc <- function(r) lmrob.psifun(r, c.psi, psi) * r * dnorm(r) ## changed from psi/e to psi*e
+    ta <- (integrate(inta, -Inf,Inf))$value
+    tb <- (integrate(intb, -Inf,Inf))$value
+    tE <- (integrate(intc, -Inf,Inf))$value
 
     ## calculate tau for unique h
     hu <- unique(h)
@@ -827,24 +824,25 @@ lmrob.conv.cc <- function(psi, cc)
     return(cc)
 }
 
-lmrob.ggw.mx <- function(a, b, c) ## find x with minimal slope
+lmrob.ggw.mx <- function(a, b, c, ...) ## find x with minimal slope
     optimize(lmrob.psifun, c(c, max(a+b+2*c, 0.5)),
-             cc=c(0, a, b, c, 1), psi = 'ggw', deriv = 1)[[1]]
+             cc=c(0, a, b, c, 1), psi = 'ggw', deriv = 1, ...)[[1]]
 
-lmrob.ggw.ms <- function(a, b, c) ## find minimal slope
-    lmrob.psifun(lmrob.ggw.mx(a, b, c), c(0, a, b, c, 1), 'ggw', 1)
+lmrob.ggw.ms <- function(a, b, c, ...) ## find minimal slope
+    lmrob.psifun(lmrob.ggw.mx(a, b, c, ...), c(0, a, b, c, 1), 'ggw', 1)
 
-lmrob.ggw.finda <- function(ms, b, c) ## find a constant
+lmrob.ggw.finda <- function(ms, b, c, ...) ## find a constant
 {
     val <- uniroot(function(a) lmrob.ggw.ms(1/a, b, c) - ms,
-                   c(200, if (b > 1.4) 1/400 else if (b > 1.3) 1/50 else 1/20))
+                   c(200, if (b > 1.4) 1/400 else if (b > 1.3) 1/50 else 1/20),
+                   ...)
     1/val$root
 }
 
 lmrob.ggw.ac <- function(a, b, c) ## calculate asymptotic efficiency
 {
     lmrob.E(lmrob.psifun(r, c(0, a, b, c, 1), 'ggw', 1), use.integrate = TRUE)^2 /
-        lmrob.E(lmrob.psifun(r, c(0, a, b, c, 1), 'ggw')^2, use.integrate = TRUE)
+    lmrob.E(lmrob.psifun(r, c(0, a, b, c, 1), 'ggw')^2, use.integrate = TRUE)
 }
 
 lmrob.ggw.bp <- function(a, b, c) { ## calculate kappa
@@ -873,34 +871,52 @@ lmrob.ggw.findc <- function(ms, b, eff = NA, bp = NA) {
     return(c(0, a, b, c, nc))
 }
 
-lmrob.efficiency <-  function(psi, cc) {
-  integrate(function(x) lmrob.psifun(x, cc, psi, 1)*dnorm(x), -Inf, Inf)$value^2 /
-    integrate(function(x) lmrob.psifun(x, cc, psi)^2*dnorm(x), -Inf, Inf)$value
+lmrob.efficiency <-  function(psi, cc, ...) {
+  integrate(function(x) lmrob.psifun(x, cc, psi, 1)*dnorm(x), -Inf, Inf, ...)$value^2 /
+  integrate(function(x) lmrob.psifun(x, cc, psi)^2 *dnorm(x), -Inf, Inf, ...)$value
 }
 
-lmrob.bp <- function(psi, cc)
-  integrate(function(x) lmrob.chifun(x, cc, psi)*dnorm(x), -Inf, Inf)$value
+lmrob.bp <- function(psi, cc, ...)
+  integrate(function(x) lmrob.chifun(x, cc, psi)*dnorm(x), -Inf, Inf, ...)$value
 
-lmrob.lqq.findc <- function(cc) {
-    ## cc = c(min slope, b, eff, bp)
-    ## constants for c function: c(b*c, c, s = 1 - min slope)
+##' @title Find tuning constant for  "lqq"  psi function
+##' @param cc numeric vector =  c(min_slope, b, eff, bp);
+##'      typically 'eff' or 'bp' are NA and will be computed
+##' @param interval for finding 'c' via uniroot()
+##' @param subdivisions for integrate()
+##' @param rel.tol relative and
+##' @param abs.tol absolute tolerance for integrate()
+##' @param tol relative tolerance for uniroot()
+##' @param maxiter maximal number of iterations for uniroot()
+##' @return constants for c function: c(b*c, c, s = 1 - min_slope)
+##' @author Manuel Koller and Martin Maechler
+lmrob.lqq.findc <-
+    function(cc, interval = c(0.1, 4),
+             subdivisions = 100L,
+             rel.tol = .Machine$double.eps^0.25, abs.tol = rel.tol,
+             tol = .Machine$double.eps^0.25, maxiter = 1000)
+{
     t.fun <- if (!is.na(cc[3])) {
-        if (!is.na(cc[4]))
-            warning('tuning constants for lqq psi: both eff and bp specified, ignoring bp')
-        ## find c by b, s and eff
-        function(c)
-            lmrob.efficiency('lqq', c(cc[2]*c, c, 1-cc[1])) - cc[3]
+	if (!is.na(cc[4]))
+	    warning('tuning constants for lqq psi: both eff and bp specified, ignoring bp')
+	## find c by b, s and eff
+	function(c)
+	    lmrob.efficiency('lqq', c(cc[2]*c, c, 1-cc[1]),
+                             subdivisions=subdivisions,
+                             rel.tol=rel.tol, abs.tol=abs.tol) - cc[3]
     } else {
-        if (is.na(cc[4]))
-            stop('Error: neither breakdown point nor efficiency specified')
-        function(c)
-            lmrob.bp('lqq', c(cc[2]*c, c, 1-cc[1])) - cc[4]
+	if (is.na(cc[4]))
+	    stop('Error: neither breakdown point nor efficiency specified')
+	function(c)
+	    lmrob.bp('lqq', c(cc[2]*c, c, 1-cc[1]),
+                     subdivisions=subdivisions,
+                     rel.tol=rel.tol, abs.tol=abs.tol) - cc[4]
     }
-    c <- try(uniroot(t.fun, c(0.1, 4))$root, silent = TRUE)
-
-    if (inherits(c, 'try-error'))
+    c. <- tryCatch(uniroot(t.fun, interval=interval, tol=tol, maxiter=maxiter)$root,
+		   error=function(e)e)
+    if (inherits(c., 'error'))
         stop('lmrob.lqq.findc: unable to find constants for psi function')
-    else return(c(cc[2]*c, c, 1-cc[1]))
+    else c(cc[2]*c., c., 1-cc[1])
 }
 
 lmrob.const <- function(cc, psi)
@@ -923,56 +939,48 @@ lmrob.const <- function(cc, psi)
                }
            },
            stop("method for psi function ",psi, " not implemented"))
-
-    return(cc)
+    cc
 }
 
 lmrob.psifun <- function(x, cc, psi, deriv=0)
 {
-    cc <- lmrob.conv.cc(psi, cc)
-
-    ## catch NAs
-    idx <- !is.na(x)
-
-    if (any(idx))
-        x[idx] <- .C(R_psifun, x = as.double(x[idx]), cc = as.double(cc),
-                     ipsi = as.integer(lmrob.psi2ipsi(psi)), NAOK= TRUE, # for +- Inf
-                     deriv = as.integer(deriv), length = as.integer(length(x[idx])))$x
+    ## apply to non-NAs only
+    if(any(idx <- !is.na(x))) {
+	cc <- lmrob.conv.cc(psi, cc)
+	x[idx] <- .C(R_psifun, x = as.double(x[idx]), cc = as.double(cc),
+		     ipsi = as.integer(lmrob.psi2ipsi(psi)), NAOK= TRUE, # for +- Inf
+		     deriv = as.integer(deriv), length = as.integer(length(x[idx])))$x
+    }
     x
 }
 
 lmrob.chifun <- function(x, cc, psi, deriv=0)
 {
-    cc <- lmrob.conv.cc(psi, cc)
-
-    ## catch NAs
-    idx <- !is.na(x)
-
-    if (any(idx))
-        x[idx] <- .C(R_chifun, x = as.double(x[idx]), cc = as.double(cc),
-                     ipsi = as.integer(lmrob.psi2ipsi(psi)), NAOK= TRUE, # for +- Inf
-                     deriv = as.integer(deriv), length = as.integer(length(x[idx])))$x
+    ## apply to non-NAs only
+    if(any(idx <- !is.na(x))) {
+	cc <- lmrob.conv.cc(psi, cc)
+	x[idx] <- .C(R_chifun, x = as.double(x[idx]), cc = as.double(cc),
+		     ipsi = as.integer(lmrob.psi2ipsi(psi)), NAOK= TRUE, # for +- Inf
+		     deriv = as.integer(deriv), length = as.integer(length(x[idx])))$x
+    }
     x
 }
 
 lmrob.wgtfun <- function(x, cc, psi)
 {
-    cc <- lmrob.conv.cc(psi, cc)
-
-    ## catch NAs
-    idx <- !is.na(x)
-
-    if (any(idx))
-        x[idx] <- .C(R_wgtfun, x = as.double(x[idx]), cc = as.double(cc),
-                     ipsi = as.integer(lmrob.psi2ipsi(psi)), NAOK= TRUE, # for +- Inf
-                     length = as.integer(length(x[idx])))$x
+    ## apply to non-NAs only
+    if(any(idx <- !is.na(x))) {
+	cc <- lmrob.conv.cc(psi, cc)
+	x[idx] <- .C(R_wgtfun, x = as.double(x[idx]), cc = as.double(cc),
+		     ipsi = as.integer(lmrob.psi2ipsi(psi)), NAOK= TRUE, # for +- Inf
+		     length = as.integer(length(x[idx])))$x
+    }
     x
 }
 
-residuals.lmrob.S <- function(obj)
-    obj$residuals
+residuals.lmrob.S <- function(obj) obj$residuals
 
-lmrob.E <- function(expr, control, dfun = dnorm, use.integrate = FALSE, obj)
+lmrob.E <- function(expr, control, dfun = dnorm, use.integrate = FALSE, obj, ...)
 {
     expr <- substitute(expr)
     if (missing(control) && !missing(obj))
@@ -992,18 +1000,16 @@ lmrob.E <- function(expr, control, dfun = dnorm, use.integrate = FALSE, obj)
 
       } else list()
 
+    pf <- parent.frame()
+    FF <- function(r)
+	eval(expr, envir = c(list(r = r), lenvir), enclos = pf) * dfun(r)
     if (use.integrate) {
-        pf <- parent.frame()
-        integrate(function(r)
-                  eval(expr, envir = c(list(r = r), lenvir),
-                       enclos = pf)*dfun(r),-Inf,Inf)$value
+	integrate(FF, -Inf,Inf, ...)$value
     } else {
-        ## initialize Gauss-Hermite Integration
-        gh <- ghq(if (is.null(control$numpoints)) 13 else control$numpoints)
-        ghz <- gh$nodes
-        ## integrate
-	sum(gh$weights * eval(expr, envir = c(list(r = ghz), lenvir),
-			      enclos = parent.frame()) * dfun(ghz))
+	## initialize Gauss-Hermite Integration
+	gh <- ghq(if(is.null(control$numpoints)) 13 else control$numpoints)
+	## integrate
+	sum(gh$weights * FF(gh$nodes))
     }
 }
 
@@ -1037,6 +1043,6 @@ ghq <- function(n = 1, modify = TRUE) {
 
 .convSs <- function(ss)
     switch(ss,
-           simple=0L,
-           nonsingular=1L,
+           "simple"= 0L,
+           "nonsingular"= 1L,
            stop("unknown setting for parameter ss"))
