@@ -38,7 +38,7 @@
   }
 }
 \section{Methods}{
-  No methods defined with class \code{"psi_func"} in the signature.
+  Currently, only \code{\link{chgDefaults}()}.
 }
 \author{Martin Maechler}
 % \note{ ~~further notes~~ }

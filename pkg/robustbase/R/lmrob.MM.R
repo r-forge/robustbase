@@ -776,6 +776,8 @@ lmrob.psi2ipsi <- function(psi)
            stop("unknown psi function ", psi))
 }
 
+##' Given psi() fn (as string), possibly convert the tuning-constant vector cc
+##' such that it "fits" to psi()
 lmrob.conv.cc <- function(psi, cc)
 {
     if (!is.character(psi) || length(psi) != 1)
@@ -1003,8 +1005,17 @@ lmrob.E <- function(expr, control, dfun = dnorm, use.integrate = FALSE, obj, ...
     pf <- parent.frame()
     FF <- function(r)
 	eval(expr, envir = c(list(r = r), lenvir), enclos = pf) * dfun(r)
-    if (use.integrate) {
+    if (isTRUE(use.integrate)) {
 	integrate(FF, -Inf,Inf, ...)$value
+    ## This would be a bit more accurate .. *AND* faster notably for larger 'numpoints':
+    ## } else if(use.integrate == "GQr") {
+    ##     require("Gqr")# from R-forge [part of lme4 project]
+    ##     ## initialize Gauss-Hermite Integration
+    ##     GH <- GaussQuad(if(is.null(control$numpoints)) 13 else control$numpoints,
+    ##                     "Hermite")
+    ##     ## integrate
+    ##     F. <- function(r) eval(expr, envir = c(list(r = r), lenvir), enclos = pf)
+    ##     sum(GH$weights * F.(GH$knots))
     } else {
 	## initialize Gauss-Hermite Integration
 	gh <- ghq(if(is.null(control$numpoints)) 13 else control$numpoints)

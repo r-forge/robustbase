@@ -1,6 +1,7 @@
 \name{psiFunc}
 \alias{psiFunc}
 \alias{huberPsi}
+\alias{hampelPsi}
 \title{Constructor for Objects "Psi Function" Class}
 %% Rd Problem:  'psi_func' cannot be used in title!
 \description{
@@ -10,6 +11,9 @@
 }
 \usage{
 psiFunc(rho, psi, wgt, Dpsi, Erho = NULL, Epsi2 = NULL, EDpsi = NULL, ...)
+
+huberPsi
+hampelPsi
 }
 \arguments{
   \item{rho, psi, wgt, Dpsi}{each a \code{\link{function}} of \code{x} and
@@ -34,11 +38,12 @@ psiFunc(rho, psi, wgt, Dpsi, Erho = NULL, Epsi2 = NULL, EDpsi = NULL, ...)
 \seealso{\code{\link{psi_func-class}} for the class description.}
 \examples{
 ## classical {trivial, not interesting}:
-F1 <- function(x) rep.int(1, length(x))
-cPsi <- psiFunc(rho = function(x) x^2 / 2, psi = function(x) x,
+F1 <- function(x, .) rep.int(1, length(x))
+FF <- function(.) rep.int(1, length(.))
+cPsi <- psiFunc(rho = function(x,.) x^2 / 2, psi = function(x, .) x,
                 wgt = F1, Dpsi = F1,
-                Erho = function(x) rep.int(1/2, length(x)),
-                Epsi2 = F1, EDpsi = F1)
+                Erho = function(.) rep.int(1/2, length(.)),
+                Epsi2 = FF, EDpsi = FF, . = Inf)
 }
 \keyword{classes}
 \keyword{robust}

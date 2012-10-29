@@ -29,9 +29,8 @@ export(Sn, Qn, Qn.old,
 
        huberM,
        covOGK, covGK, hard.rejection, scaleTau2,
-       psiFunc, huberPsi,
+       psiFunc, huberPsi, hampelPsi,
 ## Not yet:
-##     hampelPsi,
 ##     tukeyPsi, # = biweight / bisquare
        tukeyChi, tukeyPsi1, # <- used by lmrob.*()
 
