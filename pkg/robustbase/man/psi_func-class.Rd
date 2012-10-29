@@ -27,6 +27,9 @@
       of class \code{"functionX"}.}
     \item{\code{Dpsi}:}{the derivative of \eqn{\psi},
       \eqn{Dpsi(x) = psi'(x)}; of class \code{"functionX"}.}
+    \item{\code{Dwgt}:}{the derivative of the weight function, 
+      of class \code{"functionX"}, is generated automatically if
+      \code{\link{psiFunc}} constructor is used.}
     \item{\code{tDefs}:}{\emph{named} numeric vector of \bold{t}uning
       parameter \bold{Def}ault values.}
     %%% FIXME : Replace these by *methods*

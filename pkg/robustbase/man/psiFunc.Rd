@@ -10,14 +10,14 @@
   \code{"psi_func"}.
 }
 \usage{
-psiFunc(rho, psi, wgt, Dpsi, Erho = NULL, Epsi2 = NULL, EDpsi = NULL, name, ...)
+psiFunc(rho, psi, wgt, Dpsi,Dwgt, Erho = NULL, Epsi2 = NULL, EDpsi = NULL, name, ...)
 
 huberPsi
 hampelPsi
 }
 \arguments{
-  \item{rho, psi, wgt, Dpsi}{each a \code{\link{function}} of \code{x} and
-    tuning parameters typically.}
+  \item{rho, psi, wgt, Dpsi, Dwgt}{each a \code{\link{function}} of \code{x} and
+    tuning parameters typically. Specification of Dwgt is optional.}
   \item{Erho, Epsi2, EDpsi}{see \code{\link{psi_func-class}}, and note
     that these may change in the future.}
   \item{name}{Name of \eqn{\psi}{psi}-function used for printing.}

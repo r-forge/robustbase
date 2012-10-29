@@ -50,6 +50,7 @@ setClass("psi_func",
                         psi = "functionX", ## psi(x) == d/dx rho(x) = x * wgt(x)
                         wgt = "functionX", ## wgt(x) == psi(x) / x
                         Dpsi = "functionX",## psi'(x) == d/dx psi(x) = rho''(x)
+                        Dwgt = "functionX", ## wgt'(x) == d/dx wgt(x)
                         ## tuning parameters, i.e., formals(rho)[-1]
                         tDefs = "numeric",## *named* values of tuning parameters
                         ## FIXME !! {see 4 lines below}
@@ -65,7 +66,7 @@ setClass("psi_func",
 
 ### Constructors / "Examples" [the examples are the objects, we'll really use!]
 
-psiFunc <- function(rho,psi,wgt, Dpsi, Erho=NULL, Epsi2=NULL, EDpsi=NULL, name, ...)
+psiFunc <- function(rho,psi,wgt, Dpsi,Dwgt, Erho=NULL, Epsi2=NULL, EDpsi=NULL, name, ...)
 {
     lent <- length(dotsargs <- list(...))
     ## '...'  must contain all tuning parameters and their defaults:
@@ -73,9 +74,12 @@ psiFunc <- function(rho,psi,wgt, Dpsi, Erho=NULL, Epsi2=NULL, EDpsi=NULL, name, 
     stopifnot(lent >= 1, length(nt <- names(dotsargs)) == lent,
               all(nchar(nt)) >= 1)
 
+    ## Definition of Dwgt is optional
+    if (missing(Dwgt)) Dwgt <- .defDwgt(psi, Dpsi)
+
     ## rho, psi,... checking: must have argument names
     argn <- c("x", nt)
-    for(fnam in list("rho", "psi", "wgt", "Dpsi",
+    for(fnam in list("rho", "psi", "wgt", "Dpsi", "Dwgt",
                      "Erho", "Epsi2", "EDpsi")) {
         f <- get(fnam, inherits = FALSE)
         ef <- environment(f)
@@ -105,6 +109,7 @@ psiFunc <- function(rho,psi,wgt, Dpsi, Erho=NULL, Epsi2=NULL, EDpsi=NULL, name, 
 	psi = new("functionX", psi),
 	wgt = new("functionX", wgt),
 	Dpsi= new("functionX", Dpsi),
+        Dwgt= new("functionX", Dwgt),
 	## tNams = if(lent) nt else character(0),
 	tDefs = unlist(dotsargs),
 	Erho = new(fnctl.typ, Erho),
@@ -112,6 +117,23 @@ psiFunc <- function(rho,psi,wgt, Dpsi, Erho=NULL, Epsi2=NULL, EDpsi=NULL, name, 
 	EDpsi= new(fnctl.typ, EDpsi),
         name = if (missing("name")) character(0) else name,
 	xtras= list(tuningP = dotsargs))
+}
+
+## generate Dwgt function
+.defDwgt <- function(psi, Dpsi) {
+    nf <- names(formals(psi))
+    args <- paste(nf, collapse=",")
+    x <- nf[1]
+    fun <- paste("function(", args, ") {
+               idx <- ", x, " != 0
+               ret <- numeric(length(", x, "))
+               ", x, " <- ", x, "[idx]
+               ret[idx] <- Dpsi(", args, ")/x - psi(", args, ")/(", x, "*", x, ")
+               ret
+         }", sep = "")
+    Dwgt <- eval(parse(text=fun))
+    formals(Dwgt) <- formals(psi)
+    Dwgt
 }
 
 chgDefaults <- function(object, ...)
@@ -131,7 +153,7 @@ setMethod("chgDefaults", signature("psi_func"),
                    paste(nt,    collapse=",")," instead of ",
                    paste(nf[-1],collapse=","),".")
 
-          for(fnam in list("rho", "psi", "wgt", "Dpsi",
+          for(fnam in list("rho", "psi", "wgt", "Dpsi", "Dwgt",
                            "Erho", "Epsi2", "EDpsi")) {
               f <- slot(object, fnam)
               ef <- environment(f)
