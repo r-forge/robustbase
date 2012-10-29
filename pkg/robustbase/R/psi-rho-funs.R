@@ -57,6 +57,7 @@ setClass("psi_func",
                         Epsi2 = "functionXal", # = E_X[psi(X)^2]; X~N(0,1); 'A'
                         EDpsi = "functionXal", # = E_X[psi'(X)];  X~N(0,1); 'B'
                         ##
+                        name = "character",
                         xtras = "list" ## for flexible extensions..
                         ))
 ## FIXME: need other E[] than just wrt N(0,1)
@@ -64,7 +65,7 @@ setClass("psi_func",
 
 ### Constructors / "Examples" [the examples are the objects, we'll really use!]
 
-psiFunc <- function(rho,psi,wgt, Dpsi, Erho=NULL, Epsi2=NULL, EDpsi=NULL, ...)
+psiFunc <- function(rho,psi,wgt, Dpsi, Erho=NULL, Epsi2=NULL, EDpsi=NULL, name, ...)
 {
     lent <- length(dotsargs <- list(...))
     ## '...'  must contain all tuning parameters and their defaults:
@@ -109,6 +110,7 @@ psiFunc <- function(rho,psi,wgt, Dpsi, Erho=NULL, Epsi2=NULL, EDpsi=NULL, ...)
 	Erho = new(fnctl.typ, Erho),
 	Epsi2= new(fnctl.typ, Epsi2),
 	EDpsi= new(fnctl.typ, EDpsi),
+        name = if (missing("name")) character(0) else name,
 	xtras= list(tuningP = dotsargs))
 }
 
@@ -144,6 +146,27 @@ setMethod("chgDefaults", signature("psi_func"),
               object@xtras$tuningP <- setNames(eval(dotsargs), nm=nt)
           object
       })
+
+.sprintPsiFunc <- function(x, short=FALSE, round=3) {
+    v <- x@tDefs
+    n <- names(v)
+    ## do not print a single dummy parameter "."
+    if (length(n) == 1 && n == ".") v <- numeric(0)
+    name <- x@name
+    if (!short) name <- sprintf("%s psi function", name)
+    if (length(v) >= 1) {
+        if (short)
+            paste(name, paste(n, round(v, round), sep = "=", collapse = "\n"),
+                  sep = "\n")
+        else 
+            paste(name, " (",
+                  paste(n, round(v, round), sep = " = ", collapse = ", "), ")",
+                  sep="")
+    } else name
+}
+
+setMethod("show", signature("psi_func"),
+          function(object) cat(.sprintPsiFunc(object), "\n"))
 
 ##-------- TODO: Rather right short  vignette with these formulae
 
@@ -206,6 +229,7 @@ huberPsi <- psiFunc(rho =
                   Epsi2= function(k) ifelse(k < 10,
                   1 - 2*(k*dnorm(k) + (1-k*k)*pnorm(k, lower=FALSE)), 1),
                   EDpsi= function(k) 2*pnorm(k) - 1,
+                  name = "Huber",
                   ## the tuning pars and default:
                   k = 1.345)
 
@@ -289,6 +313,7 @@ hampelPsi <-
             a <- k[1] ; b <- k[2]; r <- k[3]
             2*(pnorm(a) - 1/2 - a* (pnorm(r) - pnorm(b)) / (r - b))
         },
+            name = "Hampel",
             ## the tuning pars and default:
             k = c(2,4,8) / 1.345)# 1/1.345 = 0.7435
 

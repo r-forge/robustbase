@@ -34,11 +34,12 @@
     \item{\code{Epsi2}:}{Object of class \code{"functionXal"} ~~ }
     \item{\code{EDpsi}:}{Object of class \code{"functionXal"} ~~ }
 
+    \item{\code{name}:}{Name of \eqn{\psi}{psi}-function used for printing.}
     \item{\code{xtras}:}{Potentially further information.}
   }
 }
 \section{Methods}{
-  Currently, only \code{\link{chgDefaults}()}.
+  Currently, only \code{\link{chgDefaults}()} and \code{show()}.
 }
 \author{Martin Maechler}
 % \note{ ~~further notes~~ }

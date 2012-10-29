@@ -10,7 +10,7 @@
   \code{"psi_func"}.
 }
 \usage{
-psiFunc(rho, psi, wgt, Dpsi, Erho = NULL, Epsi2 = NULL, EDpsi = NULL, ...)
+psiFunc(rho, psi, wgt, Dpsi, Erho = NULL, Epsi2 = NULL, EDpsi = NULL, name, ...)
 
 huberPsi
 hampelPsi
@@ -20,6 +20,7 @@ hampelPsi
     tuning parameters typically.}
   \item{Erho, Epsi2, EDpsi}{see \code{\link{psi_func-class}}, and note
     that these may change in the future.}
+  \item{name}{Name of \eqn{\psi}{psi}-function used for printing.}
   \item{\dots}{potential further arguments for specifying tuning
     parameter names and defaults.} %% FIXME; give more details
 }
@@ -43,7 +44,8 @@ FF <- function(.) rep.int(1, length(.))
 cPsi <- psiFunc(rho = function(x,.) x^2 / 2, psi = function(x, .) x,
                 wgt = F1, Dpsi = F1,
                 Erho = function(.) rep.int(1/2, length(.)),
-                Epsi2 = FF, EDpsi = FF, . = Inf)
+                Epsi2 = FF, EDpsi = FF, name = "classic", . = Inf)
+show(cPsi)
 }
 \keyword{classes}
 \keyword{robust}
