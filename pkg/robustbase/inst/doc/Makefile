@@ -1,6 +1,6 @@
 ###--- Makefile (adapted from pcalg package)
 
-DRIVERS = lmrob_simulation
+DRIVERS = lmrob_simulation psi_functions
 
 #R_PROG = R-devel
 R_PROG = R
