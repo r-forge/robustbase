@@ -5,7 +5,8 @@
 ##  a list of functions sharing a common {non-small!} environment
 
 ## NOTA BENE:  Experiments etc are currently in ../experi-psi-rho-funs.R
-## ---------                                    ~~~~~~~~~~~~~~~~~~~~~~~~
+## ---------   (FIXME: move those to ../tests/psi-rho-etc.R and the vignette
+## ../inst/doc/psi_functions.Rnw  (and see ../inst/xtraR/plot-psiFun.R)
 
 ## ---> look for 'FIXME' below !!!
 ##               -------
@@ -180,7 +181,7 @@ setMethod("chgDefaults", signature("psi_func"),
         if (short)
             paste(name, paste(n, round(v, round), sep = "=", collapse = "\n"),
                   sep = "\n")
-        else 
+        else
             paste(name, " (",
                   paste(n, round(v, round), sep = " = ", collapse = ", "), ")",
                   sep="")
@@ -255,7 +256,7 @@ huberPsi <- psiFunc(rho =
                   ## the tuning pars and default:
                   k = 1.345)
 
-## Hampel: --------- FIXME -----------
+## Hampel:
 hampelPsi <-
     psiFunc(rho = function(x, k)
         {
@@ -313,11 +314,38 @@ hampelPsi <-
             x[m2] <- k[1] / (k[2] - k[3])
             x
         },
+
             Erho = function(k)
         {
-            warning("Not yet implemented")
-            k*0# {for the validity ..}
-        },
+	    names(k) <- c("a","b","r")
+	    a <- k[["a"]] ; b <- k[["b"]]; r <- k[["r"]]
+	    ph <- dnorm(k)
+	    Ph <- pnorm(k)
+	    ## rho(x) =	 c0   for  |x| >= r
+	    c0 <- a/2*(b - a + r)
+	    ## coeff. of rho(x) = a/2(c1 + c2|x| + c2 x^2), for |x| in [b,r]
+	    D2 <- r - b
+	    c1 <- -(a*r+ b*(b-a)) / D2
+	    c2 <- 2*r / D2
+	    c3 <- - 1 / D2
+	    dPh.rb <- Ph[["r"]] - Ph[["b"]]
+	    dph.rb <- ph[["r"]] - ph[["b"]]
+	    ## Phi_2(r) - Phi_2(b) :=
+	    dPh2.rb <- Ph[["r"]] - Ph[["b"]] - r*ph[["r"]] + b*ph[["b"]]
+	    ## E[rho(X)] =
+            ## [0,a] : 2* 1/2*(Phi_2(a)  - Phi_2(0))
+            (Ph[["a"]]-a*ph[["a"]] - 1/2) +
+            ## [a,b] : 2* a*( -a/2*(Phi(b) - Phi(a)) + (Phi_1(b) - Phi_1(a)) )
+            2*a*(-a/2*(Ph[["b"]]-Ph[["a"]]) + (ph[["a"]] - ph[["b"]])) +
+            ## the upper two can be simplified to
+	    ## -1/2 + a*ph[["a"]] + (1+a^2)*Ph[["a"]] -2*a*ph[["b"]] - a^2*Ph[["b"]] +
+            ## [b,r] :
+		a*(c1*dPh.rb + c2*(-dph.rb) + c3*dPh2.rb) +
+            ## [r,Inf] :
+		    2*c0*(1 - Ph[["r"]])
+        }
+
+            ,
             Epsi2 = function(k) ## E[psi^2]=: 'A' in Hampel et al.(1986), p.150
         {
             names(k) <- c("a","b","r")

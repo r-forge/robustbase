@@ -17,24 +17,26 @@ stopifnot(EQ(tukeyChi(x, c.),
              6/c.^2* tukeyPsi1(x, c., deriv= 1)))
 
 ## Test if default arguments are used
-tPsi <- chgDefaults(huberPsi, k = 2)
+h2Psi <- chgDefaults(huberPsi, k = 2)
 
 x <- 1:10
-stopifnot(tPsi@ rho(x, k=2) == tPsi@ rho(x),
-          tPsi@ psi(x, k=2) == tPsi@ psi(x),
-          tPsi@Dpsi(x, k=2) == tPsi@Dpsi(x),
-          tPsi@ wgt(x, k=2) == tPsi@ wgt(x),
-          tPsi@Dwgt(x, k=2) == tPsi@Dwgt(x))
+stopifnot(h2Psi@ rho(x, k=2) == h2Psi@ rho(x),
+          h2Psi@ psi(x, k=2) == h2Psi@ psi(x),
+          h2Psi@Dpsi(x, k=2) == h2Psi@Dpsi(x),
+          h2Psi@ wgt(x, k=2) == h2Psi@ wgt(x),
+          h2Psi@Dwgt(x, k=2) == h2Psi@Dwgt(x))
 
 ## Test default arguments for E... slots
-stopifnot(EQ(tPsi@Erho (), 0.49423127328548),
-          EQ(tPsi@Epsi2(), 0.920536925636323),
-          EQ(tPsi@EDpsi(), 0.954499736103642))
+stopifnot(EQ(h2Psi@Erho (), 0.49423127328548),
+          EQ(h2Psi@Epsi2(), 0.920536925636323),
+          EQ(h2Psi@EDpsi(), 0.954499736103642))
 
 stopifnot(EQ(1, huberPsi@psi(1, k = 1e16)),
           huberPsi@wgt(0.1591319494080224, 0.5 + 1/13) <= 1)
 ## both used to fail because of numeric instability in pmin2/pmax2
 
+## TODO: Provide some functionality of this as a Plot+Check function
+## ----  and then call the function for all our  psiFunc objects (with different 'k')
 kk <- c(1.5, 3, 8)
 psiH.38 <- chgDefaults(hampelPsi, k = kk)
 c1 <- curve(psiH.38@psi(x), -10, 10, n=512, col=2)
@@ -81,7 +83,7 @@ E.norm <- function(FUN, tol=1e-12, ...) {
               rel.tol=tol, ...)$value
 }
 
-##' asymptotic efficiency -- integrate version
+##' asymptotic efficiency -- both integrate + "formula"(@Epsi, @EDpsi) version
 aeff.P <- function(psiF, k, ...) {
     stopifnot(is(psiF, "psi_func"))
     if(!missing(k))
@@ -92,7 +94,8 @@ aeff.P <- function(psiF, k, ...) {
 }
 
 
-## breakdown point --- for redescender only
+## Breakdown Point --- for redescenders only,
+## both integrate + "formula"(@Erho) version
 bp.P <- function(psiF, k, ...) {
     stopifnot(is(psiF, "psi_func"))
     if(!missing(k))
@@ -103,19 +106,27 @@ bp.P <- function(psiF, k, ...) {
     c(int = E.norm(integ, ...), form= psiF@Erho()) / rhoInf
 }
 
-aeff.P(huberPsi)
-aeff.P(huberPsi, k = 1.5)
-aeff.P(huberPsi, k = 2)
-aeff.P(huberPsi, k = 2.5)
+## Print & Check the result of  aeff.P() or bp.P()
+chkP <- function(rp, tol = 1e-9) {
+    print(rp)
+    ae <- all.equal(rp[[1]], rp[[2]], tol=tol)
+    if(isTRUE(ae)) invisible(rp) else stop(ae)
+}
 
-aeff.P(hampelPsi)
-aeff.P(hampelPsi, k = c(1.5, 3, 8))
-aeff.P(hampelPsi, k = c(2,   4, 8), tol=1e-10)# fails with tol=1e-11
+chkP(aeff.P(huberPsi))
+chkP(aeff.P(huberPsi, k = 1.5))
+chkP(aeff.P(huberPsi, k = 2))
+chkP(aeff.P(huberPsi, k = 2.5))
 
-## Here, we get "Not yet implemented" for Erho()
-bp.P(hampelPsi)
-bp.P(hampelPsi, k = c(1.5, 3, 8))
-bp.P(hampelPsi, k = c(2,   4, 8))
+chkP(aeff.P(hampelPsi))
+chkP(aeff.P(hampelPsi, k = c(1.5, 3, 8)))
+chkP(aeff.P(hampelPsi, k = c(2,   4, 8), tol=1e-10),# fails with tol=1e-11
+     tol = 1e-4)
+
+## Now works too:
+chkP(bp.P(hampelPsi))
+chkP(bp.P(hampelPsi, k = c(1.5, 3, 8)))
+chkP(bp.P(hampelPsi, k = c(2,   4, 8)))
 
 
 ## test derivatives (adapted from lmrob.psifun.R)

@@ -144,8 +144,8 @@ lmrob.control(setting, seed = NULL, nResample = 500,
   would be
   \tabular{rll}{
     \code{psi} \tab \code{tuning.chi} \tab \code{tuning.psi} \cr
-    \code{hampel} \tab \code{c(2, 4, 8)*0.1981319} \tab
-    \code{c(2, 4, 8)*0.690794}
+    \code{hampel} \tab \code{c(2, 4, 8) * 0.1981319} \tab
+    \code{c(2, 4, 8) * 0.690794}
   }
 
   Alternative coefficients for an efficiency of \eqn{85\%} at the normal
@@ -156,8 +156,8 @@ lmrob.control(setting, seed = NULL, nResample = 500,
     \code{welsh} \tab \code{1.456} \cr
     \code{ggw}, \code{lqq} \tab \code{c(-0.5, 1.5, 0.85, NA)} \cr
     \code{optimal} \tab \code{0.8684} \cr
-    \code{hampel} (-1/3) \tab \code{c(1.5, 3.5, 8)*0.5704545} \cr
-    \code{hampel} (-1/2) \tab \code{c(2, 4, 8)*0.4769578}
+    \code{hampel} (-1/3) \tab \code{c(1.5, 3.5, 8)* 0.5704545} \cr
+    \code{hampel} (-1/2) \tab \code{c( 2,  4,  8) * 0.4769578}
   }
 }
 \references{

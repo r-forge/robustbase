@@ -1,6 +1,7 @@
 ## Functions to plot and check psi-functions
-## used in tests/lmrob-psifns.R, tests/psi-rho-etc.R
-## and psi_functions.Rnw vignette
+## used in ../../tests/lmrob-psifns.R,
+##	   ../../tests/psi-rho-etc.R
+##     and ../doc/psi_functions.Rnw  vignette
 
 psiF <- robustbase:::lmrob.psifun # deriv = -1 (rho), 0, 1
 chiF <- robustbase:::lmrob.chifun # rho(.) normalized to max|.| = 1;  deriv
