@@ -30,19 +30,43 @@ x. <- seq(-5, 10, length=1501)
 \title{Definitions of $\psi$-Functions Available in Robustbase}
 \author{Manuel Koller}
 \maketitle
+\tableofcontents
 
-Unless otherwise stated, the following definitions are given by
+\section*{Preamble}
+Unless otherwise stated, the following definitions of functions are
+given by \citet{MarRMY06}. Their definitions differ sometimes slightly
+from the ones stated here. We prefer to use another way of
+standardizing the functions. To avoid confusion, we first define
+$\psi$- and $\rho$-functions. 
+
+A \emph{$\psi$-function} is defined as a function $\psi$ such that
+\begin{itemize}
+\item $\psi$ is odd,
+\item $\psi(x) > 0$ for $0 < x < \sup\{\tilde x : \psi(\tilde x) > 0\}$.
+\item It's derivative $\psi'$ is $1$ at $0$, i.e., $\psi'(0) = 1$.
+\end{itemize}
+
+A \emph{$\rho$-function} is defined as the following definite integral of a $\psi$-function
+\begin{equation*}
+  \rho(x) = \int_0^x \psi(x) dx\;.
+\end{equation*}
+A $\psi$-function is called \emph{redescending} if $\psi(x) = 0$ for
+some $x > 0$. Corresponding to a redescending $\psi$-function, we
+define a function $\tilde\rho$, that is standardized such that the
+maximum value it attains is one. In formulas $\tilde\rho(x) =
+\rho(x)/\rho(\infty)$. $\tilde\rho$ is a $\rho$-function as defined in
 \citet{MarRMY06}. 
 
+\clearpage
 \section{Bisquare}
 The bisquare family of functions is defined as,
 \begin{equation*}
-  \rho(x) = \left\{ \begin{array}{cl}
+  \tilde\rho(x) = \left\{ \begin{array}{cl}
       1 - [1 - (x/k)^2]^3 & \mbox{ if } |x| \leq k \\
       1 & \mbox{ if } |x| > k
     \end{array} \right.\;,
 \end{equation*}
-with derivative $\rho'(x) = 6\psi(x) / k^2$ where,
+with derivative $\tilde\rho'(x) = 6\psi(x) / k^2$ where,
 \begin{equation*}
   \psi(x) = x \left[ 1 - \left(\frac{x}{k}\right)^2\right]^2 I_{\{|x| \leq k\}}\;.
 \end{equation*}
@@ -63,7 +87,7 @@ p.psiFun(x., "biweight", par = 4.685)
 Let $C = \frac{1}{2}a^2 + a(b-a) + \frac{1}{2}a(c-b)$. The Hampel family of 
 functions \citep{hamfrrs86} is defined as, 
 \begin{align*}
-  \rho(x) ={}& \left\{ \begin{array}{ll} 
+  \tilde\rho(x) ={}& \left\{ \begin{array}{ll} 
         \frac{1}{2} x^2 / C & |x| \leq a \\
         \left( \frac{1}{2}a^2 + (|x|-a)a\right) / C  & a < |x| \leq b \\
         \left( \frac{1}{2}a^2 + a(b-a) + \frac{1}{2}a(|x| - b)\left(1 + \frac{c -
@@ -215,8 +239,8 @@ p.psiFun(x., "optimal", par = 1.06, leg.loc="bottomright")
 \section{Welsh}
 The Welsh $\psi$ function is defined as (REFERENCE MISSING),
 \begin{align*}
-  \rho(x, k) ={}& 1 - \exp\left(-\frac{1}{2}\left(\frac{x}{k}\right)^2\right) \\
-  \psi(x, k) ={}& k^2\rho'(x, k) =
+  \tilde\rho(x, k) ={}& 1 - \exp\left(-\frac{1}{2}\left(\frac{x}{k}\right)^2\right) \\
+  \psi(x, k) ={}& k^2\tilde\rho'(x, k) =
   x\exp\left(-\frac{1}{2}\left(\frac{x}{k}\right)^2\right) \\
   \psi'(x, k) ={}& \left(1 - \left(\frac{x}{k}\right)^2\right)
   \exp\left(-\frac{1}{2}\left(\frac{x}{k}\right)^2\right)
