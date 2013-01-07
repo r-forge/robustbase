@@ -757,11 +757,14 @@ lmrob.hatmatrix <- function(x, w = rep(1, NROW(x)), wqr = qr(sqrt(w) * x))
     tcrossprod(qr.Q(wqr))
 }
 
-lmrob.leverages <- function(x, w = rep(1, NROW(x)), ...)
+lmrob.leverages <- function(x, w = rep(1, NROW(x)), wqr = qr(sqrt(w) * x))
 {
-    if (!is.matrix(x)) x <- as.matrix(x)
+    if (missing(wqr) && !is.matrix(x)) x <- as.matrix(x)
 
-    diag(lmrob.hatmatrix(x, w, ...))
+    ## we don't actually need the whole hat matrix!
+    ## diag(lmrob.hatmatrix(x, w, ...))
+    ## better:
+    rowSums(qr.Q(wqr)^2)
 }
 
 lmrob.psi2ipsi <- function(psi)
