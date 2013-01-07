@@ -1,5 +1,5 @@
 
-R version 2.15.2 Patched (2012-10-29 r61044) -- "Trick or Treat"
+R version 2.15.2 (2012-10-26) -- "Trick or Treat"
 Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: x86_64-unknown-linux-gnu (64-bit)
@@ -173,11 +173,11 @@ Loading required package: robustbase
 > head(x. <- seq(-5, 10, length=1501))
 [1] -5.00 -4.99 -4.98 -4.97 -4.96 -4.95
 > ## [separate lines, for interactive "play": ]
-> stopifnot(chkPsiDeriv(p.psiFun3(x., huberPsi)))
+> stopifnot(chkPsiDeriv(plot(huberPsi, x.)))
 > ## ToDo: improve accuracy of derivative check
-> stopifnot(chkPsiDeriv(p.psiFun3(x., hampelPsi), tol=c(1e-4, 1e-1)))
+> stopifnot(chkPsiDeriv(plot(hampelPsi, x.), tol=c(1e-4, 1e-1)))
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.696   0.047   0.815 
+  0.748   0.064   0.967 

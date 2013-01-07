@@ -123,6 +123,7 @@ exportClasses(
               )
 
 exportMethods(
-              chgDefaults
+              chgDefaults,
+              plot
               )
 

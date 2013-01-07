@@ -42,7 +42,8 @@
   }
 }
 \section{Methods}{
-  Currently, only \code{\link{chgDefaults}()} and \code{show()}.
+  Currently, only \code{\link{chgDefaults}()}, \code{\link{plot}()}
+  and \code{show()}.
 }
 \author{Martin Maechler}
 % \note{ ~~further notes~~ }

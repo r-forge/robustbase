@@ -191,6 +191,57 @@ setMethod("chgDefaults", signature("psi_func"),
 setMethod("show", signature("psi_func"),
           function(object) cat(.sprintPsiFunc(object), "\n"))
 
+## ## As advised by "[Rd] Define S4 methods for 'plot'":
+## if (!isGeneric("plot"))
+##     setGeneric("plot", function(x, y, ...) standardGeneric("plot"))
+
+## moved here from inst/xtraR/plot-psiFun.R
+plot.psiFun <- function(x, m.psi, psi, par, shortMain = FALSE,
+                        col = c("black", "red3", "blue3", "dark green"),
+                        leg.loc = "right", ...) {
+    ## Original Author: Martin Maechler, Date: 13 Aug 2010, 10:17
+    ## Modified by Manuel Koller, Date: 7 Jan 2013
+    fExprs <- quote(list(rho(x), psi(x), {psi*minute}(x),
+                         w(x) == psi(x)/x, {w*minute}(x)))
+    ## build legend
+    map <- if (is.null(colnames(m.psi))) {
+        1:(ncol(m.psi)+1)
+    } else {
+        c(1, c(rho=2, psi=3, Dpsi=4, wgt=5, Dwgt=6)[colnames(m.psi)])
+    }
+    fExprs <- fExprs[map]
+    ## ... title
+    tit <- if(shortMain)
+	substitute(rho(x) ~ "etc, with" ~ psi*"-type" == PSI(PPP),
+		   list(PSI = psi, PPP = paste(formatC(par), collapse=",")))
+    else
+	substitute(FFF ~~ ~~ " with "~~ psi*"-type" == PSI(PPP),
+		   list(FFF = fExprs, PSI = psi,
+			PPP = paste(formatC(par), collapse=",")))
+    ## plot
+    matplot(x, m.psi, col=col, lty=1, type="l", main = tit,
+            ylab = quote(f(x)), xlab = quote(x), ...)
+    abline(h=0,v=0, lty=3, col="gray30")
+    fE <- fExprs; fE[[1]] <- as.name("expression")
+    legend(leg.loc, inset=.02, eval(fE), col=col, lty=1, bty="n")
+    invisible(cbind(x=x, m.psi))
+}
+
+setMethod("plot", signature(x = "psi_func"),
+          function(x, y, which = c("rho", "psi", "Dpsi", "wgt", "Dwgt"),
+                   shortMain = FALSE,
+                   col = c("black", "red3", "blue3", "dark green", "light green"),
+                   leg.loc = "right", ...) {
+              ## x: psi_func object
+              ## y: points to plot at (x-Axis in plot)
+              if(missing(y)) y <- seq(-5, 10, length=1501)
+              tmp <- lapply(which, function(name) slot(x, name)(y))
+              m.psi <- do.call(cbind, tmp)
+              colnames(m.psi) <- which
+              plot.psiFun(y, m.psi, x@name, unlist(formals(x@rho)[-1]),
+                          shortMain, col, leg.loc, ...)
+          })
+
 ##-------- TODO: Rather right short  vignette with these formulae
 
 ##' \Phi_j(t) := \int_{-\infty}^t  u^j \phi(u) \;du

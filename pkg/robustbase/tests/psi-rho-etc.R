@@ -132,7 +132,7 @@ chkP(bp.P(hampelPsi, k = c(2,   4, 8)))
 ## test derivatives (adapted from lmrob.psifun.R)
 head(x. <- seq(-5, 10, length=1501))
 ## [separate lines, for interactive "play": ]
-stopifnot(chkPsiDeriv(p.psiFun3(x., huberPsi)))
+stopifnot(chkPsiDeriv(plot(huberPsi, x.)))
 ## ToDo: improve accuracy of derivative check
-stopifnot(chkPsiDeriv(p.psiFun3(x., hampelPsi), tol=c(1e-4, 1e-1)))
+stopifnot(chkPsiDeriv(plot(hampelPsi, x.), tol=c(1e-4, 1e-1)))
 

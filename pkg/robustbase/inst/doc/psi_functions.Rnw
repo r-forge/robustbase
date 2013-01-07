@@ -146,7 +146,7 @@ $1.345$.
 \begin{figure}[h]
   \centering
 <<Huber>>=
-p.psiFun3(x., huberPsi, ylim=c(-1.3, 6), leg.loc="topright")
+plot(huberPsi, x., ylim=c(-1.3, 6), leg.loc="topright")
 @ 
   \caption{Huber family of functions using tuning parameter $k = 1.345$.}
 \end{figure}
