@@ -48,11 +48,18 @@ predict.lmrob <-
     }
     n <- length(object$residuals) # NROW(qr(object)$qr)
     p <- object$rank
-    ## *rob: FIXME? predict.lm() here does pivoting and rank/ column selection
-    if(is.null(p)) df <- Inf   # *rob
-    if(any(is.na(beta <- object$coefficients)))   # *rob
-        stop("there are NAs in the coefficients") # *rob
-    predictor <- drop(X %*% beta)                 # *rob
+    if(is.null(p)) { # *rob
+        df <- Inf
+        p <- sum(!is.na(coef(object)))
+        piv <- seq_len(p)
+    } else {
+        p1 <- seq_len(p)
+        piv <- if(p) stats:::qr.lm(object)$pivot[p1]
+    }
+    if(p < ncol(X) && !(missing(newdata) || is.null(newdata)))
+	warning("prediction from a rank-deficient fit may be misleading")
+    beta <- object$coefficients
+    predictor <- drop(X[, piv, drop = FALSE] %*% beta[piv])
     if (!is.null(offset))
 	predictor <- predictor + offset
 
@@ -86,7 +93,7 @@ predict.lmrob <-
         df <- object$df.residual
 	res.var <- if (is.null(scale)) object$s^2  else scale^2
 	if(type != "terms"){
-             ip <- diag(X %*% object$cov %*% t(X))
+             ip <- diag(X[,piv] %*% object$cov %*% t(X[,piv]))
         } else ip <- rep.int(0, n)
     }
 
@@ -111,7 +118,7 @@ predict.lmrob <-
                 mmDone <- TRUE
             }
 	    avx <- colMeans(mm)
-	    termsconst <- sum(avx * beta) # *rob: no column selection
+	    termsconst <- sum(avx[piv] * beta[piv])
 	}
 	nterms <- length(asgn)
         if(nterms > 0) {
@@ -123,12 +130,11 @@ predict.lmrob <-
             }
              if(hasintercept)
                 X <- sweep(X, 2L, avx, check.margin=FALSE)
-            unpiv <- seq_len(NCOL(X))
-            ## *rob: Assuming there are no columns which are
-            ##      completely aliased with earlier columns.
+            unpiv <- rep.int(0L, NCOL(X))
+            unpiv[piv] <- p1
             for (i in seq.int(1L, nterms, length.out = nterms)) {
                 iipiv <- asgn[[i]]      # Columns of X, ith term
-                ii <- unpiv[iipiv]      # Corresponding rows of Rinv
+                ii <- unpiv[iipiv]      # Corresponding rows of cov
                 iipiv[ii == 0L] <- 0L
                 predictor[, i] <-
                     if(any(iipiv > 0L)) X[, iipiv, drop = FALSE] %*% beta[iipiv]
@@ -136,7 +142,7 @@ predict.lmrob <-
                 if (se.fit || interval != "none"){
                     ip[, i] <- if(any(iipiv > 0L)){# *rob: next steps modified
                         h.X <- X[, iipiv, drop = FALSE]
-                        diag(h.X %*%object$cov[iipiv, iipiv] %*% t(h.X))
+                        diag(h.X %*% object$cov[ii, ii] %*% t(h.X))
                     } else 0
                 }
                 }

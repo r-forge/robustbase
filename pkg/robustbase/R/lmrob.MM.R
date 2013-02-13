@@ -420,6 +420,7 @@ lmrob..M..fit <- function (x=obj$x, y=obj$y, beta.initial=obj$coef,
               )[c("coefficients",  "scale", "residuals", "loss", "converged", "iter")]
     ## FIXME?: Should rather warn *here* in case of non-convergence
     names(ret$coefficients) <- colnames(x)
+    names(ret$residuals) <- rownames(x)
     ret$weights <- lmrob.wgtfun(ret$residuals / scale, control$tuning.psi, control$psi)
     ret$fitted.values <- drop(x %*% ret$coefficients)
     if (!grepl('M$', control$method)) {
@@ -460,6 +461,7 @@ lmrob..M..fit <- function (x=obj$x, y=obj$y, beta.initial=obj$coef,
 		get(ret$control$cov, mode='function') else ret$control$cov
 	    ret$cov <- lf.cov(ret, x)
 	}
+        if (!is.null(obj$assign)) ret$assign <- obj$assign
     }
     class(ret) <- "lmrob"
     ret
@@ -533,6 +535,7 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev, mf = NULL)
     names(b$coefficients) <- colnames(x)
     b$fitted.values <- x %*% b$coef
     b$residuals <- drop(y - b$fitted.values)
+    names(b$residuals) <- rownames(x)
     ## robustness weights
     b$weights <- lmrob.wgtfun(b$residuals / b$scale, control$tuning.chi, control$psi)
     ## set method argument in control

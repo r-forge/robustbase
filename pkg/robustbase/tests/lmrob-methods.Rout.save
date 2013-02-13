@@ -42,6 +42,7 @@ degree.freedom  1     -none-     numeric
 xlevels         0     -none-     list   
 call            4     -none-     call   
 terms           3     terms      call   
+assign          4     -none-     numeric
 model           4     data.frame list   
 x              84     -none-     numeric
 Warning message:

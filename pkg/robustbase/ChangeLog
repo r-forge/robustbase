@@ -1,3 +1,14 @@
+2013-02-07  Manuel Koller   <mkoller@ispm.unibe.ch>
+
+	* R/lmrob.R (lmrob): compatibility to lm:
+	'assign': labels of terms used for fitting.
+
+	* lmrob.R (summary.lmrob): compatibility to summary.lm for:
+	'df': degrees of freedom, a 3-vector (p, n-p, p*), the last being
+	the number of non-aliased coefficients (used to be just (n-p)).
+	'aliased': named logical vector showing if the original
+	coefficients are aliased (was not returned before).
+
 2012-05-14  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/lmrob.MM.R (.vcov.avar1): fix typo in "posdefify"

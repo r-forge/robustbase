@@ -38,7 +38,8 @@ lmrob <-
     }
 
     if (is.empty.model(mt)) {
-        x <- NULL
+        x0 <- x <- NULL
+        singular.fit <- TRUE ## to avoid problems below
         z <- list(coefficients = if (is.matrix(y)) matrix(,0,3) else numeric(0),
                   residuals = y, fitted.values = 0 * y,
                   cov = matrix(,0,0), weights = w, rank = 0,
@@ -47,12 +48,31 @@ lmrob <-
     }
     else {
         x <- model.matrix(mt, mf, contrasts)
-        if (!singular.ok)
-            warning("only 'singular.ok = TRUE' is currently implemented.")
+        p <- ncol(x)
         if (!is.null(w))
             stop("Weights are not yet implemented for this estimator")
         if(!is.null(offset))
             stop("'offset' not yet implemented for this estimator")
+        ## check for singular fit
+        ## from lm.fit:
+        z0 <- .Call(stats:::C_Cdqrls, x, y, tol = control$solve.tol)
+        ## FIXME: rank might be 0
+        singular.fit <- z0$rank < p
+        if (singular.fit) {
+            if (!singular.ok) stop("singular fit encountered")
+            pivot <- z0$pivot
+            p1 <- pivot[seq_len(z0$rank)]
+            p2 <- pivot[(z0$rank+1):p]
+            ## to avoid problems in the internal fitting methods,
+            ## split into singular and non-singular matrices,
+            ## can still re-add singular part later
+            if (ret.x) x0 <- x
+            dn <- dimnames(x)
+            contrasts <- attr(x, "contrasts")
+            assign <- attr(x, "assign")
+            x <- x[,p1]
+            attr(x, "assign") <- assign[p1] ## needed for splitFrame to work
+        }
         if (!is.null(init)) {
             if (is.character(init)) {
                 init <- switch(init,
@@ -66,6 +86,13 @@ lmrob <-
                 ##     (needed in lmrob..D..fit)
                 ##     or disallow method = D... ? would need to fix also
                 ##    lmrob.kappa: tuning.psi / tuning.chi choice
+                if (singular.fit) {
+                    ## make sure the initial coefficients vector matches
+                    ## to the reduced x
+                    init$coef <- na.omit(init$coef)
+                    if (length(init$coef) != ncol(x))
+                        stop("Length of initial coefficients vector does not match rank of singular design matrix x")
+                }
             } else stop("unknown init argument")
             stopifnot(!is.null(init$coef), !is.null(init$scale))
             ## modify (default) control$method
@@ -76,20 +103,38 @@ lmrob <-
                 control$cov <- ".vcov.w"
         }
         z <- lmrob.fit(x, y, control, init=init) #-> ./lmrob.MM.R
+        if (singular.fit) {
+            coef <- numeric(p)
+            coef[p2] <- NA
+            coef[p1] <- z$coefficients
+            names(coef) <- dn[[2L]]
+            z$coefficients <- coef
+            ## Update QR decomposition (z$qr)
+            ## pad qr and qraux with zeroes (columns that were pivoted to the right in z0)
+            qr0 <- matrix(0, nrow(x), p)
+            qr0[,1L:z0$rank] <- z$qr$qr
+            rownames(qr0) <- dn[[1L]]
+            colnames(qr0) <- dn[[2L]][z0$pivot]
+            z$qr$qr <- qr0
+            z$qr$qraux <- c(z$qr$qraux, rep.int(0, p-z0$rank))
+            ## set pivot
+            z$qr$pivot <- z0$pivot
+        }
     }
 
     z$na.action <- attr(mf, "na.action")
     z$offset <- offset
-    z$contrasts <- attr(x, "contrasts")
+    z$contrasts <- contrasts
     z$xlevels <- .getXlevels(mt, mf)
     z$call <- cl
     z$terms <- mt
+    z$assign <- attr(if (singular.fit) x0 else x, "assign")
     if(control$compute.rd && !is.null(x))
         z$MD <- robMD(x, attr(mt, "intercept"))
     if (model)
         z$model <- mf
     if (ret.x)
-        z$x <- x
+        z$x <- if (singular.fit) x0 else x
     if (ret.y)
         z$y <- y
     z
@@ -171,18 +216,21 @@ summary.lmrob <- function(object, correlation = FALSE, symbolic.cor = FALSE, ...
     df <- object$degree.freedom
     if (p > 0) {
 	n <- p + df
+        p1 <- seq_len(p)
 	se <- sqrt(diag(object$cov))
-	est <- object$coefficients
+	est <- object$coefficients[object$qr$pivot[p1]]
 	tval <- est/se
+        ## FIXME: summary.lm returns the weighted residuals
 	ans <- object[c("call", "terms", "residuals", "scale", "weights",
 			"converged", "iter", "control")]
-	ans$df <- df
+	ans$df <- c(p, df, NCOL(object$qr$qr))
 	ans$coefficients <-
 	    if( ans$converged )
 		cbind(est, se, tval, 2 * pt(abs(tval), df, lower.tail = FALSE))
 	    else cbind(est, NA, NA, NA)
 	dimnames(ans$coefficients) <-
 	    list(names(est), c("Estimate", "Std. Error", "t value", "Pr(>|t|)"))
+        ans$aliased <- is.na(coef(object)) # used in print method
 
 	ans$cov.unscaled <- object$cov
 	dimnames(ans$cov.unscaled) <- dimnames(ans$coefficients)[c(1,1)]
@@ -192,8 +240,11 @@ summary.lmrob <- function(object, correlation = FALSE, symbolic.cor = FALSE, ...
 	}
     } else { ## p = 0: "null model"
 	ans <- object
-	ans$coefficients <- matrix(, 0, 4)
-	ans$df <- df
+        ans$aliased <- is.na(coef(object)) # used in print method
+	ans$df <- c(0L, df, length(is.na(ans$aliased)))
+	ans$coefficients <- matrix(NA, 0L, 4L)
+        dimnames(ans$coefficients) <-
+            list(NULL, c("Estimate", "Std. Error", "t value", "Pr(>|t|)"))
 	ans$cov.unscaled <- object$cov
     }
     class(ans) <- "summary.lmrob"
@@ -211,10 +262,11 @@ print.summary.lmrob <-
 	"\n\n", sep = "")
     resid <- x$residuals
     df <- x$df
-    ##df
+    rdf <- df[2L]
+    ## FIXME: this always prints "weighted" -- but weights are not supported...
     cat(if (!is.null(x$w) && diff(range(x$w))) "Weighted ",
 	"Residuals:\n", sep = "")
-    if (df > 5) {
+    if (rdf > 5) {
 	nam <- c("Min", "1Q", "Median", "3Q", "Max")
 	if (NCOL(resid) > 1)
 	    rq <- structure(apply(t(resid), 1, quantile),
@@ -223,18 +275,30 @@ print.summary.lmrob <-
 	print(rq, digits = digits, ...)
     }
     else print(resid, digits = digits, ...)
-    if( length(x$coef) ) {
+    ## FIXME: need to catch perfect fit here? rdf == 0?
+    if( length(x$aliased) ) {
 	if( !(x$converged) ) {
 	    cat("\nAlgorithm did not converge\n")
 	    cat("\nCoefficients of *initial* S-estimator:\n")
 	    printCoefmat(x$coef, digits = digits, signif.stars = signif.stars,
 			 ...)
 	} else {
-	    cat("\nCoefficients:\n")
-	    printCoefmat(x$coef, digits = digits, signif.stars = signif.stars,
-			 ...)
+            if (nsingular <- df[3L] - df[1L])
+                cat("\nCoefficients: (", nsingular,
+                    " not defined because of singularities)\n", sep = "")
+            else cat("\nCoefficients:\n")
+            coefs <- x$coefficients
+            if(!is.null(aliased <- x$aliased) && any(aliased)) {
+                cn <- names(aliased)
+                coefs <- matrix(NA, length(aliased), 4, dimnames=list(cn, colnames(coefs)))
+                coefs[!aliased, ] <- x$coefficients
+            }
+
+	    printCoefmat(coefs, digits = digits, signif.stars = signif.stars,
+			 na.print="NA", ...)
 	    cat("\nRobust residual standard error:",
 		format(signif(x$scale, digits)),"\n")
+            ## FIXME: use naprint() here to list observations deleted due to missingness?
 	    correl <- x$correlation
 	    if (!is.null(correl)) {
 		p <- NCOL(correl)
@@ -297,6 +361,19 @@ print.summary.lmrob <-
     printControl(control, digits = digits)
 
     invisible(x)
+}
+
+alias.lmrob <- function(object, ...) {
+    ## Purpose: provide alias() for lmrob objects
+    ## Cannot use alias.lm directly, since it requires a "clean" object$qr,
+    ## i.e., without the robustness weights
+
+    if (is.null(x <- object[["x"]]))
+        x <- model.matrix(object)
+    ## FIXME: need to include the (prior) weights here
+    object$qr <- qr(x)
+    class(object) <- "lm"
+    alias(object)
 }
 
 ## hidden in namespace

@@ -411,6 +411,7 @@ df               1    -none-     logical
 xlevels          0    -none-     list   
 call             4    -none-     call   
 terms            3    terms      call   
+assign           5    -none-     numeric
 model            5    data.frame list   
 x              115    -none-     numeric
 Warning message:
