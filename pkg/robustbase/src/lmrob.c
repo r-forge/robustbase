@@ -159,7 +159,7 @@ int subsample(const double x[], const double y[], int n, int m,
 	      double *beta, int *ind_space, int *idc, int *idr,
 	      double *lu, double *v, int *p,
 	      double *Dr, double *Dc, int rowequ, int colequ,
-	      int sample, int mts, int ss, double tol_inv);
+	      int sample, int mts, int ss, double tol_inv, int solve);
 
 int fast_s_with_memory(double *X, double *y,
 		       int *nn, int *pp, int *nRes, int *max_it_scale,
@@ -460,7 +460,8 @@ void R_subsample(const double x[], const double y[], int *n, int *m,
 		 double *beta, int *ind_space, int *idc, int *idr,
 		 double *lu, double *v, int *p,
 		 double *_Dr, double *_Dc, int *_rowequ, int *_colequ,
-		 int *status, int *sample, int *mts, int *ss, double *tol_inv)
+		 int *status, int *sample, int *mts, int *ss, double *tol_inv,
+		 int *solve)
 {
     int info;
 
@@ -470,7 +471,8 @@ void R_subsample(const double x[], const double y[], int *n, int *m,
     SETUP_EQUILIBRATION(*n, *m, x, 0);
 
     *status = subsample(Xe, y, *n, *m, beta, ind_space, idc, idr, lu, v, p,
-			Dr, Dc, rowequ, colequ, *sample, *mts, *ss, *tol_inv);
+			Dr, Dc, rowequ, colequ, *sample, *mts, *ss, *tol_inv,
+			*solve);
 
     COPY(Dr, _Dr, *n);
     COPY(Dc, _Dc, *m);
@@ -1606,7 +1608,7 @@ int fast_s_with_memory(double *X, double *y,
 	R_CheckUserInterrupt();
 	/* find a candidate */
 	sing = subsample(Xe, y, n, p, beta_cand, ind_space, idc, idr, lu, v, pivot,
-			 Dr, Dc, rowequ, colequ, 1, mts, ss, inv_tol);
+			 Dr, Dc, rowequ, colequ, 1, mts, ss, inv_tol, 1);
 	if (sing) {
 	    for (k=0; k< *best_r; k++) best_scales[i] = -1.;
 	    goto cleanup_and_return;
@@ -1717,7 +1719,7 @@ void fast_s(double *X, double *y,
 	R_CheckUserInterrupt();
 	/* find a candidate */
 	sing = subsample(Xe, y, n, p, beta_cand, ind_space, idc, idr, lu, v, pivot,
-			 Dr, Dc, rowequ, colequ, 1, mts, ss, inv_tol);
+			 Dr, Dc, rowequ, colequ, 1, mts, ss, inv_tol, 1);
 	if (sing) {
 	    *sscale = -1.;
 	    goto cleanup_and_return;
@@ -1934,7 +1936,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 	R_CheckUserInterrupt();
 	/* STEP 1: Draw a subsample of size p2 from (X2, y) */
 	sing = subsample(Xe, y, n, p2, t2, ind_space, idc, idr, lu, v, pivot,
-			 Dr, Dc, rowequ, colequ, 1, mts, ss, inv_tol);
+			 Dr, Dc, rowequ, colequ, 1, mts, ss, inv_tol, 1);
 	if (sing) {
 	    *sscale = -1.;
 	    goto cleanup_and_return;
@@ -2104,7 +2106,7 @@ int subsample(const double x[], const double y[], int n, int m,
 	      double *beta, int *ind_space, int *idc, int *idr,
 	      double *lu, double *v, int *pivot,
 	      double *Dr, double *Dc, int rowequ, int colequ,
-	      int sample, int mts, int ss, double tol_inv)
+	      int sample, int mts, int ss, double tol_inv, int solve)
 {
     /* x:         design matrix (n x m)
        y:         response vector
@@ -2131,6 +2133,9 @@ int subsample(const double x[], const double y[], int n, int m,
        ss:        type of subsampling to be used:
                   0: simple subsampling
                   1: nonsingular subsampling
+       tol_inv:   tolerance for declaring a matrix singular
+       solve:     solve the least squares problem on the subsample?
+                  (0: no, 1: yes)
 
        return condition:
              0: success
@@ -2225,18 +2230,22 @@ Start:
     /* Rprintf("pivot:"); disp_veci(pivot, m-1); */
     /* Rprintf("idc:"); disp_veci(idc, m); */
 
-    /* STEP 3: Solve for candidate parameters */
-    for(k=0;k<m;k++) beta[k] = y[idc[k]];
-    /* scale y ( = beta ) */
-    if (rowequ) for(k=0;k<m;k++) beta[k] *= Dr[idc[k]];
-    /* solve U\tr L\tr \beta = y[subsample] */
-    F77_CALL(dtrsv)("U", "T", "N", &m, lu, &m, beta, &one);
-    F77_CALL(dtrsv)("L", "T", "U", &m, lu, &m, beta, &one);
-    /* scale the solution */
-    if (colequ) for(k=0;k<m;k++) beta[k] *= Dc[idr[k]];
-    /* undo pivoting */
-    for(k=m-2;k>=0;k--) {
+    /* STEP 3: Solve for candidate parameters if requested */
+    if (solve == 0) {
+      for(k=0;k<m;k++) beta[k] = NA_REAL;
+    } else {
+      for(k=0;k<m;k++) beta[k] = y[idc[k]];
+      /* scale y ( = beta ) */
+      if (rowequ) for(k=0;k<m;k++) beta[k] *= Dr[idc[k]];
+      /* solve U\tr L\tr \beta = y[subsample] */
+      F77_CALL(dtrsv)("U", "T", "N", &m, lu, &m, beta, &one);
+      F77_CALL(dtrsv)("L", "T", "U", &m, lu, &m, beta, &one);
+      /* scale the solution */
+      if (colequ) for(k=0;k<m;k++) beta[k] *= Dc[idr[k]];
+      /* undo pivoting */
+      for(k=m-2;k>=0;k--) {
     	tmpd = beta[k]; beta[k] = beta[pivot[k]]; beta[pivot[k]] = tmpd;
+      }
     }
 
     return(0);
