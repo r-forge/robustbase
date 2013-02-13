@@ -387,6 +387,69 @@ Coefficients:
  -0.0826798           NA   -1.2984182           NA   -0.5976018           NA  
 
 > 
+> ## test all zero design matrix
+> (m5 <- lmrob(y ~ 1+x1+x2, data.frame(y=1:10,x1=0,x2=0)))
+
+Call:
+lmrob(formula = y ~ 1 + x1 + x2, data = data.frame(y = 1:10,     x1 = 0, x2 = 0))
+
+Coefficients:
+(Intercept)           x1           x2  
+        5.5           NA           NA  
+
+> summary(m5)
+
+Call:
+lmrob(formula = y ~ 1 + x1 + x2, data = data.frame(y = 1:10, 
+    x1 = 0, x2 = 0))
+
+Weighted Residuals:
+       Min         1Q     Median         3Q        Max 
+-4.500e+00 -2.250e+00 -2.651e-08  2.250e+00  4.500e+00 
+
+Coefficients: (2 not defined because of singularities)
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)     5.50       0.97    5.67 0.000306 ***
+x1                NA         NA      NA       NA    
+x2                NA         NA      NA       NA    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+
+Robust residual standard error: 3.894 
+Convergence in 2 IRWLS iterations
+
+Robustness weights: 
+     1      2      3      4      5      6      7      8      9     10 
+0.8820 0.9277 0.9628 0.9865 0.9985 0.9985 0.9865 0.9628 0.9277 0.8820 
+Algorithmic parameters: 
+tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol 
+ 1.5476400  0.5000000  4.6850610  0.0000001  0.0000001  0.0000001 
+     nResample         max.it       best.r.s       k.fast.s          k.max 
+           500             50              2              1            200 
+   maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
+           200              0           1000              0           2000 
+          psi   subsampling        method           cov 
+   "bisquare" "nonsingular"          "MM" ".vcov.avar1" 
+seed : int(0) 
+> (m6 <- lmrob(y ~ 0+x1+x2, data.frame(y=1:10,x1=0,x2=0)))
+
+Call:
+lmrob(formula = y ~ 0 + x1 + x2, data = data.frame(y = 1:10,     x1 = 0, x2 = 0))
+
+No coefficients
+
+> summary(m6)
+
+Call:
+lmrob(formula = y ~ 0 + x1 + x2, data = data.frame(y = 1:10, 
+    x1 = 0, x2 = 0))
+
+Residuals:
+ 1  2  3  4  5  6  7  8  9 10 
+ 1  2  3  4  5  6  7  8  9 10 
+
+No Coefficients
+> 
 > proc.time()
    user  system elapsed 
-   0.45    0.04    0.50 
+   0.51    0.07    0.57 

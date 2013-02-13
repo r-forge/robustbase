@@ -44,6 +44,7 @@ lmrob <-
                   residuals = y, fitted.values = 0 * y,
                   cov = matrix(,0,0), weights = w, rank = 0,
                   df.residual = NROW(y), converged = TRUE)
+        class(z) <- "lmrob"
         if(!is.null(offset)) z$fitted.values <- offset
     }
     else {
@@ -56,69 +57,78 @@ lmrob <-
         ## check for singular fit
         ## from lm.fit:
         z0 <- .Call(stats:::C_Cdqrls, x, y, tol = control$solve.tol)
-        ## FIXME: rank might be 0
         singular.fit <- z0$rank < p
-        if (singular.fit) {
-            if (!singular.ok) stop("singular fit encountered")
-            pivot <- z0$pivot
-            p1 <- pivot[seq_len(z0$rank)]
-            p2 <- pivot[(z0$rank+1):p]
-            ## to avoid problems in the internal fitting methods,
-            ## split into singular and non-singular matrices,
-            ## can still re-add singular part later
+        if (z0$rank > 0) {
+            if (singular.fit) {
+                if (!singular.ok) stop("singular fit encountered")
+                pivot <- z0$pivot
+                p1 <- pivot[seq_len(z0$rank)]
+                p2 <- pivot[(z0$rank+1):p]
+                ## to avoid problems in the internal fitting methods,
+                ## split into singular and non-singular matrices,
+                ## can still re-add singular part later
+                if (ret.x) x0 <- x
+                dn <- dimnames(x)
+                contrasts <- attr(x, "contrasts")
+                assign <- attr(x, "assign")
+                x <- x[,p1]
+                attr(x, "assign") <- assign[p1] ## needed for splitFrame to work
+            }
+            if (!is.null(init)) {
+                if (is.character(init)) {
+                    init <- switch(init,
+                                   `M-S` = lmrob.M.S(x, y, control, mf),
+                                   S = lmrob.S(x, y, control),
+                                   stop('init must be "S", "M-S", function or list'))
+                } else if (is.function(init)) {
+                    init <- init(x=x, y=y, control=control, mf=mf)
+                } else if (is.list(init)) {
+                    ## MK: set init$weights, init$residuals here ??
+                    ##     (needed in lmrob..D..fit)
+                    ##     or disallow method = D... ? would need to fix also
+                    ##    lmrob.kappa: tuning.psi / tuning.chi choice
+                    if (singular.fit) {
+                        ## make sure the initial coefficients vector matches
+                        ## to the reduced x
+                        init$coef <- na.omit(init$coef)
+                        if (length(init$coef) != ncol(x))
+                            stop("Length of initial coefficients vector does not match rank of singular design matrix x")
+                    }
+                } else stop("unknown init argument")
+                stopifnot(!is.null(init$coef), !is.null(init$scale))
+                ## modify (default) control$method
+                if (control$method == "MM" || substr(control$method, 1, 1) == "S")
+                    control$method <- substring(control$method, 2)
+                ## check for control$cov argument
+                if (class(init)[1] != "lmrob.S" && control$cov == '.vcov.avar1')
+                    control$cov <- ".vcov.w"
+            }
+            z <- lmrob.fit(x, y, control, init=init) #-> ./lmrob.MM.R
+            if (singular.fit) {
+                coef <- numeric(p)
+                coef[p2] <- NA
+                coef[p1] <- z$coefficients
+                names(coef) <- dn[[2L]]
+                z$coefficients <- coef
+                ## Update QR decomposition (z$qr)
+                ## pad qr and qraux with zeroes (columns that were pivoted to the right in z0)
+                qr0 <- matrix(0, length(y), p)
+                qr0[,1L:z0$rank] <- z$qr$qr
+                rownames(qr0) <- dn[[1L]]
+                colnames(qr0) <- dn[[2L]][z0$pivot]
+                z$qr$qr <- qr0
+                z$qr$qraux <- c(z$qr$qraux, rep.int(0, p-z0$rank))
+                ## set pivot
+                z$qr$pivot <- z0$pivot
+            }
+        } else { ## rank 0
             if (ret.x) x0 <- x
-            dn <- dimnames(x)
-            contrasts <- attr(x, "contrasts")
-            assign <- attr(x, "assign")
-            x <- x[,p1]
-            attr(x, "assign") <- assign[p1] ## needed for splitFrame to work
-        }
-        if (!is.null(init)) {
-            if (is.character(init)) {
-                init <- switch(init,
-                               `M-S` = lmrob.M.S(x, y, control, mf),
-                               S = lmrob.S(x, y, control),
-                               stop('init must be "S", "M-S", function or list'))
-            } else if (is.function(init)) {
-                init <- init(x=x, y=y, control=control, mf=mf)
-            } else if (is.list(init)) {
-                ## MK: set init$weights, init$residuals here ??
-                ##     (needed in lmrob..D..fit)
-                ##     or disallow method = D... ? would need to fix also
-                ##    lmrob.kappa: tuning.psi / tuning.chi choice
-                if (singular.fit) {
-                    ## make sure the initial coefficients vector matches
-                    ## to the reduced x
-                    init$coef <- na.omit(init$coef)
-                    if (length(init$coef) != ncol(x))
-                        stop("Length of initial coefficients vector does not match rank of singular design matrix x")
-                }
-            } else stop("unknown init argument")
-            stopifnot(!is.null(init$coef), !is.null(init$scale))
-            ## modify (default) control$method
-            if (control$method == "MM" || substr(control$method, 1, 1) == "S")
-                control$method <- substring(control$method, 2)
-            ## check for control$cov argument
-            if (class(init)[1] != "lmrob.S" && control$cov == '.vcov.avar1')
-                control$cov <- ".vcov.w"
-        }
-        z <- lmrob.fit(x, y, control, init=init) #-> ./lmrob.MM.R
-        if (singular.fit) {
-            coef <- numeric(p)
-            coef[p2] <- NA
-            coef[p1] <- z$coefficients
-            names(coef) <- dn[[2L]]
-            z$coefficients <- coef
-            ## Update QR decomposition (z$qr)
-            ## pad qr and qraux with zeroes (columns that were pivoted to the right in z0)
-            qr0 <- matrix(0, nrow(x), p)
-            qr0[,1L:z0$rank] <- z$qr$qr
-            rownames(qr0) <- dn[[1L]]
-            colnames(qr0) <- dn[[2L]][z0$pivot]
-            z$qr$qr <- qr0
-            z$qr$qraux <- c(z$qr$qraux, rep.int(0, p-z0$rank))
-            ## set pivot
-            z$qr$pivot <- z0$pivot
+            z <- list(coefficients = if (is.matrix(y)) matrix(,0,3) else numeric(0),
+                      residuals = y, fitted.values = 0 * y,
+                      cov = matrix(,0,0), weights = w, rank = 0,
+                      df.residual = NROW(y), converged = TRUE)
+            class(z) <- "lmrob"
+            if(!is.null(offset)) z$fitted.values <- offset
         }
     }
 
@@ -325,40 +335,42 @@ print.summary.lmrob <-
     ## modify control list to contain only parameters
     ## that were actually used
     control <- x$control
-    switch(sub("^(S|M-S).*", "\\1", control$method),
-           S = { # remove all M-S specific control pars
-               control$k.m_s <- NULL
-               control$split.type <- NULL
-               # if large_n is not used, remove corresp control pars
-               if (length(residuals) <= control$fast.s.large.n) {
+    if (!is.null(control)) {
+        switch(sub("^(S|M-S).*", "\\1", control$method),
+               S = { # remove all M-S specific control pars
+                   control$k.m_s <- NULL
+                   control$split.type <- NULL
+                                        # if large_n is not used, remove corresp control pars
+                   if (length(residuals) <= control$fast.s.large.n) {
+                       control$groups <- NULL
+                       control$n.group <- NULL
+                   }
+               },
+               `M-S` = { # remove all fast S specific control pars
+                   control$refine.tol <- NULL
                    control$groups <- NULL
                    control$n.group <- NULL
-               }
-           },
-           `M-S` = { # remove all fast S specific control pars
-               control$refine.tol <- NULL
-               control$groups <- NULL
-               control$n.group <- NULL
-               control$best.r.s <- NULL
-               control$k.fast.s <- NULL
-           }, { # else: do not print any parameter used by initial ests. only
-               control$tuning.chi <- NULL
-               control$bb <- NULL
-               control$refine.tol <- NULL
-               control$nResample <- NULL
-               control$groups <- NULL
-               control$n.group <- NULL
-               control$best.r.s <- NULL
-               control$k.fast.s <- NULL
-               control$k.max <- NULL
-               control$k.m_s <- NULL
-               control$split.type <- NULL
-               control$mts <- NULL
-               control$subsampling <- NULL
-           } )
-    if (!grepl("D", control$method)) control$numpoints <- NULL
-    if (x$control$method == 'SM') control$method <- x$control$method <- 'MM'
-    printControl(control, digits = digits)
+                   control$best.r.s <- NULL
+                   control$k.fast.s <- NULL
+               }, { # else: do not print any parameter used by initial ests. only
+                   control$tuning.chi <- NULL
+                   control$bb <- NULL
+                   control$refine.tol <- NULL
+                   control$nResample <- NULL
+                   control$groups <- NULL
+                   control$n.group <- NULL
+                   control$best.r.s <- NULL
+                   control$k.fast.s <- NULL
+                   control$k.max <- NULL
+                   control$k.m_s <- NULL
+                   control$split.type <- NULL
+                   control$mts <- NULL
+                   control$subsampling <- NULL
+               } )
+        if (!grepl("D", control$method)) control$numpoints <- NULL
+        if (x$control$method == 'SM') control$method <- x$control$method <- 'MM'
+        printControl(control, digits = digits)
+    }
 
     invisible(x)
 }

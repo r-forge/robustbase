@@ -106,3 +106,9 @@ stopifnot(all.equal(case.names(m2), case.names(m1)),
 ## test other initial estimators
 lmrob(y ~ x1*x2 + x3 + x4 + x5, data, init="M-S")
 lmrob(y ~ x1*x2 + x3 + x4 + x5, data, init=lmrob.lar)
+
+## test all zero design matrix
+(m5 <- lmrob(y ~ 1+x1+x2, data.frame(y=1:10,x1=0,x2=0)))
+summary(m5)
+(m6 <- lmrob(y ~ 0+x1+x2, data.frame(y=1:10,x1=0,x2=0)))
+summary(m6)
