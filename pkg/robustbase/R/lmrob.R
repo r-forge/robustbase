@@ -44,7 +44,6 @@ lmrob <-
                   residuals = y, fitted.values = 0 * y,
                   cov = matrix(,0,0), weights = w, rank = 0,
                   df.residual = NROW(y), converged = TRUE)
-        class(z) <- "lmrob"
         if(!is.null(offset)) z$fitted.values <- offset
     }
     else {
@@ -127,7 +126,6 @@ lmrob <-
                       residuals = y, fitted.values = 0 * y,
                       cov = matrix(,0,0), weights = w, rank = 0,
                       df.residual = NROW(y), converged = TRUE)
-            class(z) <- "lmrob"
             if(!is.null(offset)) z$fitted.values <- offset
         }
     }
@@ -147,6 +145,7 @@ lmrob <-
         z$x <- if (singular.fit) x0 else x
     if (ret.y)
         z$y <- y
+    class(z) <- "lmrob"
     z
 }
 
@@ -178,14 +177,25 @@ print.lmrob <- function(x, digits = max(3, getOption("digits") - 3), ...)
     if(length((cf <- coef(x)))) {
 	if( x$converged )
 	    cat("Coefficients:\n")
-	else
-	    cat("Algorithm did not converge\n\n",
-		"Coefficients of the *initial* S-estimator:\n")
+	else {
+            if (x$scale == 0) {
+                cat("Exact fit detected\n\nCoefficients:\n")
+            } else {
+                cat("Algorithm did not converge\n\n")
+                if (x$control$method == "S")
+                    cat("Coefficients of the *initial* S-estimator:\n")
+                else
+                    cat(sprintf("Coefficients of the %s-estimator:\n",
+                                x$control$method))
+            }
+        }
 	print(format(coef(x), digits = digits), print.gap = 2, quote = FALSE)
     } else cat("No coefficients\n")
     cat("\n")
     invisible(x)
 }
+
+print.lmrob.S <- print.lmrob
 
 
 vcov.lmrob <- function (object, cov=object$control$cov, ...) {
@@ -227,7 +237,7 @@ summary.lmrob <- function(object, correlation = FALSE, symbolic.cor = FALSE, ...
     if (p > 0) {
 	n <- p + df
         p1 <- seq_len(p)
-	se <- sqrt(diag(object$cov))
+	se <- sqrt(if(length(object$cov) == 1L) object$cov else diag(object$cov))
 	est <- object$coefficients[object$qr$pivot[p1]]
 	tval <- est/se
         ## FIXME: summary.lm returns the weighted residuals
@@ -235,15 +245,17 @@ summary.lmrob <- function(object, correlation = FALSE, symbolic.cor = FALSE, ...
 			"converged", "iter", "control")]
 	ans$df <- c(p, df, NCOL(object$qr$qr))
 	ans$coefficients <-
-	    if( ans$converged )
+	    if( ans$converged)
 		cbind(est, se, tval, 2 * pt(abs(tval), df, lower.tail = FALSE))
-	    else cbind(est, NA, NA, NA)
+	    else
+                cbind(est, if (object$scale == 0) 0 else NA, NA, NA)
 	dimnames(ans$coefficients) <-
 	    list(names(est), c("Estimate", "Std. Error", "t value", "Pr(>|t|)"))
         ans$aliased <- is.na(coef(object)) # used in print method
 
 	ans$cov.unscaled <- object$cov
-	dimnames(ans$cov.unscaled) <- dimnames(ans$coefficients)[c(1,1)]
+	if(length(object$cov) > 1L)
+            dimnames(ans$cov.unscaled) <- dimnames(ans$coefficients)[c(1,1)]
 	if (correlation) {
 	    ans$correlation <- ans$cov.unscaled / outer(se, se)
 	    ans$symbolic.cor <- symbolic.cor
@@ -276,7 +288,7 @@ print.summary.lmrob <-
     ## FIXME: this always prints "weighted" -- but weights are not supported...
     cat(if (!is.null(x$w) && diff(range(x$w))) "Weighted ",
 	"Residuals:\n", sep = "")
-    if (rdf > 5) {
+    if (rdf > 5L) {
 	nam <- c("Min", "1Q", "Median", "3Q", "Max")
 	if (NCOL(resid) > 1)
 	    rq <- structure(apply(t(resid), 1, quantile),
@@ -285,11 +297,19 @@ print.summary.lmrob <-
 	print(rq, digits = digits, ...)
     }
     else print(resid, digits = digits, ...)
-    ## FIXME: need to catch perfect fit here? rdf == 0?
+    ## FIXME: need to catch rdf == 0?
     if( length(x$aliased) ) {
 	if( !(x$converged) ) {
-	    cat("\nAlgorithm did not converge\n")
-	    cat("\nCoefficients of *initial* S-estimator:\n")
+            if (x$scale == 0) {
+                cat("\nExact fit detected\n\nCoefficients:\n")
+            } else {
+                cat("\nAlgorithm did not converge\n")
+                if (x$control$method == "S")
+                    cat("\nCoefficients of the *initial* S-estimator:\n")
+                else
+                    cat(sprintf("\nCoefficients of the %s-estimator:\n",
+                                x$control$method))
+            }
 	    printCoefmat(x$coef, digits = digits, signif.stars = signif.stars,
 			 ...)
 	} else {

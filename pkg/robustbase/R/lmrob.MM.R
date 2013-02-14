@@ -131,9 +131,11 @@ lmrob.fit <- function(x, y, control, init=NULL) {
     if (is.null(init$rank)) init$rank <- init$qr$rank
 
     ## --- covariance estimate
-    if (!init$converged || is.null(x)) {
+    if (init$scale == 0) { ## exact fit
+        init$cov <- matrix(0, ncol(x), ncol(x),
+                           dimnames=list(colnames(x), colnames(x)))
+    } else if (!init$converged || is.null(x)) {
         init$cov <- NA
-        init$df <- init$degree.freedom <- NA
     } else {
         control$method <- est
         init$control <- control
@@ -144,9 +146,9 @@ lmrob.fit <- function(x, y, control, init=NULL) {
                     get(control$cov, mode='function') else control$cov
                 lf.cov(init, x)
             }
-        df <- NROW(y) - init$rank ## sum(init$weights)-init$rank
-        init$degree.freedom <- init$df.residual <- df
     }
+    df <- NROW(y) - init$rank ## sum(init$weights)-init$rank
+    init$degree.freedom <- init$df.residual <- df
 
     init
 }
@@ -421,7 +423,7 @@ lmrob..M..fit <- function (x=obj$x, y=obj$y, beta.initial=obj$coef,
     ## FIXME?: Should rather warn *here* in case of non-convergence
     names(ret$coefficients) <- colnames(x)
     names(ret$residuals) <- rownames(x)
-    ret$weights <- lmrob.wgtfun(ret$residuals / scale, control$tuning.psi, control$psi)
+    ret$weights <- lmrob.rweights(ret$residuals, scale, control$tuning.psi, control$psi)
     ret$fitted.values <- drop(x %*% ret$coefficients)
     if (!grepl('M$', control$method)) {
         ## update control$method if it's not there already
@@ -537,10 +539,13 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev, mf = NULL)
     b$residuals <- drop(y - b$fitted.values)
     names(b$residuals) <- rownames(x)
     ## robustness weights
-    b$weights <- lmrob.wgtfun(b$residuals / b$scale, control$tuning.chi, control$psi)
+    b$weights <- lmrob.rweights(b$residuals, b$scale, control$tuning.chi, control$psi)
     ## set method argument in control
     control$method <- 'S'
     b$control <- control
+    ## add call if called from toplevel
+    if (identical(parent.frame(), .GlobalEnv))
+        b$call <- match.call()
     b
 }
 
@@ -984,6 +989,13 @@ lmrob.wgtfun <- function(x, cc, psi)
 		     length = as.integer(length(x[idx])))$x
     }
     x
+}
+
+lmrob.rweights <- function(resid, scale, cc, psi) {
+    if (scale == 0) { ## exact fit
+        return(as.numeric(abs(resid) < .Machine$double.eps))
+    }
+    lmrob.wgtfun(resid / scale, cc, psi)
 }
 
 residuals.lmrob.S <- function(obj) obj$residuals

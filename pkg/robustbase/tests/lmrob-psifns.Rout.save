@@ -394,26 +394,41 @@ attr(,"constants")
 attr(,"constants")
 [1] 0.00000000 0.24044569 1.40000000 0.09081713 0.27558437
 > summary(mp7 <-lmrob(Y ~ ., data = aircraft, control = ctrl))
-               Length Class      Mode   
-coefficients     5    -none-     numeric
-scale            1    -none-     numeric
-k.iter           1    -none-     numeric
-converged        1    -none-     logical
-fitted.values   23    -none-     numeric
-residuals       23    -none-     numeric
-weights         23    -none-     numeric
-control         26    -none-     list   
-qr               4    qr         list   
-rank             1    -none-     numeric
-cov              1    -none-     logical
-degree.freedom   1    -none-     logical
-df               1    -none-     logical
-xlevels          0    -none-     list   
-call             4    -none-     call   
-terms            3    terms      call   
-assign           5    -none-     numeric
-model            5    data.frame list   
-x              115    -none-     numeric
+
+Call:
+lmrob(formula = Y ~ ., data = aircraft, control = ctrl)
+
+Weighted Residuals:
+    Min      1Q  Median      3Q     Max 
+-7.6919 -1.9269  0.1767  3.7081 48.5800 
+
+Algorithm did not converge
+
+Coefficients of the *initial* S-estimator:
+             Estimate Std. Error t value Pr(>|t|)
+(Intercept) 13.155499         NA      NA       NA
+X1          -4.349383         NA      NA       NA
+X2           1.647243         NA      NA       NA
+X3           0.001817         NA      NA       NA
+X4          -0.001035         NA      NA       NA
+
+Robustness weights: 
+ 2 observations c(16,22) are outliers with |weight| <= 0.0003 ( < 0.0043); 
+ 4 weights are ~= 1. The remaining 17 ones are summarized as
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+0.03669 0.20120 0.58410 0.52290 0.71930 0.99120 
+Algorithmic parameters: 
+tuning.chi1 tuning.chi2 tuning.chi3 tuning.chi4          bb tuning.psi1 
+   -3.0e-01     1.4e+00          NA     5.0e-01     5.0e-01    -3.0e-01 
+tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol   solve.tol 
+    1.4e+00     9.5e-01          NA     1.0e-07     1.0e-07     1.0e-07 
+     nResample         max.it       best.r.s       k.fast.s          k.max 
+           500             50              2              1            200 
+   maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
+           200              0           1000              0           2000 
+          psi   subsampling        method           cov 
+        "ggw" "nonsingular"           "S" ".vcov.avar1" 
+seed : int(0) 
 Warning message:
 In lmrob.S(x, y, control = control) :
   S refinements did not converge (to tol=1e-07) in 200 iterations

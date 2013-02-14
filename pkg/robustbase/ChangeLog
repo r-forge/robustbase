@@ -1,9 +1,17 @@
+2013-02-14  Manuel Koller   <mkoller@ispm.unibe.ch>
+
+	* R/lmrob.R (lmrob): setting class "lmrob" also for unconverged
+	initial estimates.
+
+	* R/lmrob.R (print.summary.lmrob, print.lmrob, print.lmrob.S): improved
+	handling of unconverged estimates and exact fits.
+
 2013-02-07  Manuel Koller   <mkoller@ispm.unibe.ch>
 
 	* R/lmrob.R (lmrob): compatibility to lm:
 	'assign': labels of terms used for fitting.
 
-	* lmrob.R (summary.lmrob): compatibility to summary.lm for:
+	* R/lmrob.R (summary.lmrob): compatibility to summary.lm for:
 	'df': degrees of freedom, a 3-vector (p, n-p, p*), the last being
 	the number of non-aliased coefficients (used to be just (n-p)).
 	'aliased': named logical vector showing if the original

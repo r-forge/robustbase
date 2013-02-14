@@ -170,5 +170,18 @@ nform <- update(formula(fm1), ~ .
 fm1. <- lmrob(nform, data = d1k27)# now w/o warning !? !!
 fm2. <- lmrob(nform, data = d1k27, cov = ".vcov.w", trace = TRUE)
 
+## now lmrob takes care of NA coefficients automatically
+lmrob(y ~ poly(a,2)-a + poly(tf, 2)-tf + poly(A, 2)-A + . , data = d1k27)
+
+
+## test exact fit property
+set.seed(20)
+data <- data.frame(y=c(rep.int(0, 20), rnorm(5)),
+                   group=rep(letters[1:5], each=5))
+x <- model.matrix(y ~ group, data)
+lmrob.S(x, data$y, lmrob.control())
+(ret <- lmrob(y ~ group, data))
+summary(ret)
+
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
