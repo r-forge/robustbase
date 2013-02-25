@@ -227,13 +227,25 @@ predict.lmrob <- function (object, newdata = NULL, scale = NULL, ...)
     predict.lm(object, newdata = newdata, scale = object$s, ...)
 }
 
+## practically identical to  stats:::qr.lm :
+qr.lmrob <- function (x, ...) {
+    if (is.null(r <- x$qr))
+        stop("lmrob object does not have a proper 'qr' component. Rank must be zero")
+    r
+}
+
+## residuals(<lmrob>): no own method ==> using  residuals.default()
+
+## coef(<lmrob>): no own method ==> using  coef.default(OO) == OO$coefficients
+## -------------
+## FIXME: The case  0 == rank < p is *wrong*: want  NA coeff. as in  lm.fit() !!
 
 summary.lmrob <- function(object, correlation = FALSE, symbolic.cor = FALSE, ...)
 {
     if (is.null(object$terms))
 	stop("invalid 'lmrob' object:  no terms component")
     p <- object$rank
-    df <- object$degree.freedom
+    df <- object$df.residual #was $degree.freedom
     if (p > 0) {
 	n <- p + df
         p1 <- seq_len(p)
@@ -243,6 +255,8 @@ summary.lmrob <- function(object, correlation = FALSE, symbolic.cor = FALSE, ...
         ## FIXME: summary.lm returns the weighted residuals
 	ans <- object[c("call", "terms", "residuals", "scale", "weights",
 			"converged", "iter", "control")]
+        ## 'df' vector, modeled after summary.lm() : ans$df <- c(p, rdf, NCOL(Qr$qr))
+        ## where  p <- z$rank ; rdf <- z$df.residual ; Qr <- qr.lm(object)
 	ans$df <- c(p, df, NCOL(object$qr$qr))
 	ans$coefficients <-
 	    if( ans$converged)
@@ -263,7 +277,7 @@ summary.lmrob <- function(object, correlation = FALSE, symbolic.cor = FALSE, ...
     } else { ## p = 0: "null model"
 	ans <- object
         ans$aliased <- is.na(coef(object)) # used in print method
-	ans$df <- c(0L, df, length(is.na(ans$aliased)))
+	ans$df <- c(0L, df, length(ans$aliased))
 	ans$coefficients <- matrix(NA, 0L, 4L)
         dimnames(ans$coefficients) <-
             list(NULL, c("Estimate", "Std. Error", "t value", "Pr(>|t|)"))

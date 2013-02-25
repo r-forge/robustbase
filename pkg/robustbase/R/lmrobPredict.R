@@ -54,7 +54,7 @@ predict.lmrob <-
         piv <- seq_len(p)
     } else {
         p1 <- seq_len(p)
-        piv <- if(p) stats:::qr.lm(object)$pivot[p1]
+        piv <- if(p) qr(object)$pivot[p1]
     }
     if(p < ncol(X) && !(missing(newdata) || is.null(newdata)))
 	warning("prediction from a rank-deficient fit may be misleading")

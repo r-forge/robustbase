@@ -1,5 +1,5 @@
 
-useDynLib(robustbase, .registration=TRUE)# -> R >= 2.3.0
+useDynLib(robustbase, .registration=TRUE)
 
 importFrom("graphics", plot)# < more ?
 importFrom("stats", alias, anova, coef, cov, family, fitted,
@@ -89,6 +89,8 @@ S3method(print, summary.lmrob)
 S3method(print, summary.nlrob)
 S3method(print, summary.lts)
 
+S3method(qr, lmrob)
+## lmrob uses residuals.default
 S3method(residuals, nlrob)
 S3method(residuals, glmrob)
 

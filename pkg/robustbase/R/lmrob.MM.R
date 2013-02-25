@@ -209,8 +209,9 @@ if(getRversion() > "2.15.0" || as.numeric(R.Version()$`svn rev`) > 59233)
     ## update qr decomposition if it is missing or we don't want the weights
     if (!is.qr(obj$qr) || !cov.xwx) obj$qr <- qr(x * sqrt(w))
     p <- if (is.null(obj$rank)) obj$qr$rank else obj$rank
-    cinv <- try( if (is.qr(obj$qr)) tcrossprod(solve(qr.R(obj$qr))) )
-    if(inherits(cinv, 'try-error')) cinv <- matrix(NA,p,p)
+    cinv <- if(is.qr(obj$qr)) tryCatch(tcrossprod(solve(qr.R(obj$qr))),
+				       error = function(e)e)
+    if(inherits(cinv, 'error')) cinv <- matrix(NA,p,p)
     ## --- calculation: correction factor
     if (cov.corrfact == 'asympt') { ## asympt correction factor
         if (cov.hubercorr) warning('option hcorr is ignored for cov.corrfact = asympt')
