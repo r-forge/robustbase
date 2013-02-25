@@ -85,9 +85,9 @@ stopifnot(is.infinite(kr1 <- kappa(rm1)), kr1 == kappa(cm1), # = +Inf both
 ## plot(rm1, which=1) ## plot.lmrob() fails "singular covariance" .. FIXME!
 par(mfrow=c(2,2))
 plot(rm1, which=2:4)
-stopifnot(all.equal(predict(rm1), predict(rm1c)))
-stopifnot(all.equal(predict(rm1, se.fit=TRUE, interval="confidence"),
-                    predict(rm1c, se.fit=TRUE, interval="confidence")))
+stopifnot(all.equal(predict(rm1), predict(rm1c), tol=1e-15),
+          all.equal(predict(rm1,  se.fit=TRUE, interval="confidence"),
+		    predict(rm1c, se.fit=TRUE, interval="confidence"), tol=1e-15))
 predict(rm1, type="terms", se.fit=TRUE, interval="confidence")
 #proj(rm1) ## fails "FIXME"
 residuals(rm1)
@@ -95,8 +95,14 @@ residuals(rm1)
 #rstudent(rm1)
 #simulate(rm1) ## just $weights needs to be changed to prior weights
 (V1 <- vcov(rm1))
+set.seed(12); sc <- simulate(cm1, 64)
+set.seed(12); rc <- simulate(rm1, 64)
+
 stopifnot(all.equal(sqrt(diag(V1)), coef(summary(rm1))[,"Std. Error"], tol=1e-15),
+	  all.equal(sc, rc, tol = 0.08),# dimension *and* approx. values (no NA)
 	  identical(variable.names(rm1), variable.names(cm1)),
+	  all.equal(residuals(rm1), residuals(cm1), tol = 0.05),# incl. names
+	  all.equal(rstudent (rm1), rstudent (cm1), tol = 0.06),
 	  identical(dimnames(rm1), dimnames(cm1)),
 	  all.equal(dummy.coef(rm1), dummy.coef(cm1), tol= .5)) ## check mostly structure
 
