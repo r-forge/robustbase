@@ -1,3 +1,12 @@
+2013-02-26  Manuel Koller   <mkoller@ispm.unibe.ch>
+
+	* R/lmrob.R (class lmrob): Objects of class lmrob now store
+	the robustness weights in $rweights (used to be in $weights).
+
+	* R/lmrob.R (weights.lmrob): specialized weights() function for
+	lmrob objects. Returns prior weights by default. Robustness weights
+	are available via the "type" argument.
+
 2013-02-14  Manuel Koller   <mkoller@ispm.unibe.ch>
 
 	* R/lmrob.R (lmrob): setting class "lmrob" also for unconverged

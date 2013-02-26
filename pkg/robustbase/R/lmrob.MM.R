@@ -127,7 +127,7 @@ lmrob.fit <- function(x, y, control, init=NULL) {
         }
     }
     ## << FIXME? qr(.)  should be available from earlier
-    if (is.null(init$qr)) init$qr <- qr(x * sqrt(init$weights))
+    if (is.null(init$qr)) init$qr <- qr(x * sqrt(init$rweights))
     if (is.null(init$rank)) init$rank <- init$qr$rank
 
     ## --- covariance estimate
@@ -204,9 +204,9 @@ if(getRversion() > "2.15.0" || as.numeric(R.Version()$`svn rev`) > 59233)
     n <- NROW(x)
     ## --- calculations: matrix part
     ## weighted xtx.inv matrix
-    w <- if (cov.xwx) obj$weights else rep(1,n)
-    ## use qr-decomposition from lm.wfit (this already includes the weights)
-    ## update qr decomposition if it is missing or we don't want the weights
+    w <- if (cov.xwx) obj$rweights else rep(1,n)
+    ## use qr-decomposition from lm.wfit (this already includes the robustness weights)
+    ## update qr decomposition if it is missing or we don't want the robustness weights
     if (!is.qr(obj$qr) || !cov.xwx) obj$qr <- qr(x * sqrt(w))
     p <- if (is.null(obj$rank)) obj$qr$rank else obj$rank
     cinv <- if(is.qr(obj$qr)) tryCatch(tcrossprod(solve(qr.R(obj$qr))),
@@ -424,7 +424,7 @@ lmrob..M..fit <- function (x=obj$x, y=obj$y, beta.initial=obj$coef,
     ## FIXME?: Should rather warn *here* in case of non-convergence
     names(ret$coefficients) <- colnames(x)
     names(ret$residuals) <- rownames(x)
-    ret$weights <- lmrob.rweights(ret$residuals, scale, control$tuning.psi, control$psi)
+    ret$rweights <- lmrob.rweights(ret$residuals, scale, control$tuning.psi, control$psi)
     ret$fitted.values <- drop(x %*% ret$coefficients)
     if (!grepl('M$', control$method)) {
         ## update control$method if it's not there already
@@ -441,7 +441,7 @@ lmrob..M..fit <- function (x=obj$x, y=obj$y, beta.initial=obj$coef,
         } else {
             ret$init <-
                 obj[names(obj)[na.omit(match(c("coefficients","scale", "residuals",
-                                               "loss", "converged", "iter", "weights",
+                                               "loss", "converged", "iter", "rweights",
                                                "fitted.values", "control", "init.S", "init",
                                                "kappa", "tau"),
                                              names(obj)))]]
@@ -452,7 +452,7 @@ lmrob..M..fit <- function (x=obj$x, y=obj$y, beta.initial=obj$coef,
                                                     "na.action", "contrasts", "MD"),
                                                   names(obj)))]])
         }
-        ret$qr <- qr(x * sqrt(ret$weights))
+        ret$qr <- qr(x * sqrt(ret$rweights))
         ret$rank <- ret$qr$rank
         ## if there is a covariance matrix estimate available in obj
         ## update it, if possible, else replace it by the default .vcov.w
@@ -540,7 +540,7 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev, mf = NULL)
     b$residuals <- drop(y - b$fitted.values)
     names(b$residuals) <- rownames(x)
     ## robustness weights
-    b$weights <- lmrob.rweights(b$residuals, b$scale, control$tuning.chi, control$psi)
+    b$rweights <- lmrob.rweights(b$residuals, b$scale, control$tuning.chi, control$psi)
     ## set method argument in control
     control$method <- 'S'
     b$control <- control
@@ -556,7 +556,7 @@ lmrob..D..fit <- function(obj, x=obj$x, control = obj$control)
     if (!obj$converged)
         stop('lmrob..D..fit: prior estimator did not converge, stopping')
     if (is.null(x)) x <- model.matrix(obj)
-    w <- obj$weights
+    w <- obj$rweights
     if (is.null(w)) stop('lmrob..D..fit: robustness weights undefined')
     if (is.null(obj$residuals)) stop('lmrob..D..fit: residuals undefined')
     r <- obj$residuals
@@ -567,7 +567,7 @@ lmrob..D..fit <- function(obj, x=obj$x, control = obj$control)
     if (!is.numeric(c.psi)) stop('lmrob..D..fit: parameter tuning.psi is not numeric')
 
     obj$init <- obj[names(obj)[na.omit(match(c("coefficients","scale", "residuals",
-                                               "loss", "converged", "iter", "weights",
+                                               "loss", "converged", "iter", "rweights",
                                                "fitted.values", "control", "init.S", "init"),
                                              names(obj)))]]
     obj$init.S <- NULL
@@ -641,9 +641,9 @@ lmrob.tau <- function(obj, x=obj$x, control = obj$control, h, fast = TRUE)
     if(is.null(control)) stop("'control' is missing")
     if(missing(h))
 	h <- if (is.null(obj$qr))
-	    lmrob.leverages(x, obj$weights)
+	    lmrob.leverages(x, obj$rweights)
 	else
-	    lmrob.leverages(x, obj$weights, wqr = obj$qr)
+	    lmrob.leverages(x, obj$rweights, wqr = obj$qr)
 
     ## speed up: use approximation if possible
     if (fast && !control$method %in% c('S', 'SD')) {

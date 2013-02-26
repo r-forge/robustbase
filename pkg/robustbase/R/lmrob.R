@@ -124,7 +124,7 @@ lmrob <-
             if (ret.x) x0 <- x
             z <- list(coefficients = if (is.matrix(y)) matrix(,0,3) else numeric(0),
                       residuals = y, fitted.values = 0 * y,
-                      cov = matrix(,0,0), weights = w, rank = 0,
+                      cov = matrix(,0,0), rweights = w, rank = 0,
                       df.residual = NROW(y), converged = TRUE)
             if(!is.null(offset)) z$fitted.values <- offset
         }
@@ -223,7 +223,7 @@ if(FALSE) ## now replaced with more sophsticated in ./lmrobPredict.R
 predict.lmrob <- function (object, newdata = NULL, scale = NULL, ...)
 {
     class(object) <- c(class(object), "lm")
-    object$qr <- qr(sqrt(object$weights) * object$x)
+    object$qr <- qr(sqrt(object$rweights) * object$x)
     predict.lm(object, newdata = newdata, scale = object$s, ...)
 }
 
@@ -253,7 +253,7 @@ summary.lmrob <- function(object, correlation = FALSE, symbolic.cor = FALSE, ...
 	est <- object$coefficients[object$qr$pivot[p1]]
 	tval <- est/se
         ## FIXME: summary.lm returns the weighted residuals
-	ans <- object[c("call", "terms", "residuals", "scale", "weights",
+	ans <- object[c("call", "terms", "residuals", "scale", "rweights",
 			"converged", "iter", "control")]
         ## 'df' vector, modeled after summary.lm() : ans$df <- c(p, rdf, NCOL(Qr$qr))
         ## where  p <- z$rank ; rdf <- z$df.residual ; Qr <- qr.lm(object)
@@ -362,7 +362,7 @@ print.summary.lmrob <-
 	}
 	cat("\n")
 
-	summarizeRobWeights(x$weights, digits = digits, ...)
+	summarizeRobWeights(x$rweights, digits = digits, ...)
 
     } else cat("\nNo Coefficients\n")
 
@@ -420,6 +420,20 @@ alias.lmrob <- function(object, ...) {
     object$qr <- qr(x)
     class(object) <- "lm"
     alias(object)
+}
+
+weights.lmrob <- function(object, type = c("prior", "robustness"), ...) {
+    type <- match.arg(type)
+    res <- if (type == "prior") {
+        ## Issue warning only if called from toplevel. Otherwise the warning pop
+        ## up at quite unexpected places, e.g., case.names().
+        if (is.null(object[["weights"]]) && identical(parent.frame(), .GlobalEnv))
+            warning("No weights defined for this object. Use type=\"robustness\" argument to get robustness weights.")
+        object[["weights"]]
+    } else object[["rweights"]]
+    if (is.null(object$na.action))
+        res
+    else naresid(object$na.action, res)
 }
 
 ## hidden in namespace

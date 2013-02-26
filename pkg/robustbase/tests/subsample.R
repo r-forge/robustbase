@@ -154,8 +154,9 @@ fm1.n <- lmrob(y ~ a + I(a^2) + tf + I(tf^2) + A + I(A^2) + . , data = d1k.n)
 fm2.n <- lmrob(y ~ a + I(a^2) + tf + I(tf^2) + A + I(A^2) + . , data = d1k.n,
              cov = ".vcov.w", trace = 2)
 
-summary(weights(fm1))
-hist(weights(fm1), main="robustness weights of fm1"); rug(weights(fm1))
+summary(weights(fm1, type="robustness"))
+hist(weights(fm1, type="robustness"), main="robustness weights of fm1")
+rug(weights(fm1, type="robustness"))
 
 ##
 fmc <- lm   (y ~ poly(a,2)-a + poly(tf, 2)-tf + poly(A, 2)-A + . , data = d1k27)

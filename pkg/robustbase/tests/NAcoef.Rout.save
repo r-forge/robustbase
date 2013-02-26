@@ -1,8 +1,8 @@
 
-R version 2.15.3 RC (2013-02-24 r62054) -- "Security Blanket"
-Copyright (C) 2013 The R Foundation for Statistical Computing
+R version 2.15.2 (2012-10-26) -- "Trick or Treat"
+Copyright (C) 2012 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
-Platform: x86_64-unknown-linux-gnu (64-bit)
+Platform: x86_64-w64-mingw32/x64 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -88,7 +88,7 @@ Coefficients:
 Call:
 lmrob(formula = y ~ x1 * x2 + x3 + x4 + x5, data = data)
 
-Weighted Residuals:
+Residuals:
      Min       1Q   Median       3Q      Max 
 -1.45843 -0.35555  0.02458  0.36512  1.02964 
 
@@ -413,7 +413,7 @@ Call:
 lmrob(formula = y ~ 1 + x1 + x2, data = data.frame(y = 1:10, 
     x1 = 0, x2 = 0))
 
-Weighted Residuals:
+Residuals:
        Min         1Q     Median         3Q        Max 
 -4.500e+00 -2.250e+00 -2.651e-08  2.250e+00  4.500e+00 
 
@@ -472,4 +472,4 @@ No Coefficients
 > 
 > proc.time()
    user  system elapsed 
-  0.860   0.066   1.026 
+   0.57    0.04    0.63 

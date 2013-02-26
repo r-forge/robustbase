@@ -103,7 +103,7 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
       (2006), calling \code{\link{lmrob.S}()}.  That function, since
       March 2012, uses \emph{nonsingular} subsampling which makes the
       Fast-S algorithm feasible for categorical data as well, see Koller
-      (2012). 
+      (2012).
     }
     \item{Method \code{method}:}{
       The following chain of estimates is customizable via the
@@ -145,7 +145,7 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   \item{cov}{The estimated covariance matrix of the regression coefficients}
   \item{residuals}{Residuals associated with the estimator}
   \item{fitted.values}{Fitted values associated with the estimator}
-  \item{weights}{the \dQuote{robustness weights} \eqn{\psi(r_i/S) / (r_i/S)}.}
+  \item{rweights}{the \dQuote{robustness weights} \eqn{\psi(r_i/S) / (r_i/S)}.}
   \item{converged}{\code{TRUE} if the IRWLS iterations have converged}
 }
 \references{
@@ -187,7 +187,8 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   \code{\link{lmrob.fit}};
   and for methods,
   \code{\link{predict.lmrob}}, \code{\link{summary.lmrob}},
-  \code{\link{print.lmrob}}, and \code{\link{plot.lmrob}}.
+  \code{\link{print.lmrob}}, \code{\link{plot.lmrob}}, and
+  \code{\link{weights.lmrob}}.
 }
 \examples{
 data(coleman)
