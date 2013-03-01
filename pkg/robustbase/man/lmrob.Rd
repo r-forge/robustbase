@@ -136,18 +136,40 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   An object of class \code{lmrob}. A list that includes the
   following components:
   \item{coefficients}{The estimate of the coefficient vector}
-  \item{init.S}{The list returned by \code{\link{lmrob.S}} or
-  \code{\link{lmrob.M.S}} (for MM-estimates only)}
-  \item{init}{A similar list that contains the results of intermediate
-  estimates (not for MM-estimates).}
   \item{scale}{The scale as used in the M estimator.}
-  \item{cov}{The estimated covariance matrix of the regression coefficients}
-  \item{residuals}{Residuals associated with the estimator}
-  \item{fitted.values}{Fitted values associated with the estimator}
+  \item{residuals}{Residuals associated with the estimator.}
+  %loss
+  \item{converged}{\code{TRUE} if the IRWLS iterations have converged.}
+  \item{iter}{number of IRWLS iterations}
   \item{rweights}{the \dQuote{robustness weights} \eqn{\psi(r_i/S) / (r_i/S)}.}
-  \item{converged}{\code{TRUE} if the IRWLS iterations have converged}
+  \item{fitted.values}{Fitted values associated with the estimator.}
+  %control
+  \item{init.S}{The list returned by \code{\link{lmrob.S}} or
+    \code{\link{lmrob.M.S}} (for MM-estimates only)}
+  \item{init}{A similar list that contains the results of intermediate
+    estimates (not for MM-estimates).}
+  %qr
+  \item{rank}{the numeric rank of the fitted linear model.}
+  \item{cov}{The estimated covariance matrix of the regression
+    coefficients}
+  \item{df.residual}{the residual degrees of freedom.}
+  %degree.freedom
   \item{weights}{the specified weights (missing if none were used).}
+  \item{na.action}{(where relevant) information returned by
+      \code{\link{model.frame}} on the special handling of \code{NA}s.}
   \item{offset}{the offset used (missing if none were used).}
+  \item{contrasts}{(only where relevant) the contrasts used.}
+  \item{xlevels}{(only where relevant) a record of the levels of the factors
+    used in fitting.}
+  \item{call}{the matched call.}
+  \item{terms}{the \code{terms} object used.}
+  %assign
+  \item{model}{if requested (the default), the model frame used.}
+  \item{x}{if requested, the model matrix used.}
+  \item{y}{if requested, the response used.}
+  In addition, non-null fits will have components \code{assign},
+  and \code{qr} relating to the linear fit, for use by extractor
+      functions such as \code{summary}.
 }
 \references{
   Croux, C., Dhaene, G. and Hoorelbeke, D. (2003)
