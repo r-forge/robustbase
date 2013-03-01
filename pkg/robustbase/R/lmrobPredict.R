@@ -66,17 +66,17 @@ predict.lmrob <-
     interval <- match.arg(interval)
     if (interval == "prediction") {
         if (missing(newdata)) { # *rob: this and next if statement are combined
-            warning("Predictions on current data refer to _future_ responses\n")
+            warning("Predictions on current data refer to _future_ responses")
             if (missing(weights)) {
                 w <- stats:::weights.default(object) # *rob
                 if (!is.null(w)) {
                     weights <- w
-                    warning("Assuming prediction variance inversely proportional to weights used for fitting\n")
+                    warning("Assuming prediction variance inversely proportional to weights used for fitting")
                 }
             }
         }
         if (!missing(newdata) && missing(weights) && !is.null(object$weights) && missing(pred.var))
-            warning("Assuming constant prediction variance even though model fit is weighted\n")
+            warning("Assuming constant prediction variance even though model fit is weighted")
         if (inherits(weights, "formula")){
             if (length(weights) != 2L)
                 stop("'weights' as formula should be one-sided")

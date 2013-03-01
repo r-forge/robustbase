@@ -1,3 +1,7 @@
+2013-03-01  Manuel Koller   <mkoller@ispm.unibe.ch>
+
+	* R/lmrob.R (lmrob): Adding weights and offset arguments.
+
 2013-02-26  Manuel Koller   <mkoller@ispm.unibe.ch>
 
 	* R/lmrob.R (class lmrob): Objects of class lmrob now store

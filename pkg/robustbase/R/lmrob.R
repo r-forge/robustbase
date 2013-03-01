@@ -46,13 +46,18 @@ lmrob <-
                   residuals = y, fitted.values = 0 * y,
                   cov = matrix(,0,0), weights = w, rank = 0,
                   df.residual = NROW(y), converged = TRUE)
-        if(!is.null(offset)) z$fitted.values <- offset
+        if(!is.null(offset)) {
+            z$fitted.values <- offset
+            z$residuals <- y - offset
+        }
     }
     else {
         x <- model.matrix(mt, mf, contrasts)
         contrasts <- attr(x, "contrasts")
         assign <- attr(x, "assign")
         p <- ncol(x)
+        if(!is.null(offset))
+            y <- y - offset
         if (!is.null(w)) {
             ## checks and code copied/modified from lm.wfit
             ny <- NCOL(y)
@@ -80,8 +85,6 @@ lmrob <-
             x <- wts * x
             y <- wts * y
         }
-        if(!is.null(offset))
-            stop("'offset' not yet implemented for this estimator")
         ## check for singular fit
         ## from lm.fit:
         z0 <- .Call(stats:::C_Cdqrls, x, y, tol = control$solve.tol)
@@ -151,7 +154,7 @@ lmrob <-
                       residuals = y, fitted.values = 0 * y,
                       cov = matrix(,0,0), rweights = w, rank = 0,
                       df.residual = NROW(y), converged = TRUE)
-            if(!is.null(offset)) z$fitted.values <- offset
+            if(!is.null(offset)) z$residuals <- y - offset
         }
         if (!is.null(w)) {
             z$residuals <- z$residuals/wts
@@ -181,6 +184,8 @@ lmrob <-
             }
         }
     }
+    if(!is.null(offset))
+        z$fitted.values <- z$fitted.values + offset
 
     z$na.action <- attr(mf, "na.action")
     z$offset <- offset

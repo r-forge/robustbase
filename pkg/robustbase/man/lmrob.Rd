@@ -27,10 +27,9 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   \item{subset}{an optional vector specifying a subset of observations
     to be used in the fitting process.}
 
-  \item{weights}{an optional vector of weights to be used
-    in the fitting process. %%% If specified, weighted least squares is used
-    %%% with weights \code{weights} (that is, minimizing \code{sum(w*e^2)});
-    %%% otherwise ordinary least squares is used.
+  \item{weights}{an optional vector of weights to be used in the fitting
+    process (additional to the robustness weights computed in the
+    fitting process).
     }
   \item{na.action}{a function which indicates what should happen
     when the data contain \code{NA}s.  The default is set by
@@ -147,6 +146,8 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   \item{fitted.values}{Fitted values associated with the estimator}
   \item{rweights}{the \dQuote{robustness weights} \eqn{\psi(r_i/S) / (r_i/S)}.}
   \item{converged}{\code{TRUE} if the IRWLS iterations have converged}
+  \item{weights}{the specified weights (missing if none were used).}
+  \item{offset}{the offset used (missing if none were used).}
 }
 \references{
   Croux, C., Dhaene, G. and Hoorelbeke, D. (2003)
