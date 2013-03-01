@@ -27,7 +27,7 @@
       of class \code{"functionX"}.}
     \item{\code{Dpsi}:}{the derivative of \eqn{\psi},
       \eqn{Dpsi(x) = psi'(x)}; of class \code{"functionX"}.}
-    \item{\code{Dwgt}:}{the derivative of the weight function, 
+    \item{\code{Dwgt}:}{the derivative of the weight function,
       of class \code{"functionX"}, is generated automatically if
       \code{\link{psiFunc}} constructor is used.}
     \item{\code{tDefs}:}{\emph{named} numeric vector of \bold{t}uning
@@ -42,19 +42,17 @@
   }
 }
 \section{Methods}{
-  Currently, only \code{\link{chgDefaults}()}, \code{\link{plot}()}
+  Currently, only \code{\link{chgDefaults}()}, \code{\link[=plot-methods]{plot}()}
   and \code{show()}.
 }
 \author{Martin Maechler}
-% \note{ ~~further notes~~ }
-
-%  ~Make other sections like Warning with \section{Warning }{....} ~
-
 \seealso{
   \code{\link{psiFunc}}.
 }
 \examples{
 str(huberPsi, give.attr = FALSE)
+
+plot(hampelPsi)# calling the plot method.
 }
 \keyword{classes}
 \keyword{robust}

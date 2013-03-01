@@ -18,7 +18,7 @@ hampelPsi
 \arguments{
   \item{rho, psi, wgt, Dpsi, Dwgt}{each a \code{\link{function}} of \code{x} and
     tuning parameters typically. Specification of Dwgt is optional.}
-  \item{Erho, Epsi2, EDpsi}{see \code{\link{psi_func-class}}, and note
+  \item{Erho, Epsi2, EDpsi}{see \code{\linkS4class{psi_func}}, and note
     that these may change in the future.}
   \item{name}{Name of \eqn{\psi}{psi}-function used for printing.}
   \item{\dots}{potential further arguments for specifying tuning
@@ -36,7 +36,8 @@ hampelPsi
 % }
 %%\references{ ~put references to the literature/web site here ~ }
 \author{Martin Maechler}
-\seealso{\code{\link{psi_func-class}} for the class description.}
+\seealso{The description of class \code{\linkS4class{psi_func}}.
+}
 \examples{
 ## classical {trivial, not interesting}:
 F1 <- function(x, .) rep.int(1, length(x))
@@ -61,6 +62,8 @@ lines(k.., H.38@rho(k..), type = "h", lty=3, col=c.t); .ax.k(1)
 title(expression("Hampel's " ~~~ psi(x) ~~ "and" ~~ rho(x) ~~~ " functions"))
 par(op)
 
+## Not the same, but similar, directly using the plot() method:
+plot(H.38)
 }
 \keyword{classes}
 \keyword{robust}
