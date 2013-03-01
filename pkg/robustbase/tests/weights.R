@@ -49,10 +49,9 @@ stopifnot(all.equal(coef(cm1), coef(cm2)),
           all.equal(coef(sc2), coef(sr2)))
 
 ## test class "lm" methods that do not depend on weights
-##                                      FIXME:
-meths1 <- c(                            #"family",
+meths1 <- c("family",
             "formula",
-                                        #"labels",
+            "labels",
             "model.matrix",
             "na.action",
             "terms")
@@ -65,7 +64,7 @@ for (meth in meths1)
 meths2 <- c(#"AIC",
             "alias",
             #"BIC",
-                                        #"case.names",
+            "case.names",
             "coef",
             "confint",
             #"cooks.distance",
@@ -74,34 +73,31 @@ meths2 <- c(#"AIC",
             #"dfbeta",
             #"dfbetas",
             #"drop1",
-                                        #"dummy.coef",
+            "dummy.coef",
             #"effects",
             #"extractAIC",
             "fitted",
             #"hatvalues",
             #"influence",
-                                        #"kappa",
+            "kappa",
             #"logLik",
             "model.frame",
-                                        #"nobs",
+            "nobs",
             "predict",
-            #"proj",
+                                        #"proj",
             "residuals",
-            #"rstandard",
-            #"rstudent",
-            #"simulate",
-            #"summary",
-                                        #"variable.names",
-            #"vcov",
+                                        #"rstandard",
+                                        #"rstudent",
+                                        #"simulate",
+            ##"summary", ## see above
+            "variable.names",
+            ##"vcov",    ## see below
             "weights")
 for (meth in meths2)
     stopifnot(all.equal(do.call(meth, list(cm1)),
                         do.call(meth, list(rm1))),
               all.equal(do.call(meth, list(cm2)),
                         do.call(meth, list(rm2))))
-cat("Method:", meth, "\n")
-all.equal(do.call(meth, list(cm1)),
-          do.call(meth, list(rm1)))
 
 ## further tests:
 anova(rm1, update(rm1, ~ . - x4 - x5))
@@ -122,7 +118,11 @@ qrEQ(cm0, rm0)
 qrEQ(cm1, rm1)
 qrEQ(cm2, rm2)
 
-all.equal(vcov(cm0), vcov(rm0), check.attr=FALSE)
-all.equal(vcov(cm1), vcov(rm1), check.attr=FALSE)
-all.equal(vcov(cm2), vcov(rm2), check.attr=FALSE)
+stopifnot(all.equal(resid(cm0, type="pearson"), resid(rm0, type="pearson")),
+          all.equal(resid(cm1, type="pearson"), resid(rm1, type="pearson")),
+          all.equal(resid(cm2, type="pearson"), resid(rm2, type="pearson")))
+
+stopifnot(all.equal(vcov(cm0), vcov(rm0), check.attr=FALSE),
+          all.equal(vcov(cm1), vcov(rm1), check.attr=FALSE),
+          all.equal(vcov(cm2), vcov(rm2), check.attr=FALSE))
 

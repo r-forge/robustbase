@@ -224,52 +224,77 @@ robMD <- function(x, intercept, ...) {
     }
 }
 
-print.lmrob <- function(x, digits = max(3, getOption("digits") - 3), ...)
-{
-    cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
-    if(length((cf <- coef(x)))) {
-	if( x$converged )
-	    cat("Coefficients:\n")
-	else {
-            if (x$scale == 0) {
-                cat("Exact fit detected\n\nCoefficients:\n")
-            } else {
-                cat("Algorithm did not converge\n\n")
-                if (x$control$method == "S")
-                    cat("Coefficients of the *initial* S-estimator:\n")
-                else
-                    cat(sprintf("Coefficients of the %s-estimator:\n",
-                                x$control$method))
-            }
-        }
-	print(format(coef(x), digits = digits), print.gap = 2, quote = FALSE)
-    } else cat("No coefficients\n")
-    cat("\n")
-    invisible(x)
-}
+#### Functions for class lmrob objects ####
+## many are just wrapper functions for the respective .lm functions.
 
-print.lmrob.S <- print.lmrob
+alias.lmrob <- function(object, ...) {
+    ## Purpose: provide alias() for lmrob objects
+    ## Cannot use alias.lm directly, since it requires a "clean" object$qr,
+    ## i.e., without the robustness weights
 
-
-vcov.lmrob <- function (object, cov=object$control$cov, ...) {
-  if (!is.null(object$cov) && identical(cov, object$control$cov))
-    return(object$cov)
-  else {
-    lf.cov <- if (!is.function(cov))
-      get(cov, mode = "function")
-    else cov
-    lf.cov(object, ...)
-  }
+    if (is.null(x <- object[["x"]]))
+        x <- model.matrix(object)
+    weights <- weights(object)
+    if (!is.null(weights) && diff(range(weights)))
+        x <- x * sqrt(weights)
+    object$qr <- qr(x)
+    class(object) <- "lm"
+    alias(object)
 }
 
 
-## residuals.default works for "lmrob"  {unless we'd allow re-weighted residuals
+## coef(<lmrob>): no own method ==> using  coef.default(OO) == OO$coefficients
+## -------------
+## FIXME: The case  0 == rank < p is *wrong*: want  NA coeff. as in  lm.fit() !!
+
+case.names.lmrob <- function(object, ...) {
+    stats:::case.names.lm(object, ...)
+}
+
+
+## use confint.lm instead of confint.default
+## mainly to get t instead of normal quantiles
+confint.lmrob <- function(object, ...) {
+    stats:::confint.lm(object, ...)
+}
+
+
+dummy.coef.lmrob <- function(object, ...) {
+    stats:::dummy.coef.lm(object, ...)
+}
+
+
+family.lmrob <- function(object, ...) {
+    stats:::family.lm(object, ...)
+}
+
+
 ## fitted.default works for "lmrob"
+
+
+kappa.lmrob <- function(z, ...) {
+    base:::kappa.lm(z, ...)
+}
+
+
+## labels.lm uses qr.lm internally, but here
+## this should not make a difference
+## FIXME: rank 0 fits?
+labels.lmrob <- function(object, ...) {
+    stats:::labels.lm(object, ...)
+}
+
 
 ## This seems to work - via lm
 model.matrix.lmrob <- function (object, ...) {
     stats::model.matrix.lm(object, ...)
 }
+
+
+nobs.lmrob <- function(object, ...) {
+    stats:::nobs.lm(object, ...)
+}
+
 
 if(FALSE) ## now replaced with more sophsticated in ./lmrobPredict.R
 ## learned from MASS::rlm() : via "lm" as well
@@ -278,67 +303,6 @@ predict.lmrob <- function (object, newdata = NULL, scale = NULL, ...)
     class(object) <- c(class(object), "lm")
     object$qr <- qr(sqrt(object$rweights) * object$x)
     predict.lm(object, newdata = newdata, scale = object$s, ...)
-}
-
-## practically identical to  stats:::qr.lm :
-qr.lmrob <- function (x, ...) {
-    if (is.null(r <- x$qr))
-        stop("lmrob object does not have a proper 'qr' component. Rank must be zero")
-    r
-}
-
-## residuals(<lmrob>): no own method ==> using  residuals.default()
-
-## coef(<lmrob>): no own method ==> using  coef.default(OO) == OO$coefficients
-## -------------
-## FIXME: The case  0 == rank < p is *wrong*: want  NA coeff. as in  lm.fit() !!
-
-summary.lmrob <- function(object, correlation = FALSE, symbolic.cor = FALSE, ...)
-{
-    if (is.null(object$terms))
-	stop("invalid 'lmrob' object:  no terms component")
-    p <- object$rank
-    df <- object$df.residual #was $degree.freedom
-    if (p > 0) {
-	n <- p + df
-        p1 <- seq_len(p)
-	se <- sqrt(if(length(object$cov) == 1L) object$cov else diag(object$cov))
-	est <- object$coefficients[object$qr$pivot[p1]]
-	tval <- est/se
-	ans <- object[c("call", "terms", "residuals", "scale", "rweights",
-			"converged", "iter", "control", "weights")]
-        if (!is.null(ans$weights))
-            ans$residuals <- ans$residuals * sqrt(object$weights)
-        ## 'df' vector, modeled after summary.lm() : ans$df <- c(p, rdf, NCOL(Qr$qr))
-        ## where  p <- z$rank ; rdf <- z$df.residual ; Qr <- qr.lm(object)
-	ans$df <- c(p, df, NCOL(object$qr$qr))
-	ans$coefficients <-
-	    if( ans$converged)
-		cbind(est, se, tval, 2 * pt(abs(tval), df, lower.tail = FALSE))
-	    else
-                cbind(est, if (object$scale == 0) 0 else NA, NA, NA)
-	dimnames(ans$coefficients) <-
-	    list(names(est), c("Estimate", "Std. Error", "t value", "Pr(>|t|)"))
-        ans$aliased <- is.na(coef(object)) # used in print method
-
-	ans$cov.unscaled <- object$cov
-	if(length(object$cov) > 1L)
-            dimnames(ans$cov.unscaled) <- dimnames(ans$coefficients)[c(1,1)]
-	if (correlation) {
-	    ans$correlation <- ans$cov.unscaled / outer(se, se)
-	    ans$symbolic.cor <- symbolic.cor
-	}
-    } else { ## p = 0: "null model"
-	ans <- object
-        ans$aliased <- is.na(coef(object)) # used in print method
-	ans$df <- c(0L, df, length(ans$aliased))
-	ans$coefficients <- matrix(NA, 0L, 4L)
-        dimnames(ans$coefficients) <-
-            list(NULL, c("Estimate", "Std. Error", "t value", "Pr(>|t|)"))
-	ans$cov.unscaled <- object$cov
-    }
-    class(ans) <- "summary.lmrob"
-    ans
 }
 
 
@@ -466,23 +430,114 @@ print.summary.lmrob <-
     invisible(x)
 }
 
-alias.lmrob <- function(object, ...) {
-    ## Purpose: provide alias() for lmrob objects
-    ## Cannot use alias.lm directly, since it requires a "clean" object$qr,
-    ## i.e., without the robustness weights
 
-    if (is.null(x <- object[["x"]]))
-        x <- model.matrix(object)
-    weights <- weights(object)
-    if (!is.null(weights) && diff(range(weights)))
-        x <- x * sqrt(weights)
-    object$qr <- qr(x)
-    class(object) <- "lm"
-    alias(object)
+print.lmrob <- function(x, digits = max(3, getOption("digits") - 3), ...)
+{
+    cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
+    if(length((cf <- coef(x)))) {
+	if( x$converged )
+	    cat("Coefficients:\n")
+	else {
+            if (x$scale == 0) {
+                cat("Exact fit detected\n\nCoefficients:\n")
+            } else {
+                cat("Algorithm did not converge\n\n")
+                if (x$control$method == "S")
+                    cat("Coefficients of the *initial* S-estimator:\n")
+                else
+                    cat(sprintf("Coefficients of the %s-estimator:\n",
+                                x$control$method))
+            }
+        }
+	print(format(coef(x), digits = digits), print.gap = 2, quote = FALSE)
+    } else cat("No coefficients\n")
+    cat("\n")
+    invisible(x)
 }
 
-## copy some helper / accessor functions for lm objects
-confint.lmrob <- stats:::confint.lm
+
+print.lmrob.S <- print.lmrob
+
+
+## practically identical to  stats:::qr.lm :
+qr.lmrob <- function (x, ...) {
+    if (is.null(r <- x$qr))
+        stop("lmrob object does not have a proper 'qr' component. Rank must be zero")
+    r
+}
+
+
+residuals.lmrob <-
+    function(object, ...) {
+        stats::residuals.lm(object, ...)
+}
+
+
+summary.lmrob <- function(object, correlation = FALSE, symbolic.cor = FALSE, ...)
+{
+    if (is.null(object$terms))
+	stop("invalid 'lmrob' object:  no terms component")
+    p <- object$rank
+    df <- object$df.residual #was $degree.freedom
+    if (p > 0) {
+	n <- p + df
+        p1 <- seq_len(p)
+	se <- sqrt(if(length(object$cov) == 1L) object$cov else diag(object$cov))
+	est <- object$coefficients[object$qr$pivot[p1]]
+	tval <- est/se
+	ans <- object[c("call", "terms", "residuals", "scale", "rweights",
+			"converged", "iter", "control", "weights")]
+        if (!is.null(ans$weights))
+            ans$residuals <- ans$residuals * sqrt(object$weights)
+        ## 'df' vector, modeled after summary.lm() : ans$df <- c(p, rdf, NCOL(Qr$qr))
+        ## where  p <- z$rank ; rdf <- z$df.residual ; Qr <- qr.lm(object)
+	ans$df <- c(p, df, NCOL(object$qr$qr))
+	ans$coefficients <-
+	    if( ans$converged)
+		cbind(est, se, tval, 2 * pt(abs(tval), df, lower.tail = FALSE))
+	    else
+                cbind(est, if (object$scale == 0) 0 else NA, NA, NA)
+	dimnames(ans$coefficients) <-
+	    list(names(est), c("Estimate", "Std. Error", "t value", "Pr(>|t|)"))
+        ans$aliased <- is.na(coef(object)) # used in print method
+
+	ans$cov.unscaled <- object$cov
+	if(length(object$cov) > 1L)
+            dimnames(ans$cov.unscaled) <- dimnames(ans$coefficients)[c(1,1)]
+	if (correlation) {
+	    ans$correlation <- ans$cov.unscaled / outer(se, se)
+	    ans$symbolic.cor <- symbolic.cor
+	}
+    } else { ## p = 0: "null model"
+	ans <- object
+        ans$aliased <- is.na(coef(object)) # used in print method
+	ans$df <- c(0L, df, length(ans$aliased))
+	ans$coefficients <- matrix(NA, 0L, 4L)
+        dimnames(ans$coefficients) <-
+            list(NULL, c("Estimate", "Std. Error", "t value", "Pr(>|t|)"))
+	ans$cov.unscaled <- object$cov
+    }
+    class(ans) <- "summary.lmrob"
+    ans
+}
+
+
+variable.names.lmrob <- function(object, ...) {
+    stats:::variable.names.lm(object, ...)
+}
+
+
+vcov.lmrob <- function (object, cov=object$control$cov, ...) {
+  if (!is.null(object$cov) && identical(cov, object$control$cov))
+    return(object$cov)
+  else {
+    lf.cov <- if (!is.function(cov))
+      get(cov, mode = "function")
+    else cov
+    lf.cov(object, ...)
+  }
+}
+
 
 weights.lmrob <- function(object, type = c("prior", "robustness"), ...) {
     type <- match.arg(type)
@@ -498,7 +553,9 @@ weights.lmrob <- function(object, type = c("prior", "robustness"), ...) {
     else naresid(object$na.action, res)
 }
 
-## hidden in namespace
+
+####  functions hidden in namespace ####
+
 printControl <-
     function(ctrl, digits = getOption("digits"),
 	     str.names = "seed",
@@ -527,6 +584,7 @@ printControl <-
 	    ## 'vec.len = 2' is smaller than normal, but nice for Mersenne seed
 	}
 }
+
 
 summarizeRobWeights <-
     function(w, digits = getOption("digits"), header = "Robustness weights:",

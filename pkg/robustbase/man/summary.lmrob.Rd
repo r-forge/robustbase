@@ -10,7 +10,7 @@
   Summary method for \R object of class \code{"lmrob"} and
   \code{\link{print}} method for the summary object.
 
-  Further, methods \code{\link{fitted}()} or \code{\link{residuals}()}
+  Further, methods \code{\link{fitted}()}, \code{\link{residuals}()}
   work (via the default methods), and
   \code{\link{predict}()} (see \code{\link{predict.lmrob}},
   \code{\link{vcov}()}, \code{\link{weights}()} (see
