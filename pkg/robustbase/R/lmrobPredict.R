@@ -68,7 +68,7 @@ predict.lmrob <-
         if (missing(newdata)) { # *rob: this and next if statement are combined
             warning("Predictions on current data refer to _future_ responses")
             if (missing(weights)) {
-                w <- stats:::weights.default(object) # *rob
+                w <- weights(object) # *rob
                 if (!is.null(w)) {
                     weights <- w
                     warning("Assuming prediction variance inversely proportional to weights used for fitting")
