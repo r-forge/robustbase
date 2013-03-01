@@ -147,7 +147,7 @@ lmrob.fit <- function(x, y, control, init=NULL) {
                 lf.cov(init, x)
             }
     }
-    df <- NROW(y) - init$rank ## sum(init$weights)-init$rank
+    df <- NROW(y) - init$rank ## sum(init$r?weights)-init$rank
     init$degree.freedom <- init$df.residual <- df
 
     init

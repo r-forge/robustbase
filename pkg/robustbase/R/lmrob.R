@@ -26,8 +26,10 @@ lmrob <-
 
     mt <- attr(mf, "terms") # allow model.frame to update it
     y <- model.response(mf, "numeric")
-    w <- model.weights(mf)
-    offset <- model.offset(mf)
+    w <- as.vector(model.weights(mf))
+    if(!is.null(w) && !is.numeric(w))
+        stop("'weights' must be a numeric vector")
+    offset <- as.vector(model.offset(mf))
     if(!is.null(offset) && length(offset) != NROW(y))
         stop(gettextf("number of offsets is %d, should equal %d (number of observations)",
                       length(offset), NROW(y)), domain = NA)
@@ -38,8 +40,8 @@ lmrob <-
     }
 
     if (is.empty.model(mt)) {
-        x0 <- x <- NULL
-        singular.fit <- TRUE ## to avoid problems below
+        x <- NULL
+        singular.fit <- FALSE ## to avoid problems below
         z <- list(coefficients = if (is.matrix(y)) matrix(,0,3) else numeric(0),
                   residuals = y, fitted.values = 0 * y,
                   cov = matrix(,0,0), weights = w, rank = 0,
@@ -48,9 +50,36 @@ lmrob <-
     }
     else {
         x <- model.matrix(mt, mf, contrasts)
+        contrasts <- attr(x, "contrasts")
+        assign <- attr(x, "assign")
         p <- ncol(x)
-        if (!is.null(w))
-            stop("Weights are not yet implemented for this estimator")
+        if (!is.null(w)) {
+            ## checks and code copied/modified from lm.wfit
+            ny <- NCOL(y)
+            n <- nrow(x)
+            if (NROW(y) != n | length(w) != n)
+                stop("incompatible dimensions")
+            if (any(w < 0 | is.na(w)))
+                stop("missing or negative weights not allowed")
+            zero.weights <- any(w == 0)
+            if (zero.weights) {
+                save.r <- y
+                save.w <- w
+                save.f <- y
+                ok <- w != 0
+                nok <- !ok
+                w <- w[ok]
+                x0 <- x[!ok, , drop = FALSE]
+                x <- x[ok,  , drop = FALSE]
+                n <- nrow(x)
+                y0 <- if (ny > 1L) y[!ok, , drop = FALSE] else y[!ok]
+                y  <- if (ny > 1L) y[ ok, , drop = FALSE] else y[ok]
+            }
+            wts <- sqrt(w)
+            save.y <- y
+            x <- wts * x
+            y <- wts * y
+        }
         if(!is.null(offset))
             stop("'offset' not yet implemented for this estimator")
         ## check for singular fit
@@ -66,10 +95,7 @@ lmrob <-
                 ## to avoid problems in the internal fitting methods,
                 ## split into singular and non-singular matrices,
                 ## can still re-add singular part later
-                if (ret.x) x0 <- x
                 dn <- dimnames(x)
-                contrasts <- attr(x, "contrasts")
-                assign <- attr(x, "assign")
                 x <- x[,p1]
                 attr(x, "assign") <- assign[p1] ## needed for splitFrame to work
             }
@@ -121,12 +147,38 @@ lmrob <-
                 z$qr$pivot <- z0$pivot
             }
         } else { ## rank 0
-            if (ret.x) x0 <- x
             z <- list(coefficients = if (is.matrix(y)) matrix(,0,3) else numeric(0),
                       residuals = y, fitted.values = 0 * y,
                       cov = matrix(,0,0), rweights = w, rank = 0,
                       df.residual = NROW(y), converged = TRUE)
             if(!is.null(offset)) z$fitted.values <- offset
+        }
+        if (!is.null(w)) {
+            z$residuals <- z$residuals/wts
+            z$fitted.values <- save.y - z$residuals
+            z$weights <- w
+            if (zero.weights) {
+                coef[is.na(coef)] <- 0
+                f0 <- x0 %*% coef
+                if (ny > 1) {
+                    save.r[ok, ] <- z$residuals
+                    save.r[nok, ] <- y0 - f0
+                    save.f[ok, ] <- z$fitted.values
+                    save.f[nok, ] <- f0
+                }
+                else {
+                    save.r[ok] <- z$residuals
+                    save.r[nok] <- y0 - f0
+                    save.f[ok] <- z$fitted.values
+                    save.f[nok] <- f0
+                }
+                z$residuals <- save.r
+                z$fitted.values <- save.f
+                z$weights <- save.w
+                rweights <- z$rweights
+                z$rweights <- rep.int(0, length(save.w))
+                z$rweights[ok] <- rweights
+            }
         }
     }
 
@@ -136,15 +188,16 @@ lmrob <-
     z$xlevels <- .getXlevels(mt, mf)
     z$call <- cl
     z$terms <- mt
-    z$assign <- attr(if (singular.fit) x0 else x, "assign")
+    z$assign <- assign
     if(control$compute.rd && !is.null(x))
         z$MD <- robMD(x, attr(mt, "intercept"))
     if (model)
         z$model <- mf
     if (ret.x)
-        z$x <- if (singular.fit) x0 else x
+        z$x <- if (singular.fit || (!is.null(w) && zero.weights))
+            model.matrix(mt, mf, contrasts) else x
     if (ret.y)
-        z$y <- y
+        z$y <- if (!is.null(w)) model.response(mf, "numeric") else y
     class(z) <- "lmrob"
     z
 }
@@ -252,9 +305,10 @@ summary.lmrob <- function(object, correlation = FALSE, symbolic.cor = FALSE, ...
 	se <- sqrt(if(length(object$cov) == 1L) object$cov else diag(object$cov))
 	est <- object$coefficients[object$qr$pivot[p1]]
 	tval <- est/se
-        ## FIXME: summary.lm returns the weighted residuals
 	ans <- object[c("call", "terms", "residuals", "scale", "rweights",
-			"converged", "iter", "control")]
+			"converged", "iter", "control", "weights")]
+        if (!is.null(ans$weights))
+            ans$residuals <- ans$residuals * sqrt(object$weights)
         ## 'df' vector, modeled after summary.lm() : ans$df <- c(p, rdf, NCOL(Qr$qr))
         ## where  p <- z$rank ; rdf <- z$df.residual ; Qr <- qr.lm(object)
 	ans$df <- c(p, df, NCOL(object$qr$qr))
@@ -299,8 +353,7 @@ print.summary.lmrob <-
     resid <- x$residuals
     df <- x$df
     rdf <- df[2L]
-    ## FIXME: this always prints "weighted" -- but weights are not supported...
-    cat(if (!is.null(x$w) && diff(range(x$w))) "Weighted ",
+    cat(if (!is.null(x$weights) && diff(range(x$weights))) "Weighted ",
 	"Residuals:\n", sep = "")
     if (rdf > 5L) {
 	nam <- c("Min", "1Q", "Median", "3Q", "Max")
@@ -362,7 +415,11 @@ print.summary.lmrob <-
 	}
 	cat("\n")
 
-	summarizeRobWeights(x$rweights, digits = digits, ...)
+        rweights <- x$rweights
+        if (!is.null(x$weights) && any(zero.weights <- x$weights == 0)) {
+            rweights <- rweights[!zero.weights]
+        }
+	summarizeRobWeights(rweights, digits = digits, ...)
 
     } else cat("\nNo Coefficients\n")
 
@@ -416,11 +473,16 @@ alias.lmrob <- function(object, ...) {
 
     if (is.null(x <- object[["x"]]))
         x <- model.matrix(object)
-    ## FIXME: need to include the (prior) weights here
+    weights <- weights(object)
+    if (!is.null(weights) && diff(range(weights)))
+        x <- x * sqrt(weights)
     object$qr <- qr(x)
     class(object) <- "lm"
     alias(object)
 }
+
+## copy some helper / accessor functions for lm objects
+confint.lmrob <- stats:::confint.lm
 
 weights.lmrob <- function(object, type = c("prior", "robustness"), ...) {
     type <- match.arg(type)

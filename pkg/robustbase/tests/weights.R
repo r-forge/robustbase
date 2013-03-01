@@ -1,0 +1,128 @@
+## test handing of weights
+require(robustbase)
+
+## generate simple example data
+data <- expand.grid(x1=letters[1:3], x2=LETTERS[1:4], rep=1:3)
+set.seed(1)
+data$y <- rnorm(nrow(data))
+## add collinear variables
+data$x3 <- rnorm(nrow(data))
+data$x4 <- rnorm(nrow(data))
+data$x5 <- data$x3 + data$x4
+## add some NA terms
+data$y[1] <- NA
+data$x4[2:3] <- NA ## to test anova
+## generate weights
+## some obs with weight 0
+data$weights <- as.numeric(with(data, x1 != 'c' | (x2 != 'B' & x2 != 'C')))
+## some obs with weight 2
+data$weights[data$x1 == 'b'] <- 2
+data2 <- rbind(subset(data, weights>0), subset(data, weights==2))
+
+## using these parameters we're essentially forcing lmrob() to
+## fit a classic model --> easier to compare to lm()
+ctrl <- lmrob.control(psi="optimal", tuning.chi = 20, bb = 0.0003846154,
+                      tuning.psi=20, method="SM", cov=".vcov.w")
+
+## Classical models start with 'cm', robust just with  'rm' (or just 'm'):
+cm0 <- lm   (y ~ x1*x2 + x3 + x4 + x5, data)
+cm1 <- lm   (y ~ x1*x2 + x3 + x4 + x5, data, weights=weights)
+cm2 <- lm   (y ~ x1*x2 + x3 + x4 + x5, data2)
+rm0 <- lmrob(y ~ x1*x2 + x3 + x4 + x5, data                  , control=ctrl)
+set.seed(2)
+(rm1 <- lmrob(y ~ x1*x2 + x3 + x4 + x5, data, weights=weights , control=ctrl))
+set.seed(2)
+(rm2 <- lmrob(y ~ x1*x2 + x3 + x4 + x5, data2,                , control=ctrl))
+
+sc0 <- summary(cm0)
+sc1 <- summary(cm1)
+sc2 <- summary(cm2)
+(sr0 <- summary(rm0))
+(sr1 <- summary(rm1))
+(sr2 <- summary(rm2))
+
+## test Estimates, Std. Errors, ...
+stopifnot(all.equal(coef(cm1), coef(cm2)),
+          all.equal(coef(rm1), coef(rm2)),
+          all.equal(coef(sc0), coef(sr0)),
+          all.equal(coef(sc1), coef(sr1)),
+          all.equal(coef(sc2), coef(sr2)))
+
+## test class "lm" methods that do not depend on weights
+##                                      FIXME:
+meths1 <- c(                            #"family",
+            "formula",
+                                        #"labels",
+            "model.matrix",
+            "na.action",
+            "terms")
+for (meth in meths1)
+    stopifnot(all.equal(do.call(meth, list(rm0)),
+                        do.call(meth, list(rm1))))
+
+## class "lm" methods that depend on weights
+##                                      FIXME:
+meths2 <- c(#"AIC",
+            "alias",
+            #"BIC",
+                                        #"case.names",
+            "coef",
+            "confint",
+            #"cooks.distance",
+            #"deviance",
+            "df.residual",
+            #"dfbeta",
+            #"dfbetas",
+            #"drop1",
+                                        #"dummy.coef",
+            #"effects",
+            #"extractAIC",
+            "fitted",
+            #"hatvalues",
+            #"influence",
+                                        #"kappa",
+            #"logLik",
+            "model.frame",
+                                        #"nobs",
+            "predict",
+            #"proj",
+            "residuals",
+            #"rstandard",
+            #"rstudent",
+            #"simulate",
+            #"summary",
+                                        #"variable.names",
+            #"vcov",
+            "weights")
+for (meth in meths2)
+    stopifnot(all.equal(do.call(meth, list(cm1)),
+                        do.call(meth, list(rm1))),
+              all.equal(do.call(meth, list(cm2)),
+                        do.call(meth, list(rm2))))
+cat("Method:", meth, "\n")
+all.equal(do.call(meth, list(cm1)),
+          do.call(meth, list(rm1)))
+
+## further tests:
+anova(rm1, update(rm1, ~ . - x4 - x5))
+anova(rm2, update(rm2, ~ . - x4 - x5))
+
+## Padding can lead to differing values here
+## so test only full rank part
+qrEQ <- function(m1, m2) {
+    q1 <- qr(m1)
+    q2 <- qr(m2)
+    r <- 1:q1$rank
+    stopifnot(q1$rank == q2$rank,
+              all.equal(q1$pivot, q2$pivot),
+              all.equal(q1$qraux[r],q2$qraux[r]),
+              all.equal(q1$qr[r,r], q2$qr[r,r]))
+}
+qrEQ(cm0, rm0)
+qrEQ(cm1, rm1)
+qrEQ(cm2, rm2)
+
+all.equal(vcov(cm0), vcov(rm0), check.attr=FALSE)
+all.equal(vcov(cm1), vcov(rm1), check.attr=FALSE)
+all.equal(vcov(cm2), vcov(rm2), check.attr=FALSE)
+

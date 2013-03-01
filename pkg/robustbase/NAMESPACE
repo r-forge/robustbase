@@ -2,7 +2,7 @@
 useDynLib(robustbase, .registration=TRUE)
 
 importFrom("graphics", plot)# < more ?
-importFrom("stats", alias, anova, coef, cov, family, fitted,
+importFrom("stats", alias, anova, coef, confint, cov, family, fitted,
 	   logLik, model.frame, predict, residuals, terms, vcov, weights)
 ## ^^^^ MASS has a bit more; take it as example
 
@@ -69,6 +69,7 @@ S3method(anova, glmrob)
 S3method(model.matrix, lmrob)
 S3method(alias, lmrob)
 S3method(weights, lmrob)
+S3method(confint, lmrob)
 
 S3method(formula, nlrob)
 S3method(fitted, nlrob)
