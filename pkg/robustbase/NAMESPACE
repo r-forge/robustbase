@@ -3,15 +3,21 @@ useDynLib(robustbase, .registration=TRUE)
 
 importFrom("graphics", plot)# < more ?
 importFrom("stats", alias, anova, case.names, coef, confint, cov,
-           dummy.coef, family, fitted, logLik, nobs,
+           dummy.coef, family, fitted, fivenum, logLik, nobs,
            model.frame, predict, residuals, terms, vcov,
-           variable.names, weights)
+           variable.names, weights,
+           ## would like to import even more *.lm methods, as we wrap them,
+           ## but we cannot import non-exported methods
+           residuals.lm, model.matrix.lm
+           )
 ## ^^^^ MASS has a bit more; take it as example
 
-##no longer: importFrom("MASS", psi.bisquare, psi.hampel, psi.huber)
+importFrom("utils", globalVariables)
 
+##no longer: importFrom("MASS", psi.bisquare, psi.hampel, psi.huber)
 ## MASS has many rlm S3 methods; should we use some of them - for rnls() ?!
 ## we also currently use MASS::cov.rob(); but probably only temporarily
+
 
 ## Functions defined in this package
 export(Sn, Qn, Qn.old,
