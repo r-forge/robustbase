@@ -119,17 +119,18 @@ lmrob(y ~ x1*x2 + x3 + x4 + x5, data, init="M-S")
 lmrob(y ~ x1*x2 + x3 + x4 + x5, data, init=lmrob.lar)
 
 ## test all zero design matrix
-(m5 <- lmrob(y ~ 1+x1+x2, data.frame(y=1:10,x1=0,x2=0)))
+data <- data.frame(y=1:10,x1=0,x2=0,os=2,w=c(0.5, 1))
+(m5 <- lmrob(y ~ 1+x1+x2+offset(os), data, weights=w))
 (sm5 <- summary(m5))
-(m6 <- lmrob(y ~ 0+x1+x2, data.frame(y=1:10,x1=0,x2=0)))
+(m6 <- lmrob(y ~ 0+x1+x2+offset(os), data, weights=w))
 (sm6 <- summary(m6))
 
-sc5 <- summary(cm5 <- lm(y ~ 1+x1+x2, data.frame(y=1:10,x1=0,x2=0)))
-sc6 <- summary(cm6 <- lm(y ~ 0+x1+x2, data.frame(y=1:10,x1=0,x2=0)))
+sc5 <- summary(cm5 <- lm(y ~ 1+x1+x2+offset(os), data, weights=w))
+sc6 <- summary(cm6 <- lm(y ~ 0+x1+x2+offset(os), data, weights=w))
 
-stopifnot(all.equal(coef(sm5), coef(sc5), tol = 0.01),
+stopifnot(all.equal(coef(m5), coef(cm5), tol = 0.01),
+          identical(coef(m6), coef(cm6)),
+          all.equal(coef(sm5), coef(sc5), tol = 0.05),
           identical(coef(sm6), coef(sc6)),
           identical(sm5$df, sc5$df),
-          TRUE || ## FIXME : m6 has no $coefficients -- but it should: lm.fit() puts NA!
-          identical(sm6$df, sc6$df)
-)
+          identical(sm6$df, sc6$df))

@@ -43,12 +43,13 @@ lmrob <-
         x <- NULL
         singular.fit <- FALSE ## to avoid problems below
         z <- list(coefficients = if (is.matrix(y)) matrix(,0,3) else numeric(0),
-                  residuals = y, fitted.values = 0 * y,
+                  residuals = y, scale = NA, fitted.values = 0 * y,
                   cov = matrix(,0,0), weights = w, rank = 0,
-                  df.residual = NROW(y), converged = TRUE)
+                  df.residual = NROW(y), converged = TRUE, iter = 0)
         if(!is.null(offset)) {
             z$fitted.values <- offset
             z$residuals <- y - offset
+            z$offset <- offset
         }
     }
     else {
@@ -150,10 +151,14 @@ lmrob <-
                 z$qr$pivot <- z0$pivot
             }
         } else { ## rank 0
-            z <- list(coefficients = if (is.matrix(y)) matrix(,0,3) else numeric(0),
-                      residuals = y, fitted.values = 0 * y,
-                      cov = matrix(,0,0), rweights = w, rank = 0,
-                      df.residual = NROW(y), converged = TRUE)
+            z <- list(coefficients = if (is.matrix(y)) matrix(NA,p,ncol(y))
+                                     else rep.int(as.numeric(NA), p),
+                      residuals = y, scale = NA, fitted.values = 0 * y,
+                      cov = matrix(,0,0), rweights = rep.int(as.numeric(NA), NROW(y)),
+                      weights = w, rank = 0, df.residual = NROW(y),
+                      converged = TRUE, iter = 0)
+            if (is.matrix(y)) colnames(z$coefficients) <- colnames(x)
+            else names(z$coefficients) <- colnames(x)
             if(!is.null(offset)) z$residuals <- y - offset
         }
         if (!is.null(w)) {
@@ -247,10 +252,6 @@ alias.lmrob <- function(object, ...) {
     alias(object)
 }
 
-
-## coef(<lmrob>): no own method ==> using  coef.default(OO) == OO$coefficients
-## -------------
-## FIXME: The case  0 == rank < p is *wrong*: want  NA coeff. as in  lm.fit() !!
 
 case.names.lmrob <- function(object, ...) {
     stats:::case.names.lm(object, ...)
@@ -385,10 +386,11 @@ print.summary.lmrob <-
 	cat("\n")
 
         rweights <- x$rweights
-        if (!is.null(x$weights) && any(zero.weights <- x$weights == 0)) {
-            rweights <- rweights[!zero.weights]
+        if (!is.null(rweights)) {
+            if (any(zero.weights <- x$weights == 0))
+                rweights <- rweights[!zero.weights]
+            summarizeRobWeights(rweights, digits = digits, ...)
         }
-	summarizeRobWeights(rweights, digits = digits, ...)
 
     } else cat("\nNo Coefficients\n")
 

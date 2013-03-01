@@ -156,4 +156,4 @@ stopifnot(all.equal(vcov(cm0), vcov(rm0), check.attr=FALSE),
           all.equal(vcov(cm1), vcov(rm1), check.attr=FALSE),
           all.equal(vcov(cm2), vcov(rm2), check.attr=FALSE))
 
-## FIXME: test null fit
+## Null fits (rank(X)==0) are tested in NAcoef.R

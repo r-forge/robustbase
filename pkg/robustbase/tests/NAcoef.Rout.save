@@ -398,39 +398,39 @@ Coefficients:
 
 > 
 > ## test all zero design matrix
-> (m5 <- lmrob(y ~ 1+x1+x2, data.frame(y=1:10,x1=0,x2=0)))
+> data <- data.frame(y=1:10,x1=0,x2=0,os=2,w=c(0.5, 1))
+> (m5 <- lmrob(y ~ 1+x1+x2+offset(os), data, weights=w))
 
 Call:
-lmrob(formula = y ~ 1 + x1 + x2, data = data.frame(y = 1:10,     x1 = 0, x2 = 0))
+lmrob(formula = y ~ 1 + x1 + x2 + offset(os), data = data, weights = w)
 
 Coefficients:
 (Intercept)           x1           x2  
-        5.5           NA           NA  
+      3.641           NA           NA  
 
 > (sm5 <- summary(m5))
 
 Call:
-lmrob(formula = y ~ 1 + x1 + x2, data = data.frame(y = 1:10, 
-    x1 = 0, x2 = 0))
+lmrob(formula = y ~ 1 + x1 + x2 + offset(os), data = data, weights = w)
 
-Residuals:
-       Min         1Q     Median         3Q        Max 
--4.500e+00 -2.250e+00 -2.651e-08  2.250e+00  4.500e+00 
+Weighted Residuals:
+     Min       1Q   Median       3Q      Max 
+-3.64119 -1.81100 -0.04729  2.00931  4.35881 
 
 Coefficients: (2 not defined because of singularities)
-            Estimate Std. Error t value Pr(>|t|)    
-(Intercept)     5.50       0.97    5.67 0.000306 ***
-x1                NA         NA      NA       NA    
-x2                NA         NA      NA       NA    
+            Estimate Std. Error t value Pr(>|t|)   
+(Intercept)    3.641      1.030   3.534  0.00637 **
+x1                NA         NA      NA       NA   
+x2                NA         NA      NA       NA   
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
 
-Robust residual standard error: 3.894 
-Convergence in 2 IRWLS iterations
+Robust residual standard error: 3.244 
+Convergence in 8 IRWLS iterations
 
 Robustness weights: 
      1      2      3      4      5      6      7      8      9     10 
-0.8820 0.9277 0.9628 0.9865 0.9985 0.9985 0.9865 0.9628 0.9277 0.8820 
+0.9089 0.8885 0.9700 0.9768 0.9982 0.9989 0.9920 0.9524 0.9518 0.8423 
 Algorithmic parameters: 
 tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol 
  1.5476400  0.5000000  4.6850610  0.0000001  0.0000001  0.0000001 
@@ -441,35 +441,45 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol
           psi   subsampling        method           cov 
    "bisquare" "nonsingular"          "MM" ".vcov.avar1" 
 seed : int(0) 
-> (m6 <- lmrob(y ~ 0+x1+x2, data.frame(y=1:10,x1=0,x2=0)))
+> (m6 <- lmrob(y ~ 0+x1+x2+offset(os), data, weights=w))
 
 Call:
-lmrob(formula = y ~ 0 + x1 + x2, data = data.frame(y = 1:10,     x1 = 0, x2 = 0))
+lmrob(formula = y ~ 0 + x1 + x2 + offset(os), data = data, weights = w)
 
-No coefficients
+Coefficients:
+x1  x2  
+NA  NA  
 
 > (sm6 <- summary(m6))
 
 Call:
-lmrob(formula = y ~ 0 + x1 + x2, data = data.frame(y = 1:10, 
-    x1 = 0, x2 = 0))
+lmrob(formula = y ~ 0 + x1 + x2 + offset(os), data = data, weights = w)
 
-Residuals:
+Weighted Residuals:
    Min     1Q Median     3Q    Max 
-  1.00   3.25   5.50   7.75  10.00 
+-3.828 -1.371  1.086  3.543  6.000 
 
-No Coefficients
+Coefficients: (2 not defined because of singularities)
+   Estimate Std. Error t value Pr(>|t|)
+x1       NA         NA      NA       NA
+x2       NA         NA      NA       NA
+
+Robust residual standard error: NA 
+Convergence in 0 IRWLS iterations
+
+Robustness weights: 
+ [1] NA NA NA NA NA NA NA NA NA NA
 > 
-> sc5 <- summary(cm5 <- lm(y ~ 1+x1+x2, data.frame(y=1:10,x1=0,x2=0)))
-> sc6 <- summary(cm6 <- lm(y ~ 0+x1+x2, data.frame(y=1:10,x1=0,x2=0)))
+> sc5 <- summary(cm5 <- lm(y ~ 1+x1+x2+offset(os), data, weights=w))
+> sc6 <- summary(cm6 <- lm(y ~ 0+x1+x2+offset(os), data, weights=w))
 > 
-> stopifnot(all.equal(coef(sm5), coef(sc5), tol = 0.01),
+> stopifnot(all.equal(coef(m5), coef(cm5), tol = 0.01),
++           identical(coef(m6), coef(cm6)),
++           all.equal(coef(sm5), coef(sc5), tol = 0.05),
 +           identical(coef(sm6), coef(sc6)),
 +           identical(sm5$df, sc5$df),
-+           TRUE || ## FIXME : m6 has no $coefficients -- but it should: lm.fit() puts NA!
-+           identical(sm6$df, sc6$df)
-+ )
++           identical(sm6$df, sc6$df))
 > 
 > proc.time()
    user  system elapsed 
-   0.57    0.04    0.63 
+   0.56    0.06    0.60 
