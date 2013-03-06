@@ -18,7 +18,7 @@ DO(0 == sapply(n.set, function(n) mc(seq_len(n))))
 DO(0 == sapply(n.set, function(n) mc(seq_len(n), doRefl=FALSE)))
 
 DO(0 == sapply(1:100, function(n) mcNaive(seq_len(n), "simple")))
-DO(0 == sapply(n.set, function(n) mcNaive(seq_len(n), "h.use" )))
+DO(0 == sapply(1:100, function(n) mcNaive(seq_len(n), "h.use" )))
 
 
 x1 <- c(1, 2, 7, 9, 10)
