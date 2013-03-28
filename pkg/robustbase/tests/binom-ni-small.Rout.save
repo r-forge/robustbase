@@ -1,7 +1,6 @@
 
-R version 2.14.0 RC (2011-10-25 r57433)
-Copyright (C) 2011 The R Foundation for Statistical Computing
-ISBN 3-900051-07-0
+R version 3.0.0 RC (2013-03-27 r62427) -- "Masked Marvel"
+Copyright (C) 2013 The R Foundation for Statistical Computing
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -144,7 +143,7 @@ List of 27
   ..- attr(*, "names")= chr [1:51] "1" "2" "3" "4" ...
  $ converged        : logi TRUE
  $ model            :'data.frame':	51 obs. of  2 variables:
-  ..$ cbind(k, ni - k): num [1:51, 1:2] 0 1 0 1 0 0 1 2 0 1 ...
+  ..$ cbind(k, ni - k): int [1:51, 1:2] 0 1 0 1 0 0 1 2 0 1 ...
   .. ..- attr(*, "dimnames")=List of 2
   .. .. ..$ : NULL
   .. .. ..$ : chr [1:2] "k" ""
@@ -254,7 +253,7 @@ Coefficients:
 (Intercept)  -2.8901     0.3499  -8.260   <2e-16 ***
 x             5.5039     0.6447   8.537   <2e-16 ***
 ---
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 Robustness weights w.r * w.x: 
  48 weights are ~= 1. The remaining 3 ones are
     42     44     51 
@@ -288,7 +287,7 @@ Coefficients:
 (Intercept)  -2.9454     0.3420  -8.611   <2e-16 ***
 x             5.5461     0.6259   8.861   <2e-16 ***
 ---
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 Robustness weights w.r * w.x: 
  All 51 weights are ~= 1.
 
@@ -322,7 +321,7 @@ Coefficients:
 (Intercept)  -2.9456     0.3420  -8.612   <2e-16 ***
 x             5.5464     0.6259   8.861   <2e-16 ***
 ---
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 Robustness weights w.r * w.x: 
  All 51 weights are ~= 1.
 
@@ -353,5 +352,8 @@ test.acc
 +                     rg3.15  [no.comp], tol = 1e-13))
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  0.502 0.065 0.628 0 0.009 
+Time elapsed:  0.645 0.067 0.78 0.002 0.001 
 > 
+> proc.time()
+   user  system elapsed 
+  0.648   0.068   0.780 

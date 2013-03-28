@@ -1,3 +1,4 @@
+\newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 \name{covNNC}
 \alias{covNNC}
 \alias{cov.nnve}
@@ -9,12 +10,12 @@
   (2002, \emph{JASA}).
 }
 \usage{
-covNNC(datamat, k = 12, pnoise = 0.05, emconv = 0.001, bound = 1.5,
-       extension = TRUE, devsm = 0.01)
+covNNC(X, k = min(12, n - 1), pnoise = 0.05, emconv = 0.001,
+       bound = 1.5, extension = TRUE, devsm = 0.01)
 }
 \arguments{
-  \item{datamat}{matrix in which each row represents an observation or point
-                 and each column represents a variable}
+  \item{X}{matrix in which each row represents an observation or point
+    and each column represents a variable.}
   \item{k}{desired number of nearest neighbors (default is 12)}
   \item{pnoise}{percent of added noise}
   \item{emconv}{convergence tolerance for EM}
@@ -56,15 +57,35 @@ covNNC(datamat, k = 12, pnoise = 0.05, emconv = 0.001, bound = 1.5,
   Chris Fraley \email{fraley@stat.washington.edu}.
 
   \code{covNNC()}, then named \code{cov.nnve()}, used to be (the only
-  function) in CRAN package \pkg{covRobust} (2003), which was archived in 2012.
-}
+  function) in CRAN package \pkg{covRobust} (2003), which was archived
+  in 2012.
 
-\note{terms of use: GPL version 2 or newer.}
+  %% Original version, unexported, robustX:::covNNC1() --> ../R/covNNC-orig.R
+  Martin Maechler allowed \code{ncol(X) == 1},
+  sped up the original code, by reducing the amount of scaling;
+  further, the accuracy was increased (using internal \code{q.dDk()}).
+}
+\seealso{
+  \code{\link[MASS]{cov.mcd}} from package \CRANpkg{MASS};
+  \code{\link[robustbase]{covMcd}}, and \code{\link[robustbase]{covOGK}}
+  from package \CRANpkg{robustbase}.
+
+  The whole package \CRANpkg{rrcov}.
+}
+\note{
+  Terms of use: GPL version 2 or newer.
+
+  MM: Even though \code{covNNC()} is backed by a serious scientific
+  publication, I cannot recommend its use at all.
+}
 
 \examples{
 data(iris)
 covNNC(iris[-5])
-}
 
+data(hbk)
+hbk.x <- data.matrix(hbk[, 1:3])
+covNNC(hbk.x)
+}
 \keyword{multivariate}
 \keyword{robust}

@@ -1,3 +1,4 @@
+\newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 \name{covMcd}
 \alias{covMcd}
 \alias{print.mcd}
@@ -128,8 +129,11 @@ covMcd(x, cor = FALSE, alpha = 1/2, nsamp = 500, nmini = 300, seed = NULL,
   \emph{Metrika}, \bold{55}, 111-123.
 }
 \seealso{
-  \code{\link[MASS]{cov.mcd}} from package \pkg{MASS};
+  \code{\link[MASS]{cov.mcd}} from package \CRANpkg{MASS};
   \code{\link{covOGK}} as cheaper alternative for larger dimensions.
+
+  \code{\link[robustX]{BACON}} and \code{\link[robustX]{covNNC}},
+  from package \CRANpkg{robustX};
 }
 \examples{
 data(hbk)

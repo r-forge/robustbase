@@ -7,12 +7,11 @@ p.rbwheel <- function(n, p, frac = 1/p,
     ## ----------------------------------------------------------------------
     ## Author: Martin Maechler, Date: 14 Jun 2009, 16:48
 
-
     call <- match.call()
     call[[1]] <- as.name("rbwheel")
     Lab <- paste("X <-", deparse(call, width.cutoff= 200))
 
-    rb <- rbwheel(n=n, p=p, frac=frac, sig1 = 0.05, sig2 = 1/10, ...,
+    rb <- rbwheel(n=n, p=p, frac=frac, sig1=sig1, sig2=sig2, ...,
                   fullResult = TRUE)
     ##            ^^^^^^^^^^^^^^^^^
 
