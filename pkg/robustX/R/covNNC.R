@@ -1,10 +1,10 @@
-covNNVE <- function(datamat, k = 12, pnoise = 0.05, emconv = 0.001, bound = 1.5,
+covNNC <- function(datamat, k = 12, pnoise = 0.05, emconv = 0.001, bound = 1.5,
                     extension = TRUE, devsm = 0.01)
 {
     ##
     ##
     ## Function to perform Nearest Neighbor Variance Estimation
-    ## Wang and Raftery(2002), "Nearest neighbor variance estimation (NNVE):
+    ## Wang and Raftery(2002), "Nearest neighbor variance estimation (NNC):
     ##     Robust covariance estimation via nearest neighbor cleaning
     ##                 (with discussion)",
     ##     Journal of the American Statistical Association 97:994-1019
@@ -324,6 +324,6 @@ covNNVE <- function(datamat, k = 12, pnoise = 0.05, emconv = 0.001, bound = 1.5,
 
 cov.nnve <- function(datamat, k = 12, ...)
 {
-    .Deprecated("covNNVE")
-    covNNVE(datamat, k=k, ...)
+    .Deprecated("covNNC")
+    covNNC(datamat, k=k, ...)
 }

@@ -1,3 +1,9 @@
+2013-03-28  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* man/covNNC.Rd:
+	* R/covNNC.R: add, as historical reference, from former CRAN
+	package covRobust.  The 'cov.nnve()" is called 'covNNC()' now.
+
 2009-12-07  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/BACON-alg.R (GiveTis): remove multi-argument return() legacy

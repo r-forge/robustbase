@@ -2,9 +2,6 @@
 
 	* DESCRIPTION (Version): 0.9-8, released to CRAN on ..........
 
-	* R/covNNVE.R: add, as historical reference,
-	from former CRAN package covRobust.
-
 2013-03-06  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.9-7, released to CRAN on 2013-03-06

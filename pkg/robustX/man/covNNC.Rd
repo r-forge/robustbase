@@ -1,15 +1,16 @@
-\name{covNNVE}
-\alias{covNNVE}
+\name{covNNC}
+\alias{covNNC}
 \alias{cov.nnve}
 \title{Robust Covariance Estimation via Nearest Neighbor Cleaning}
 \description{
-  \code{covNNVE()} performs robust covariance estimation
-  by the nearest neighbor variance estimation (NNVE) method of
-  Wang and Raftery (2002, \emph{JASA}).
+  \code{covNNC()} estimates robust covariance/dispersion matrices by the
+  nearest neighbor variance estimation (NNVE) or (rather)
+  \dQuote{Nearest Neighbor Cleaning} (NNC) method of Wang and Raftery
+  (2002, \emph{JASA}).
 }
 \usage{
-covNNVE(datamat, k = 12, pnoise = 0.05, emconv = 0.001, bound = 1.5,
-        extension = TRUE, devsm = 0.01)
+covNNC(datamat, k = 12, pnoise = 0.05, emconv = 0.001, bound = 1.5,
+       extension = TRUE, devsm = 0.01)
 }
 \arguments{
   \item{datamat}{matrix in which each row represents an observation or point
@@ -54,7 +55,7 @@ covNNVE(datamat, k = 12, pnoise = 0.05, emconv = 0.001, bound = 1.5,
   with contributions from
   Chris Fraley \email{fraley@stat.washington.edu}.
 
-  \code{covNNVE()}, then named \code{cov.nnve()}, used to be (the only
+  \code{covNNC()}, then named \code{cov.nnve()}, used to be (the only
   function) in CRAN package \pkg{covRobust} (2003), which was archived in 2012.
 }
 
@@ -62,7 +63,7 @@ covNNVE(datamat, k = 12, pnoise = 0.05, emconv = 0.001, bound = 1.5,
 
 \examples{
 data(iris)
-covNNVE(iris[-5])
+covNNC(iris[-5])
 }
 
 \keyword{multivariate}

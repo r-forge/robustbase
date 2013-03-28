@@ -27,7 +27,6 @@ export(Sn, Qn, Qn.old,
        wgt.himedian,
 
        h.alpha.n,
-       covNNVE, cov.nnve,# <- the latter being deprecated
        covMcd,
        ltsReg,
        tolEllipsePlot,
