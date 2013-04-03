@@ -82,4 +82,11 @@ stopifnot(m.r1$w.r[c(i0,i1)] < 1/3, # well, at least down weighted
 		    c("(Intercept)" = -3.10817337603974,
 		      x = 1.31618564057790), tol= 1e-14)
           )
+y <- as.numeric(as.character(f.))
+m.r2 <- BYlogreg(x0=x, y=y)
 
+stopifnot(
+    all.equal(m.r2$coef,
+	      c("(Intercept)" = -2.9554950286, x0 = 1.2574679132),
+	      tol=5e-11)
+    )
