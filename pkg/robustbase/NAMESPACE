@@ -54,8 +54,9 @@ export(Sn, Qn, Qn.old,
        adjOutlyingness,
 
        glmrob,
-       nlrob,
-       glmrobMqle.control
+       nlrob
+       , glmrobMqle.control, glmrobBY.control
+       , BYlogreg ## R/BYlogreg.R FIXME: add to glmrob() and "deprecate"
        )
 
 

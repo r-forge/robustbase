@@ -1,8 +1,9 @@
 glmrob <-
 function (formula, family, data, weights, subset,
-	  na.action, start = NULL, offset, method = "Mqle",
+	  na.action, start = NULL, offset,
+          method = c("Mqle", "BY", "WBY"),
 	  weights.on.x = c("none", "hat", "robCov", "covMcd"), control = NULL,
-	  model = TRUE, x = FALSE, y = TRUE, contrasts = NULL, trace = FALSE,
+	  model = TRUE, x = FALSE, y = TRUE, contrasts = NULL, trace.lev = 0,
 	  ...)
 {
     call <- match.call()
@@ -19,8 +20,6 @@ function (formula, family, data, weights, subset,
 	stop(gettextf("Robust GLM fitting not yet implemented for family %s",
 			  fami))
     }
-    if(is.null(control)) # -> use e.g., glmrobMqle.control()
-	control <- get(paste("glmrob", method, ".control", sep = ""))(...)
     if (missing(data))
 	data <- environment(formula)
     ##
@@ -31,7 +30,7 @@ function (formula, family, data, weights, subset,
     mf$drop.unused.levels <- TRUE
     mf[[1]] <- as.name("model.frame")
     mf <- eval(mf, parent.frame())
-    if(method == "model.frame") return(mf)
+    if(identical(method, "model.frame")) return(mf)
     mt <- attr(mf, "terms")
     Y <- model.response(mf, "any")# "numeric" or "factor"
     if (length(dim(Y)) == 1) {
@@ -49,6 +48,14 @@ function (formula, family, data, weights, subset,
     if (!is.null(offset) && length(offset) != NROW(Y))
 	stop(gettextf("Number of offsets is %d, should rather equal %d (number of observations)",
 		      length(offset), NROW(Y)))
+    method <- match.arg(method)
+    meth. <- if(method == "WBY") "BY" else method
+### FIXME: the whole 'control' should be changed to "copy"  lmrob() and lmrob.control()
+## ------- --> *one* exported glmrob.control() function with 'method' and switch() inside...
+## see >>> ./lmrob.MM.R
+
+    if(is.null(control)) # -> use e.g., glmrobMqle.control()
+	control <- get(paste0("glmrob", meth., ".control"))(...)
     weights.on.x <- match.arg(weights.on.x)
     if(!is.null(start) && !is.numeric(start)) {
 	## initialization methods
@@ -76,7 +83,21 @@ function (formula, family, data, weights, subset,
 		  glmrobMqle(X = X, y = Y, weights = weights, start = start,
 			     offset = offset, family = family,
 			     weights.on.x = weights.on.x, control = control,
-			     intercept = attr(mt, "intercept") > 0, trace=trace),
+			     intercept = attr(mt, "intercept") > 0, trace=trace.lev),
+                  "BY" =, "WBY" = {
+                      if(fami != "binomial")
+                          stop(gettextf(
+			"method='%s' is only applicable for binomial family, but family=\"\"",
+                              method, fami))
+                      ### FIXME: use glmrobBY(..) with these arguments, including 'weights'
+                      glmrobBY(X=X, y=Y, weights=weights,
+                               start=start,
+                               method=method,
+                               weights.on.x = weights.on.x, control = control,
+                               intercept = attr(mt, "intercept") > 0,
+                               trace.lev=trace.lev)
+                  },
+
 		  stop("invalid 'method': ", method))
     ##-	    if (any(offset) && attr(mt, "intercept") > 0) {
     ##-		fit$null.deviance <- glm.fit(x = X[, "(Intercept)", drop = FALSE],

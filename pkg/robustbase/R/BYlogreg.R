@@ -16,7 +16,8 @@
 ##  and p parameters are estimated.
 ##
 ##  For more details we refer to
-##     Croux, C., and Haesbroeck, G. (2003), ``Implementing the Bianco and Yohai estimator for Logistic Regression'',
+##     Croux, C., and Haesbroeck, G. (2003),
+##     ``Implementing the Bianco and Yohai estimator for Logistic Regression'',
 ##     Computational Statistics and Data Analysis, 44, 273-295
 ##
 
@@ -35,8 +36,9 @@
 ## BYlogreg(x0,y)
 ##
 
-BYlogreg <- function(x0, y, initwml=TRUE, intercept=TRUE, const=0.5,
-                     kmax=1e3, maxhalf=10)
+BYlogreg <- function(x0, y, initwml=TRUE, addIntercept=TRUE,
+                     const=0.5, kmax = 1000, maxhalf = 10,
+                     sigma.min = 1e-4, trace.lev=0)
 {
     if(!is.numeric(y))
         y <- as.numeric(y)
@@ -56,7 +58,15 @@ BYlogreg <- function(x0, y, initwml=TRUE, intercept=TRUE, const=0.5,
     if(nrow(x0) != n)
         stop("Number of observations in x and y not equal")
 
-    if(intercept) {
+    na.x <- !is.finite(rowSums(x0))
+    na.y <- !is.finite(y)
+    ok <- !(na.x | na.y)
+    if(!all(ok)) {
+        x0 <- x0[ok, , drop = FALSE]
+        y  <- y [ok] # y[ok, , drop = FALSE]
+    }
+
+    if(addIntercept) {
         x <- cbind("Intercept" = 1, x0)
     } else { # x0 := x without the  "intercept column"
         x <- x0
@@ -66,19 +76,11 @@ BYlogreg <- function(x0, y, initwml=TRUE, intercept=TRUE, const=0.5,
         else message("no intercept in the model")
     }
 
-    na.x <- !is.finite(rowSums(x))
-    na.y <- !is.finite(y)
-    ok <- !(na.x | na.y)
-    x <- x[ok, , drop = FALSE]
-    y <- y[ok] # y[ok, , drop = FALSE]
     dx <- dim(x)
     n <- dx[1]
-    if (n == 0)
-        stop("All observations have missing values!")
-    p <- ncol(x)
-
-    ## Smallest value of the scale parameter before implosion
-    sigmamin <- 1e-4
+    if(n == 0)
+	stop("All observations have missing values!")
+    p <- dx[2] # == ncol(x)
 
     ## Computation of the initial value of the optimization process
     gstart <-
@@ -89,82 +91,156 @@ BYlogreg <- function(x0, y, initwml=TRUE, intercept=TRUE, const=0.5,
             ## mcdx <- CovMcd(x0, alpha=0.75)
             ## rdx  <- sqrt(getDistance(mcdx))
             mcd <- covMcd(x0, alpha=0.75)
-            D <- mahalanobis(mcd$X, mcd$center, mcd$cov)
-            D <- sqrt(D)
+            ##                      -----  FIXME: argument!
+            D <- sqrt( mahalanobis(mcd$X, mcd$center, mcd$cov) )
             vc  <- sqrt(qchisq(0.975, p-1))
+            ##                 -----       FIXME: argument!
             wrd <- D <= vc
-            glm(y~x0, family=binomial, subset=wrd)$coef
+### FIXME: use glm.fit()
+### FIXME_2: use  weights and "weights.on.x'  as in Mqle ( ./glmrobMqle.R )
+            glm(y~x0, family=binomial, subset = wrd)$coef
         } else {
             glm(y~x0, family=binomial)$coef
         }
 
-    sigmastart <- 1/sqrt(sum(gstart^2))
-    xistart <- gstart*sigmastart
+    sigma1 <- 1/sqrt(sum(gstart^2))
+    xistart <- gstart*sigma1
     stscores <- x %*% xistart
-    sigma1 <- sigmastart
 
     ## Initial value for the objective function
-    oldobj <- mean(phiBY3(stscores/sigmastart,y,const))
-    kstep <- jhalf <- 1
+    oldobj <- mean(phiBY3(stscores/sigma1, y, const))
 
+    kstep <- jhalf <- 1L
     while(kstep < kmax & jhalf < maxhalf)
     {
         unisig <- function(sigma) mean(phiBY3(stscores/sigma,y,const))
-
         optimsig <- nlminb(sigma1, unisig, lower=0)# "FIXME" arguments to nlminb()
+        ##          ======
+        if(trace.lev) cat(sprintf("k=%2d, s1=%12.8g: => new s1= %12.8g  [jh=%2d]\n",
+                                  kstep, sigma1, optimsig$par, jhalf))# MM: jhalf =!?= 1 here ??
         sigma1 <- optimsig$par
 
-        if(sigma1 < sigmamin) {
-            warning("Explosion")
-            kstep <- kmax
+        if(sigma1 < sigma.min) {
+            warning(gettextf("Implosion: sigma1=%g became too small", sigma1))
+            kstep <- kmax #-> *no* convergence
         } else {
             gamma1 <- xistart/sigma1
             scores <- stscores/sigma1
             newobj <- mean(phiBY3(scores,y,const))
             oldobj <- newobj
-            gradBY3 <- colMeans((derphiBY3(scores,y,const)%*%matrix(1,ncol=p))*x)
-            h <- -gradBY3+ (gradBY3 %*% xistart) *xistart
+            gradBY3 <- colMeans((derphiBY3(scores,y,const) %*% matrix(1,ncol=p))*x)
+            h <- -gradBY3 + (gradBY3 %*% xistart) *xistart
             finalstep <- h/sqrt(sum(h^2))
+
+            ## FIXME repeat { ... }   {{next 4 lines are also inside while(..) below}}
             xi1 <- xistart+finalstep
             xi1 <- xi1/sum(xi1^2)
-            scores1 <- (x%*%xi1)/sigma1
+            scores1 <- (x %*% xi1)/sigma1
             newobj <- mean(phiBY3(scores1,y,const))
 
-### stephalving
-            hstep <- jhalf <- 1
+            ## If 'newobj' is not better, half the step size and try:
+            hstep <- 1.
+            jhalf <- 1L
             while(jhalf <= maxhalf & newobj > oldobj)
             {
                 hstep <- hstep/2
                 xi1 <- xistart+finalstep*hstep
                 xi1 <- xi1/sqrt(sum(xi1^2))
-                scores1 <- x%*%xi1/sigma1
-                newobj <- mean(phiBY3(scores1,y,const))
-                jhalf <- jhalf+1
+                scores1 <- x %*% xi1/sigma1
+                newobj <- mean( phiBY3(scores1,y,const))
+                if(trace.lev >= 2)
+                    cat(sprintf("  j.=%2d, obj=%12.9g: => new obj= %12.9g\n",
+                                jhalf, oldobj, newobj))
+                jhalf <- jhalf+1L
             }
 
-            if(jhalf == maxhalf+1 & newobj > oldobj)
-            {
-                print("Convergence Achieved")
+            if(jhalf > maxhalf & newobj > oldobj) {
+                ## newobj is "worse" and step halving did not improve
+                message("Convergence Achieved")
             } else {
-                jhalf <- 1
+                jhalf <- 1L
                 xistart <- xi1
                 oldobj <- newobj
-                stscores <- x%*% xi1
-                kstep <- kstep+1
+                stscores <- x %*% xi1
+                kstep <- kstep+1L
             }
         }
-    }
+    } ## while( kstep )
 
     if(kstep == kmax) {
         warning("No convergence in ", kstep, " steps.")
-        list(convergence=FALSE, objective=0, coef= rep(NA,p))
+        list(convergence=FALSE, objective=0, coefficients= rep(NA,p))
     } else {
         gammaest <- xistart/sigma1
-        list(convergence=TRUE, objective=oldobj, coef=gammaest,
-             sterror = sterby3(x0, y, const, gammaest),
+        V <- vcovBY3(x0, y, const, estim=gammaest)
+        list(convergence=TRUE, objective=oldobj, coefficients=gammaest,
+             cov = V, sterror = sqrt(diag(V)),
              iter = kstep)
     }
 }
+
+
+### -- FIXME: nlminb() allows many tweaks !!
+### -- -----  but we use nlminb() for ONE-dim. minimization over { sigma >= 0 } - really??
+##  MM: my version would rather use  optimize() over over  log(sigma)
+glmrobBY.control <-
+    function(maxit = 1000, const = 0.5, maxhalf = 10)
+    ## FIXME: sigma.min
+    ## MM: 'acc' seems a misnomer to me, but it's inherited from  MASS::rlm
+    ## TODO acc = 1e-04, test.acc = "coef", tcc = 1.345)
+{
+    ## if (!is.numeric(acc) || acc <= 0)
+    ##     stop("value of acc must be > 0")
+    ## if (test.acc != "coef")
+    ##     stop("Only 'test.acc = \"coef\"' is currently implemented")
+    ## if (!(any(test.vec == c("coef", "resid"))))
+    ##	  stop("invalid argument for test.acc")
+    if(!is.numeric(maxit) || maxit <= 0)
+	stop("maximum number of \"kstep\" iterations must be > 0")
+    if(!is.numeric(maxhalf) || maxhalf <= 0)
+	stop("maximal number of *inner* step halvings must be > 0")
+    ## if (!is.numeric(tcc) || tcc <= 0)
+    ##     stop("value of the tuning constant c (tcc) must be > 0")
+    if(!is.numeric(const) || const <= 0)
+	stop("value of the tuning constant c ('const') must be > 0")
+
+   list(## acc = acc, consttest.acc = test.acc,
+         const=const,
+         maxhalf=maxhalf,
+         maxit=maxit #, tcc = tcc
+         )
+}
+
+
+##' @param intercept logical, if true, X[,] has an intercept column which should
+##'                  not be used for rob.wts
+glmrobBY <- function(X, y, method = c("WBY","BY"),
+                     weights = NULL, start = NULL, offset = NULL,
+                     weights.on.x = "none",
+                     control = glmrobBY.control(), intercept = TRUE,
+                     trace.lev = 0)
+{
+    method <- match.arg(method)
+    if(!is.null(weights) || any(weights != 1)) ## FIXME (?)
+        stop("non-trivial 'weights' are not yet implemented for \"BY\"")
+    if(!is.null(start))
+        stop(" 'start' cannot yet be passed to glmrobBY()")
+    if(!is.null(offset))
+        stop(" 'offset' is not yet implemented for \"BY\"")
+    const   <- if(is.null(cc <- control$const  )) 0.5 else cc
+    kmax    <- if(is.null(cc <- control$maxit  )) 1e3 else cc
+    maxhalf <- if(is.null(cc <- control$maxhalf))  10 else cc
+    w.x <- robXweights(weights.on.x, X=X, intercept=intercept)
+
+    r <- BYlogreg(x0=X, y=y, initwml = (method == "WBY"),
+		  addIntercept = !intercept, ## add intercept if there is none
+		  const=const, kmax=kmax, maxhalf=maxhalf,
+		  ## FIXME sigma.min  (is currently x-scale dependent !????)
+		  trace.lev=trace.lev)
+    ## FIXME: make result more "compatible" with other glmrob() methods
+    r
+}
+
 
 
 ### Functions needed for the computation of estimator of Bianco and Yohai ----------------------
@@ -184,7 +260,15 @@ dev1 <- function(s,y) log(1+exp(-abs(s))) + abs(s)*((y-0.5)*s<0)
 dev2 <- function(s,y) log1p(exp(-abs(s))) + abs(s)*((y-0.5)*s<0)
 dev3 <- function(s,y) -( y  * plogis(s, log.p=TRUE) +
                         (1-y)*plogis(s, lower.tail=FALSE, log.p=TRUE))
+## MM[FIXME]: first tests indicate that  dev3() is clearly more accurate than
+##            their dev1() !!
+## MM{FIXME2}: In code below have (or "had") three cases of same formula, but
+##             with 's>0' instead of 's<0' : This is == dev?(-s, y) !!
 
+## for now,  100% back-compatibility:
+dev <- dev1
+
+## MM: This is from my vignette, but  *not* used
 log1pexp <- function(x) {
     if(has.na <- any(ina <- is.na(x))) {
 	y <- x
@@ -204,8 +288,10 @@ phiBY3 <- function(s,y,c3)
 {
   s <- as.double(s)
   ## MM FIXME  log(1 + exp(-.)) ... but read the note above !! ---
-  dev <- log(1+exp(-abs(s))) + abs(s)*((y-0.5)*s<0)
-  rhoBY3(dev,c3) + GBY3Fs(s,c3) + GBY3Fsm(s,c3)
+  dev. <- dev(s,y)
+  ## FIXME: GBY3Fs()  computes the 'dev' above *again*, and
+  ##        GBY3Fsm() does with 's>0' instead of 's<0'
+  rhoBY3(dev.,c3) + GBY3Fs(s,c3) + GBY3Fsm(s,c3)
 }
 
 rhoBY3 <- function(t,c3)
@@ -216,7 +302,8 @@ rhoBY3 <- function(t,c3)
 
 psiBY3 <- function(t,c3)
 {
-    (exp(-sqrt(c3))*as.numeric(t <= c3))+(exp(-sqrt(t))*as.numeric(t >c3))
+    exp(-sqrt(c3)) *(t <= c3) +
+    exp(-sqrt( t)) *(t >  c3)
 }
 
 derpsiBY3 <- function(t,c3)
@@ -242,26 +329,25 @@ sigmaBY3 <- function(sigma,s,y,c3)
 
 derphiBY3 <- function(s,y,c3)
 {
-    Fs <- exp(-(log(1+exp(-abs(s)))+abs(s)*(s<0)))
-    ds <- Fs*(1-Fs)
-    dev <- log(1+exp(-abs(s)))+abs(s)*((y-0.5)*s<0)
-    Gprim1 <- log(1+exp(-abs(s)))+abs(s)*(s<0)
-    Gprim2 <- log(1+exp(-abs(s)))+abs(s)*(s>0)
+    Fs <- exp(-dev(s,1))
+    ds <- Fs*(1-Fs) ## MM FIXME: use expm1()
+    dev. <- dev(s,y)
+    Gprim1 <- dev(s,1)
+    Gprim2 <- dev(-s,1)
 
-    return(-psiBY3(dev,c3)*(y-Fs)+((psiBY3(Gprim1,c3)-psiBY3(Gprim2,c3))*ds))
+    -psiBY3(dev.,c3)*(y-Fs) + ds*(psiBY3(Gprim1,c3) - psiBY3(Gprim2,c3))
 }
 
 der2phiBY3 <- function(s, y, c3)
 {
     s <- as.double(s)
-    Fs <- exp(-(log(1+exp(-abs(s)))+abs(s)*(s<0)))
-    ds <- Fs*(1-Fs)
-    dev <- log(1+exp(-abs(s)))+abs(s)*((y-0.5)*s<0)
-    Gprim1 <- log(1+exp(-abs(s)))+abs(s)*(s<0)
-    Gprim2 <- log(1+exp(-abs(s)))+abs(s)*(s>0)
-    der2 <- (derpsiBY3(dev,c3)*(Fs-y)^2)+(ds*psiBY3(dev,c3))
-    der2 <- der2+(ds*(1-2*Fs)*(psiBY3(Gprim1,c3)-psiBY3(Gprim2,c3)))
-
+    Fs <- exp(-dev(s,1))
+    ds <- Fs*(1-Fs) ## MM FIXME: use expm1()
+    dev. <- dev(s,y)
+    Gprim1 <- dev(s,1)
+    Gprim2 <- dev(-s,1)
+    der2 <- derpsiBY3(dev.,c3)*(Fs-y)^2  + ds*psiBY3(dev.,c3)
+    der2 <- der2+ ds*(1-2*Fs)*(psiBY3(Gprim1,c3) - psiBY3(Gprim2,c3))
     der2 - ds*(derpsiBY3(Gprim1,c3)*(1-Fs) +
                derpsiBY3(Gprim2,c3)*  Fs )
 }
@@ -269,19 +355,23 @@ der2phiBY3 <- function(s, y, c3)
 
 GBY3Fs <- function(s,c3)
 {
-    Fs <- exp(-(log(1+exp(-abs(s)))+abs(s)*(s<0)))
+    ## MM FIXME: Fs = exp(..) and below use  log(Fs) !!
+    Fs <- exp(-dev(s,1))
     resGinf <- exp(0.25)*sqrt(pi)*(pnorm(sqrt(2)*(0.5+sqrt(-log(Fs))))-1)
+     ## MM FIXME: use expm1():
     resGinf <- (resGinf+(Fs*exp(-sqrt(-log(Fs)))))*as.numeric(s <= -log(exp(c3)-1))
     resGsup <- ((Fs*exp(-sqrt(c3)))+(exp(0.25)*sqrt(pi)*(pnorm(sqrt(2)*(0.5+sqrt(c3)))-1)))*as.numeric(s > -log(exp(c3)-1))
 
-    return(resGinf+resGsup)
+    resGinf + resGsup
 }
 
 
 GBY3Fsm <- function(s,c3)
 {
-    Fsm <- exp(-(log(1+exp(-abs(s)))+abs(s)*(s>0)))
+    ## MM FIXME: Fsm = exp(..) and below use  log(Fsm) !!
+    Fsm <- exp(-dev(-s,1))
     resGinf <- exp(0.25)*sqrt(pi)*(pnorm(sqrt(2)*(0.5+sqrt(-log(Fsm))))-1)
+     ## MM FIXME: use expm1():
     resGinf <- (resGinf+(Fsm*exp(-sqrt(-log(Fsm)))))*as.numeric(s >= log(exp(c3)-1))
     resGsup <- ((Fsm*exp(-sqrt(c3)))+(exp(0.25)*sqrt(pi)*(pnorm(sqrt(2)*(0.5+sqrt(c3)))-1)))*as.numeric(s < log(exp(c3)-1))
     resGinf + resGsup
@@ -293,6 +383,11 @@ GBY3Fsm <- function(s,c3)
 ##  and Yohai (1996)
 ##
 sterby3 <- function(x0, y, const, estim, intercept=TRUE)
+{
+    sqrt(diag(vcovBY3(x0, y, const=const, estim=estim, intercept=intercept)))
+}
+
+vcovBY3 <- function(x0, y, const, estim, intercept=TRUE)
 {
     stopifnot(length(dim(x0)) == 2)
     d <- dim(z <- if(intercept) cbind(1, x0) else x0)
@@ -311,8 +406,10 @@ sterby3 <- function(x0, y, const, estim, intercept=TRUE)
     matM    <- matM/n
     matMinv <- solve(matM)
     IFsquar <- IFsquar/n
-    asvBY   <- matMinv %*% IFsquar %*% t(matMinv)
+    ## Now,  asymp.cov  =  matMinv %*% IFsquar %*% t(matMinv)
 
-    sqrt(diag(asvBY))/sqrt(n)
+    ## provide  vcov(): the full matrix
+    (matMinv %*% IFsquar %*% t(matMinv))/n
 }
+
 

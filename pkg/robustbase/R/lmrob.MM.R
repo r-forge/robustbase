@@ -1,21 +1,22 @@
-lmrob.control <- function  (setting, seed = NULL, nResample = 500,
-                            tuning.chi = NULL, bb = 0.5,
-                            tuning.psi = NULL, max.it = 50,
-                            groups = 5, n.group = 400, k.fast.s = 1, best.r.s = 2,
-                            k.max = 200, maxit.scale = 200, k.m_s = 20,
-                            ##           ^^^^^^^^^^^ had MAX_ITER_FIND_SCALE 200 in ../src/lmrob.c
-                            refine.tol = 1e-7, rel.tol = 1e-7,
-                            solve.tol = 1e-7,
-                            ## had  ^^^^^^^^  TOL_INVERSE 1e-7 in ../src/lmrob.c
-                            trace.lev = 0, mts = 1000,
-                            subsampling = c("nonsingular", "simple"),
-                            compute.rd = FALSE, method = 'MM',
-                            psi = c('bisquare', 'lqq', 'welsh', 'optimal', 'hampel',
-                              'ggw'),
-			    numpoints = 10, cov = NULL,
-                            split.type = c("f", "fi", "fii"),
-                            fast.s.large.n = 2000,
-                            ...)
+lmrob.control <-
+    function(setting, seed = NULL, nResample = 500,
+	     tuning.chi = NULL, bb = 0.5,
+	     tuning.psi = NULL, max.it = 50,
+	     groups = 5, n.group = 400, k.fast.s = 1, best.r.s = 2,
+	     k.max = 200, maxit.scale = 200, k.m_s = 20,
+	     ##           ^^^^^^^^^^^ had MAX_ITER_FIND_SCALE 200 in ../src/lmrob.c
+	     refine.tol = 1e-7, rel.tol = 1e-7,
+	     solve.tol = 1e-7,
+	     ## had  ^^^^^^^^  TOL_INVERSE 1e-7 in ../src/lmrob.c
+	     trace.lev = 0, mts = 1000,
+	     subsampling = c("nonsingular", "simple"),
+	     compute.rd = FALSE,
+	     method = 'MM',
+	     psi = c('bisquare', 'lqq', 'welsh', 'optimal', 'hampel', 'ggw'),
+	     numpoints = 10, cov = NULL,
+	     split.type = c("f", "fi", "fii"),
+	     fast.s.large.n = 2000,
+             ...)
 {
     if (!missing(setting)) {
         if (setting == 'KS2011') {

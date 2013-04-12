@@ -13,8 +13,9 @@
   For more details, see the reference.
 }
 \usage{
-BYlogreg(x0, y, initwml = TRUE, intercept = TRUE,
-         const = 0.5, kmax = 1000, maxhalf = 10)
+BYlogreg(x0, y, initwml = TRUE, addIntercept = TRUE,
+         const = 0.5, kmax = 1000, maxhalf = 10, sigma.min = 1e-4,
+         trace.lev = 0)
 }
 \arguments{
   \item{x0}{a numeric \eqn{n \times (p-1)}{n * (p-1)} matrix containing
@@ -32,12 +33,16 @@ BYlogreg(x0, y, initwml = TRUE, intercept = TRUE,
     recommended to set initwml to FALSE or to modify the code of the
     algorithm to compute the weights only on the continuous variables.
   }
-  \item{intercept}{logical indicating that a column of \code{1} must be
+  \item{addIntercept}{logical indicating that a column of \code{1} must be
     added the \eqn{x} matrix.}
   \item{const}{tuning constant used in the computation of the estimator
     (default=0.5).}
   \item{kmax}{maximum number of iterations before convergence (default=1000).}
   \item{maxhalf}{max number of step-halving (default=10).}
+  \item{sigma.min}{smallest value of the scale parameter before
+    implosion (and hence non-convergence) is assumed.}
+  \item{trace.lev}{logical (or integer) indicating if intermediate results
+    should be printed; defaults to \code{0} (the same as \code{FALSE}).}
 }
 %% \details{
 %%   If necessary, more details than the description above
@@ -65,20 +70,22 @@ BYlogreg(x0, y, initwml = TRUE, intercept = TRUE,
   \code{\link{glmrob}}%% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
+set.seed(17)
 x0 <- matrix(rnorm(100,1))
 y  <- rbinom(100, size=1, prob= 0.5) # ~= as.numeric(runif(100) > 0.5)
 BY <- BYlogreg(x0,y)
+BY <- BYlogreg(x0,y, trace.lev=TRUE)
 
+## The "Vaso Constriction"  aka "skin" data:
 data(vaso)
 vX <- model.matrix( ~ log(Volume) + log(Rate), data=vaso)
 vY <- vaso[,"Y"]
 head(cbind(vX, vY))# 'X' does include the intercept
 
-vWBY <- BYlogreg(x0 = vX, y = vY, intercept=FALSE) # as 'vX' has it already
-v.BY <- BYlogreg(x0 = vX, y = vY, intercept=FALSE, initwml=FALSE)
+vWBY <- BYlogreg(x0 = vX, y = vY, addIntercept=FALSE) # as 'vX' has it already
+v.BY <- BYlogreg(x0 = vX, y = vY, addIntercept=FALSE, initwml=FALSE)
 ## they are relatively close:
 stopifnot( all.equal(vWBY, v.BY, tol = 2e-4) )
-
 }
 \keyword{robust}
 \keyword{regression}

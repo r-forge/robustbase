@@ -19,7 +19,7 @@ Description: "Essential" Robust Statistics.  The goal is to provide
  Theory and Methods" by Maronna, Martin and Yohai; Wiley 2006.
 Depends: R (>= 2.15.1), stats, graphics, methods
 Imports: stats, graphics, utils
-Suggests: grid, MASS, lattice, boot, cluster, Matrix, MPV, xtable,
-	  ggplot2, RColorBrewer, reshape2, sfsmisc
+Suggests: grid, MASS, lattice, boot, cluster, Matrix, robust, fit.models,
+	  MPV, xtable, ggplot2, RColorBrewer, reshape2, sfsmisc, catdata
 LazyData: yes
 License: GPL (>= 2)

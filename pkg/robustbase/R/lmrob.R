@@ -475,6 +475,8 @@ summary.lmrob <- function(object, correlation = FALSE, symbolic.cor = FALSE, ...
 	stop("invalid 'lmrob' object:  no terms component")
     p <- object$rank
     df <- object$df.residual #was $degree.freedom
+    sigma <- object[["scale"]]
+    aliased <- is.na(coef(object))
     cf.nms <- c("Estimate", "Std. Error", "t value", "Pr(>|t|)")
     if (p > 0) {
 	n <- p + df
@@ -493,10 +495,8 @@ summary.lmrob <- function(object, correlation = FALSE, symbolic.cor = FALSE, ...
 	    if( ans$converged)
 		cbind(est, se, tval, 2 * pt(abs(tval), df, lower.tail = FALSE))
 	    else
-		cbind(est, if (object$scale == 0) 0 else NA, NA, NA)
+		cbind(est, if(sigma <= 0) 0 else NA, NA, NA)
 	dimnames(ans$coefficients) <- list(names(est), cf.nms)
-	ans$aliased <- is.na(coef(object)) # used in print method
-
 	ans$cov.unscaled <- object$cov
 	if(length(object$cov) > 1L)
 	    dimnames(ans$cov.unscaled) <- dimnames(ans$coefficients)[c(1,1)]
@@ -506,12 +506,13 @@ summary.lmrob <- function(object, correlation = FALSE, symbolic.cor = FALSE, ...
 	}
     } else { ## p = 0: "null model"
 	ans <- object
-	ans$aliased <- is.na(coef(object)) # used in print method
-	ans$df <- c(0L, df, length(ans$aliased))
+	ans$df <- c(0L, df, length(aliased))
 	ans$coefficients <- matrix(NA, 0L, 4L)
 	dimnames(ans$coefficients) <- list(NULL, cf.nms)
 	ans$cov.unscaled <- object$cov
     }
+    ans$aliased <- aliased # used in print method
+    ans$sigma <- sigma # 'sigma': in summary.lm() & 'fit.models' pkg
     class(ans) <- "summary.lmrob"
     ans
 }

@@ -3,6 +3,41 @@
 
 globalVariables(c("residP", "residPS", "dmu.deta"), add=TRUE)
 
+##' @title
+##' @param wts
+##' @param X  n x p  design matrix
+##' @param intercept logical, if true, X[,] has an intercept column which should
+##'                  not be used for rob.wts
+##' @return
+##' @author Martin Maechler
+robXweights <- function(wts, X, intercept=TRUE) {
+    stopifnot(length(d <- dim(X)) == 2, is.logical(intercept))
+    nobs <- d[1]
+    if(d[2]) { ## X has >= 1 column, and hence there *are* coefficients in the end
+        if(is.character(wts)){
+            switch(wts,
+                   "none" = rep.int(1, nobs),
+                   "hat" = wts_HiiDist(X = X)^2, # = (1 - Hii)^2
+                   "robCov" = wts_RobDist(X, intercept, covFun = MASS::cov.rob),
+                                        # ARu said 'method="mcd" was worse'
+                   "covMcd" = wts_RobDist(X, intercept, covFun = covMcd),
+                   stop("Weighting method", sQuote(wts),
+                        " is not implemented"))
+        }
+        else{
+	    if(!is.numeric(wts) || length(wts) != nobs)
+		stop(gettextf("wts needs %d none-negative values", nobs))
+            if(any(wts) < 0)
+                stop("All weights.on.x must be none negative")
+        }
+    }
+    else ## ncoef == 0
+        rep.int(1,nobs)
+}
+
+
+##' @param intercept logical, if true, X[,] has an intercept column which should
+##'                  not be used for rob.wts
 glmrobMqle <-
     function(X, y, weights = NULL, start = NULL, offset = NULL,
 	     family, weights.on.x = "none",
@@ -18,7 +53,7 @@ glmrobMqle <-
 ##     xnames <- dimnames(X)[[2]]
 ##     ynames <- if (is.matrix(y)) rownames(y) else names(y)
     nobs <- NROW(y)
-    ncoef <- ncol(X)
+    stopifnot(nobs == nrow(X))
     if (is.null(weights))
 	weights <- rep.int(1, nobs)
     else if(any(weights <= 0))
@@ -34,27 +69,8 @@ glmrobMqle <-
     if (is.null(valideta <- family$valideta)) valideta <- function(eta) TRUE
     if (is.null(validmu	 <- family$validmu))  validmu <-  function(mu) TRUE
 
-    w.x <- if(ncoef) {
-        if(is.character(weights.on.x)){
-            switch(weights.on.x,
-                   "none" = rep.int(1, nobs),
-                   "hat" = wts_HiiDist(X = X)^4,
-                   "robCov" = wts_RobDist(X, intercept, covFun = MASS::cov.rob),
-                                        # ARu said 'method="mcd" was worse'
-                   "covMcd" = wts_RobDist(X, intercept, covFun = covMcd),
-                   stop("Weighting method", sQuote(weights.on.x),
-                        " is not implemented"))
-        }
-        else{
-            if(length(weights.on.x) != nobs)
-                stop(gettextf("weights.on.x needs %d none negative values",
-                              nobs))
-            if(any(weights.on.x) < 0)
-                stop("All weights.on.x must be none negative")
-        }
-    }
-    else ## ncoef == 0
-        rep.int(1,nobs)
+    ncoef <- ncol(X)
+    w.x <- robXweights(weights.on.x, X=X, intercept=intercept)
 
 ### Initializations
     stopifnot(control$maxit >= 1, (tcc <- control$tcc) >= 0)
@@ -267,25 +283,25 @@ glmrobMqle <-
 }
 
 
+## FIXME: This is either correct for intercept=TRUE or FALSE, but not both!
 wts_HiiDist <- function(X) {
     x <- qr(X)
     Hii <- rowSums(qr.qy(x, diag(1, nrow = NROW(X), ncol = x$rank))^2)
-    sqrt(1-Hii)
+    (1-Hii)
 }
 
 wts_RobDist <- function(X, intercept, covFun)
 {
-    if(intercept) {
+    if(intercept) { ## X[,] has intercept column which should not be used for rob.wts
 	X <- as.matrix(X[, -1])
 	Xrc <- covFun(X)
 	dist2 <- mahalanobis(X, center = Xrc$center, cov = Xrc$cov)
     }
-    else {
+    else { ## X[,]  can be used directly
 	if(!is.matrix(X)) X <- as.matrix(X)
 	Xrc <- covFun(X)
-	mu <- as.matrix(Xrc$center)
-	Mu <- Xrc$cov + tcrossprod(mu)
-	dist2 <- mahalanobis(X, center = rep(0,ncol(X)), cov = Mu)
+	Mu <- Xrc$cov + tcrossprod(Xrc$center)
+	dist2 <- mahalanobis(X, center = rep.int(0,ncol(X)), cov = Mu)
     }
     ncoef <- ncol(X) ## E[chi^2_p] = p
     1/sqrt(1+ pmax.int(0, 8*(dist2 - ncoef)/sqrt(2*ncoef)))

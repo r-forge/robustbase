@@ -1,6 +1,12 @@
 TO DO
 ------
 
+o  BYlogreg()
+   --> 2 methods for glmrob()     {and allow more tweaking control}
+   --> glm.fit() instead of glm()
+   --> vcov() instead of just std.err. {is already there}
+
+
 o  New  lmrob() "M-S" etc features:
 
    - Function names with "." (which are exported) are frowned upon

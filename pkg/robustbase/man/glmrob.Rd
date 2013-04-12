@@ -13,9 +13,9 @@
 
 \usage{
 glmrob(formula, family, data, weights, subset, na.action,
-       start = NULL, offset, method = "Mqle",
+       start = NULL, offset, method = c("Mqle", "BY", "WBY"),
        weights.on.x = c("none", "hat", "robCov", "covMcd"), control = NULL,
-       model = TRUE, x = FALSE, y = TRUE, contrasts = NULL, trace = FALSE, ...)
+       model = TRUE, x = FALSE, y = TRUE, contrasts = NULL, trace.lev = 0, ...)
 }
 \arguments{
   \item{formula}{a \code{\link{formula}}, i.e., a symbolic description
@@ -77,13 +77,16 @@ glmrob(formula, family, data, weights, subset, na.action,
 
   \item{contrasts}{an optional list. See the \code{contrasts.arg}
     of \code{model.matrix.default}.}
-  \item{trace}{logical (or integer) indicating if intermediate results
-    should be printed; defaults to \code{FALSE}.}
+  \item{trace.lev}{logical (or integer) indicating if intermediate results
+    should be printed; defaults to \code{0} (the same as \code{FALSE}).}
   \item{\dots}{arguments passed to \code{\link{glmrobMqle.control}} when
     \code{control} is \code{NULL} (as per default).}
 }
 
 \details{
+  \code{method="model.frame"} returns the \code{\link{model.frame}()},
+  the same as \code{\link{glm}()}.
+  \cr
   \code{method="Mqle"} fits a generalized linear
   model using Mallows or Huber type robust estimators, as described in
   Cantoni and Ronchetti (2001) and Cantoni and Ronchetti (2006).  In
@@ -91,7 +94,10 @@ glmrob(formula, family, data, weights, subset, na.action,
   described in Cantoni (2004), the pure influence algorithm is
   implemented.
   \cr
-  Currently no other method is implemented.
+  \code{method="WBY"} and \code{method="BY"},
+  available for logistic regression (\code{family = binomial}) only, call
+  \code{\link{BYlogreg}(*, initwml= . )} for the (weighted) Bianco-Yohai estimator,
+  where \code{initwml} is true for \code{"WBY"}, and false for \code{"BY"}.
 
   \code{weights.on.x= "robCov"} makes sense if all explanatory variables
   are continuous.
