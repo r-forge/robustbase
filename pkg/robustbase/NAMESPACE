@@ -12,6 +12,7 @@ importFrom("stats", alias, anova, case.names, coef, confint, cov,
            )
 ## ^^^^ MASS has a bit more; take it as example
 
+if(getRversion() >= "2.15.1")
 importFrom("utils", globalVariables)
 
 ##no longer: importFrom("MASS", psi.bisquare, psi.hampel, psi.huber)
@@ -57,6 +58,7 @@ export(Sn, Qn, Qn.old,
        nlrob
        , glmrobMqle.control, glmrobBY.control
        , BYlogreg ## R/BYlogreg.R FIXME: add to glmrob() and "deprecate"
+       , glmrobMT ## R/MTestimador2.R  (for now .. FIXME)
        )
 
 
@@ -86,6 +88,7 @@ S3method(model.matrix, lmrob)
 S3method(nobs, lmrob)
 S3method(residuals, lmrob)
 S3method(variable.names, lmrob)
+S3method(weights, glmrob)
 S3method(weights, lmrob)
 
 S3method(formula, nlrob)

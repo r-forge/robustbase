@@ -142,6 +142,7 @@ glmrobMqleDiffQuasiDevGamma <- function(mu, mu0, y, ni, w.x, phi, tcc,
 
     nobs <- length(mu)
     stopifnot(nobs > 0)
+    variant <- match.arg(variant)
     ## robust quasi-deviance
     if(variant == "V1") {
         QMi <- numeric(nobs)
@@ -151,7 +152,7 @@ glmrobMqleDiffQuasiDevGamma <- function(mu, mu0, y, ni, w.x, phi, tcc,
                                 lower = mu[i], upper = mu0[i])$value
         -2*sum(QMi*w.x)
 
-    } else {
+    } else { ## "Eva1" or "Andreas1";  Using two terms
         QMi1 <- QMi2 <- numeric(nobs)
         for(i in 1:nobs)
             QMi1[i] <- integrate(f.cnui1, y = y[i], ni = ni[i], phi=phi, tcc = tcc,
@@ -164,7 +165,7 @@ glmrobMqleDiffQuasiDevGamma <- function(mu, mu0, y, ni, w.x, phi, tcc,
             -2*(sum(QMi1)-sum(QMi2)/nobs)
         } else if (variant == "Andreas1") { ## Andreas' interpretation of (4) and (5)
             -2*(sum(QMi1)-sum(QMi2))
-        } else stop("invalid 'variant'")
+        } else stop("invalid 'variant': ", variant)
     }
 }
 

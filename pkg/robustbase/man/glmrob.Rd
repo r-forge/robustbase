@@ -156,16 +156,16 @@ glmrob(formula, family, data, weights, subset, na.action,
 }
 
 \references{
-  E. Cantoni and E. Ronchetti (2001)
+  Eva Cantoni and Elvezio Ronchetti (2001)
   Robust Inference for Generalized Linear Models.
   \emph{JASA} \bold{96} (455), 1022--1030.
 
-  E. Cantoni (2004)
+  Eva Cantoni (2004)
   Analysis of Robust Quasi-deviances for Generalized Linear Models.
   \emph{Journal of Statistical Software}, \bold{10},
   \url{http://www.jstatsoft.org/v10/i04}
 
-  E. Cantoni and E. Ronchetti (2006)
+  Eva Cantoni and Elvezio Ronchetti (2006)
   A robust approach for skewed and heavy-tailed outcomes in the analysis
   of health care expenditures.
   \emph{Journal of Health Economics} \bold{25}, 198--213.

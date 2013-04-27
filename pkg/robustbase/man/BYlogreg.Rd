@@ -6,11 +6,16 @@
 \title{Bianco-Yohai Estimator for Robust Logistic Regression}
 \description{
   Computation of the estimator of Bianco and Yohai (1996) in logistic regression.
-
   Now provides both the \emph{weighted} and regular (unweighted) BY-estimator.
 
   By default, an intercept term is included and p parameters are estimated.
   For more details, see the reference.
+
+  Note: This function is for \dQuote{back-compatibility} with the
+  \code{BYlogreg()} code web-published at
+  \url{http://www.econ.kuleuven.be/public/NDBAE06/programs/roblog/};
+  instead, the recommended interface is \code{\link{glmrob}(*, method =
+  "BY")} or \code{... method = "WBY" ..}, see \code{\link{glmrob}}.
 }
 \usage{
 BYlogreg(x0, y, initwml = TRUE, addIntercept = TRUE,
@@ -51,8 +56,9 @@ BYlogreg(x0, y, initwml = TRUE, addIntercept = TRUE,
   a list with components
   \item{convergence}{logical indicating if convergence was achieved}
   \item{objective}{the value of the objective function at the minimum}
-  \item{coef}{vector of parameter estimates}
-  \item{sterror}{standard errors of the parameters (if convergence is TRUE).}
+  \item{coefficients}{vector of parameter estimates}
+  \item{vcov}{variance-covariance matrix of the coefficients (if convergence is TRUE).}
+  \item{sterror}{standard errors, i.e., simply \code{sqrt(diag(.$vcov))}, if convergence.}
 }
 \references{
   Croux, C., and Haesbroeck, G. (2003)
@@ -63,11 +69,11 @@ BYlogreg(x0, y, initwml = TRUE, addIntercept = TRUE,
   Originally, Christophe Croux and Gentiane Haesbroeck, with
   thanks to Kristel Joossens and Valentin Todorov for improvements.
 
-  Speedup and tweaks: Martin Maechler.
+  Speedup, tweaks, more \dQuote{control} arguments: Martin Maechler.
 }
 
 \seealso{
-  \code{\link{glmrob}}%% ~~objects to See Also as \code{\link{help}}, ~~~
+  \code{\link{glmrob}(*, method = "WBY")} and \code{.. method = "BY"}.
 }
 \examples{
 set.seed(17)

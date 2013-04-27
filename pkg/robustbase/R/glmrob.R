@@ -240,6 +240,18 @@ print.summary.glmrob <-
     invisible(x)
 }
 
+weights.glmrob <- function(object, type = c("prior", "robustness"), ...) {
+    type <- match.arg(type)
+    w <- if (type == "prior") {
+	## Issue warning only if called from toplevel. Otherwise the warning pop
+	## up at quite unexpected places, e.g., case.names().
+	if (is.null(object[["weights"]]) && identical(parent.frame(), .GlobalEnv))
+	    warning("No weights defined for this object. Use type=\"robustness\" argument to get robustness weights.")
+	object[["weights"]]
+    } else object$w.r * object$w.x ## those also used summarizeRobWeights(x$w.r * x$w.x, ..)
+    if (is.null(object$na.action)) w else naresid(object$na.action, w)
+}
+
 ## Stems from a copy of residuals.glm() in
 ## ~/R/D/r-devel/R/src/library/stats/R/glm.R
 residuals.glmrob <-

@@ -51,6 +51,5 @@
          staplecol = "blue", outcol = "blue", staplelwd=2)
  legend("topright", c("adjbox(los)", "boxplot(los)"),
         col=c("red","blue"), lwd = 1:2, bty="n")
-
 }
 \keyword{datasets}

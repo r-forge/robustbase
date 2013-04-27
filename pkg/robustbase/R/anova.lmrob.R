@@ -2,7 +2,7 @@ anova.lmrob <- function(object, ..., test = c("Wald", "Deviance"))
 {
     dotargs <- list(...)
     named <- if (is.null(names(dotargs)))
-	rep(FALSE, length(dotargs))
+	logical(length(dotargs))# FALSE
     else (names(dotargs) != "")
     if (any(named))
 	warning("the following arguments to 'anova.lmrob' are invalid and \n",

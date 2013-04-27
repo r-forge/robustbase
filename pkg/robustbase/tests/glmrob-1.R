@@ -8,7 +8,7 @@ assert.EQ <- function(target, current, tol = if(show) 0 else 1e-15,
     ## show: if TRUE, return (and hence typically print) all.equal(...)
     if(show) all.equal(target, current, tol = tol)
     else if(!isTRUE(r <- all.equal(target, current, tol = tol)))
-	stop("all.equal() |->  ", r)
+	stop("all.equal() |-> ", paste(r, collapse=sprintf("%-19s","\n")))
 }
 
 ###>> 1 ------------------- family = poisson ------------------------------------
@@ -18,7 +18,6 @@ set.seed(113)
 y <- rpois(17, lambda = 4)
 y[1:2] <- 99:100 # outliers
 y
-options(digits=10)
 rm1 <- glmrob(y ~ 1, family = poisson, trace = TRUE,
               acc = 1e-13) # default is just 1e-4
 cm1 <- glm   (y ~ 1, family = poisson, trace = TRUE)
@@ -95,27 +94,76 @@ assert.EQ(c("(Intercept)" = -3.10817337603974, x = 1.31618564057790),
 	  coef(m.r1), tol= 1e-14)
 
 y <- as.numeric(as.character(f.))
-m.r2 <- BYlogreg(x0=x, y=y, trace=TRUE)
+m.r2  <- BYlogreg(x0=x, y=y, trace=TRUE, maxhalf= 10)
+m.r2A <- BYlogreg(x0=x, y=y, trace= 2  , maxhalf= 15)
+## different.. but not so much:
+iB <- 1:5
+assert.EQ(m.r2A[iB], m.r2[iB], tol = .003)
+
+
 
 assert.EQ(c("(Intercept)" = -2.9554950286, x0 = 1.2574679132),
           ## 32-bit{ada-5}  -2.95549502890363   1.25746791332613
-	  m.r2$coef, tol=4e-10, show=TRUE)
+	  m.r2$coef, tol=4e-10)
 assert.EQ( c(0.685919891749065, 0.256419206157062),
           ## 32-bit{ada-5}:
           ## 0.685919891858219, 0.256419206203016)
 	  m.r2$sterror, tol=4e-10)
 
-if(require("catdata"))
-    data(foodstamp) else
-load(system.file("external/foodstamp.rda",
-		 package="robustbase", mustWork=TRUE))
+data(foodstamp)
+str(foodstamp)
+## Model with 'income' instead of log(income+1)  is "interesting"
+## because BYlogreg() needs  maxhalf > 10 for convergence!
+m.fs0   <- glm   (participation ~ ., family=binomial, data=foodstamp)
+m.fs0QL <- glmrob(participation ~ ., family=binomial, data=foodstamp)
+y.fs <- foodstamp[,"participation"]
+X.fs0 <- model.matrix(m.fs0)
+head(X.fs0)
+## (former default) maxhalf = 10  leads to too early convergence:
+m.fsWBY. <- BYlogreg(x0=X.fs0, y=y.fs,
+                     addIntercept=FALSE, trace=TRUE, maxhalf=10)
+m.fs.BY. <- BYlogreg(x0=X.fs0, y=y.fs, initwml=FALSE,
+                     addIntercept=FALSE, trace=TRUE, maxhalf=10)
+m.fsWBY <- BYlogreg(x0=X.fs0, y=y.fs,
+		    addIntercept=FALSE, trace=TRUE, maxhalf=18)
+m.fs.BY <- BYlogreg(x0=X.fs0, y=y.fs, initwml=FALSE,
+		    addIntercept=FALSE, trace=TRUE, maxhalf=18)
 
-str(foodstamp) ## y ~ TEN, SUP, INC  {what ugly names!}
-m.fsQL <- glmrob(y ~ ., family = binomial, data=foodstamp)
-X.fs <- model.matrix(m.fsQL)
+assert.EQ(m.fsWBY.[iB], m.fsWBY[iB], tol= 0.07)## almost 7% different
+assert.EQ(m.fs.BY.[iB], m.fs.BY[iB], tol= 0.08)
+
+foodSt <- within(foodstamp, { logInc <- log(1 + income) ; rm(income) })
+
+m.fsML <- glm   (participation ~ ., family=binomial, data=foodSt)
+m.fsQL <- glmrob(participation ~ ., family=binomial, data=foodSt)
+X.fs <- model.matrix(m.fsML)
 stopifnot(dim(X.fs) == c(150, 4)) # including intercept!
-m.fsWBY <- BYlogreg(x0=X.fs, y=foodstamp[["y"]],
-		    addIntercept=FALSE, trace=TRUE)
-m.fs.BY <- BYlogreg(x0=X.fs, y=foodstamp[["y"]], initwml=FALSE,
-		    addIntercept=FALSE, trace=TRUE)
+try(## FIXME -- Mahalanobis fails with singular matrix, here:
+m.fsWBY <- BYlogreg(x0=X.fs, y=y.fs,
+		    addIntercept=FALSE, trace=TRUE, maxhalf=18)
+)
+## maxhalf=18 is too much --> no convergence
+m.fs.BY <- BYlogreg(x0=X.fs, y=y.fs, initwml=FALSE,
+		    addIntercept=FALSE, trace=TRUE, maxhalf=18)
+signif(
+    rbind(ML = coef(m.fsML),   QL =coef(m.fsQL),
+          WBY0=coef(m.fsWBY.), BY0=coef(m.fs.BY.),
+          WBY =coef(m.fsWBY ), BY =coef(m.fs.BY)
+          )
+    , 4)
 
+
+if(FALSE) {
+## *scaling* of X (  ?? <==> ??   'sigma1' ) ------------------
+
+## no "W" (Mahalanobis fail because of *singular* X):
+m.fs.BY100 <- BYlogreg(x0=100*X.fs, initwml=FALSE,
+                       y=y.fs,
+                       addIntercept=FALSE, trace=TRUE, maxhalf=18)
+
+
+X1c <- cbind(1, 100*X.fs[,-1])
+m.fsWBY1c <- BYlogreg(x0=X1c, y=y.fs,
+                      addIntercept=FALSE, trace=TRUE, maxhalf=18)
+
+}## not yet

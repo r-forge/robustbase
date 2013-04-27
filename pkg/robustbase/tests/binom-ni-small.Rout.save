@@ -1,5 +1,5 @@
 
-R version 3.0.0 RC (2013-03-27 r62427) -- "Masked Marvel"
+R version 3.0.0 Patched (2013-04-25 r62670) -- "Masked Marvel"
 Copyright (C) 2013 The R Foundation for Statistical Computing
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
@@ -16,7 +16,6 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 Type 'q()' to quit R.
 
 > library(robustbase)
-> #library(robustbase, lib="/u/maechler/R/Pkgs/robustbase.Rcheck")
 > 
 > ### Binomial example with  *small*  ni
 > 
@@ -352,8 +351,8 @@ test.acc
 +                     rg3.15  [no.comp], tol = 1e-13))
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  0.645 0.067 0.78 0.002 0.001 
+Time elapsed:  0.572 0.04 0.607 0 0 
 > 
 > proc.time()
    user  system elapsed 
-  0.648   0.068   0.780 
+  0.576   0.040   0.607 

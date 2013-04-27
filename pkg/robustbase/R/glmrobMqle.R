@@ -1,14 +1,15 @@
 #### Mallows quasi-likelihood estimator of E. Cantoni and E. Ronchetti (2001)
 #### based originally on Eva Cantoni's S-plus code "robGLM"
 
+if(getRversion() >= "2.15.1")
 globalVariables(c("residP", "residPS", "dmu.deta"), add=TRUE)
 
 ##' @title
 ##' @param wts
-##' @param X  n x p  design matrix
+##' @param X  n x p  design matrix aka model.matrix()
 ##' @param intercept logical, if true, X[,] has an intercept column which should
 ##'                  not be used for rob.wts
-##' @return
+##' @return n-vector of non-negative weights
 ##' @author Martin Maechler
 robXweights <- function(wts, X, intercept=TRUE) {
     stopifnot(length(d <- dim(X)) == 2, is.logical(intercept))
@@ -17,7 +18,7 @@ robXweights <- function(wts, X, intercept=TRUE) {
         if(is.character(wts)){
             switch(wts,
                    "none" = rep.int(1, nobs),
-                   "hat" = wts_HiiDist(X = X)^2, # = (1 - Hii)^2
+                   "hat" = wts_HiiDist(X)^2, # = (1 - Hii)^2
                    "robCov" = wts_RobDist(X, intercept, covFun = MASS::cov.rob),
                                         # ARu said 'method="mcd" was worse'
                    "covMcd" = wts_RobDist(X, intercept, covFun = covMcd),
@@ -283,28 +284,38 @@ glmrobMqle <-
 }
 
 
-## FIXME: This is either correct for intercept=TRUE or FALSE, but not both!
+## NB: X  is model.matrix() aka design matrix used; typically including an intercept
 wts_HiiDist <- function(X) {
+    ## Hii := diag( tcrossprod( qr.Q(qr(X)) ) ) == rowSums( qr.Q(qr(X)) ^2 ) :
     x <- qr(X)
     Hii <- rowSums(qr.qy(x, diag(1, nrow = NROW(X), ncol = x$rank))^2)
     (1-Hii)
 }
 
+##' "weights.on.x": Compute robustness weights depending on the design 'X'
+##'   only, using robust mahalanobis distances
+##' @title Compute Robust Weights based on Robustified Mahalanobis - Distances
+##' @param X n x p  numeric matrix
+##' @param intercept logical; should be true iff  X[,1] is a column with the intercept
+##' @param covFun function for computing a \bold{robust} covariance matrix;
+##'        e.g., MASS::cov.rob(), or covMcd().
+##' @return n-vector of non-negative weights.
+##' @author Martin Maechler
 wts_RobDist <- function(X, intercept, covFun)
 {
-    if(intercept) { ## X[,] has intercept column which should not be used for rob.wts
+    D2 <- if(intercept) { ## X[,] has intercept column which should not be used for rob.wts
 	X <- as.matrix(X[, -1])
 	Xrc <- covFun(X)
-	dist2 <- mahalanobis(X, center = Xrc$center, cov = Xrc$cov)
+	mahalanobis(X, center = Xrc$center, cov = Xrc$cov)
     }
     else { ## X[,]  can be used directly
 	if(!is.matrix(X)) X <- as.matrix(X)
 	Xrc <- covFun(X)
-	Mu <- Xrc$cov + tcrossprod(Xrc$center)
-	dist2 <- mahalanobis(X, center = rep.int(0,ncol(X)), cov = Mu)
+	S <- Xrc$cov + tcrossprod(Xrc$center)
+	mahalanobis(X, center = rep.int(0,ncol(X)), cov = S)
     }
     ncoef <- ncol(X) ## E[chi^2_p] = p
-    1/sqrt(1+ pmax.int(0, 8*(dist2 - ncoef)/sqrt(2*ncoef)))
+    1/sqrt(1+ pmax.int(0, 8*(D2 - ncoef)/sqrt(2*ncoef)))
 }
 
 

@@ -379,11 +379,10 @@ print.summary.lmrob <-
 	}
 	cat("\n")
 
-	rweights <- x$rweights
-	if (!is.null(rweights)) {
-	    if (any(zero.weights <- x$weights == 0))
-		rweights <- rweights[!zero.weights]
-	    summarizeRobWeights(rweights, digits = digits, ...)
+	if (!is.null(rw <- x$rweights)) {
+	    if (any(zero.w <- x$weights == 0))
+		rw <- rw[!zero.w]
+	    summarizeRobWeights(rw, digits = digits, ...)
 	}
 
     } else cat("\nNo Coefficients\n")

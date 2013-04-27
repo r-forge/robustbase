@@ -1,5 +1,8 @@
 library(robustbase)
 
+source(system.file("test-tools-1.R", package="Matrix", mustWork=TRUE))
+## -> assertError(), showSys.time(), ...
+
 #### Poisson examples from Eva Cantoni's paper
 
 ### Using Possum Data
@@ -8,13 +11,16 @@ library(robustbase)
 data(possumDiv)
 
 ## Try to follow closely Cantoni & Ronchetti(2001), JASA
-X <- possum.mat[, -1]
-y <- possum.mat[, "Diversity"]
+dim(X <- possum.mat[, -1]) # 151 13
+str(y <- possum.mat[, "Diversity"])
+##--- reduce the matrix from singularity ourselves:
+X. <- possum.mat[, -c(1, match(c("E.nitens", "NW-NE"), colnames(possum.mat)))]
+dim(X.)# 151 11
 
 ## "classical via robust: c = Inf :
 Inf. <- 1e5 ## --- FIXME
 
-## The following used to fails because glm.fit() returns NA coefficients
+## The following used to fail because glm.fit() returns NA coefficients
 ## now fine
 glm.cr <- glmrob(y ~ X, family = "poisson", tcc = Inf.)
 (scr <- summary(glm.cr))
@@ -29,10 +35,7 @@ coef(summary(glm.r))
 
 str(glm.r)
 
-###--- reduce the matrix from singularity ourselves:
-X. <- possum.mat[, -c(1, match(c("E.nitens", "NW-NE"), colnames(possum.mat)))]
-dim(X.)# 151 11
-
+## Now with *smaller* X (two variable less):
 glm.c2 <- glmrob(y ~ X., family = "poisson", tcc = Inf.)
 summary(glm.c2)
 
@@ -65,7 +68,54 @@ all.equal(cfE, cf2, tol=0)#-> show : ~ 1.46e-11
 stopifnot(all.equal(cfE, cf2, tol = 1e-9),
           abs(glm.r2.$iter - 18) <= 1) # 18 iterations on 32-bit (2008)
 
+## MT estimator -- "quick" examples
 
+if(!doExtras) {
+    cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
+    quit()
+}
+## if ( doExtras ) -----------------------------------------------------
+
+
+if(FALSE) ## for debugging ...
+options(warn = 1, error=recover)
+
+set.seed(57)
+showSys.time(
+    m1 <- glmrobMT(x=X., y=y)
+)
+
+stopifnot(m1$converged,
+          all.equal(m1$initial,
+ c(-0.82454076117497, -0.0107066895370536, -0.226958540075445, 0.0355906625338308,
+   0.048010654640958, 0.0847493155436896, 0.0133604488401352,  -0.0270535337324515,
+  -0.0511687347946107, 0.146022135657894, -0.00751380783260816, -0.417638086169032), tol = 1e-13)
+          ,
+          all.equal(m1$final,
+ c(-0.722403147823884, 0.00852588186299624, -0.166744211963903, 0.0409725499046939,
+   0.0423860322049144, 0.0631479521560575, 0.0186215385026053, -0.114400042988754,
+   -0.120742808664024, 0.0914653880905431, -0.0253258042856295, -0.669220978140912), tol = 1e-13)
+          ,
+          TRUE)
+
+## The same, with another seed:
+set.seed(64)
+showSys.time(
+    m2 <- glmrobMT(x=X., y=y)
+)
+
+stopifnot(m2$converged,
+          all.equal(m2$initial,
+ c(-0.56423428799895, -0.00758749903943305, -0.0526308127315302, 0.0421793131527516,
+   0.0332564905179959, 0.0665372292781289, 0.0136866325653848, -0.00801997988512953,
+   -0.182495118468575, -0.00116493347439625, 0.0107950403793612, -0.730857299552309), tol = 1e-13)
+,
+          all.equal(m2$final,
+ c(-0.722056443290325, 0.00854660241578943, -0.167247920449585, 0.0409774131757375,
+   0.0423793067248048, 0.063126142186602,   0.0186346991795864, -0.114818413029325,
+   -0.121245882858204, 0.091337074056828,  -0.0254800458522171, -0.669078421826111), tol = 1e-13)
+,
+          TRUE)
 
 
 ###---- Model Selection -----

@@ -1,10 +1,17 @@
-#### -*- mode: R; kept-new-versions: 50; kept-old-versions: 50 -*-
+##-*- mode: R; kept-new-versions: 50; kept-old-versions: 50 -*-
+
+#### MT Estimators:  [M]-Estimators based on [T]ransformations
+#### -------------   Valdora & Yohai (2013)
 
 
-### FIXME: Solution without files, but rather cache inside an environment
-### ------  For the default  cw, cache even in robustbase namespace!
+##' Defining the spline to compute the center of the rho function
+##' @title Provide  mu(lambda) as spline function
+##' @param cw tuning parameter for rho
+##' @return a function, resulting from \code{\link{splinefun}}
+##' @author Martin Maechler
 spcreation <- function(cw) {
-    ## defining the spline to compute the center of the rho function
+## FIXME: Solution without files, but rather cache inside an environment
+## ------  For the default  cw, cache even in robustbase namespace!
     u <- FALSE
     lf <- tools::list_files_with_exts(".","mtes",all.files = TRUE,full.names = FALSE)
     if (length(lf) == 2) { ## load the spline
@@ -20,13 +27,14 @@ spcreation <- function(cw) {
         for(i in 1:length(la))
         { mm.la[i] <- optim(sqrt(la[i]),espRho,method = "L-BFGS-B",lam = la[i],cw = cw)$par }
 
-        maprox <- splinefun(la,mm.la , method = "monoH.FC")
+        maprox <- splinefun(la, mm.la, method = "monoH.FC")
         save("maprox",file = "sp.mtes")
         write(cw,file = "cw.mtes")
     }
     uu <- maprox
     uu
 }
+## will be passed around as 'uu'  --> and is used in  mm(.)  below
 
 #######################################################
 
@@ -46,9 +54,9 @@ rho <- function(x,cw) {
 
 ##############################################################
 
-espRho <- function(lam,xx,cw)
+espRho <- function(lam, xx, cw)
 {
-## compute  E_lambda [ rho_{cw}(sqrt(Y)-xx) ],  given  (lambda, xx, cw)
+## compute  E_lambda [ rho_{cw}( sqrt(Y)-xx ) ],  given  (lambda, xx, cw)
     suby <- seq(trunc((max(0,xx-cw))^2),
                 trunc((xx+cw)^2)+1)
     subsuby <- suby[rho(sqrt(suby)-xx,cw) < 1]
@@ -62,20 +70,23 @@ espRho <- function(lam,xx,cw)
 
 #################################################
 
+##' @title Compute  m(lambda) := the value of x minimizing espRho(lambda, x, cw)
 
+##' @param lam numeric vector of non-negative values \lambda
+##' @param uu the spline function to be used for lambda <= 100, from spcreation()
+##' @return
 mm <- function(lam,uu)
 {
-    ## computing  the value of xx minimizing espRho(lambda,xx,cw)
     z <- (lam < 100)
     m <- z*uu(lam)+(1-z)*sqrt(lam)
     m
-}
+}## MM: FIXME  mm(Inf, *) currently gives NaN, as 0*Inf = NaN (instead of Inf !)
 
 
 ###############################################################################
 
 
-weights <- function(x,iw)
+weightsMT <- function(x,iw)
 {
     p <- ncol(x)
     n <- nrow(x)
@@ -83,10 +94,9 @@ weights <- function(x,iw)
     if(iw == 1)
     {
         w <- rep(0,n)
-        require(rrcov)
-        sest <- CovSest(x[,2:p],method = "bisquare")
-        mu <- getCenter(sest)
-        sigma <- getCov(sest)
+        sest <- rrcov::CovSest(x[,2:p],method = "bisquare")
+        mu <- rrcov::getCenter(sest)
+        sigma <- rrcov::getCov(sest)
         insigma <- solve(sigma)
 
         for ( i in 1:n)
@@ -100,24 +110,31 @@ weights <- function(x,iw)
 }
 
 #######################################################################
+
+##' @title Compute the loss function for MT-glmrob()
+##' @param bt beta  (p - vector)
+##' @param x  design matrix (n x p)
+##' @param y  (Poisson) response  (n - vector)
+##' @param cw tuning parameter 'c' for rho_c(.)
+##' @param w weight vector (length n)
+##' @param uu the spline for the inner part of  m_c(.)
+##' @return \sum_{i=1}^n  w_i  \rho(\sqrt(y_i) - m( g(x_i ` \beta) ) )
+##'       where  g(.) = exp(.) for the Poisson family
 sumaConPesos <- function(bt,x,y,cw, w,uu) {
-    ## defining  the  function that compute the loss function
     n <- nrow(x)
     s <- rep(0,n)
-    for (j in 1:n)	{
-
-        if (abs(t(bt)%*%x[j,]) < 500) s[j] <- rho(sqrt(y[j])-mm(exp(t(bt)%*%x[j,]),uu),cw) else s[j] <- 1
+    for (i in 1:n) {
+        if (abs(t(bt)%*%x[i,]) < 500)
+            s[i] <- rho(sqrt(y[i])-mm(exp(t(bt)%*%x[i,]),uu), cw) else s[i] <- 1
     }
     sum(s*w)
 }
 
 ###############################################################################
 
-
-
 beta0IniCP <- function(x,y,cw,w, uu, nsubm, trace.lev = 1)
 {
-    ## defining   the  funcion that computes  the initial estmate usng subsamplng with concentration step
+    ## computes  the initial estmate usng subsamplng with concentration step
     p <- ncol(x)
     n <- nrow(x)
     dev <- matrix(rep(0,n))
@@ -140,28 +157,34 @@ beta0IniCP <- function(x,y,cw,w, uu, nsubm, trace.lev = 1)
         podador <- dev <= devOr[ceiling(n/2)] # those smaller-equal than lo-median(.)
         xPod <- x[podador,]
         yPod <- y[podador]
-        betapod <- glm(yPod ~ xPod-1, family = poisson())$coefficients
-        estim.ini[l,] <- betapod
+	fitE <- tryCatch(glm(yPod ~ xPod-1, family = poisson()),
+			 error = function(e)e)
+        if(inherits(fitE, "error")) {
+            message("glm(.) {inner subsample} error: ", fitE$message)
+            s2[l] <- Inf
+        } else { ## glm() call succeeded
+            betapod <- fitE$coefficients
+            estim.ini[l,] <- betapod
 ### FIXME: replacing  NA's by 0
-        ## 1. can be made much more efficiently (notably for *no* NAs)
-        ## 2. MM: why is this a good idea???  Rather drop it and try again ?!!
+            ## 1. can be made much more efficiently (notably for *no* NAs)
+            ## 2. MM: why is this a good idea???  Rather drop it and try again ?!!
 ### FIXME this is ~=  betaExacto() .. rather use that here as well
-        sinNas <- na.exclude(betapod)
-        long <- length(sinNas)
-        if(long == p)
-            kk <- kk+1
-        lugaresNas <- na.action(sinNas)[1:(p-long)]
-        estim.ini[l,] <- betapod
-        estim.ini[l,lugaresNas] <- 0
-## FIXME: rather only keep the best sample !! --save storage
+            sinNas <- na.exclude(betapod)
+            long <- length(sinNas)
+            if(long == p)
+                kk <- kk+1
+            lugaresNas <- na.action(sinNas)[1:(p-long)]
+            estim.ini[l,lugaresNas] <- 0
+            ## FIXME: rather only keep the best sample !! --save storage
 
-        s2[l] <- sumaConPesos(estim.ini[l,],x,y,cw, w,uu)
+            s2[l] <- sumaConPesos(estim.ini[l,],x,y,cw, w,uu)
+        }
     }
 
     s0 <- order(s2)
     beta0ini <- estim.ini[s0[1],]
 
-    list(beta0ini, kk)
+    list(beta = beta0ini, nOksamples = kk)
 }## beta0IniCP()
 
 #####################################################################
@@ -171,7 +194,14 @@ betaExacto <- function(sbmn,x,y)
     ## fixing the case mle has NA components
     nmue <- nrow(x)
     p <- ncol(x)
-    betaexacto <- glm(y[sbmn]~x[sbmn,]-1,family = poisson())$coefficients
+    fitE <- tryCatch(glm(y[sbmn]~x[sbmn,]-1,family = poisson()),
+                     error = function(e)e)
+    if(inherits(fitE, "error")) {
+        message("betaExacto glm(.) error: ", fitE$message)
+        return(rep(NA_real_, p))
+    }
+    ## else --  glm() succeeded
+    betaexacto <- fitE $ coefficients
     sinNas <- na.exclude(betaexacto)
     long <- length(sinNas)
     lugaresNas <- na.action(sinNas)[1:(p-long)]
@@ -183,7 +213,7 @@ betaExacto <- function(sbmn,x,y)
 
 
 ###################################################################################
-glmRobMT <- function(x,y, cw = 2.1, iw = 0, nsubm = 500, trace.lev = 1)
+glmrobMT <- function(x,y, cw = 2.1, iw = 0, nsubm = 500, maxitOpt = 200, tolOpt = 1e-6, trace.lev = 1)
 {
     ## MAINFUNCTION  Computes the MT or WMT estimator  for Poisson regression  with intercept starting from the estimator computed in the function
     ## beta0IniC.
@@ -202,19 +232,26 @@ glmRobMT <- function(x,y, cw = 2.1, iw = 0, nsubm = 500, trace.lev = 1)
     uu <- spcreation(cw)
     n <- nrow(x)
     x1 <- cbind(rep(1,n),x)
-    w <- weights(x1,iw)
+    w <- weightsMT(x1,iw)
     if(trace.lev) cat("Computing initial estimate with ", nsubm, " sub samples:\n")
     out <- beta0IniCP(x1, y, cw = cw, w = w, uu = uu, nsubm = nsubm, trace.lev = trace.lev)
     beta0 <- out[[1]]
-    nsubm <- out[[2]]
+
+    oCtrl <- list(trace = trace.lev, maxit = maxitOpt,
+                  ## "L-BFGS-B" specific
+                  lmm = 9, factr = 1/(10*tolOpt))
 
     if(trace.lev) cat("Optim()izing  sumaConPesos()\n")
+### FIXME: see very slow convergence e.g. for the Possum data example
+### -----  maybe improve by providing gradient ??
     estim2 <- optim(beta0, sumaConPesos, method = "L-BFGS-B",
-                    x = x1, y = y, cw = cw, w = w, uu = uu,
-                    control = list(trace = trace.lev))
+                    x = x1, y = y, cw = cw, w = w, uu = uu, control = oCtrl)
+    if(estim2$convergence) ## there was a problem
+        warning("optim(.) non-convergence: ", estim2$convergence,
+                if(nzchar(estim2$message)) paste0("\n", estim2$message))
 
-    mtest <- estim2$par
-
-    out <- list("initial" = beta0, "final" = mtest,"nsubsamples" = nsubm)
+    out <- list("initial" = beta0, "final" = estim2$par, nsubm = nsubm, "nOksub" = out[[2]],
+                converged = (estim2$convergence == 0), optim.counts = estim2$counts,
+                optim.control = oCtrl, iw=iw, cw=cw, weights = w)
     out
 }

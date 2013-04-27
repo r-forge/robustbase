@@ -21,20 +21,8 @@
 ##     Computational Statistics and Data Analysis, 44, 273-295
 ##
 
-## Output:
-##
-## A list with the follwoing components:
-## convergence   - TRUE or FFALSE if convergence achieved or not
-## objective     - value of the objective function at the minimum
-## coef          - estimates for the parameters
-## sterror       - standard errors of the parameters (if convergence is TRUE)
-##
-##Example:
-##
-## x0 <- matrix(rnorm(100,1))
-## y  <- as.numeric(runif(100)>0.5)        #numeric(runif(100)>0.5)
-## BYlogreg(x0,y)
-##
+## Changes by Martin Maechler, ---> ../man/BYlogreg.Rd
+##                                  ------------------
 
 BYlogreg <- function(x0, y, initwml=TRUE, addIntercept=TRUE,
                      const=0.5, kmax = 1000, maxhalf = 10,
@@ -85,6 +73,11 @@ BYlogreg <- function(x0, y, initwml=TRUE, addIntercept=TRUE,
     ## Computation of the initial value of the optimization process
     gstart <-
         if(initwml) {
+###_ FIXME: Should allow many more schemes:
+###_ 1) using MVE with much less singular cases
+###_ 2) Instead of {0,1}-weighting with cutoff, w/ weights --> 0 *continuously*
+###     --> glm() with "prior" weights instead of 'subset'
+
             ## hp <- floor(n*(1-0.25))+1
             ##        mcdx <- cov.mcd(x0, quantile.used =hp,method="mcd")
             ##        rdx=sqrt(mahalanobis(x0,center=mcdx$center,cov=mcdx$cov))
@@ -94,7 +87,7 @@ BYlogreg <- function(x0, y, initwml=TRUE, addIntercept=TRUE,
             ##                      -----  FIXME: argument!
             D <- sqrt( mahalanobis(mcd$X, mcd$center, mcd$cov) )
             vc  <- sqrt(qchisq(0.975, p-1))
-            ##                 -----       FIXME: argument!
+            ##                 -----       FIXME: 'vc' should be argument!
             wrd <- D <= vc
 ### FIXME: use glm.fit()
 ### FIXME_2: use  weights and "weights.on.x'  as in Mqle ( ./glmrobMqle.R )
@@ -110,17 +103,19 @@ BYlogreg <- function(x0, y, initwml=TRUE, addIntercept=TRUE,
     ## Initial value for the objective function
     oldobj <- mean(phiBY3(stscores/sigma1, y, const))
 
-    kstep <- jhalf <- 1L
-    while(kstep < kmax & jhalf < maxhalf)
+    converged <- FALSE
+    kstep <- 1L
+    while(kstep < kmax && !converged)
     {
         unisig <- function(sigma) mean(phiBY3(stscores/sigma,y,const))
         optimsig <- nlminb(sigma1, unisig, lower=0)# "FIXME" arguments to nlminb()
         ##          ======
-        if(trace.lev) cat(sprintf("k=%2d, s1=%12.8g: => new s1= %12.8g  [jh=%2d]\n",
-                                  kstep, sigma1, optimsig$par, jhalf))# MM: jhalf =!?= 1 here ??
+        if(trace.lev) cat(sprintf("k=%2d, s1=%12.8g: => new s1= %12.8g",
+                                  kstep, sigma1, optimsig$par))# MM: jhalf =!?= 1 here ??
         sigma1 <- optimsig$par
 
         if(sigma1 < sigma.min) {
+            if(trace.lev) cat("\n")
             warning(gettextf("Implosion: sigma1=%g became too small", sigma1))
             kstep <- kmax #-> *no* convergence
         } else {
@@ -132,13 +127,18 @@ BYlogreg <- function(x0, y, initwml=TRUE, addIntercept=TRUE,
             h <- -gradBY3 + (gradBY3 %*% xistart) *xistart
             finalstep <- h/sqrt(sum(h^2))
 
+            if(trace.lev) {
+                if(trace.lev >= 2) cat(sprintf(", obj=%12.9g: ", oldobj))
+                cat("\n")
+            }
+
             ## FIXME repeat { ... }   {{next 4 lines are also inside while(..) below}}
             xi1 <- xistart+finalstep
             xi1 <- xi1/sum(xi1^2)
             scores1 <- (x %*% xi1)/sigma1
             newobj <- mean(phiBY3(scores1,y,const))
 
-            ## If 'newobj' is not better, half the step size and try:
+            ## If 'newobj' is not better, try taking a smaller step size:
             hstep <- 1.
             jhalf <- 1L
             while(jhalf <= maxhalf & newobj > oldobj)
@@ -147,14 +147,16 @@ BYlogreg <- function(x0, y, initwml=TRUE, addIntercept=TRUE,
                 xi1 <- xistart+finalstep*hstep
                 xi1 <- xi1/sqrt(sum(xi1^2))
                 scores1 <- x %*% xi1/sigma1
-                newobj <- mean( phiBY3(scores1,y,const))
+                newobj <- mean(phiBY3(scores1,y,const))
                 if(trace.lev >= 2)
-                    cat(sprintf("  j.=%2d, obj=%12.9g: => new obj= %12.9g\n",
-                                jhalf, oldobj, newobj))
+                    cat(sprintf("  jh=%2d, hstep=%13.8g => new obj=%13.9g\n",
+                                jhalf, hstep, newobj))
                 jhalf <- jhalf+1L
             }
 
-            if(jhalf > maxhalf & newobj > oldobj) {
+            converged <-
+                not.improved <- (jhalf > maxhalf && newobj > oldobj)
+            if(not.improved) {
                 ## newobj is "worse" and step halving did not improve
                 message("Convergence Achieved")
             } else {
@@ -172,7 +174,7 @@ BYlogreg <- function(x0, y, initwml=TRUE, addIntercept=TRUE,
         list(convergence=FALSE, objective=0, coefficients= rep(NA,p))
     } else {
         gammaest <- xistart/sigma1
-        V <- vcovBY3(x0, y, const, estim=gammaest)
+        V <- vcovBY3(x, y, const, estim=gammaest, addIntercept=FALSE)
         list(convergence=TRUE, objective=oldobj, coefficients=gammaest,
              cov = V, sterror = sqrt(diag(V)),
              iter = kstep)
@@ -231,6 +233,8 @@ glmrobBY <- function(X, y, method = c("WBY","BY"),
     kmax    <- if(is.null(cc <- control$maxit  )) 1e3 else cc
     maxhalf <- if(is.null(cc <- control$maxhalf))  10 else cc
     w.x <- robXweights(weights.on.x, X=X, intercept=intercept)
+
+### FIXME: use w.x below!
 
     r <- BYlogreg(x0=X, y=y, initwml = (method == "WBY"),
 		  addIntercept = !intercept, ## add intercept if there is none
@@ -305,23 +309,24 @@ psiBY3 <- function(t,c3)
     exp(-sqrt(c3)) *(t <= c3) +
     exp(-sqrt( t)) *(t >  c3)
 }
+## MM: This is shorter (but possibly slower when most t are <= c3 :
+## psiBY3 <- function(t,c3) exp(-sqrt(pmax(t, c3)))
 
-derpsiBY3 <- function(t,c3)
+##'   d/dt psi(t, c3)
+derpsiBY3 <- function(t, c3)
 {
-    ## MM FIXME: pre-alloc
-    res <- NULL
-    for(i in seq_along(t)) {
-        if(t[i] <= c3)
-        {
-            res <- rbind(res,0)
-        } else
-        {
-            res <- rbind(res,-exp(-sqrt(t[i]))/(2*sqrt(t[i])))
-        }
+    in. <- (t <= c3)
+    r <- t
+    r[in. <- (t <= c3)] <- 0
+    if(any(out <- !in.)) {
+        t <- t[out]
+        st <- sqrt(t)
+        r[out] <- -exp(-st)/(2*st)
     }
-    res
+    r
 }
 
+## MM: FIXME  this is not used above
 sigmaBY3 <- function(sigma,s,y,c3)
 {
     mean(phiBY3(s/sigma,y,c3))
@@ -382,18 +387,19 @@ GBY3Fsm <- function(s,c3)
 ##  limiting distribution of the BY estimator - as derived in Bianco
 ##  and Yohai (1996)
 ##
-sterby3 <- function(x0, y, const, estim, intercept=TRUE)
+sterby3 <- function(x0, y, const, estim, addIntercept)
 {
-    sqrt(diag(vcovBY3(x0, y, const=const, estim=estim, intercept=intercept)))
+    sqrt(diag(vcovBY3(x0, y, const=const, estim=estim, addIntercept=addIntercept)))
 }
 
-vcovBY3 <- function(x0, y, const, estim, intercept=TRUE)
+vcovBY3 <- function(z, y, const, estim, addIntercept)
 {
-    stopifnot(length(dim(x0)) == 2)
-    d <- dim(z <- if(intercept) cbind(1, x0) else x0)
-    argum <- z %*% estim
+    stopifnot(length(dim(z)) == 2)
+    if(addIntercept) z <- cbind(1, z)
+    d <- dim(z)
     n <- d[1]
     p <- d[2]
+    argum <- z %*% estim
     matM <- IFsquar <- matrix(0, nrow=p, ncol=p)
     for(i in 1:n)
     {

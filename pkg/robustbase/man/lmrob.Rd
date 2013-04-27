@@ -28,9 +28,8 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
     to be used in the fitting process.}
 
   \item{weights}{an optional vector of weights to be used in the fitting
-    process (additional to the robustness weights computed in the
-    fitting process).
-    }
+    process (in addition to the robustness weights computed in the
+    fitting process).}
   \item{na.action}{a function which indicates what should happen
     when the data contain \code{NA}s.  The default is set by
     the \code{na.action} setting of \code{\link{options}}, and is
@@ -60,10 +59,10 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
     the function \code{\link{lmrob.control}(.)} and see its help page.}
 
   \item{init}{an optional argument to specify or supply the initial
-  estimate. See \emph{Details}.}
+    estimate. See \emph{Details}.}
 
-  \item{\dots}{can be used to specify control parameters directly
-    instead of via \code{control}.}
+  \item{\dots}{additional arguments can be used to specify control
+    parameters directly instead of via \code{control}.}
 }
 \details{
   \describe{
@@ -133,8 +132,8 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   }%end {describe}
 }
 \value{
-  An object of class \code{lmrob}. A list that includes the
-  following components:
+  An object of class \code{lmrob}; a list including the following
+  components:
   \item{coefficients}{The estimate of the coefficient vector}
   \item{scale}{The scale as used in the M estimator.}
   \item{residuals}{Residuals associated with the estimator.}
@@ -203,7 +202,7 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   High breakdown-point and high efficiency estimates for regression.
   \emph{The Annals of Statistics} \bold{15}, 642--65.
 }
-\author{ Matias Salibian-Barrera and Manuel Koller}
+\author{Matias Salibian-Barrera and Manuel Koller}
 \seealso{
   \code{\link{lmrob.control}};
   for the algorithms \code{\link{lmrob.S}}, \code{\link{lmrob.M.S}} and
@@ -218,6 +217,8 @@ data(coleman)
 set.seed(0)
 summary( m1 <- lmrob(Y ~ ., data=coleman) )
 summary( m2 <- lmrob(Y ~ ., data=coleman, setting = 'KS2011') )
+plot(residuals(m2) ~ weights(m2, type="robustness")) ##-> weights.lmrob()
+abline(h=0, lty=3)
 
 data(starsCYG, package = "robustbase")
 ## Plot simple data and fitted lines
@@ -248,7 +249,6 @@ m4 <- lmrob(Y ~ ., data=coleman, method = "M", init = initFun)
 m5 <- lmrob(Y ~ ., data=coleman, method = "M",
             init = list(coefficients = m3$init$coef, scale = m3$scale))
 stopifnot(all.equal(m4[-17], m5[-17]))
-
 }
 \keyword{robust}
 \keyword{regression}

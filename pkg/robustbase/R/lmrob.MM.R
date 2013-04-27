@@ -154,6 +154,7 @@ lmrob.fit <- function(x, y, control, init=NULL) {
     init
 }
 
+if(getRversion() >= "2.15.1")
 globalVariables("r", add=TRUE) ## below and in other lmrob.E() expressions
 
 .vcov.w <- function(obj, x=obj$x, scale=obj$scale, cov.hubercorr=ctrl$cov.hubercorr,
@@ -622,6 +623,7 @@ lmrob..D..fit <- function(obj, x=obj$x, control = obj$control)
     obj
 }
 
+if(getRversion() >= "2.15.1")
 globalVariables(c("psi", "wgt", "r"), add=TRUE) ## <- lmrob.E( <expr> )
 
 lmrob.kappa <- function(obj, control = obj$control)
@@ -680,11 +682,10 @@ lmrob.tau <- function(obj, x=obj$x, control = obj$control, h, fast = TRUE)
         if (!is.na(tfact))
             return(sqrt(1 - tfact*h) * (tcorr*h + 1))
     }
+    ## else "non-fast" -- need to compute the integrals :
 
     ## kappa
-    if (is.null(obj$kappa))
-        obj$kappa <- lmrob.kappa(obj, control)
-    kappa <- obj$kappa
+    kappa <- if(is.null(obj$kappa)) lmrob.kappa(obj, control) else obj$kappa
     ## local variables
     n <- length(h)
     ## set psi and c.psi
@@ -698,9 +699,9 @@ lmrob.tau <- function(obj, x=obj$x, control = obj$control, h, fast = TRUE)
     inta <- function(r) lmrob.psifun(r, c.psi, psi)^2 * dnorm(r)
     intb <- function(r) lmrob.psifun(r, c.psi, psi, deriv = 1) * dnorm(r)
     intc <- function(r) lmrob.psifun(r, c.psi, psi) * r * dnorm(r) ## changed from psi/e to psi*e
-    ta <- (integrate(inta, -Inf,Inf))$value
-    tb <- (integrate(intb, -Inf,Inf))$value
-    tE <- (integrate(intc, -Inf,Inf))$value
+    ta <- integrate(inta, -Inf,Inf)$value
+    tb <- integrate(intb, -Inf,Inf)$value
+    tE <- integrate(intc, -Inf,Inf)$value
 
     ## calculate tau for unique h
     hu <- unique(h)
@@ -722,8 +723,8 @@ lmrob.tau <- function(obj, x=obj$x, control = obj$control, h, fast = TRUE)
         ## function to be integrated
         fun <- function(w, v, sigma.i) {
             t <- (v-tc2*lmrob.psifun(v,c.psi,psi)+w*s)/sigma.i
-            (lmrob.psifun(t,c.psi,psi)*t - kappa*lmrob.psifun(t, c.psi, psi)/t)*
-                dnorm(v)*dnorm(w)
+	    psi.t <- lmrob.psifun(t, c.psi, psi)
+	    (psi.t*t - kappa*psi.t/t) * dnorm(v)*dnorm(w)
         }
         ## integrate over w
         wint <- function(v, sigma.i) {
@@ -768,10 +769,8 @@ lmrob.hatmatrix <- function(x, w = rep(1, NROW(x)), wqr = qr(sqrt(w) * x))
 lmrob.leverages <- function(x, w = rep(1, NROW(x)), wqr = qr(sqrt(w) * x))
 {
     if (missing(wqr) && !is.matrix(x)) x <- as.matrix(x)
-
-    ## we don't actually need the whole hat matrix!
-    ## diag(lmrob.hatmatrix(x, w, ...))
-    ## better:
+    ## Faster, than computing the whole hat matrix, and then diag(.) :
+    ## == diag(lmrob.hatmatrix(x, w, ...))
     rowSums(qr.Q(wqr)^2)
 }
 
