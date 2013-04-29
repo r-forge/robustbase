@@ -9,27 +9,25 @@
 ##' @param cw tuning parameter for rho
 ##' @return a function, resulting from \code{\link{splinefun}}
 ##' @author Martin Maechler
-spcreation <- function(cw) {
+mk.m_rho <- function(cw, sFile = paste0("MTesSpl_", format(cw), ".rda")) {
 ## FIXME: Solution without files, but rather cache inside an environment
 ## ------  For the default  cw, cache even in robustbase namespace!
-    u <- FALSE
-    lf <- tools::list_files_with_exts(".","mtes",all.files = TRUE,full.names = FALSE)
-    if (length(lf) == 2) { ## load the spline
-        load("sp.mtes")
-        cwguar <- scan("cw.mtes")
-        u <- (abs(cw-cwguar) < 0.001) # if the last cw was very close..
+## Instead of saving splinefun() ... just save  (la, mm.la), it is much smaller
+    useFile <- file.exists(sFile)
+    if (useFile) { ## load the spline
+        load(sFile)#-> 'cw.0' and 'maprox'
+        cw.ok <- (abs(cw - cw.0) < 0.001) # if the last cw was very close..
     }
-
-    if(length(lf) != 2 | u == FALSE) {
-        la <- c(seq(0,2.9,0.1), seq(3,100))
+    if(!useFile || !cw.ok) {
+        la <- c(seq(0,2.9,0.1), seq(3,100))# <- MM: I plan to improve this {dependent on cw!}
         mm.la <- rep(0,length(la))
 
         for(i in 1:length(la))
         { mm.la[i] <- optim(sqrt(la[i]),espRho,method = "L-BFGS-B",lam = la[i],cw = cw)$par }
 
         maprox <- splinefun(la, mm.la, method = "monoH.FC")
-        save("maprox",file = "sp.mtes")
-        write(cw,file = "cw.mtes")
+        cw.0 <- cw
+        save(cw.0, maprox, file = sFile)
     }
     uu <- maprox
     uu
@@ -73,7 +71,7 @@ espRho <- function(lam, xx, cw)
 ##' @title Compute  m(lambda) := the value of x minimizing espRho(lambda, x, cw)
 
 ##' @param lam numeric vector of non-negative values \lambda
-##' @param uu the spline function to be used for lambda <= 100, from spcreation()
+##' @param uu the spline function to be used for lambda <= 100, from mk.m_rho()
 ##' @return
 mm <- function(lam,uu)
 {
@@ -94,9 +92,10 @@ weightsMT <- function(x,iw)
     if(iw == 1)
     {
         w <- rep(0,n)
-        sest <- rrcov::CovSest(x[,2:p],method = "bisquare")
-        mu <- rrcov::getCenter(sest)
-        sigma <- rrcov::getCov(sest)
+        require(rrcov)
+        sest <- CovSest(x[,2:p],method = "bisquare")
+        mu <- getCenter(sest)
+        sigma <- getCov(sest)
         insigma <- solve(sigma)
 
         for ( i in 1:n)
@@ -229,7 +228,7 @@ glmrobMT <- function(x,y, cw = 2.1, iw = 0, nsubm = 500, maxitOpt = 200, tolOpt 
     ##$final is the final estimate (first component is the intercept)
     ##$nsamples is the number of well  conditioned  subsamples
     ## REQUIRED PACKAGES: tools, rrcov
-    uu <- spcreation(cw)
+    uu <- mk.m_rho(cw)
     n <- nrow(x)
     x1 <- cbind(rep(1,n),x)
     w <- weightsMT(x1,iw)
