@@ -1,6 +1,18 @@
 /* External and interal  API  of  C and Fortran routines in robustbase */
 
-/* C code which includes this, typically includes <R.h> */
+#include <R.h>
+// for SEXP
+#include <Rinternals.h>
+
+/**< For internationalized messages */
+#ifdef ENABLE_NLS
+#include <libintl.h>
+#define _(String) dgettext ("Matrix", String)
+#else
+#define _(String) (String)
+#define dngettext(pkg, String, StringP, N) (N > 1 ? StringP : String)
+#endif
+
 
 /* --------- ./qn_sn.c : -------- */
 #define Sint int
@@ -36,6 +48,8 @@ double mc_C_d(double *z, int n, double *eps, int *iter);
 
 
 /* --------- ./lmrob.c --------- */
+
+SEXP R_rho_inf(SEXP cc, SEXP ipsi);
 
 void R_lmrob_S(double *X, double *y, int *n, int *P,
 	       int *nRes, double *scale, double *beta_s,

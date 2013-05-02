@@ -1,12 +1,10 @@
-#include <R.h>
-#include <Rinternals.h>
 
 #include <R_ext/Rdynload.h>
-
 #include "robustbase.h"
 
 
 #define CDEF(name)  {#name, (DL_FUNC) &name, sizeof(name ## _t)/sizeof(name ## _t[0]), name ##_t}
+#define CALLDEF(name, n)  {#name, (DL_FUNC) &name, n}
 
 
 static R_NativePrimitiveArgType Qn0_t[] = {
@@ -106,9 +104,10 @@ static const R_CMethodDef CEntries[]  = {
     {NULL, NULL, 0}
 };
 
-/* static R_CallMethodDef CallEntries[] = { */
-/*     {NULL, NULL, 0} */
-/* }; */
+static R_CallMethodDef CallEntries[] = {
+    CALLDEF(R_rho_inf, 2),
+    {NULL, NULL, 0}
+};
 
 
 static R_FortranMethodDef FortEntries[] = {
@@ -120,7 +119,6 @@ static R_FortranMethodDef FortEntries[] = {
 
 void R_init_robustbase(DllInfo *dll)
 {
-    R_registerRoutines(dll, CEntries, NULL/*CallEntries*/,
-		       FortEntries, NULL);
+    R_registerRoutines(dll, CEntries, CallEntries, FortEntries, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

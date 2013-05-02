@@ -87,6 +87,7 @@ double norm_diff2 (double *x, double *y, int n);
 double norm_diff (double *x, double *y, int n);
 double norm1_diff(double *x, double *y, int n);
 double normcnst(const double c[], int ipsi);
+double rho_inf (const double c[], int ipsi);
 
 double rho(double x, const double c[], int ipsi);
 double psi(double x, const double c[], int ipsi);
@@ -488,38 +489,40 @@ void R_subsample(const double x[], const double y[], int *n, int *m,
 
 void R_psifun(double *xx, const double cc[], int *iipsi, int *dderiv, int *llength) {
     /*
-     * Calculate psi for vectorized x with psip(0) = 1
+     * Calculate psi for vectorized x, scaled to get  psi'(0) = 1
      * deriv -1: rho(x)  {*not* normalized}
      * deriv  0: psi(x) = rho'(x)
      * deriv  1: psi'(x)= rho''(x)   {we always have psip(0) == 1}
      */
-    double nc = (*dderiv == -1) ? normcnst(cc, *iipsi) : 0./* -Wall */;
+    int ipsi = *iipsi;
+    double rho_Inf = (*dderiv == -1) ? rho_inf(cc, ipsi) : 0./* -Wall */;
 
 // put the for() loop *inside* the switch (--> speed for llength >> 1) :
 #define for_i_llength  for(int i = 0; i < *llength; i++)
 
-    switch(*dderiv) {
-    case -1: for_i_llength xx[i] = rho(xx[i], cc, *iipsi) / nc; break;
+    switch(*dderiv) { // our rho() is rho~(), i.e., scaled to max = 1
+    case -1: for_i_llength xx[i] = rho(xx[i], cc, ipsi) * rho_Inf; break;
     default:
-    case 0: for_i_llength xx[i] = psi (xx[i], cc, *iipsi); break;
-    case 1: for_i_llength xx[i] = psip(xx[i], cc, *iipsi); break;
+    case 0: for_i_llength xx[i] = psi (xx[i], cc, ipsi); break;
+    case 1: for_i_llength xx[i] = psip(xx[i], cc, ipsi); break;
     }
 }
 
 void R_chifun(double *xx, const double cc[], int *iipsi, int *dderiv, int *llength) {
     /*
-     * Calculate chi for vectorized x with rho(inf) = 1
+     * Calculate chi for vectorized x, i.e. rho~(.) with rho~(inf) = 1:
      * deriv 0: chi (x)  = rho(x) / rho(Inf) =: rho(x) * nc  == our rho() C-function
      * deriv 1: chi'(x)  = psi(x)  * nc
      * deriv 2: chi''(x) = psi'(x) * nc
      */
-    double nc = (*dderiv > 0) ? normcnst(cc, *iipsi) : 0./* -Wall */;
+    int ipsi = *iipsi;
+    double rI = (*dderiv > 0) ? rho_inf(cc, ipsi) : 0./* -Wall */;
 
     switch(*dderiv) {
     default:
-    case 0: for_i_llength xx[i] = rho (xx[i], cc, *iipsi); break;
-    case 1: for_i_llength xx[i] = psi (xx[i], cc, *iipsi) * nc; break;
-    case 2: for_i_llength xx[i] = psip(xx[i], cc, *iipsi) * nc; break;
+    case 0: for_i_llength xx[i] = rho (xx[i], cc, ipsi); break;
+    case 1: for_i_llength xx[i] = psi (xx[i], cc, ipsi) / rI; break;
+    case 2: for_i_llength xx[i] = psip(xx[i], cc, ipsi) / rI; break;
     }
 }
 
@@ -530,6 +533,41 @@ void R_wgtfun(double *xx, const double cc[], int *iipsi, int *llength) {
     for_i_llength xx[i] = wgt(xx[i], cc, *iipsi);
 }
 #undef for_i_llength
+
+SEXP R_rho_inf(SEXP cc, SEXP ipsi) {
+    if (!isReal(cc)) error(_("Argument 'cc' must be numeric"));
+    if (!isInteger(ipsi)) error(_("Argument 'ipsi' must be integer"));
+    return ScalarReal(rho_inf(REAL(cc), INTEGER(ipsi)[0]));
+}
+
+double rho_inf(const double k[], int ipsi) {
+    /*
+     * Compute  rho(Inf)  for psi functions
+     */
+
+    double c = k[0];
+
+    switch(ipsi) {
+    default:
+    case 1: return(c*c/6.); // biweight
+    case 2: return(c*c); // GaussWeight
+    case 3: return(3.25*c*c); // Optimal
+    case 4: return(0.5*k[0]*(k[1]+k[2]-k[0])); // Hampel
+    case 5: // GGW
+	switch((int)c) {
+	default:
+	case 0: return(k[4]); break; // k[4] == cc[5] in R -- must be correct!
+	case 1: return(5.309853); break;
+	case 2: return(2.804693); break;
+	case 3: return(0.3748076); break;
+	case 4: return(4.779906); break;
+	case 5: return(2.446574); break;
+	case 6: return(0.4007054); break;
+	};
+    case 6: // LQQ aka 'lin psip'
+	return (k[2]*k[1]*(3*k[1]+2*k[0]) + (k[0]+k[1])*(k[0]+k[1])) / (6.*(k[2]-1.));
+    }
+} // rho_inf()
 
 double normcnst(const double k[], int ipsi) {
     /*
@@ -555,10 +593,10 @@ double normcnst(const double k[], int ipsi) {
 	case 5: return(1./2.446574); break;
 	case 6: return(1./0.4007054); break;
 	};
-    case 6: // lin psip
+    case 6: // LQQ aka 'lin psip'
 	return((6*(k[2]-1))/(k[2]*k[1]*(3*k[1]+2*k[0])+(k[0]+k[1])*(k[0]+k[1])));
     }
-}
+} // normcnst()
 
 
 double rho(double x, const double c[], int ipsi)
@@ -821,12 +859,12 @@ double wgt_opt(double x, const double c[])
 	return 1.;
 }
 
+
 double rho_hmpl(double x, const double k[])
 {
     /*
      * rho()  for Hampel's redescending psi function
-     * constants  (a, b, c) == k[0:2]   s.t.
-     * slope of psi is 1 in the center and (-)1/2 outside
+     * constants  (a, b, r) == k[0:2]   s.t. slope of psi is 1 in the center
      *
      * This function is normalized s.t. rho(inf) = 1
      */
@@ -847,8 +885,7 @@ double psi_hmpl(double x, const double k[])
 {
     /*
      * psi()  for Hampel's redescending psi function
-     * constants  (a, b, c) == k[0:2]   s.t.
-     * slope of psi is 1 in the center and (-)1/2 outside
+     * constants  (a, b, r) == k[0:2]   s.t. slope of psi is 1 in the center
      */
     double sx = sign(x), u = fabs(x);
 
@@ -866,8 +903,7 @@ double psip_hmpl(double x, const double k[])
 {
     /*
      * psi'()  for Hampel's redescending psi function
-     * constants  (a, b, c) == k[0:2]   s.t.
-     * slope of psi is 1 in the center and (-)1/2 outside
+     * constants  (a, b, r) == k[0:2]   s.t. slope of psi is 1 in the center
      */
     double u = fabs(x);
 
@@ -886,8 +922,7 @@ double wgt_hmpl(double x, const double k[])
     /*
      * w(x) = psi(x)/x  for Hampel's redescending psi function
      * Hampel redescending psi function
-     * constants  (a, b, c) == k[0:2]   s.t.
-     * slope of psi is 1 in the center and (-)1/2 outside
+     * constants  (a, b, r) == k[0:2]   s.t. slope of psi is 1 in the center
      */
     double u = fabs(x);
 
