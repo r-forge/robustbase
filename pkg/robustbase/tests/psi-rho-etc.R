@@ -2,13 +2,11 @@ require(robustbase)
 ## see also ./lmrob-psifns.R <<<<<<<<
 source(system.file("xtraR/plot-psiFun.R", package = "robustbase", mustWork=TRUE))
 
-## Demonstrate that  one of  tukeyChi() / tukeyPsi1() is superfluous
-
 EQ <- function(x,y) all.equal(x,y, tol = 1e-13)
 
+## Demonstrate that  one of  tukeyChi() / tukeyPsi1() is superfluous
 x <- seq(-4,4, length=201)
-c. <- pi
-
+for(c. in c(0.1, 1:2, pi, 100))
 stopifnot(EQ(tukeyChi(x, c.),
              6/c.^2* tukeyPsi1(x, c., deriv=-1)),
           EQ(tukeyChi(x, c., deriv= 1),

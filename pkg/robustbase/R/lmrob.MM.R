@@ -43,7 +43,7 @@ lmrob.control <-
                              'ggw' = c(-0.5, 1.5, NA, .5), ## min slope, b, eff, bp
                              'lqq' = c(-0.5, 1.5, NA, .5), ## min slope, b, eff, bp
                              'optimal' = 0.4047,
-                             'hampel' = c(1.5, 3.5, 8) * 0.2119163) ## a, b, c
+                             'hampel' = c(1.5, 3.5, 8) * 0.2119163) ## a, b, r
     if (missing(tuning.psi) || is.null(tuning.psi))
         tuning.psi <- switch(psi,
                              'bisquare' = 4.685061,
@@ -51,7 +51,7 @@ lmrob.control <-
                              'ggw' = c(-0.5, 1.5, .95, NA), ## min slope, b, eff, bp
                              'lqq' = c(-0.5, 1.5, .95, NA), ## min slope, b, eff, bp
                              'optimal' = 1.060158,
-                             'hampel' = c(1.5, 3.5, 8) * 0.9016085) ## a, b, c
+                             'hampel' = c(1.5, 3.5, 8) * 0.9016085) ## a, b, r
 
     ## in ggw, lqq:  tuning.psi, *.chi  are non-standard, calculate coefficients:
     if (psi %in% c('ggw', 'lqq')) {
@@ -393,7 +393,7 @@ lmrob..M..fit <- function (x=obj$x, y=obj$y, beta.initial=obj$coef,
                            scale=obj$scale, control=obj$control, obj)
 {
     c.psi <- lmrob.conv.cc(control$psi, control$tuning.psi)
-    ipsi <- lmrob.psi2ipsi(control$psi)
+    ipsi <- .psi2ipsi(control$psi)
     stopifnot(is.matrix(x))
     n <- nrow(x)
     p <- ncol(x)
@@ -513,7 +513,7 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev, mf = NULL)
             scale = double(1),
             coefficients = double(p),
             as.double(c.chi),
-            as.integer(lmrob.psi2ipsi(control$psi)),
+            .psi2ipsi(control$psi),
             bb,
             best_r = best.r,
             groups = groups,
@@ -589,7 +589,7 @@ lmrob..D..fit <- function(obj, x=obj$x, control = obj$control)
               length = as.integer(length(r)),
               scale = as.double(scale.1),
               c = as.double(c.psi),
-              ipsi = lmrob.psi2ipsi(psi),
+              ipsi = .psi2ipsi(psi),
               type = 3L, ## dt1 as only remaining option
               rel.tol = as.double(control$rel.tol),
               k.max = as.integer(control$k.max),
@@ -774,7 +774,7 @@ lmrob.leverages <- function(x, w = rep(1, NROW(x)), wqr = qr(sqrt(w) * x))
     rowSums(qr.Q(wqr)^2)
 }
 
-lmrob.psi2ipsi <- function(psi)
+.psi2ipsi <- function(psi)
 {
     switch(casefold(psi),
            'tukey' = , 'biweight' = , 'bisquare' = 1L,
@@ -960,7 +960,7 @@ lmrob.psifun <- function(x, cc, psi, deriv=0)
     if(any(idx <- !is.na(x))) {
 	cc <- lmrob.conv.cc(psi, cc)
 	x[idx] <- .C(R_psifun, x = as.double(x[idx]), cc = as.double(cc),
-		     ipsi = as.integer(lmrob.psi2ipsi(psi)), NAOK= TRUE, # for +- Inf
+		     ipsi = .psi2ipsi(psi), NAOK= TRUE, # for +- Inf
 		     deriv = as.integer(deriv), length = as.integer(length(x[idx])))$x
     }
     x
@@ -972,7 +972,7 @@ lmrob.chifun <- function(x, cc, psi, deriv=0)
     if(any(idx <- !is.na(x))) {
 	cc <- lmrob.conv.cc(psi, cc)
 	x[idx] <- .C(R_chifun, x = as.double(x[idx]), cc = as.double(cc),
-		     ipsi = as.integer(lmrob.psi2ipsi(psi)), NAOK= TRUE, # for +- Inf
+		     ipsi = .psi2ipsi(psi), NAOK= TRUE, # for +- Inf
 		     deriv = as.integer(deriv), length = as.integer(length(x[idx])))$x
     }
     x
@@ -984,11 +984,18 @@ lmrob.wgtfun <- function(x, cc, psi)
     if(any(idx <- !is.na(x))) {
 	cc <- lmrob.conv.cc(psi, cc)
 	x[idx] <- .C(R_wgtfun, x = as.double(x[idx]), cc = as.double(cc),
-		     ipsi = as.integer(lmrob.psi2ipsi(psi)), NAOK= TRUE, # for +- Inf
+		     ipsi = .psi2ipsi(psi), NAOK= TRUE, # for +- Inf
 		     length = as.integer(length(x[idx])))$x
     }
     x
 }
+
+##' The normalizing constant for  rho(.) <--> rho~(.)
+M.rhoInf <- function(cc, psi) {
+    cc <- lmrob.conv.cc(psi, cc)
+    .Call(R_rho_inf, cc, .psi2ipsi(psi))
+}
+
 
 lmrob.rweights <- function(resid, scale, cc, psi) {
     if (scale == 0) { ## exact fit

@@ -6,21 +6,19 @@
 psiF <- robustbase:::lmrob.psifun # deriv = -1 (rho), 0, 1
 chiF <- robustbase:::lmrob.chifun # rho(.) normalized to max|.| = 1;  deriv
 wgtF <- robustbase:::lmrob.wgtfun
-plot.psiFun <- robustbase:::plot.psiFun
 
 ## Original Author of functions: Martin Maechler, Date: 13 Aug 2010, 10:17
 
-p.psiFun <- function(x, psi, par, ...)
+p.psiFun <- function(x, psi, par, main=FALSE, ...)
 {
     m.psi <- cbind(rho  = psiF(x, par, psi,deriv=-1),
                    psi  = psiF(x, par, psi,deriv= 0),
                    Dpsi = psiF(x, par, psi,deriv= 1),
                    wgt  = wgtF(x, par, psi))
-    plot.psiFun(x, m.psi, psi, par, ...)
+    robustbase:::matplotPsi(x, m.psi, psi=psi, par=par, main=main, ...)
 }
-p.psiFun2 <- function(x, psi, par, ...)
-    p.psiFun(x, psi, par, shortMain = TRUE,
-             leg.loc = "bottomright", ylim = c(-3, 5))
+p.psiFun2 <- function(x, psi, par, main="short", ...)
+    p.psiFun(x, psi, par, main=main, leg.loc= "bottomright", ylim = c(-2.2, 6))
 ## for psi_func class objects: simply use plot() method.
 
 mids <- function(x) (x[-1]+x[-length(x)])/2

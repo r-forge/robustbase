@@ -1,9 +1,6 @@
 ## Test implementation of M-S estimator
 require(robustbase)
 source(system.file("xtraR/m-s_fns.R", package = "robustbase", mustWork=TRUE))
-lmrob.conv.cc  <- robustbase::: lmrob.conv.cc
-lmrob.psi2ipsi <- robustbase::: lmrob.psi2ipsi
-lmrob.wgtfun   <- robustbase::: lmrob.wgtfun
 
 ## dataset with factors and continuous variables:
 data(education)
@@ -147,4 +144,4 @@ for(i in 1:ncol(x2)) {
     tmp <- lmrob.lar(x1, x2[,i], control)
     x2.tilde[,i] <- tmp$resid
 }
-x2.tilde == 0 
+x2.tilde == 0

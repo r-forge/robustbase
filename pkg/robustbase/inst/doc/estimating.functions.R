@@ -237,6 +237,10 @@ robustness.weights.lmrob.S <- function(obj) {
   robustbase:::lmrob.wgtfun(rstand, obj$control$tuning.chi, obj$control$psi)
 }
 
+## MM: Why on earth is this called  covariance.matrix() ?? -- S and R standard is vcov() !!
+## -- For lm, they are indeed identical;  for  lmrob, too
+## HOWEVER, the *.rlm() method of cov..matrix() *differs* from vcov.rlm() -- why?
+
 covariance.matrix <- function(x, ...) UseMethod("covariance.matrix")
   ## Purpose: retrieve covariance matrix from robust regression return
   ##          object
@@ -503,7 +507,7 @@ lmrob.mscale <- function(e, control, p = 0L) {
             scale = as.double(mad(e)),
             coef = double(1),
             as.double(control$tuning.chi),
-            as.integer(robustbase:::lmrob.psi2ipsi(control$psi)),
+            as.integer(robustbase:::.psi2ipsi(control$psi)),
             as.double(control$bb), ## delta
             best_r = as.integer(control$best.r.s),
             groups = as.integer(control$groups),
@@ -532,7 +536,7 @@ lmrob.dscale <- function(r, control,
             length = as.integer(length(r)),
             scale = as.double(scale),
             c = as.double(c.psi),
-            ipsi = robustbase:::lmrob.psi2ipsi(psi),
+            ipsi = robustbase:::.psi2ipsi(psi),
             type = 3L, ## dt1 as only remaining option
             rel.tol = as.double(control$rel.tol),
             k.max = as.integer(control$k.max),

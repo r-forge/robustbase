@@ -121,7 +121,7 @@ lmrob.M.S <- function(x, y, control, mf, split) {
             b1=double(ncol(x1)),
             b2=double(ncol(x2)),
             tuning_chi=as.double(c.chi),
-	    ipsi = as.integer(lmrob.psi2ipsi(control$psi)),
+	    ipsi = .psi2ipsi(control$psi),
             bb=as.double(control$bb),
             K_m_s=as.integer(control$k.m_s),
             max_k=as.integer(control$k.max),
