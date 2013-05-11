@@ -13,13 +13,14 @@ mk.m_rho <- function(cw,
  opt.method = c("L-BFGS-B", "Brent", "Nelder-Mead", "BFGS", "CG", "SANN"),
 ##optim(): method = c("Nelder-Mead", "BFGS", "CG", "L-BFGS-B", "SANN", "Brent"),
 ## MM: 'Brent' seems best overall
+                     lambda = c(seq(0,2.9, by=0.1), seq(3,100)),
                      reltol = sqrt(.Machine$double.eps), trace = 0,
 		     sFile = paste0("MTesSpl_", format(cw), ".rda"),
                      recompute  = getOption("robustbase:m_rho_recompute", FALSE))
 {
 ## FIXME: Solution without files, but rather cache inside an environment
 ## ------  For the default  cw, cache even in robustbase namespace!
-## Instead of saving splinefun() ... just save	(la, mm.la), it is much smaller
+## Instead of saving splinefun() ... just save	(lambda, mm.la), it is much smaller
 
     if(recompute) {
 	useFile <- FALSE
@@ -33,9 +34,9 @@ mk.m_rho <- function(cw,
 	}
     }
     if(!useFile || !cw.ok) {
-	nl <- length(la <- c(seq(0,2.9,0.1), seq(3,100)))# <- MM: I plan to improve this {dependent on cw!}
+	nl <- length(lambda)
 	mm.la <- numeric(nl)
-	s.la <- sqrt(la)
+	s.la <- sqrt(lambda)
 
         ## MM: Speedwise,   Brent > L-BFGS-B > BFGS > ..  for cw >= ~ 1.5
         ##         L-BFGS-B > Brent  for  cw ~= 1
@@ -45,17 +46,17 @@ mk.m_rho <- function(cw,
 	    if(opt.method == "L-BFGS-B")# yuck! why is this necessary!!
 		oCtrl <- list(factr = 1/(10*reltol), trace=trace)
 	    for(i in seq_len(nl))
-		mm.la[i] <- optim(s.la[i], espRho, lam = la[i], cw = cw,
+		mm.la[i] <- optim(s.la[i], espRho, lam = lambda[i], cw = cw,
 				  method = opt.method, control = oCtrl,
 				  lower = 0, upper = .01 + 2*s.la[i])$par
 	} else {
 	    for(i in seq_len(nl))
-		mm.la[i] <- optim(s.la[i], espRho, lam = la[i], cw = cw,
+		mm.la[i] <- optim(s.la[i], espRho, lam = lambda[i], cw = cw,
 				  method = opt.method, control = oCtrl)$par
 	}
-	m.approx <- splinefun(la, mm.la, method = "monoH.FC")
+	m.approx <- splinefun(lambda, mm.la, method = "monoH.FC")
         e <- environment(m.approx)
-	assign("la.max", max(la), envir=e)
+	assign("lambda.max", max(lambda), envir=e)
 	assign("cw", cw, envir=e)
 	save(m.approx, file = sFile)
     }
@@ -101,7 +102,7 @@ espRho <- function(lam, xx, cw)
 ##' @return
 mm <- function(lam, m.approx)
 {
-    la.max <- environment(m.approx)$la.max
+    la.max <- environment(m.approx)$lambda.max
     z <- ((m <- lam) <= la.max)
     m[z] <- m.approx(lam[z])
     if(any(i <- !z)) m[i] <- sqrt(lam[i])

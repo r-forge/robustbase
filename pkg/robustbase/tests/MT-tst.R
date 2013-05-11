@@ -82,7 +82,45 @@ p.m2(mm21, to=120, cexK=.8)
 p.m.diff(mm21, to=120, cexK=.8)#-- discontinuity at 100 !!
 ## TODO: ways to improve!
 
-## TODO first: look at more cases (cw)
+## Here: look at "larger lambda" (and more cw)
+
+la2 <- 5*2^seq(0, 10, by = 0.25)
+c.s <- .25*c(1:10, 15, 50)
+mL <- lapply(c.s, function(cc) mkM(cc, lambda = la2, recompute=TRUE))
+str(mL, max=1) # a list of functions..
+stopifnot(all.equal(la2, environment(mL[[1]])$x0))
+mmL <- sapply(mL, function(F) get("y0", environment(F)))
+matplot(la2, mmL, type ="l") # "all the same" from very far ...
+mm.d. <- mmL - sqrt(la2)
+matplot(la2, mm.d., type ="l", xlab=quote(lambda)); abline(h=0, lty=3)
+legend("bottom", legend= paste("cw=",c.s), col=1:6, lty=1:5, ncol = 3, bty="n")
+
+matplot(la2, -mm.d., type ="l", xlab=quote(lambda), log = "xy", axes=FALSE)
+eaxis(1); eaxis(2)
+legend("bottom", legend= paste("cw=",c.s), col=1:6, lty=1:5, ncol = 3, bty="n")
+## ok, that's the correct scale
+c.s2  <- c.s  [c.s >= .75]
+mm.d2 <- mm.d.[, c.s >= .75]
+
+matplot(la2, -mm.d2, type ="l", xlab=quote(lambda), log = "xy", axes=FALSE)
+eaxis(1); eaxis(2)
+legend("bottomleft", legend= paste("cw=",c.s2), col=1:6, lty=1:5, ncol = 3, bty="n")
+
+##->   log (sqrt(lam) - m(lam)) = a[c] - beta * log(lam) :
+dd2 <- data.frame(m.d = c(mm.d2),
+                  cw = rep(c.s2, each = length(la2)),
+                  lambda = rep(la2, length(c.s2)))
+
+## gives a pretty nice picture:
+summary(fm <- lm(log(-m.d) ~ 0+factor(cw) + log(lambda),
+                 data = dd2, subset = lambda >= 50))
+##=> slope of log(lambda) = -1/2
+dd3 <- within(dd2, { ld2 <- log(-m.d) + 1/2 * log(lambda) })[dd2[,"lambda"] >= 50,]
+plot(ld2 ~ cw, data = dd3, type = "b")
+plot(ld2 ~ cw, data = dd3, type = "b", log="x")
+coplot(ld2 ~ cw|lambda, data = dd3)
+coplot(ld2 ~ cw|log(lambda), data = dd3)
+coplot(ld2 ~ log10(cw) | log10(lambda), data = dd3)
 
 dev.off()
 ##-------------------------------------------------------- end m(.) -------------
