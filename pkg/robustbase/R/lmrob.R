@@ -166,6 +166,7 @@ lmrob <-
 	    z$fitted.values <- save.y - z$residuals
 	    z$weights <- w
 	    if (zero.weights) {
+                coef <- z$coefficients
 		coef[is.na(coef)] <- 0
 		f0 <- x0 %*% coef
 		if (ny > 1) {
