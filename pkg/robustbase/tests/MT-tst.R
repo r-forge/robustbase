@@ -16,6 +16,10 @@ assert.EQ <- function(target, current, tol = if(show) 0 else 1e-15,
 	stop("all.equal() |-> ", paste(r, collapse=sprintf("%-19s","\n")))
 }
 
+if(!require("sfsmisc")) {
+    eaxis <- axis  # so we can use  eaxis() below
+}
+
 
 (doExtras <- robustbase:::doExtras())
 
