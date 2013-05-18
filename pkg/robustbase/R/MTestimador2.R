@@ -27,10 +27,10 @@ mk.m_rho <- function(cw,
     } else {
 	useFile <- file.exists(sFile)
 	if (useFile) { ## load the spline
-	    load(sFile)#-> 'cw.0' and 'm.approx'
+	    load(sFile)#-> 'm.approx'
 	    ## check if its cw was very close to this one:
 	    if(cw.ok <- is.numeric(cw0 <- environment(m.approx)$cw))
-		cw.ok <- (abs(cw - environment(m.approx)$cw) < 0.001)
+		cw.ok <- (abs(cw - cw0) < 0.001)
 	}
     }
     if(!useFile || !cw.ok) {
@@ -89,7 +89,8 @@ espRho <- function(lam, xx, cw)
     if((len.ii <- length(ii)) > 0) {
         primero <- ii[1]
         ultimo <- ii[len.ii]
-        sum(terminos) + 1-ppois(ultimo,lam) + ppois(primero-1,lam)
+        ppois(primero-1,lam) + sum(terminos) +
+            ppois(ultimo,lam, lower.tail=FALSE)
     } else 1
 }
 
