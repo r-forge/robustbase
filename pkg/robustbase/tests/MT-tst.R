@@ -162,4 +162,5 @@ assert.EQ(ini[1], r.64b[["ini"]], tol = 1e-10)
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
 ## "Platform" info
 SysI <- Sys.info()[c(1:2,4:5)]
-if(require("sfsmisc")) c(SysI, MIPS=Sys.MIPS(), Sys.sizes()) else SysI
+if(require("sfsmisc") && .Platform$OS.type == "unix")
+    c(SysI, MIPS=Sys.MIPS(), Sys.sizes()) else SysI
