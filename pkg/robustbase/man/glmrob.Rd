@@ -96,8 +96,9 @@ glmrob(formula, family, data, weights, subset, na.action,
   \cr
   \code{method="WBY"} and \code{method="BY"},
   available for logistic regression (\code{family = binomial}) only, call
-  \code{\link{BYlogreg}(*, initwml= . )} for the (weighted) Bianco-Yohai estimator,
-  where \code{initwml} is true for \code{"WBY"}, and false for \code{"BY"}.
+  \code{\link{BYlogreg}(*, initwml= . )} for the (weighted) Bianco-Yohai
+  estimator, where \code{initwml} is true for \code{"WBY"}, and false
+  for \code{"BY"}.
 
   \code{weights.on.x= "robCov"} makes sense if all explanatory variables
   are continuous.

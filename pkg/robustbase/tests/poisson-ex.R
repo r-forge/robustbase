@@ -2,16 +2,8 @@ library(robustbase)
 
 source(system.file("test-tools-1.R", package="Matrix", mustWork=TRUE))
 ## -> assertError(), showSys.time(), ...
-## Newer version of the above test-tools-1.R contain this:
-assert.EQ <- function(target, current, tol = if(show) 0 else 1e-15,
-                      show = FALSE, ...) {
-    ## Purpose: check equality *and* show non-equality
-    ## ----------------------------------------------------------------------
-    ## show: if TRUE, return (and hence typically print) all.equal(...)
-    if(show) all.equal(target, current, tol = tol)
-    else if(!isTRUE(r <- all.equal(target, current, tol = tol)))
-	stop("all.equal() |-> ", paste(r, collapse=sprintf("%-19s","\n")))
-}
+source(system.file("xtraR/ex-funs.R", package = "robustbase"))
+## -> newer assert.EQ()  {TODO: no longer needed in 2015}
 
 #### Poisson examples from Eva Cantoni's paper
 
@@ -74,8 +66,7 @@ cf2 <- matrix(c(-0.898213938628341, 0.269306882951903,
                 0.0909870068741749, 0.192192515800464,
                 -0.512247626309172, 0.250763990619973), 12,2, byrow=TRUE)
 cfE <- unname(coef(sglm.r2)[, 1:2])
-all.equal(cfE, cf2, tol=0)#-> show : ~ 1.46e-11
-assert.EQ(cfE, cf2, tol = 1e-9)
+assert.EQ(cfE, cf2, tol = 1e-9, giveRE=TRUE)#-> show : ~ 1.46e-11
 stopifnot(abs(glm.r2.$iter - 18) <= 1) # 18 iterations on 32-bit (2008)
 
 ## MT estimator -- "quick" examples
@@ -100,7 +91,7 @@ assert.EQ(m1$initial,
  c(-0.82454076117497, -0.0107066895370536, -0.226958540075445, 0.0355906625338308,
    0.048010654640958, 0.0847493155436896, 0.0133604488401352,  -0.0270535337324515,
   -0.0511687347946107, 0.146022135657894, -0.00751380783260816, -0.417638086169032)
-          , tol = 1e-13)
+          , tol = 1e-13, giveRE=TRUE)
 
 ## MM: I'm shocked how much this changes after every tweak ...
 beta1 <-
@@ -112,8 +103,13 @@ beta1 <-
       0.0423823207249915, 0.0631502421922883,  0.018628347957457, -0.114433619812227,
       -0.120518637621447, 0.0912580486966675, -0.0256851944443132,-0.66933007259972)
 
-all.equal(m1$final, beta1, tol = 0)#-> *see* the diff
-assert.EQ(m1$final, beta1, tol = 1e-10)
+dput(signif(m1$final, 11)) ## -->
+beta1 <-
+    c(-0.72304482204, 0.0085405640576, -0.16692415306, 0.040971551487,
+      0.04239438605, 0.063155175129, 0.018634854707, -0.11436243387,
+      -0.1208732381, 0.091813775403, -0.025026973847, -0.6687316155)
+
+assert.EQ(m1$final, beta1, tol = 1e-10, giveRE=TRUE)
 
 ## The same, with another seed:
 set.seed(64)
@@ -126,7 +122,7 @@ assert.EQ(m2$initial,
 c(-0.848813174290401, 0.0277603844520112, -0.368017404584204, 0.0432574691289175,
   0.0389531528916901, 0.0453714547998864, 0.0284798754102488, -0.355491639538963,
   -0.284759564306845, 0.182295544952766, 0.132372033156218, -0.34199390948774)
-          , tol = 1e-13)
+          , tol = 1e-13, giveRE=TRUE)
 
 beta2 <-
  c(-0.722466858080995, 0.00853214741170862, -0.167080756780928, 0.0409708489859932,
@@ -138,8 +134,14 @@ beta2 <-
    0.0423638710960024, 0.0630362342605086, 0.0186359589765251, -0.116645159395719,
  -0.123130115061652, 0.0910865027225399, -0.0256449044169698, -0.67024227284216)
 
-all.equal(m2$final, beta2, tol = 0)#-> *see* the diff; often in the order 4e-4
-assert.EQ(m2$final, beta2, tol = 1e-10)
+dput(signif(m2$final, 11)) ## -->
+beta2 <-
+c(-0.71938931755, 0.0084763041669, -0.16596659995, 0.041002667812,
+0.042364559338, 0.063061193524, 0.018621818942, -0.11647222451,
+-0.12313481108, 0.09100650256, -0.025718464922, -0.67048194804)
+
+assert.EQ(m2$final, beta2, tol = 1e-10, giveRE=TRUE)
+## slight changes of algorithm often change the above by ~ 4e-4 !!!
 
 ###---- Model Selection -----
 

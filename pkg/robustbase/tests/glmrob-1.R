@@ -1,15 +1,8 @@
 library(robustbase)
 
-## From latest  system.file("test-tools-1.R", package="Matrix") :
-assert.EQ <- function(target, current, tol = if(show) 0 else 1e-15,
-                      show = FALSE, ...) {
-    ## Purpose: check equality *and* show non-equality
-    ## ----------------------------------------------------------------------
-    ## show: if TRUE, return (and hence typically print) all.equal(...)
-    if(show) all.equal(target, current, tol = tol)
-    else if(!isTRUE(r <- all.equal(target, current, tol = tol)))
-	stop("all.equal() |-> ", paste(r, collapse=sprintf("%-19s","\n")))
-}
+source(system.file("xtraR/ex-funs.R", package = "robustbase"))
+## -> assert.EQ()
+
 
 ###>> 1 ------------------- family = poisson ------------------------------------
 
@@ -91,20 +84,20 @@ stopifnot(m.r1$w.r[c(i0,i1)] < 1/3, # well, at least down weighted
 	  ## and coefficients change less :
 	  (coef(m.r1) - coef(m.c0)) / (coef(m.c1) - coef(m.c0)) < 1)
 assert.EQ(c("(Intercept)" = -3.10817337603974, x = 1.31618564057790),
-	  coef(m.r1), tol= 1e-14)
+	  coef(m.r1), tol= 1e-14, giveRE=TRUE)
 
 y <- as.numeric(as.character(f.))
 m.r2  <- BYlogreg(x0=x, y=y, trace=TRUE, maxhalf= 10)
 m.r2A <- BYlogreg(x0=x, y=y, trace= 2  , maxhalf= 15)
 ## different.. but not so much:
 iB <- 1:5
-assert.EQ(m.r2A[iB], m.r2[iB], tol = .003)
+assert.EQ(m.r2A[iB], m.r2[iB], tol = .003, giveRE=TRUE)
 
 
 
 assert.EQ(c("(Intercept)" = -2.9554950286, x0 = 1.2574679132),
           ## 32-bit{ada-5}  -2.95549502890363   1.25746791332613
-	  m.r2$coef, tol=4e-10)
+	  m.r2$coef, tol=4e-10, giveRE=TRUE)
 assert.EQ( c(0.685919891749065, 0.256419206157062),
           ## 32-bit{ada-5}:
           ## 0.685919891858219, 0.256419206203016)

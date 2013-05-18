@@ -5,16 +5,8 @@ require("robustbase")
 
 source(system.file("test-tools-1.R", package="Matrix", mustWork=TRUE))
 ## -> assertError(), showSys.time(), ...
-## Newer version of the above test-tools-1.R contain this:
-assert.EQ <- function(target, current, tol = if(show) 0 else 1e-15,
-                      show = FALSE, ...) {
-    ## Purpose: check equality *and* show non-equality
-    ## ----------------------------------------------------------------------
-    ## show: if TRUE, return (and hence typically print) all.equal(...)
-    if(show) all.equal(target, current, tol = tol)
-    else if(!isTRUE(r <- all.equal(target, current, tol = tol)))
-	stop("all.equal() |-> ", paste(r, collapse=sprintf("%-19s","\n")))
-}
+source(system.file("xtraR/ex-funs.R", package = "robustbase"))
+## -> newer assert.EQ()  {TODO: no longer needed in 2015}
 
 if(!require("sfsmisc")) {
     eaxis <- axis  # so we can use  eaxis() below
@@ -162,8 +154,8 @@ est <- sapply(LL, `[[`, "final")
 stopifnot(diff(range(ini)) == 0,
           diff(range(est)) == 0)
 ## probably too accurate ... but ok, for now
-assert.EQ(est[1], r.64b[["est"]], tol = 1e-13)
-assert.EQ(ini[1], r.64b[["ini"]], tol = 1e-13)
+assert.EQ(est[1], r.64b[["est"]], tol = 1e-10)# Winbuilder needed ~ 2e-11
+assert.EQ(ini[1], r.64b[["ini"]], tol = 1e-10)
 
 
 

@@ -95,6 +95,9 @@ standardized such as to attain maximum value one.  Formally,
 Note that $\rho(\infty) = \rho(x_r) \equiv \rho(x) \ \forall \abs{x} >= x_r$.
 $\tilde\rho$ is a $\rho$-function as defined in
 \citet{MarRMY06} and has been called $\chi$ function in other contexts.
+%% --> ../../TODO  section  'Psi/Rho/Chi/Wgt Functions'
+%%     ~~~~~~~~~~
+%%
 %% FIXME: where??  MM: can no longer find it in Hampel et al(1986) \citet{hamfrrs86}.
 
 %% FIXME: 0)  Mention our  psi_func  class // and the  C interface for "the other" functions
@@ -160,14 +163,14 @@ and their $\psi$, $\rho$, $\psi'$, and weight function $w(x) := \psi(x)/x$,
 are all computed efficiently via C code, and are defined and visualized in
 the following subsections.
 \subsection{Bisquare}
-The bisquare family of functions is defined as,
+Tukey's bisquare (aka ``biweight'') family of functions is defined as,
 \begin{equation*}
   \tilde\rho_k(x) = \left\{ \begin{array}{cl}
       1 - \bigl(1 - (x/k)^2 \bigr)^3 & \mbox{ if } \abs{x} \leq k \\
       1 & \mbox{ if } \abs{x} > k
     \end{array} \right.\;,
 \end{equation*}
-with derivative $\tilde\rho'_k(x) = 6\psi_k(x) / k^2$ where,
+with derivative ${\tilde\rho_k}'(x) = 6\psi_k(x) / k^2$ where,
 \begin{equation*}
   \psi_k(x) = x \left( 1 - \left(\frac{x}{k}\right)^2\right)^2 \cdot I_{\{\abs{x} \leq k\}}\;.
 \end{equation*}

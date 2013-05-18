@@ -41,8 +41,8 @@ export(Sn, Qn, Qn.old,
        psiFunc, huberPsi, hampelPsi,
 ## Not yet:
 ##     tukeyPsi, # = biweight / bisquare
-       tukeyChi, tukeyPsi1, # <- to be deprecated: *no longer* used by lmrob.*()
-       M.rhoInf,
+       tukeyChi, tukeyPsi1, # TODO deprecate: see ./TODO
+       ## ./TODO : M.rhoInf,
 
        lmrob, lmrob.fit,
        lmrob.fit.MM, lmrob..M..fit, lmrob..D..fit,

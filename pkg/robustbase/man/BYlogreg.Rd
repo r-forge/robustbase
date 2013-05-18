@@ -1,9 +1,7 @@
 \name{BYlogreg}
 \alias{BYlogreg}
-%% FIXME: Make this into method = "BY" (and "WBY") of  glmrob()
-%% -----  {maybe use different name, Yohai calls it "Weighted ML", in
-%%         Bergesio & Yohai (2011)
 \title{Bianco-Yohai Estimator for Robust Logistic Regression}
+\encoding{utf8}
 \description{
   Computation of the estimator of Bianco and Yohai (1996) in logistic regression.
   Now provides both the \emph{weighted} and regular (unweighted) BY-estimator.
@@ -64,6 +62,12 @@ BYlogreg(x0, y, initwml = TRUE, addIntercept = TRUE,
   Croux, C., and Haesbroeck, G. (2003)
   Implementing the Bianco and Yohai estimator for Logistic Regression,
   \emph{Computational Statistics and Data Analysis} \bold{44}, 273--295.
+
+  Ana M. Bianco and Víctor J. Yohai (1996)
+  Robust estimation in the logistic regression model.
+  In Helmut Rieder, \emph{Robust Statistics, Data Analysis, and
+    Computer Intensive Methods}, Lecture Notes in Statistics \bold{109},
+  pages 17--34.
 }
 \author{
   Originally, Christophe Croux and Gentiane Haesbroeck, with
@@ -71,8 +75,9 @@ BYlogreg(x0, y, initwml = TRUE, addIntercept = TRUE,
 
   Speedup, tweaks, more \dQuote{control} arguments: Martin Maechler.
 }
-
 \seealso{
+  The more typical way to compute BY-estimates (via
+  \code{\link{formula}} and methods):
   \code{\link{glmrob}(*, method = "WBY")} and \code{.. method = "BY"}.
 }
 \examples{
