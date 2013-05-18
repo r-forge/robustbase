@@ -19,12 +19,11 @@ o  Psi/Rho/Chi/Wgt Functions
    2) have "old" tukeyChi() & tukeyPsi1()  originally called from lmrob() , in
       ./R/biweight-funs.R
 
-   3) have the C-based functions, now used from lmrob() :
-       lmrob.psifun()
-       lmrob.chifun()
-       lmrob.wgtfun()   and proposed new   M.rhoInf()   in
-
+   3) have the C-based functions, now used from lmrob(), in
       ./R/lmrob.MM.R
+
+      now called  .M.psi(), .M.chi(), .M.wgt() plus new .M.rhoInf()
+      {now exported and documented in man/M.psi.Rd }
 
     Further files, illustrating features, differences, etc:
 
@@ -35,8 +34,7 @@ o  Psi/Rho/Chi/Wgt Functions
 	./tests/psi-rho-etc.R   	compute asymp.efficiency and breakdown point !
 	./tests/lmrob-psifns.R 	   	plot and lmrob()-test them
 
-    TODO:  .) *rename* the lmrob.*fun()  {drop 'lmrob' and ???}
-           .) export them [they are *fast*], possibly under M.psifun() etc
+    TODO: Done: -> '32)'; Rest:
 	   .) *Deprecate* the "2)", tukeyChi() etc, making them call the M.*fun()
            .) provide  '1)'-i.e. psi_func  versions of them
 

@@ -73,7 +73,7 @@ mk.m_rho <- function(cw,
 ##' Tukey's Bisquare (aka "biweight") rho function: rho~() = rho scaled to have rho(Inf) = 1
 rho <- function(x,cw) pmin(1, 1 - (1-(x/cw)^2)^3)
 ## even faster:
-rho <- function(x,cw) lmrob.chifun(x, cc=cw, psi="tukey")
+rho <- function(x,cw) .M.chi(x, cc=cw, psi="tukey")
 ## NB: in sumaConPesos(), mm(.), ... we make use of the fact  that  rho(Inf) = 1
 
 ##############################################################

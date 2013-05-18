@@ -3,18 +3,15 @@
 ##	   ../../tests/psi-rho-etc.R
 ##     and ../doc/psi_functions.Rnw  vignette
 
-psiF <- robustbase:::lmrob.psifun # deriv = -1 (rho), 0, 1
-chiF <- robustbase:::lmrob.chifun # rho(.) normalized to max|.| = 1;  deriv
-wgtF <- robustbase:::lmrob.wgtfun
 
 ## Original Author of functions: Martin Maechler, Date: 13 Aug 2010, 10:17
 
 p.psiFun <- function(x, psi, par, main=FALSE, ...)
 {
-    m.psi <- cbind(rho  = psiF(x, par, psi,deriv=-1),
-                   psi  = psiF(x, par, psi,deriv= 0),
-                   Dpsi = psiF(x, par, psi,deriv= 1),
-                   wgt  = wgtF(x, par, psi))
+    m.psi <- cbind(rho  = .M.psi(x, par, psi,deriv=-1),
+                   psi  = .M.psi(x, par, psi,deriv= 0),
+                   Dpsi = .M.psi(x, par, psi,deriv= 1),
+                   wgt  = .M.wgt(x, par, psi))
     robustbase:::matplotPsi(x, m.psi, psi=psi, par=par, main=main, ...)
 }
 p.psiFun2 <- function(x, psi, par, main="short", ...)
@@ -22,8 +19,13 @@ p.psiFun2 <- function(x, psi, par, main="short", ...)
 ## for psi_func class objects: simply use plot() method.
 
 mids <- function(x) (x[-1]+x[-length(x)])/2
+
+##' @title Check consistency of psi/chi/wgt/.. functions
+##' @param m.psi matrix as from p.psiFun()
+##' @param tol
+##' @return concatenation of \code{\link{all.equal}} results
+##' @author Martin Maechler
 chkPsiDeriv <- function(m.psi, tol = 1e-4) {
-    ## m.psi: matrix as from p.psiFun()
     stopifnot(length(tol) > 0, tol >= 0,
               is.numeric(psi <- m.psi[,"psi"]),
               is.numeric(dx  <- diff(x <- m.psi[,"x"])))

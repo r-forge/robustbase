@@ -127,7 +127,7 @@ chkP(bp.P(hampelPsi, k = c(1.5, 3, 8)))
 chkP(bp.P(hampelPsi, k = c(2,   4, 8)))
 
 
-## test derivatives (adapted from lmrob.psifun.R)
+## test derivatives (adapted from ./lmrob-psifns.R)
 head(x. <- seq(-5, 10, length=1501))
 ## [separate lines, for interactive "play": ]
 stopifnot(chkPsiDeriv(plot(huberPsi, x.)))

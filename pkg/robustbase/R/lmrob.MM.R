@@ -250,8 +250,8 @@ globalVariables("r", add=TRUE) ## below and in other lmrob.E() expressions
             else if (!is.null(obj$init$tau)) obj$init$tau
             else stop("(tau / hybrid): tau not found in 'obj'") } else rep(1,n)
 	rstand <- rstand / tau
-        r.psi   <- lmrob.psifun(rstand, c.psi, psi)
-        r.psipr <- lmrob.psifun(rstand, c.psi, psi, deriv = 1)
+        r.psi   <- .M.psi(rstand, c.psi, psi)
+        r.psipr <- .M.psi(rstand, c.psi, psi, deriv = 1)
         if (any(is.na(r.psipr))) warning(":.vcov.w: Caution. Some psiprime are NA")
         mpp2 <- (mpp <- mean(r.psipr, na.rm=TRUE))^2
         ## Huber's correction
@@ -321,8 +321,8 @@ globalVariables("r", add=TRUE) ## below and in other lmrob.E() expressions
     p <- ncol(x)
     r.s	 <- r / scale # final   scaled residuals
     r0.s <- r0 / scale # initial scaled residuals
-    w  <- lmrob.psifun(r.s, cc = c.psi, psi = psi, deriv = 1)
-    w0 <- lmrob.chifun(r0.s, cc = c.chi, psi = chi, deriv = 1)
+    w  <- .M.psi(r.s, cc = c.psi, psi = psi, deriv = 1)
+    w0 <- .M.chi(r0.s, cc = c.chi, psi = chi, deriv = 1)
     ## FIXME for multivariate y :
     x.wx <- crossprod(x, x * w)
     if(inherits(A <- tryCatch(solve(x.wx) * scale,
@@ -333,10 +333,10 @@ globalVariables("r", add=TRUE) ## below and in other lmrob.E() expressions
 	    stop("X'WX is singular. Rather use cov = \".vcov.w\"")
     }
     a <- A %*% (crossprod(x, w * r.s) / mean(w0 * r0.s))
-    w <- lmrob.psifun( r.s, cc = c.psi, psi = psi)
+    w <- .M.psi( r.s, cc = c.psi, psi = psi)
 
     ## 3) now the standard part  (w, x, r0.s,  n, A,a, c.chi, bb)
-    w0 <- lmrob.chifun(r0.s, cc = c.chi, psi = chi)
+    w0 <- .M.chi(r0.s, cc = c.chi, psi = chi)
     Xww <- crossprod(x, w*w0)
     u1 <- A %*% crossprod(x, x * w^2) %*% (n * A)
     u2 <- a %*% crossprod(Xww, A)
@@ -696,9 +696,9 @@ lmrob.tau <- function(obj, x=obj$x, control = obj$control, h, fast = TRUE)
     if (!is.numeric(c.psi)) stop('parameter tuning.psi is not numeric')
 
     ## constant for stderr of u_{-i} part and other constants
-    inta <- function(r) lmrob.psifun(r, c.psi, psi)^2 * dnorm(r)
-    intb <- function(r) lmrob.psifun(r, c.psi, psi, deriv = 1) * dnorm(r)
-    intc <- function(r) lmrob.psifun(r, c.psi, psi) * r * dnorm(r) ## changed from psi/e to psi*e
+    inta <- function(r) .M.psi(r, c.psi, psi)^2 * dnorm(r)
+    intb <- function(r) .M.psi(r, c.psi, psi, deriv = 1) * dnorm(r)
+    intc <- function(r) .M.psi(r, c.psi, psi) * r * dnorm(r) ## changed from psi/e to psi*e
     ta <- integrate(inta, -Inf,Inf)$value
     tb <- integrate(intb, -Inf,Inf)$value
     tE <- integrate(intc, -Inf,Inf)$value
@@ -722,8 +722,8 @@ lmrob.tau <- function(obj, x=obj$x, control = obj$control, h, fast = TRUE)
         tc2 <- hu[i]/tb
         ## function to be integrated
         fun <- function(w, v, sigma.i) {
-            t <- (v-tc2*lmrob.psifun(v,c.psi,psi)+w*s)/sigma.i
-	    psi.t <- lmrob.psifun(t, c.psi, psi)
+            t <- (v-tc2*.M.psi(v,c.psi,psi)+w*s)/sigma.i
+	    psi.t <- .M.psi(t, c.psi, psi)
 	    (psi.t*t - kappa*psi.t/t) * dnorm(v)*dnorm(w)
         }
         ## integrate over w
@@ -837,11 +837,11 @@ lmrob.conv.cc <- function(psi, cc)
 }
 
 lmrob.ggw.mx <- function(a, b, c, ...) ## find x with minimal slope
-    optimize(lmrob.psifun, c(c, max(a+b+2*c, 0.5)),
+    optimize(.M.psi, c(c, max(a+b+2*c, 0.5)),
              cc=c(0, a, b, c, 1), psi = 'ggw', deriv = 1, ...)[[1]]
 
 lmrob.ggw.ms <- function(a, b, c, ...) ## find minimal slope
-    lmrob.psifun(lmrob.ggw.mx(a, b, c, ...), c(0, a, b, c, 1), 'ggw', 1)
+    .M.psi(lmrob.ggw.mx(a, b, c, ...), c(0, a, b, c, 1), 'ggw', 1)
 
 lmrob.ggw.finda <- function(ms, b, c, ...) ## find a constant
 {
@@ -853,13 +853,13 @@ lmrob.ggw.finda <- function(ms, b, c, ...) ## find a constant
 
 lmrob.ggw.ac <- function(a, b, c) ## calculate asymptotic efficiency
 {
-    lmrob.E(lmrob.psifun(r, c(0, a, b, c, 1), 'ggw', 1), use.integrate = TRUE)^2 /
-    lmrob.E(lmrob.psifun(r, c(0, a, b, c, 1), 'ggw')^2, use.integrate = TRUE)
+    lmrob.E(.M.psi(r, c(0, a, b, c, 1), 'ggw', 1), use.integrate = TRUE)^2 /
+    lmrob.E(.M.psi(r, c(0, a, b, c, 1), 'ggw')^2, use.integrate = TRUE)
 }
 
 lmrob.ggw.bp <- function(a, b, c) { ## calculate kappa
-    nc <- integrate(function(x) lmrob.psifun(x, c(0, a, b, c, 1), 'ggw'), 0, Inf)$value
-    lmrob.E(lmrob.chifun(r, c(0, a, b, c, nc), 'ggw'), use.integrate = TRUE)
+    nc <- integrate(function(x) .M.psi(x, c(0, a, b, c, 1), 'ggw'), 0, Inf)$value
+    lmrob.E(.M.chi(r, c(0, a, b, c, nc), 'ggw'), use.integrate = TRUE)
 }
 
 lmrob.ggw.findc <- function(ms, b, eff = NA, bp = NA) {
@@ -879,17 +879,17 @@ lmrob.ggw.findc <- function(ms, b, eff = NA, bp = NA) {
     }
 
     a <- lmrob.ggw.finda(ms, b, c)
-    nc <- integrate(function(x) lmrob.psifun(x, c(0, a, b, c, 1), 'ggw'), 0, Inf)$value
+    nc <- integrate(function(x) .M.psi(x, c(0, a, b, c, 1), 'ggw'), 0, Inf)$value
     return(c(0, a, b, c, nc))
 }
 
 lmrob.efficiency <-  function(psi, cc, ...) {
-  integrate(function(x) lmrob.psifun(x, cc, psi, 1)*dnorm(x), -Inf, Inf, ...)$value^2 /
-  integrate(function(x) lmrob.psifun(x, cc, psi)^2 *dnorm(x), -Inf, Inf, ...)$value
+  integrate(function(x) .M.psi(x, cc, psi, 1)*dnorm(x), -Inf, Inf, ...)$value^2 /
+  integrate(function(x) .M.psi(x, cc, psi)^2 *dnorm(x), -Inf, Inf, ...)$value
 }
 
 lmrob.bp <- function(psi, cc, ...)
-  integrate(function(x) lmrob.chifun(x, cc, psi)*dnorm(x), -Inf, Inf, ...)$value
+  integrate(function(x) .M.chi(x, cc, psi)*dnorm(x), -Inf, Inf, ...)$value
 
 ##' @title Find tuning constant for  "lqq"  psi function
 ##' @param cc numeric vector =  c(min_slope, b, eff, bp);
@@ -954,7 +954,7 @@ lmrob.const <- function(cc, psi)
     cc
 }
 
-lmrob.psifun <- function(x, cc, psi, deriv=0)
+.M.psi <- function(x, cc, psi, deriv=0)
 {
     ## apply to non-NAs only
     if(any(idx <- !is.na(x))) {
@@ -966,7 +966,7 @@ lmrob.psifun <- function(x, cc, psi, deriv=0)
     x
 }
 
-lmrob.chifun <- function(x, cc, psi, deriv=0)
+.M.chi <- function(x, cc, psi, deriv=0)
 {
     ## apply to non-NAs only
     if(any(idx <- !is.na(x))) {
@@ -978,7 +978,7 @@ lmrob.chifun <- function(x, cc, psi, deriv=0)
     x
 }
 
-lmrob.wgtfun <- function(x, cc, psi)
+.M.wgt <- function(x, cc, psi)
 {
     ## apply to non-NAs only
     if(any(idx <- !is.na(x))) {
@@ -991,7 +991,7 @@ lmrob.wgtfun <- function(x, cc, psi)
 }
 
 ##' The normalizing constant for  rho(.) <--> rho~(.)
-M.rhoInf <- function(cc, psi) {
+.M.rhoInf <- function(cc, psi) {
     cc <- lmrob.conv.cc(psi, cc)
     .Call(R_rho_inf, cc, .psi2ipsi(psi))
 }
@@ -1001,7 +1001,7 @@ lmrob.rweights <- function(resid, scale, cc, psi) {
     if (scale == 0) { ## exact fit
         return(as.numeric(abs(resid) < .Machine$double.eps))
     }
-    lmrob.wgtfun(resid / scale, cc, psi)
+    .M.wgt(resid / scale, cc, psi)
 }
 
 residuals.lmrob.S <- function(obj) obj$residuals
@@ -1020,9 +1020,9 @@ lmrob.E <- function(expr, control, dfun = dnorm, use.integrate = FALSE, obj, ...
 			  "tuning.chi" else "tuning.psi"]]
         if (!is.numeric(c.psi)) stop('tuning parameter (chi/psi) is not numeric')
 
-        list(psi = function(r, deriv = 0) lmrob.psifun(r, c.psi, psi, deriv),
-             chi = function(r, deriv = 0) lmrob.chifun(r, c.psi, psi, deriv), ## change?
-             wgt = function(r) lmrob.wgtfun(r, c.psi, psi)) ## change?
+        list(psi = function(r, deriv = 0) .M.psi(r, c.psi, psi, deriv),
+             chi = function(r, deriv = 0) .M.chi(r, c.psi, psi, deriv), ## change?
+             wgt = function(r) .M.wgt(r, c.psi, psi)) ## change?
 
       } else list()
 

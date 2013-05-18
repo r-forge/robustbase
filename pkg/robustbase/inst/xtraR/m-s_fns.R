@@ -126,7 +126,7 @@ m_s_descent_Ronly <- function(x1, x2, y, control, b1, b2, scale) {
           nnoimprovement < control$k.m_s) {
         ## STEP 1: UPDATE B2
         y.tilde <- y - x1 %*% t1
-        w <- robustbase:::lmrob.wgtfun(rs / sc, control$tuning.chi, control$psi)
+        w <- .M.wgt(rs / sc, control$tuning.chi, control$psi)
         if (control$trace.lev > 4) cat("w:", w, "\n")
         z2 <- lm.wfit(x2, y.tilde, w)
         t2 <- z2$coef

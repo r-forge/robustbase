@@ -221,7 +221,7 @@ robustness.weights.lmRob <- function(obj) {
   if (obj$robust.control$weight[2] != 'Optimal') {
     c.psi <- f.eff2c.psi(obj$robust.control$efficiency, obj$robust.control$weight[2])
     rs <- obj$residuals / obj$scale
-    obj$M.weights <- robustbase:::lmrob.wgtfun(rs, c.psi, obj$robust.control$weight[2])
+    obj$M.weights <- .M.wgt(rs, c.psi, obj$robust.control$weight[2])
   }
   naresid(obj$na.action, obj$M.weights)
 }
@@ -234,7 +234,7 @@ robustness.weights.lmRob <- function(obj) {
 
 robustness.weights.lmrob.S <- function(obj) {
   rstand <- resid(obj)/sigma(obj)
-  robustbase:::lmrob.wgtfun(rstand, obj$control$tuning.chi, obj$control$psi)
+  .M.wgt(rstand, obj$control$tuning.chi, obj$control$psi)
 }
 
 ## MM: Why on earth is this called  covariance.matrix() ?? -- S and R standard is vcov() !!
@@ -457,13 +457,13 @@ lmrob.mar <- function(formula, data, subset, weights, na.action, ..., type = 'qE
                 rs <- obj$resid / obj$scale
                 ## \hat a = \mean \rho(r/sigma)^2
                 ## obj$control$tuning.chi == h_0
-                ahat <- mean(robustbase:::lmrob.psifun(rs, obj$control$tuning.chi,
+                ahat <- mean(.M.psi(rs, obj$control$tuning.chi,
                                                        obj$control$psi)^2)
                 ## \hat b = \mean \rho''(r/sigma)
-                bhat <- mean(robustbase:::lmrob.psifun(rs, obj$control$tuning.chi,
+                bhat <- mean(.M.psi(rs, obj$control$tuning.chi,
                                                        obj$control$psi, 1))
                 ## \hat c = \mean \rho'(r/sigma) * r/sigma
-                chat <- mean(robustbase:::lmrob.psifun(rs, obj$control$tuning.chi,
+                chat <- mean(.M.psi(rs, obj$control$tuning.chi,
                                                        obj$control$psi)*rs)
                 ## qT:
                 1 + p*ahat/n/2/bhat/chat
@@ -525,7 +525,7 @@ lmrob.mscale <- function(e, control, p = 0L) {
 lmrob.dscale <- function(r, control,
                          kappa = robustbase:::lmrob.kappa(control = control)) {
   tau <- rep.int(1, length(r))
-  w <- robustbase:::lmrob.wgtfun(r, control$tuning.psi, control$psi)
+  w <- .M.wgt(r, control$tuning.psi, control$psi)
   scale <- sqrt(sum(w * r^2) / kappa / sum(tau^2*w))
   psi <- control$psi
   c.psi <- robustbase:::lmrob.conv.cc(psi, control$tuning.psi)

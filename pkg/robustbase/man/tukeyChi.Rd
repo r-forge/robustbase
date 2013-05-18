@@ -3,10 +3,10 @@
 \title{Tukey's "Chi", the Bi-square Loss (Rho) Function}
 \description{
   %% This is \bold{deprecated} , replaced by  the following three
-  %% lmrob.chifun(),
-  %% lmrob.psifun()
-  %% lmrob.wgtfun(),
-  %% --- but also want  rhofun()  via M.rhoInf()
+  %% .M.chi(),
+  %% .M.psi()
+  %% .M.wgt(),
+  %% --- but also want  rhofun()  via .M.rhoInf()
   Computes Tukey's bi-square loss function, \code{chi(x)} and its
   first two derivatives.  Note that in the general context of
   \eqn{M}-estimators, these loss functions are called

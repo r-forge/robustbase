@@ -1,3 +1,11 @@
+2013-05-18  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/lmrob.MM.R (.M.rhoInf): new, providing rho(Inf), i.e.,
+	the scaling constant (rho |--> rho~ = chi)
+	* R/lmrob.MM.R (.M.psi, .M.chi, .M.wgt): renamed, exported and documented,
+	from former hidden lmrob.psifun(), lmrob.chifun(), lmrob.wgtfun().
+	* TODO: now has an extensive section on psi/rho/chi etc
+
 2013-03-27  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.9-8, released to CRAN on ..........

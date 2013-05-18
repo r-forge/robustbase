@@ -139,3 +139,6 @@ svn r220 | rkst | 2010-11-05:
 
 31)  BYlogreg() now also via  glmrob( method = "BY" / "WBY")
 
+32) lmrob.psifun(), lmrob.chifun(), lmrob.wgtfun()  have been renamed
+    to  .M.psi(), .M.chi(), .M.wgt()  *and* are exported (and documented),
+    togehter with new .M.rhoInf()

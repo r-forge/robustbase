@@ -1,8 +1,7 @@
 
-R version 2.15.2 (2012-10-26) -- "Trick or Treat"
-Copyright (C) 2012 The R Foundation for Statistical Computing
-ISBN 3-900051-07-0
-Platform: x86_64-w64-mingw32/x64 (64-bit)
+R version 3.0.1 Patched (2013-05-16 r62758) -- "Good Sport"
+Copyright (C) 2013 The R Foundation for Statistical Computing
+Platform: x86_64-unknown-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -404,6 +403,17 @@ There were 14 warnings (use warnings() to see them)
 > 
 > ## Null fits (rank(X)==0) are tested in NAcoef.R
 > 
+> ## testing weight=0 bug
+> lmrob(y ~ x3, data, weights=weights)
+
+Call:
+lmrob(formula = y ~ x3, data = data, weights = weights)
+
+Coefficients:
+(Intercept)           x3  
+    18.7474       0.1751  
+
+> 
 > proc.time()
    user  system elapsed 
-   0.56    0.04    0.60 
+  0.720   0.032   0.744 

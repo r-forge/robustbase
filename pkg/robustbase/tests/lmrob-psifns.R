@@ -6,21 +6,17 @@ source(system.file("xtraR/plot-psiFun.R", package = "robustbase", mustWork=TRUE)
 ### (1) Test the functions themselves --------------------------------
 pdf("rob-psifns.pdf")
 
-psiF <- robustbase:::lmrob.psifun # deriv = -1 (rho), 0, 1
-chiF <- robustbase:::lmrob.chifun # rho(.) normalized to max|.| = 1;  deriv
-wgtF <- robustbase:::lmrob.wgtfun
-
 ## Simple version, no error checking, no derivative, nothing:
 psiGGW <- function(x, a,b,c) {
     ifelse((ax <- abs(x)) < c,
            x,
            ifelse((ea <- -((ax-c)^b)/(2*a)) < -708.4, 0, x * exp(ea)))
 }
-stopifnot(all.equal(psiF  (5:9, cc=c(0,a=1/8,b=2,c=1/8,NA), "GGW"),
+stopifnot(all.equal(.M.psi  (5:9, cc=c(0,a=1/8,b=2,c=1/8,NA), "GGW"),
 		    psiGGW(5:9,	       a=1/8,b=2,c=1/8), tol = 1e-13))
 
 
-funs <- list(psiF, chiF, wgtF)
+funs <- list(.M.psi, .M.chi, .M.wgt)
 ## Check that psi(<empty>)  |->  <empty>  works
 cG <- c(-.5,1,.95,NA)
 d0 <- numeric()
@@ -29,11 +25,11 @@ IoI <- c(-Inf, 0, Inf)
 ## ^^^^^
 for(FUN in funs)
     stopifnot(identical(d0, FUN(d0, cG, "GGW")))
-stopifnot(identical(c(0,0,0), psiF(IoI, cG,"GGW")),
-	  identical(c(1,0,1), chiF(IoI, cG,"GGW")),
-	  identical(c(0,1,0), wgtF(IoI, cG,"GGW")))
+stopifnot(identical(c(0,0,0), .M.psi(IoI, cG,"GGW")),
+	  identical(c(1,0,1), .M.chi(IoI, cG,"GGW")),
+	  identical(c(0,1,0), .M.wgt(IoI, cG,"GGW")))
 
-## FIXME: Check  chiF() <-> psiF(*, deriv = -1)
+## FIXME: Check  .M.chi() <-> .M.psi(*, deriv = -1)
 
 
 ## Nice plots -- and check derivatives ----
