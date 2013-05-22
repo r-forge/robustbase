@@ -813,7 +813,7 @@ lmrob.conv.cc <- function(psi, cc)
            },
            'lqq' = {
                ## Input: 4 parameters, (minimal slope, b, efficiency, breakdown point)
-               ## Output: k[1:3]
+               ## Output: k[1:3] = (b, c, s)
                if (isTRUE(all.equal(cc, c(-.5, 1.5, 0.95, NA))))
                    return(c(1.4734061, 0.9822707, 1.5))
                else if (isTRUE(all.equal(cc, c(-.5, 1.5, NA, 0.5))))
@@ -955,40 +955,14 @@ lmrob.const <- function(cc, psi)
 }
 
 .M.psi <- function(x, cc, psi, deriv=0)
-{
-    ## apply to non-NAs only
-    if(any(idx <- !is.na(x))) {
-	cc <- lmrob.conv.cc(psi, cc)
-	x[idx] <- .C(R_psifun, x = as.double(x[idx]), cc = as.double(cc),
-		     ipsi = .psi2ipsi(psi), NAOK= TRUE, # for +- Inf
-		     deriv = as.integer(deriv), length = as.integer(length(x[idx])))$x
-    }
-    x
-}
+    .Call(R_psifun, x, lmrob.conv.cc(psi, cc), .psi2ipsi(psi), deriv)
 
 .M.chi <- function(x, cc, psi, deriv=0)
-{
-    ## apply to non-NAs only
-    if(any(idx <- !is.na(x))) {
-	cc <- lmrob.conv.cc(psi, cc)
-	x[idx] <- .C(R_chifun, x = as.double(x[idx]), cc = as.double(cc),
-		     ipsi = .psi2ipsi(psi), NAOK= TRUE, # for +- Inf
-		     deriv = as.integer(deriv), length = as.integer(length(x[idx])))$x
-    }
-    x
-}
+    .Call(R_chifun, x, lmrob.conv.cc(psi, cc), .psi2ipsi(psi), deriv)
 
 .M.wgt <- function(x, cc, psi)
-{
-    ## apply to non-NAs only
-    if(any(idx <- !is.na(x))) {
-	cc <- lmrob.conv.cc(psi, cc)
-	x[idx] <- .C(R_wgtfun, x = as.double(x[idx]), cc = as.double(cc),
-		     ipsi = .psi2ipsi(psi), NAOK= TRUE, # for +- Inf
-		     length = as.integer(length(x[idx])))$x
-    }
-    x
-}
+    .Call(R_wgtfun, x, lmrob.conv.cc(psi, cc), .psi2ipsi(psi))
+
 
 ##' The normalizing constant for  rho(.) <--> rho~(.)
 .M.rhoInf <- function(cc, psi) {

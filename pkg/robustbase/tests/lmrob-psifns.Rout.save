@@ -1,5 +1,5 @@
 
-R version 3.0.1 Patched (2013-05-16 r62758) -- "Good Sport"
+R version 3.0.1 Patched (2013-05-22 r62772) -- "Good Sport"
 Copyright (C) 2013 The R Foundation for Statistical Computing
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
@@ -33,20 +33,74 @@ Type 'q()' to quit R.
 + 		    psiGGW(5:9,	       a=1/8,b=2,c=1/8), tol = 1e-13))
 > 
 > 
-> funs <- list(.M.psi, .M.chi, .M.wgt)
-> ## Check that psi(<empty>)  |->  <empty>  works
+> ## Check that psi(<empty>)  |->  <empty>  works; ditto for +-Inf, NA,..
 > cG <- c(-.5,1,.95,NA)
 > d0 <- numeric()
 > IoI <- c(-Inf, 0, Inf)
-> ## TODO: Do these checks for a *list* of combinations such as  (cG, "GGW"):
-> ## ^^^^^
-> for(FUN in funs)
-+     stopifnot(identical(d0, FUN(d0, cG, "GGW")))
-> stopifnot(identical(c(0,0,0), .M.psi(IoI, cG,"GGW")),
-+ 	  identical(c(1,0,1), .M.chi(IoI, cG,"GGW")),
-+ 	  identical(c(0,1,0), .M.wgt(IoI, cG,"GGW")))
+> NN <- c(NaN, NA)
+> ## Do these checks for a *list* of (c.par, psi) combinations:
+> c.psi.list <- list(
++     list(cG, "GGW"),
++     list(c(2,4,8), "Hampel"),
++     list(c(1.5,3.5,8)*0.90, "Hampel"),
++     list(par=c(-.5,1.5,.95,NA), "lqq"),
++     list(bcs=c(1, 1, 1.25), "lqq"),
++     list(1.1, "optimal"),
++     list(0.1, "optimal"),
++     list(2.3, "Welsh")
++     )
 > 
-> ## FIXME: Check  .M.chi() <-> .M.psi(*, deriv = -1)
+> for(c.psi in c.psi.list) {
++     tPar <-  c.psi[[1]]; psi <- c.psi[[2]]
++     stopifnot(is.numeric(tPar), is.character(psi))
++     cat("Psi function ", psi,"; tuning par. c[]= (",
++         paste(formatC(tPar, width=1), collapse=", "),")\n")
++     for(FUN in list(.M.psi, .M.chi, .M.wgt))
++           stopifnot(identical(d0, FUN(d0, tPar, psi=psi)),
++                   identical(NN, FUN(NN, tPar, psi=psi)))
++     stopifnot(identical(c(0,0,0), .M.psi(IoI, tPar,psi=psi)),
++               identical(c(1,0,1), .M.chi(IoI, tPar,psi=psi)),
++               identical(c(0,1,0), .M.wgt(IoI, tPar,psi=psi)))
++     cat("chkPsi..(): ")
++     chkPsi..(c(-5, 10), psi=psi, par=tPar)
++     cat(" [Ok]\n------------------------\n\n")
++ }
+Psi function  GGW ; tuning par. c[]= ( -0.5, 1, 0.95, NA )
+chkPsi..(): Not checking psi''() := .M.psi(*, deriv=2)
+ [Ok]
+------------------------
+
+Psi function  Hampel ; tuning par. c[]= ( 2, 4, 8 )
+chkPsi..():  [Ok]
+------------------------
+
+Psi function  Hampel ; tuning par. c[]= ( 1.35, 3.15, 7.2 )
+chkPsi..():  [Ok]
+------------------------
+
+Psi function  lqq ; tuning par. c[]= ( -0.5, 1.5, 0.95, NA )
+chkPsi..():  [Ok]
+------------------------
+
+Psi function  lqq ; tuning par. c[]= ( 1, 1, 1.25 )
+chkPsi..():  [Ok]
+------------------------
+
+Psi function  optimal ; tuning par. c[]= ( 1.1 )
+chkPsi..(): Not checking psi''() := .M.psi(*, deriv=2)
+ [Ok]
+------------------------
+
+Psi function  optimal ; tuning par. c[]= ( 0.1 )
+chkPsi..(): Not checking psi''() := .M.psi(*, deriv=2)
+ [Ok]
+------------------------
+
+Psi function  Welsh ; tuning par. c[]= ( 2.3 )
+chkPsi..(): Not checking psi''() := .M.psi(*, deriv=2)
+ [Ok]
+------------------------
+
 > 
 > 
 > ## Nice plots -- and check derivatives ----
@@ -523,8 +577,8 @@ seed : int(0)
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  7.036 0.104 7.159 0 0 
+Time elapsed:  6.587 0.153 6.883 0 0.007 
 > 
 > proc.time()
    user  system elapsed 
-  7.036   0.104   7.159 
+  6.587   0.160   6.883 

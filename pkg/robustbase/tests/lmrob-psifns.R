@@ -16,20 +16,38 @@ stopifnot(all.equal(.M.psi  (5:9, cc=c(0,a=1/8,b=2,c=1/8,NA), "GGW"),
 		    psiGGW(5:9,	       a=1/8,b=2,c=1/8), tol = 1e-13))
 
 
-funs <- list(.M.psi, .M.chi, .M.wgt)
-## Check that psi(<empty>)  |->  <empty>  works
+## Check that psi(<empty>)  |->  <empty>  works; ditto for +-Inf, NA,..
 cG <- c(-.5,1,.95,NA)
 d0 <- numeric()
 IoI <- c(-Inf, 0, Inf)
-## TODO: Do these checks for a *list* of combinations such as  (cG, "GGW"):
-## ^^^^^
-for(FUN in funs)
-    stopifnot(identical(d0, FUN(d0, cG, "GGW")))
-stopifnot(identical(c(0,0,0), .M.psi(IoI, cG,"GGW")),
-	  identical(c(1,0,1), .M.chi(IoI, cG,"GGW")),
-	  identical(c(0,1,0), .M.wgt(IoI, cG,"GGW")))
+NN <- c(NaN, NA)
+## Do these checks for a *list* of (c.par, psi) combinations:
+c.psi.list <- list(
+    list(cG, "GGW"),
+    list(c(2,4,8), "Hampel"),
+    list(c(1.5,3.5,8)*0.90, "Hampel"),
+    list(par=c(-.5,1.5,.95,NA), "lqq"),
+    list(bcs=c(1, 1, 1.25), "lqq"),
+    list(1.1, "optimal"),
+    list(0.1, "optimal"),
+    list(2.3, "Welsh")
+    )
 
-## FIXME: Check  .M.chi() <-> .M.psi(*, deriv = -1)
+for(c.psi in c.psi.list) {
+    tPar <-  c.psi[[1]]; psi <- c.psi[[2]]
+    stopifnot(is.numeric(tPar), is.character(psi))
+    cat("Psi function ", psi,"; tuning par. c[]= (",
+        paste(formatC(tPar, width=1), collapse=", "),")\n")
+    for(FUN in list(.M.psi, .M.chi, .M.wgt))
+          stopifnot(identical(d0, FUN(d0, tPar, psi=psi)),
+                  identical(NN, FUN(NN, tPar, psi=psi)))
+    stopifnot(identical(c(0,0,0), .M.psi(IoI, tPar,psi=psi)),
+              identical(c(1,0,1), .M.chi(IoI, tPar,psi=psi)),
+              identical(c(0,1,0), .M.wgt(IoI, tPar,psi=psi)))
+    cat("chkPsi..(): ")
+    chkPsi..(c(-5, 10), psi=psi, par=tPar)
+    cat(" [Ok]\n------------------------\n\n")
+}
 
 
 ## Nice plots -- and check derivatives ----

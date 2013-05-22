@@ -44,18 +44,6 @@ static R_NativePrimitiveArgType R_lmrob_MM_t[] = {
     /* loss */ REALSXP, REALSXP, LGLSXP, INTSXP, INTSXP, INTSXP
 };
 
-static R_NativePrimitiveArgType R_psifun_t[] = {
-    REALSXP, REALSXP, INTSXP, INTSXP, INTSXP
-};
-
-static R_NativePrimitiveArgType R_chifun_t[] = {
-    REALSXP, REALSXP, INTSXP, INTSXP, INTSXP
-};
-
-static R_NativePrimitiveArgType R_wgtfun_t[] = {
-    REALSXP, REALSXP, INTSXP, INTSXP
-};
-
 static R_NativePrimitiveArgType R_find_D_scale_t[] = {
     REALSXP, REALSXP, REALSXP, INTSXP, REALSXP,
     /* c */ REALSXP, INTSXP, INTSXP, REALSXP,
@@ -94,9 +82,6 @@ static const R_CMethodDef CEntries[]  = {
     CDEF(wgt_himed),
     CDEF(R_lmrob_S),
     CDEF(R_lmrob_MM),
-    CDEF(R_psifun),
-    CDEF(R_chifun),
-    CDEF(R_wgtfun),
     CDEF(R_find_D_scale),
     CDEF(R_calc_fitted),
     CDEF(R_lmrob_M_S),
@@ -106,6 +91,9 @@ static const R_CMethodDef CEntries[]  = {
 
 static R_CallMethodDef CallEntries[] = {
     CALLDEF(R_rho_inf, 2),
+    CALLDEF(R_psifun, 4),
+    CALLDEF(R_chifun, 4),
+    CALLDEF(R_wgtfun, 3),
     {NULL, NULL, 0}
 };
 

@@ -1,5 +1,5 @@
 
-R version 3.0.1 Patched (2013-05-16 r62758) -- "Good Sport"
+R version 3.0.1 Patched (2013-05-22 r62772) -- "Good Sport"
 Copyright (C) 2013 The R Foundation for Statistical Computing
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
@@ -24,13 +24,20 @@ Loading required package: robustbase
 > 
 > ## Demonstrate that  one of  tukeyChi() / tukeyPsi1() is superfluous
 > x <- seq(-4,4, length=201)
-> for(c. in c(0.1, 1:2, pi, 100))
-+ stopifnot(EQ(tukeyChi(x, c.),
-+              6/c.^2* tukeyPsi1(x, c., deriv=-1)),
-+           EQ(tukeyChi(x, c., deriv= 1),
-+              6/c.^2* tukeyPsi1(x, c., deriv= 0)),
-+           EQ(tukeyChi(x, c., deriv= 2),
-+              6/c.^2* tukeyPsi1(x, c., deriv= 1)))
+> for(c. in c(0.1, 1:2, pi, 100)) {
++     ix <- abs(x) != c.
++     stopifnot(EQ(tukeyChi(x, c.),
++ 		 6/c.^2* tukeyPsi1(x, c., deriv=-1)),
++ 	      EQ(tukeyChi(x, c., deriv= 1),
++ 		 6/c.^2* tukeyPsi1(x, c., deriv= 0)),
++ 	      EQ(tukeyChi(x, c., deriv= 2),
++ 		 6/c.^2* tukeyPsi1(x, c., deriv= 1)),
++ 	      ## Now show equivalence with .M.psi():
++ 	      EQ(tukeyPsi1(x,     c.),      .M.psi(x,     c., "tukey")),
++ 	      EQ(tukeyPsi1(x,     c., d=1), .M.psi(x,     c., "tukey", d=1)),
++ 	      EQ(tukeyPsi1(x[ix], c., d=2), .M.psi(x[ix], c., "tukey", d=2))
++ 	      )
++ }
 > 
 > ## Test if default arguments are used
 > h2Psi <- chgDefaults(huberPsi, k = 2)
@@ -177,4 +184,4 @@ Loading required package: robustbase
 > 
 > proc.time()
    user  system elapsed 
-  0.724   0.028   0.745 
+  0.866   0.067   0.997 

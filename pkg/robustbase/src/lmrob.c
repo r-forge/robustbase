@@ -91,12 +91,14 @@ double rho_inf (const double c[], int ipsi);
 
 double rho(double x, const double c[], int ipsi);
 double psi(double x, const double c[], int ipsi);
-double psip(double x, const double c[], int ipsi);
+double psip(double x, const double c[], int ipsi);// psi'
+double psi2(double x, const double c[], int ipsi);// psi''
 double wgt(double x, const double c[], int ipsi);
 
 double rho_biwgt(double x, const double c[]);
 double psi_biwgt(double x, const double c[]);
 double psip_biwgt(double x, const double c[]);
+double psi2_biwgt(double x, const double c[]);
 double wgt_biwgt(double x, const double c[]);
 
 double rho_gwgt(double x, const double c[]);
@@ -112,6 +114,7 @@ double wgt_opt(double x, const double c[]);
 double rho_hmpl(double x, const double c[]);
 double psi_hmpl(double x, const double c[]);
 double psip_hmpl(double x, const double c[]);
+double psi2_hmpl(double x, const double c[]);
 double wgt_hmpl(double x, const double c[]);
 
 double rho_ggw(double x, const double c[]);
@@ -123,6 +126,7 @@ double wgt_ggw(double x, const double c[]);
 double rho_lqq(double x, const double c[]);
 double psi_lqq(double x, const double c[]);
 double psip_lqq(double x, const double c[]);
+double psi2_lqq(double x, const double c[]);
 double wgt_lqq(double x, const double c[]);
 
 double sum_rho_sc(const double r[], double scale, int n, int p,
@@ -487,52 +491,93 @@ void R_subsample(const double x[], const double y[], int *n, int *m,
 
 /*----------------------------------------------------------------------------*/
 
-void R_psifun(double *xx, const double cc[], int *iipsi, int *dderiv, int *llength) {
+SEXP R_psifun(SEXP x_, SEXP c_, SEXP ipsi_, SEXP deriv_) {
     /*
      * Calculate psi for vectorized x, scaled to get  psi'(0) = 1
      * deriv -1: rho(x)  {*not* normalized}
-     * deriv  0: psi(x) = rho'(x)
-     * deriv  1: psi'(x)= rho''(x)   {we always have psip(0) == 1}
+     * deriv  0: psi(x)  = rho'(x)
+     * deriv  1: psi'(x) = rho''(x)   {we always have psip(0) == 1}
+     * deriv  2: psi''(x)= rho'''(x)
      */
-    int ipsi = *iipsi;
-    double rho_Inf = (*dderiv == -1) ? rho_inf(cc, ipsi) : 0./* -Wall */;
+    int nprot = 1, ipsi = asInteger(ipsi_), deriv = asInteger(deriv_);
+    if (isInteger(x_)) {
+	x_ = PROTECT(coerceVector(x_, REALSXP)); nprot++;
+    }
+    if (!isReal(x_)) error(_("Argument '%s' must be numeric or integer"), "x");
+    if (!isReal(c_)) error(_("Argument '%s' must be numeric or integer"), "cc");
+    R_xlen_t i, n = XLENGTH(x_);
+    SEXP res = PROTECT(allocVector(REALSXP, n)); // the result
+    double *x = REAL(x_), *r = REAL(res), *cc = REAL(c_);
 
 // put the for() loop *inside* the switch (--> speed for llength >> 1) :
-#define for_i_llength  for(int i = 0; i < *llength; i++)
+#define for_i_n_NA  for(i = 0; i < n; i++) r[i] = ISNAN(x[i]) ? x[i] :
 
-    switch(*dderiv) { // our rho() is rho~(), i.e., scaled to max = 1
-    case -1: for_i_llength xx[i] = rho(xx[i], cc, ipsi) * rho_Inf; break;
-    default:
-    case 0: for_i_llength xx[i] = psi (xx[i], cc, ipsi); break;
-    case 1: for_i_llength xx[i] = psip(xx[i], cc, ipsi); break;
+    switch(deriv) { // our rho() is rho~(), i.e., scaled to max = 1
+    case -1: {
+	double rho_Inf = rho_inf(cc, ipsi);
+	for_i_n_NA rho(x[i], cc, ipsi) * rho_Inf; break;
     }
+    case  0: for_i_n_NA psi (x[i], cc, ipsi); break;
+    case  1: for_i_n_NA psip(x[i], cc, ipsi); break;
+    case  2: for_i_n_NA psi2(x[i], cc, ipsi); break;
+    default: error(_("'deriv'=%d is invalid"), deriv);
+    }
+    UNPROTECT(nprot);
+    return res;
 }
 
-void R_chifun(double *xx, const double cc[], int *iipsi, int *dderiv, int *llength) {
+SEXP R_chifun(SEXP x_, SEXP c_, SEXP ipsi_, SEXP deriv_) {
     /*
      * Calculate chi for vectorized x, i.e. rho~(.) with rho~(inf) = 1:
-     * deriv 0: chi (x)  = rho(x) / rho(Inf) =: rho(x) * nc  == our rho() C-function
+     * deriv 0: chi (x)  = \rho(x) / \rho(Inf) =: \rho(x) * nc  == our rho() C-function
      * deriv 1: chi'(x)  = psi(x)  * nc
      * deriv 2: chi''(x) = psi'(x) * nc
      */
-    int ipsi = *iipsi;
-    double rI = (*dderiv > 0) ? rho_inf(cc, ipsi) : 0./* -Wall */;
-
-    switch(*dderiv) {
-    default:
-    case 0: for_i_llength xx[i] = rho (xx[i], cc, ipsi); break;
-    case 1: for_i_llength xx[i] = psi (xx[i], cc, ipsi) / rI; break;
-    case 2: for_i_llength xx[i] = psip(xx[i], cc, ipsi) / rI; break;
+    int nprot = 1, ipsi = asInteger(ipsi_), deriv = asInteger(deriv_);
+    if (isInteger(x_)) {
+	x_ = PROTECT(coerceVector(x_, REALSXP)); nprot++;
     }
+    if (!isReal(x_)) error(_("Argument '%s' must be numeric or integer"), "x");
+    if (!isReal(c_)) error(_("Argument '%s' must be numeric or integer"), "cc");
+    R_xlen_t i, n = XLENGTH(x_);
+    SEXP res = PROTECT(allocVector(REALSXP, n)); // the result
+    double *x = REAL(x_), *r = REAL(res), *cc = REAL(c_);
+
+    // our rho() is rho~() == chi(), i.e., scaled to max = 1
+    double rI = (deriv > 0) ? rho_inf(cc, ipsi) : 0./* -Wall */;
+
+    switch(deriv) {
+    case 0: for_i_n_NA rho(x[i], cc, ipsi); break;
+    case 1: for_i_n_NA psi (x[i], cc, ipsi) / rI; break;
+    case 2: for_i_n_NA psip(x[i], cc, ipsi) / rI; break;
+    case 3: for_i_n_NA psi2(x[i], cc, ipsi) / rI; break;
+    default: error(_("'deriv'=%d is invalid"), deriv);
+    }
+    UNPROTECT(nprot);
+    return res;
 }
 
-void R_wgtfun(double *xx, const double cc[], int *iipsi, int *llength) {
+SEXP R_wgtfun(SEXP x_, SEXP c_, SEXP ipsi_) {
     /*
-     * Calculate wgt for vectorized x
+     * Calculate wgt(x) = psi(x)/x for vectorized x
      */
-    for_i_llength xx[i] = wgt(xx[i], cc, *iipsi);
+    int nprot = 1, ipsi = asInteger(ipsi_);
+    if (isInteger(x_)) {
+	x_ = PROTECT(coerceVector(x_, REALSXP)); nprot++;
+    }
+    if (!isReal(x_)) error(_("Argument '%s' must be numeric or integer"), "x");
+    if (!isReal(c_)) error(_("Argument '%s' must be numeric or integer"), "cc");
+    R_xlen_t i, n = XLENGTH(x_);
+    SEXP res = PROTECT(allocVector(REALSXP, n)); // the result
+    double *x = REAL(x_), *r = REAL(res), *cc = REAL(c_);
+
+    for_i_n_NA wgt(x[i], cc, ipsi);
+
+    UNPROTECT(nprot);
+    return res;
 }
-#undef for_i_llength
+
+#undef for_i_n_NA
 
 SEXP R_rho_inf(SEXP cc, SEXP ipsi) {
     if (!isReal(cc)) error(_("Argument 'cc' must be numeric"));
@@ -542,13 +587,13 @@ SEXP R_rho_inf(SEXP cc, SEXP ipsi) {
 
 double rho_inf(const double k[], int ipsi) {
     /*
-     * Compute  rho(Inf)  for psi functions
+     * Compute  \rho(\infty) for psi functions
+     * (Note that our C function rho() is "rho~" and has rho(Inf) = 1)
      */
-
     double c = k[0];
 
     switch(ipsi) {
-    default:
+    default: error("rho_inf: ipsi=%d not implemented.", ipsi);
     case 1: return(c*c/6.); // biweight
     case 2: return(c*c); // GaussWeight
     case 3: return(3.25*c*c); // Optimal
@@ -577,7 +622,7 @@ double normcnst(const double k[], int ipsi) {
     double c = k[0];
 
     switch(ipsi) {
-    default:
+    default: error("normcnst: ipsi=%d not implemented.", ipsi);
     case 1: return(6./(c*c)); // biweight
     case 2: return(1./(c*c)); // GaussWeight
     case 3: return(1./3.25/(c*c)); // Optimal
@@ -603,10 +648,10 @@ double rho(double x, const double c[], int ipsi)
 {
     /*
      * return the correct rho according to ipsi
-     * this is normalized to 1
+     * This rho() is normalized to 1, called rho~() or chi() in other contexts
      */
     switch(ipsi) {
-    default:
+    default: error("rho: ipsi=%d not implemented.", ipsi);
     case 1: return(rho_biwgt(x, c)); // biweight
     case 2: return(rho_gwgt(x, c)); // GaussWeight
     case 3: return(rho_opt(x, c)); // Optimal
@@ -624,7 +669,7 @@ double psi(double x, const double c[], int ipsi)
      * this is actually rho' and not psi
      */
     switch(ipsi) {
-    default:
+    default: error("psi: ipsi=%d not implemented.", ipsi);
     case 1: return(psi_biwgt(x, c)); // biweight
     case 2: return(psi_gwgt(x, c)); // GaussWeight
     case 3: return(psi_opt(x, c)); // Optimal
@@ -641,13 +686,32 @@ double psip(double x, const double c[], int ipsi)
      * this is actually rho'' and not psip
      */
     switch(ipsi) {
-    default:
+    default: error("psip: ipsi=%d not implemented.", ipsi);
     case 1: return(psip_biwgt(x, c)); // biweight
     case 2: return(psip_gwgt(x, c)); // GaussWeight
     case 3: return(psip_opt(x, c)); // Optimal
     case 4: return(psip_hmpl(x, c)); // Hampel
     case 5: return(psip_ggw(x, c)); // GGW
     case 6: return(psip_lqq(x, c)); // LQQ (piecewise linear psi')
+    }
+}
+
+double psi2(double x, const double c[], int ipsi)
+{
+    /* Compute   psi''(x) == rho'''(x)
+     */
+    switch(ipsi) {
+    // default: error("psi2: ipsi=%d not implemented.", ipsi);
+    case 1: return(psi2_biwgt(x, c)); // biweight
+    case 4: return(psi2_hmpl(x, c)); // Hampel
+    case 6: return(psi2_lqq(x, c)); // LQQ (piecewise linear psi')
+
+    default: error("psi2: ipsi=%d not yet implemented.", ipsi);
+/*
+    case 2: return(psi2_gwgt(x, c)); // GaussWeight
+    case 3: return(psi2_opt(x, c)); // Optimal
+    case 5: return(psi2_ggw(x, c)); // GGW
+*/
     }
 }
 
@@ -704,10 +768,23 @@ double psip_biwgt(double x, const double c[])
     if (fabs(x) > (*c))
 	return(0.);
     else {
-	double x2;
 	x /= *c;
-	x2 = x*x;
+	double x2 = x*x;
 	return( (1. - x2) * (1 - 5 * x2));
+    }
+}
+
+double psi2_biwgt(double x, const double c[])
+{
+/** 3rd derivative of Tukey's bisquare loss function rho()
+ *= 2nd derivative of psi() :
+ */
+    if (fabs(x) >= c[0]) // psi''()  *is* discontinuous at x = c[0]: use "middle" value there:
+	return (fabs(x) == c[0]) ? 4*x/c[0] : 0.;
+    else {
+	x /= c[0];
+	double x2 = x*x;
+	return 4*x/c[0] * (5 * x2 - 3.);
     }
 }
 
@@ -887,7 +964,9 @@ double psi_hmpl(double x, const double k[])
      * psi()  for Hampel's redescending psi function
      * constants  (a, b, r) == k[0:2]   s.t. slope of psi is 1 in the center
      */
-    double sx = sign(x), u = fabs(x);
+    // double sx = sign(x), u = fabs(x); :
+    double sx, u;
+    if (x < 0) { sx = -1; u = -x; } else { sx = +1; u = x; }
 
     if (u <= k[0])
 	return( x );
@@ -917,6 +996,15 @@ double psip_hmpl(double x, const double k[])
 	return( 0 );
 }
 
+double psi2_hmpl(double x, const double k[])
+{
+    /*
+     * psi''()  for Hampel's redescending psi function
+     * constants  (a, b, r) == k[0:2]   s.t. slope of psi is 1 in the center
+     */
+    return 0.; // even though psi'() is already discontinuous at k[j]
+}
+
 double wgt_hmpl(double x, const double k[])
 {
     /*
@@ -935,6 +1023,11 @@ double wgt_hmpl(double x, const double k[])
     else
 	return( 0 );
 }
+
+
+// GGW := Generalized Gauss-Weight    Koller and Stahel (2011)
+// ---
+// --- rho() & chi()  need to be calculated by numerical integration
 
 double rho_ggw(double x, const double k[])
 {
@@ -1032,7 +1125,7 @@ double rho_ggw(double x, const double k[])
 					   x*(C[j][19]))))))))));
 	else return(1.);
     }
-    else {
+    else { // k[0] == 0; k[1:4] = (a, b, c, rho(Inf)) =  "general parameters"
 	// calculate integral
 	x = fabs(x);
 	double a = 0., epsabs = R_pow(DOUBLE_EPS, 0.25), result, abserr;
@@ -1052,9 +1145,7 @@ double rho_ggw(double x, const double k[])
 
 void psi_ggw_vec(double *x, int n, void *k)
 {
-    for (int i = 0; i<n; i++) {
-	x[i] = psi_ggw(x[i], k);
-    }
+    for (int i = 0; i<n; i++) x[i] = psi_ggw(x[i], k);
 }
 
 double psi_ggw(double x, const double k[])
@@ -1128,15 +1219,41 @@ double psip_lqq (double x, const double k[])
     if (ax <= k[1])
 	return(1.);
     else {
-	double k01 = k[0] + k[1];
+	double k01 = k[0] + k[1];// = b+c
 	if (/*k[1] < ax && */ ax <= k01)
-	    return(((1. - k[2]) * (ax - k[1]) - (ax - k01)) / k[0]);
+	    return 1. - k[2]/k[0] * (ax - k[1]);
 	else {
 	    double
-		s5 = k[2] - 1.,
-		s6 = -2 * k01 + k[0] * k[2];
-	    if (/* k01 < ax && */ ax < k01 - s6 / s5)
-		return(-pow(s5, 2.) * (ax - k01 + s6 / s5) / s6);
+		s5 = 1. - k[2], // = (1-s)
+ 		a = (k[0] * k[2] - 2 * k01)/ s5;
+	    if (/* k01 < ax && */ ax < k01 + a)
+		return -s5*((ax - k01)/a -1.);
+	    else
+		return 0.;
+	}
+    }
+}
+
+// piecewise linear psi'()  ==> piecewise constant  psi''():
+double psi2_lqq (double x, const double k[])
+{
+    // double sx = sign(x), ax = fabs(x); :
+    double sx, ax;
+    if (x < 0) { sx = -1; ax = -x; } else { sx = +1; ax = x; }
+
+    // k[0:2] == (b, c, s) :
+    if (ax <= k[1])
+	return 0.;
+    else {
+	double k01 = k[0] + k[1];
+	if (/*k[1] < ax && */ ax <= k01)
+	    return sx * (- k[2]/k[0]);
+	else {
+	    double
+		s5 = 1. - k[2], // = (1-s)
+ 		a = (k[0] * k[2] - 2 * k01)/ s5;
+	    if (/* k01 < ax && */ ax < k01 + a)
+		return sx * (- s5 / a);
 	    else
 		return 0.;
 	}
@@ -1149,6 +1266,7 @@ double psi_lqq (double x, const double k[])
     if (ax <= k[1])
 	return(x);
     else {
+	// k[0:2] == (b, c, s) :
 	double k01 = k[0] + k[1];
 	if (ax <= k01)
 	    return((double) (x>0 ? 1 : (x<0 ? -1 : 0)) *

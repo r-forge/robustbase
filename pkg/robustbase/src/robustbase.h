@@ -83,9 +83,9 @@ void R_subsample(const double *x, const double *y, int *n, int *m,
 		 int *status, int *sample, int *mts, int *ss, double *tol_inv,
 		 int *solve);
 
-void R_psifun(double *xx, const double cc[], int *iipsi, int *dderiv, int *llength);
-void R_chifun(double *xx, const double cc[], int *iipsi, int *dderiv, int *llength);
-void R_wgtfun(double *xx, const double cc[], int *iipsi, int *llength);
+SEXP R_psifun(SEXP x_, SEXP c_, SEXP ipsi_, SEXP deriv_);
+SEXP R_chifun(SEXP x_, SEXP c_, SEXP ipsi_, SEXP deriv_);
+SEXP R_wgtfun(SEXP x_, SEXP c_, SEXP ipsi_);
 
 
 void R_find_D_scale(double *rr, double *kkappa, double *ttau, int *llength,

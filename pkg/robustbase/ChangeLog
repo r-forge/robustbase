@@ -1,3 +1,8 @@
+2013-05-22  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/lmrob.MM.R (.M.psi, .M.chi, .M.wgt): now all work via .Call():
+	is  9 x  faster for n ~ 4000, and a few NAs.
+
 2013-05-18  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/lmrob.MM.R (.M.rhoInf): new, providing rho(Inf), i.e.,

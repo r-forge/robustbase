@@ -13,7 +13,7 @@ tukeyPsi1(x, cc, deriv = 0)
 \arguments{
   \item{x}{numeric vector.}
   \item{cc}{ tuning constant }
-  \item{deriv}{integer in \eqn{\{-1,0,1\}} specifying the order of the
+  \item{deriv}{integer in \eqn{\{-1,0,1,2\}} specifying the order of the
     derivative; the default, \code{deriv = 0} computes the psi-function.}
 }
 \value{

@@ -35,9 +35,12 @@ o  Psi/Rho/Chi/Wgt Functions
 	./tests/lmrob-psifns.R 	   	plot and lmrob()-test them
 
     TODO: Done: -> '32)'; Rest:
-	   .) *Deprecate* the "2)", tukeyChi() etc, making them call the M.*fun()
+	   .) *Deprecate* the "2)", tukeyChi() etc, making them call the M.*fun():
+	      *CARE*: tukeyPsi1(*, d = 2) is now needed asymp.cov() of glmrobMT()
            .) provide  '1)'-i.e. psi_func  versions of them
 
+    *) .M.psi(*, "GGW") etc :  there is (??) no reasonable to directly specify
+       ---------------- the (a,b,c) tuning parameters
 
 
 o  New  lmrob() "M-S" etc features:
