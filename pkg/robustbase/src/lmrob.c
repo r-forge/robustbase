@@ -95,6 +95,12 @@ double psip(double x, const double c[], int ipsi);// psi'
 double psi2(double x, const double c[], int ipsi);// psi''
 double wgt(double x, const double c[], int ipsi);
 
+double rho_huber(double x, const double c[]);
+double psi_huber(double x, const double c[]);
+double psip_huber(double x, const double c[]);
+double psi2_huber(double x, const double c[]);
+double wgt_huber(double x, const double c[]);
+
 double rho_biwgt(double x, const double c[]);
 double psi_biwgt(double x, const double c[]);
 double psip_biwgt(double x, const double c[]);
@@ -594,6 +600,7 @@ double rho_inf(const double k[], int ipsi) {
 
     switch(ipsi) {
     default: error("rho_inf: ipsi=%d not implemented.", ipsi);
+    case 0: return(R_PosInf); // huber
     case 1: return(c*c/6.); // biweight
     case 2: return(c*c); // GaussWeight
     case 3: return(3.25*c*c); // Optimal
@@ -623,6 +630,7 @@ double normcnst(const double k[], int ipsi) {
 
     switch(ipsi) {
     default: error("normcnst: ipsi=%d not implemented.", ipsi);
+    case 0: return(0.); // huber {normcnst() should never be used for that!}
     case 1: return(6./(c*c)); // biweight
     case 2: return(1./(c*c)); // GaussWeight
     case 3: return(1./3.25/(c*c)); // Optimal
@@ -652,6 +660,7 @@ double rho(double x, const double c[], int ipsi)
      */
     switch(ipsi) {
     default: error("rho: ipsi=%d not implemented.", ipsi);
+    case 0: return(rho_huber(x, c)); // huber
     case 1: return(rho_biwgt(x, c)); // biweight
     case 2: return(rho_gwgt(x, c)); // GaussWeight
     case 3: return(rho_opt(x, c)); // Optimal
@@ -670,6 +679,7 @@ double psi(double x, const double c[], int ipsi)
      */
     switch(ipsi) {
     default: error("psi: ipsi=%d not implemented.", ipsi);
+    case 0: return(psi_huber(x, c)); // huber
     case 1: return(psi_biwgt(x, c)); // biweight
     case 2: return(psi_gwgt(x, c)); // GaussWeight
     case 3: return(psi_opt(x, c)); // Optimal
@@ -687,6 +697,7 @@ double psip(double x, const double c[], int ipsi)
      */
     switch(ipsi) {
     default: error("psip: ipsi=%d not implemented.", ipsi);
+    case 0: return(psip_huber(x, c)); // huber
     case 1: return(psip_biwgt(x, c)); // biweight
     case 2: return(psip_gwgt(x, c)); // GaussWeight
     case 3: return(psip_opt(x, c)); // Optimal
@@ -702,6 +713,7 @@ double psi2(double x, const double c[], int ipsi)
      */
     switch(ipsi) {
     // default: error("psi2: ipsi=%d not implemented.", ipsi);
+    case 0: return(psi2_huber(x, c)); // huber
     case 1: return(psi2_biwgt(x, c)); // biweight
     case 4: return(psi2_hmpl(x, c)); // Hampel
     case 6: return(psi2_lqq(x, c)); // LQQ (piecewise linear psi')
@@ -723,6 +735,7 @@ double wgt(double x, const double c[], int ipsi)
      */
     switch(ipsi) {
     default:
+    case 0: return(wgt_huber(x, c)); // huber
     case 1: return(wgt_biwgt(x, c)); // biweight
     case 2: return(wgt_gwgt(x, c)); // GaussWeight
     case 3: return(wgt_opt(x, c)); // Optimal
@@ -731,6 +744,77 @@ double wgt(double x, const double c[], int ipsi)
     case 6: return(wgt_lqq(x, c)); // LQQ (piecewise linear psi')
     }
 }
+
+//---  Huber's rho / psi / ...
+//---  -------
+
+/* Huber's rho():  contrary to all the redescenders below,
+   this can NOT be scaled to rho(Inf)=1 : */
+double rho_huber(double x, const double c[])
+{
+    return (fabs(x) <= c[0]) ? x*x : c[0]*(2*fabs(x) - c[0]);
+}
+
+double psi_huber(double x, const double c[])
+{
+/*
+ * Huber's psi = rho'()
+ */
+    return (fabs(x) <= c[0]) ? x*x : c[0]*(2*fabs(x) - c[0]);
+
+    if (fabs(x) > (*c))
+	return(2*0.);
+    else {
+	double a = x / (*c),
+	    u = 1. - a*a;
+	return( x * u * u );
+    }
+}
+
+double psip_huber(double x, const double c[])
+{
+/*
+ * Second derivative of Huber's loss function
+ */
+    if (fabs(x) > (*c))
+	return(0.);
+    else {
+	x /= *c;
+	double x2 = x*x;
+	return( (1. - x2) * (1 - 5 * x2));
+    }
+}
+
+double psi2_huber(double x, const double c[])
+{
+/** 3rd derivative of Huber's loss function rho()
+ *= 2nd derivative of psi() :
+ */
+    if (fabs(x) >= c[0]) // psi''()  *is* discontinuous at x = c[0]: use "middle" value there:
+	return (fabs(x) == c[0]) ? 4*x/c[0] : 0.;
+    else {
+	x /= c[0];
+	double x2 = x*x;
+	return 4*x/c[0] * (5 * x2 - 3.);
+    }
+}
+
+double wgt_huber(double x, const double c[])
+{
+/*
+ * Weights for Huber's loss function
+ */
+    if( fabs(x) > *c )
+	return(0.);
+    else {
+	double a = x / (*c);
+	a = (1. - a)*(1. + a);
+	return( a * a );
+    }
+}
+
+//--- Biweight = Bisqaure = Tukey's Biweight ...
+//--- --------------------------------------
 
 double rho_biwgt(double x, const double c[])
 {
@@ -802,7 +886,7 @@ double wgt_biwgt(double x, const double c[])
     }
 }
 
-// -------- gwgt == Gauss Weight Loss function =: "Welsch" ---------------------
+//---------- gwgt == Gauss Weight Loss function =: "Welsch" --------------------
 
 double rho_gwgt(double x, const double c[])
 {
@@ -1025,9 +1109,9 @@ double wgt_hmpl(double x, const double k[])
 }
 
 
-// GGW := Generalized Gauss-Weight    Koller and Stahel (2011)
-// ---
-// --- rho() & chi()  need to be calculated by numerical integration
+//--- GGW := Generalized Gauss-Weight    Koller and Stahel (2011)
+//--- ---
+// rho() & chi()  need to be calculated by numerical integration
 
 double rho_ggw(double x, const double k[])
 {
@@ -1204,8 +1288,8 @@ double wgt_ggw(double x, const double k[])
 #undef SET_ABC_GGW
 
 
-// LQQ := Linear-Quadratic-Quadratic ("lqq") --------------------------------
-// ---    was LGW := "lin psip" := piecewise linear psi'() ------------------
+//--- LQQ := Linear-Quadratic-Quadratic ("lqq") --------------------------------
+//--- ---    was LGW := "lin psip" := piecewise linear psi'() ------------------
 
 // k[0:2] == (b, c, s) :
 // k[0]= b = bend adjustment

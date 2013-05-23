@@ -379,7 +379,7 @@ globalVariables("r", add=TRUE) ## below and in other lmrob.E() expressions
 		   ## rescale to the original diagonal values
 		   ## D <- sqrt(o.diag/diag(ret))
 		   ## where they are >= 0 :
-		   D <- sqrt(pmax(0, o.diag)/diag(ret))
+		   D <- sqrt(pmax.int(0, o.diag)/diag(ret))
 		   ret[] <- D * ret * rep(D, each = p) ## == diag(D) %*% m %*% diag(D)
 	       },
 	       stop("invalid 'posdef.meth': ", posdef.meth))
@@ -777,6 +777,7 @@ lmrob.leverages <- function(x, w = rep(1, NROW(x)), wqr = qr(sqrt(w) * x))
 .psi2ipsi <- function(psi)
 {
     switch(casefold(psi),
+           'huber' = 0L,
            'tukey' = , 'biweight' = , 'bisquare' = 1L,
            'welsh' = 2L,
            'optimal' = 3L,
