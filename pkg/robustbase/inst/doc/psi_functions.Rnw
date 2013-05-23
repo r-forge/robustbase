@@ -12,6 +12,7 @@
 \usepackage{natbib}
 \usepackage[utf8]{inputenc}
 \newcommand{\abs}[1]{\left| #1 \right|}
+\DeclareMathOperator{\sign}{sign}
 \newcommand{\R}{\mathbb{R}}
 \newtheorem{definition}{Definition}
 %% The following is R's share/texmf/Rd.sty
@@ -129,13 +130,14 @@ proposed by Peter Huber in \citet{HubP64}.
 The family of Huber functions is defined as,
 \begin{align*}
   \rho_k(x) = {}& \left\{ \begin{array}{ll}
-                  x^2 & \mbox{ if } \abs{x} \leq k \\
-      2k\abs{x} - k^2 & \mbox{ if } \abs{x} > k
+              \frac{1}{2} x^2 & \mbox{ if } \abs{x} \leq k \\
+      k(\abs{x} - \frac{k}{2})& \mbox{ if } \abs{x} > k
     \end{array} \right. \;,\\
-  \psi_k(x) = {}& \left\{ \begin{array}{ll}
-       x & \mbox{ if } \abs{x} \leq k \\
-      -k & \mbox{ if } x < -k \\
-       k & \mbox{ if } x > k
+  \psi_k(x) = {}  & \left\{ \begin{array}{ll}
+       x           & \mbox{ if } \abs{x} \leq k \\
+       k \ \sign(x)& \mbox{ if } \abs{x} > k
+      %% -k & \mbox{ if } x < -k \\
+      %%  k & \mbox{ if } x > k
     \end{array} \right. \;.
 \end{align*}
 The constant $k$ for $95\%$ efficiency of the regression estimator is
@@ -200,8 +202,8 @@ The Hampel family of functions \citep{hamfrrs86} is defined as,
       \end{array} \right. \;, \\
     \psi_{a, b, r}(x) ={}& \left\{ \begin{array}{ll}
           x & \abs{x} \leq a \\
-          a \ \mathrm{sign}(x) & a < \abs{x} \leq b \\
-          a \ \mathrm{sign}(x) \frac{r - \abs{x}}{r - b}& b < \abs{x} \leq r \\
+          a \ \sign(x) & a < \abs{x} \leq b \\
+          a \ \sign(x) \frac{r - \abs{x}}{r - b}& b < \abs{x} \leq r \\
           0  & r < \abs{x}
         \end{array} \right.\;,
 \end{align*}
@@ -267,10 +269,10 @@ was proposed by \citet{ks2011}. It is defined as,
   \psi_{b,c,s}(x) = \left\{
     \begin{array}{ll}
       x & \abs{x} \leq c \\
-      {\rm sign}(x)\left(\abs{x} - \frac{s}{2b}\left(\abs{x} - c\right)^2
+      \sign(x)\left(\abs{x} - \frac{s}{2b}\left(\abs{x} - c\right)^2
       \right)
       & c < \abs{x} \leq b + c \\
-      {\rm sign}(x)\left(c+b-\frac{bs}{2} + \frac{s-1}{a}
+      \sign(x)\left(c+b-\frac{bs}{2} + \frac{s-1}{a}
         \left(\frac{1}{2}\tilde x^2 - a\tilde x\right)
       \right) &
       b + c < \abs{x} \leq a + b + c \\
@@ -300,7 +302,7 @@ p.psiFun(x., "LQQ", par = c(-.5,1.5,.95,NA))
 \subsection{Optimal}
 The optimal $\psi$ function as given by \citet[Section~5.9.1]{MarRMY06},
 \begin{equation*}
-  \psi_c(x) = \mathrm{sign}(x)\left(-\frac{\varphi'(\abs{x}) + c}
+  \psi_c(x) = \sign(x)\left(-\frac{\varphi'(\abs{x}) + c}
     {\varphi(\abs{x})}\right)_+\;,
 \end{equation*}
 where $\varphi$ is the standard normal density, $c$ is a constant and $t_+ :=
