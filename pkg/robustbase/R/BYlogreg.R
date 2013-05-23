@@ -24,12 +24,15 @@
 ## Changes by Martin Maechler, ---> ../man/BYlogreg.Rd
 ##                                  ------------------
 
-BYlogreg <- function(x0, y, initwml=TRUE, addIntercept=TRUE,
+BYlogreg <- function(x0, y, initwml=TRUE, # w.x=NULL,
+                     addIntercept=TRUE,
                      const=0.5, kmax = 1000, maxhalf = 10,
                      sigma.min = 1e-4, trace.lev=0)
 {
     if(!is.numeric(y))
         y <- as.numeric(y)
+    ## if(!is.null(w.x))
+    ##     warning("x weights  'w.x'  are not yet made use of")
     if(!is.null(dim(y))) {
         if(ncol(y) != 1)
             stop("y is not onedimensional")
@@ -107,7 +110,8 @@ BYlogreg <- function(x0, y, initwml=TRUE, addIntercept=TRUE,
     kstep <- 1L
     while(kstep < kmax && !converged)
     {
-        unisig <- function(sigma) mean(phiBY3(stscores/sigma,y,const))
+        unisig <- function(sigma) mean(phiBY3(stscores/sigma, y, const))
+        ##                             ------
         optimsig <- nlminb(sigma1, unisig, lower=0)# "FIXME" arguments to nlminb()
         ##          ======
         if(trace.lev) cat(sprintf("k=%2d, s1=%12.8g: => new s1= %12.8g",
@@ -121,10 +125,10 @@ BYlogreg <- function(x0, y, initwml=TRUE, addIntercept=TRUE,
         } else {
             gamma1 <- xistart/sigma1
             scores <- stscores/sigma1
-            newobj <- mean(phiBY3(scores,y,const))
+            newobj <- mean(phiBY3(scores, y,const))
             oldobj <- newobj
-            gradBY3 <- colMeans((derphiBY3(scores,y,const) %*% matrix(1,ncol=p))*x)
-            h <- -gradBY3 + (gradBY3 %*% xistart) *xistart
+            grad.BY <- colMeans((derphiBY3(scores,y,const) %*% matrix(1,ncol=p))*x)
+            h <- -grad.BY + (grad.BY %*% xistart) *xistart
             finalstep <- h/sqrt(sum(h^2))
 
             if(trace.lev) {
@@ -216,15 +220,17 @@ glmrobBY.control <-
 
 ##' @param intercept logical, if true, X[,] has an intercept column which should
 ##'                  not be used for rob.wts
-glmrobBY <- function(X, y, method = c("WBY","BY"),
+glmrobBY <- function(X, y,
                      weights = NULL, start = NULL, offset = NULL,
-                     weights.on.x = "none",
+                     method = c("WBY","BY"), weights.on.x = "none",
                      control = glmrobBY.control(), intercept = TRUE,
                      trace.lev = 0)
 {
+### THIS is *NOT* exported
+
     method <- match.arg(method)
     if(!is.null(weights) || any(weights != 1)) ## FIXME (?)
-        stop("non-trivial 'weights' are not yet implemented for \"BY\"")
+        stop("non-trivial prior 'weights' are not yet implemented for \"BY\"")
     if(!is.null(start))
         stop(" 'start' cannot yet be passed to glmrobBY()")
     if(!is.null(offset))
@@ -232,11 +238,13 @@ glmrobBY <- function(X, y, method = c("WBY","BY"),
     const   <- if(is.null(cc <- control$const  )) 0.5 else cc
     kmax    <- if(is.null(cc <- control$maxit  )) 1e3 else cc
     maxhalf <- if(is.null(cc <- control$maxhalf))  10 else cc
-    w.x <- robXweights(weights.on.x, X=X, intercept=intercept)
+    if(!identical(weights.on.x, "none"))
+        stop("'weights.on.x' = ", weights.on.x," is not implemented")
+    ## w.x <- robXweights(weights.on.x, X=X, intercept=intercept)
+    ##
+    ## MM: all(?) the  BY3() functions below would need to work with weights...
 
-### FIXME: use w.x below!
-
-    r <- BYlogreg(x0=X, y=y, initwml = (method == "WBY"),
+    r <- BYlogreg(x0=X, y=y, initwml = (method == "WBY"), ## w.x=w.x,
 		  addIntercept = !intercept, ## add intercept if there is none
 		  const=const, kmax=kmax, maxhalf=maxhalf,
 		  ## FIXME sigma.min  (is currently x-scale dependent !????)
@@ -270,7 +278,8 @@ dev3 <- function(s,y) -( y  * plogis(s, log.p=TRUE) +
 ##             with 's>0' instead of 's<0' : This is == dev?(-s, y) !!
 
 ## for now,  100% back-compatibility:
-dev <- dev1
+devBY <- dev1
+rm(dev1, dev2, dev3)
 
 ## MM: This is from my vignette, but  *not* used
 log1pexp <- function(x) {
@@ -292,7 +301,7 @@ phiBY3 <- function(s,y,c3)
 {
   s <- as.double(s)
   ## MM FIXME  log(1 + exp(-.)) ... but read the note above !! ---
-  dev. <- dev(s,y)
+  dev. <- devBY(s,y)
   ## FIXME: GBY3Fs()  computes the 'dev' above *again*, and
   ##        GBY3Fsm() does with 's>0' instead of 's<0'
   rhoBY3(dev.,c3) + GBY3Fs(s,c3) + GBY3Fsm(s,c3)
@@ -300,8 +309,9 @@ phiBY3 <- function(s,y,c3)
 
 rhoBY3 <- function(t,c3)
 {
-  (t*exp(-sqrt(c3))*as.numeric(t <= c3))+
-    (((exp(-sqrt(c3))*(2+(2*sqrt(c3))+c3))-(2*exp(-sqrt(t))*(1+sqrt(t))))*as.numeric(t >c3))
+    ec3 <- exp(-sqrt(c3))
+    t*ec3* (t <= c3) +
+        (ec3*(2+(2*sqrt(c3))+c3) - 2*exp(-sqrt(t))*(1+sqrt(t)))* (t > c3)
 }
 
 psiBY3 <- function(t,c3)
@@ -315,7 +325,6 @@ psiBY3 <- function(t,c3)
 ##'   d/dt psi(t, c3)
 derpsiBY3 <- function(t, c3)
 {
-    in. <- (t <= c3)
     r <- t
     r[in. <- (t <= c3)] <- 0
     if(any(out <- !in.)) {
@@ -334,11 +343,11 @@ sigmaBY3 <- function(sigma,s,y,c3)
 
 derphiBY3 <- function(s,y,c3)
 {
-    Fs <- exp(-dev(s,1))
+    Fs <- exp(-devBY(s,1))
     ds <- Fs*(1-Fs) ## MM FIXME: use expm1()
-    dev. <- dev(s,y)
-    Gprim1 <- dev(s,1)
-    Gprim2 <- dev(-s,1)
+    dev. <- devBY(s,y)
+    Gprim1 <- devBY(s,1)
+    Gprim2 <- devBY(-s,1)
 
     -psiBY3(dev.,c3)*(y-Fs) + ds*(psiBY3(Gprim1,c3) - psiBY3(Gprim2,c3))
 }
@@ -346,11 +355,11 @@ derphiBY3 <- function(s,y,c3)
 der2phiBY3 <- function(s, y, c3)
 {
     s <- as.double(s)
-    Fs <- exp(-dev(s,1))
+    Fs <- exp(-devBY(s,1))
     ds <- Fs*(1-Fs) ## MM FIXME: use expm1()
-    dev. <- dev(s,y)
-    Gprim1 <- dev(s,1)
-    Gprim2 <- dev(-s,1)
+    dev. <- devBY(s,y)
+    Gprim1 <- devBY(s,1)
+    Gprim2 <- devBY(-s,1)
     der2 <- derpsiBY3(dev.,c3)*(Fs-y)^2  + ds*psiBY3(dev.,c3)
     der2 <- der2+ ds*(1-2*Fs)*(psiBY3(Gprim1,c3) - psiBY3(Gprim2,c3))
     der2 - ds*(derpsiBY3(Gprim1,c3)*(1-Fs) +
@@ -360,25 +369,28 @@ der2phiBY3 <- function(s, y, c3)
 
 GBY3Fs <- function(s,c3)
 {
+    e.f <- exp(0.25)*sqrt(pi)
     ## MM FIXME: Fs = exp(..) and below use  log(Fs) !!
-    Fs <- exp(-dev(s,1))
-    resGinf <- exp(0.25)*sqrt(pi)*(pnorm(sqrt(2)*(0.5+sqrt(-log(Fs))))-1)
+    Fs <- exp(-devBY(s,1))
+    resGinf <- e.f*(pnorm(sqrt(2)*(0.5+sqrt(-log(Fs))))-1)
      ## MM FIXME: use expm1():
     resGinf <- (resGinf+(Fs*exp(-sqrt(-log(Fs)))))*as.numeric(s <= -log(exp(c3)-1))
-    resGsup <- ((Fs*exp(-sqrt(c3)))+(exp(0.25)*sqrt(pi)*(pnorm(sqrt(2)*(0.5+sqrt(c3)))-1)))*as.numeric(s > -log(exp(c3)-1))
-
+    resGsup <- ((Fs*exp(-sqrt(c3)))+(e.f*(pnorm(sqrt(2)*(0.5+sqrt(c3)))-1))) *
+        as.numeric(s > -log(exp(c3)-1))
     resGinf + resGsup
 }
 
 
 GBY3Fsm <- function(s,c3)
 {
+    e.f <- exp(0.25)*sqrt(pi)
     ## MM FIXME: Fsm = exp(..) and below use  log(Fsm) !!
-    Fsm <- exp(-dev(-s,1))
-    resGinf <- exp(0.25)*sqrt(pi)*(pnorm(sqrt(2)*(0.5+sqrt(-log(Fsm))))-1)
+    Fsm <- exp(-devBY(-s,1))
+    resGinf <- e.f*(pnorm(sqrt(2)*(0.5+sqrt(-log(Fsm))))-1)
      ## MM FIXME: use expm1():
-    resGinf <- (resGinf+(Fsm*exp(-sqrt(-log(Fsm)))))*as.numeric(s >= log(exp(c3)-1))
-    resGsup <- ((Fsm*exp(-sqrt(c3)))+(exp(0.25)*sqrt(pi)*(pnorm(sqrt(2)*(0.5+sqrt(c3)))-1)))*as.numeric(s < log(exp(c3)-1))
+    resGinf <- (resGinf+(Fsm*exp(-sqrt(-log(Fsm))))) * as.numeric(s >= log(exp(c3)-1))
+    resGsup <- ((Fsm*exp(-sqrt(c3)))+(e.f*(pnorm(sqrt(2)*(0.5+sqrt(c3)))-1))) *
+        as.numeric(s < log(exp(c3)-1))
     resGinf + resGsup
 }
 
@@ -400,22 +412,22 @@ vcovBY3 <- function(z, y, const, estim, addIntercept)
     n <- d[1]
     p <- d[2]
     argum <- z %*% estim
-    matM <- IFsquar <- matrix(0, nrow=p, ncol=p)
+    matM <- IFsqr <- matrix(0, p, p)
     for(i in 1:n)
     {
-        myscalar <- as.numeric(der2phiBY3(argum[i],y[i],const))
+        myscalar <- as.numeric(der2phiBY3(argum[i],y[i], c3=const))
         zzt <- tcrossprod(z[i,])
         matM <- matM + myscalar * zzt
-        IFsquar <- IFsquar + derphiBY3(argum[i],y[i],const)^2 * zzt
+        IFsqr <- IFsqr + derphiBY3(argum[i],y[i], c3=const)^2 * zzt
     }
 
     matM    <- matM/n
     matMinv <- solve(matM)
-    IFsquar <- IFsquar/n
-    ## Now,  asymp.cov  =  matMinv %*% IFsquar %*% t(matMinv)
+    IFsqr <- IFsqr/n
+    ## Now,  asymp.cov  =  matMinv %*% IFsqr %*% t(matMinv)
 
     ## provide  vcov(): the full matrix
-    (matMinv %*% IFsquar %*% t(matMinv))/n
+    (matMinv %*% IFsqr %*% t(matMinv))/n
 }
 
 
