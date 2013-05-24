@@ -532,7 +532,9 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev, mf = NULL)
             )[c("coefficients", "scale", "k.iter", "converged")]
     scale <- b$scale
     if (scale < 0)
-        stop("C function R_lmrob_S() exited prematurely")
+	stop("C function R_lmrob_S() exited prematurely")
+    if (scale == 0)
+	warning("S-estimated scale == 0:  Probably exact fit; check your data")
     class(b) <- 'lmrob.S'
     ## FIXME: get 'res'iduals from C
 
