@@ -184,9 +184,9 @@ lmrob <-
 		z$residuals <- save.r
 		z$fitted.values <- save.f
 		z$weights <- save.w
-		rweights <- z$rweights
+		rw <- z$rweights
 		z$rweights <- rep.int(0, length(save.w))
-		z$rweights[ok] <- rweights
+		z$rweights[ok] <- rw
 	    }
 	}
     }

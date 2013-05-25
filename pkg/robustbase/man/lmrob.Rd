@@ -66,7 +66,7 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
 }
 \details{
   \describe{
-    \item{Overview}{
+    \item{Overview:}{
       This function computes an MM-type regression estimator as
       described in Yohai (1987) and Koller and Stahel (2011).  By
       default it uses a bi-square redescending score function, and it
@@ -84,12 +84,12 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
       \code{init}. This argument can either be a string, a function or a
       list.  A \emph{string} can be used to specify built in internal
       estimators (currently \code{S} and \code{M-S}, see \emph{See also}
-      below).  A \emph{function} taking arguments \code{x, y, control,
-      mf} (where \code{mf} stands for \code{model.frame}) and returning
-      a list containing at least the initial coefficients as
-      \code{coefficients} and the initial scale estimate
-      \code{scale}. Or a \emph{list} giving the initial coefficients and
-      scale as \code{coefficients} and \code{scale}. See also \emph{Examples}.
+      below).  A \code{\link{function}} taking arguments \code{x, y,
+      control, mf} (where \code{mf} stands for \code{model.frame}) and
+      returning a list containing at least the initial coefficients as
+      \code{coefficients} and the initial scale estimate \code{scale}.
+      Or a \emph{list} giving the initial coefficients and scale as
+      \code{coefficients} and \code{scale}.  See also \emph{Examples}.
 
       Note that if the init argument supplied is a function or list, the
       method argument must \emph{not} contain the initial estimator, e.g.,

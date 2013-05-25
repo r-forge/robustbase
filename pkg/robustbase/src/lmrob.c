@@ -314,7 +314,8 @@ void zero_mat(double **a, int n, int m);
 
 /* Called from R, this function computes an S-regression estimator */
 void R_lmrob_S(double *X, double *y, int *n, int *P,
-	       int *nRes, double *scale, double *beta_s,
+	       int *nRes, // = nResample ( = 500, by default)
+	       double *scale, double *beta_s,
 	       double *rrhoc, int *iipsi, double *bb,
 	       int *best_r, int *Groups, int *N_group,
 	       int *K_s, int *max_k, int *max_it_scale, //double *rel_tol_scale,
@@ -322,21 +323,27 @@ void R_lmrob_S(double *X, double *y, int *n, int *P,
 	       int *trace_lev, int *mts, int *ss, int *cutoff)
 {
     /* best_r = 't' of Salibian-Barrera_Yohai(2006),
-     *	      = no. of best candidates to be iterated further
-     *		("refined") */
+     *	      = no. of best candidates to be iterated further ("refined")
+     *        =  2, by default
+     */
 
     /* Rprintf("R_lmrob_s %d\n", *iipsi); */
 
-    if ( *nRes > 0) {
-	if( *n > *cutoff )
+    if (*nRes > 0) {
+	if (*n > *cutoff) {
+	    if(*trace_lev)
+		Rprintf("lmrob_S(n = %d, nRes = %d): fast_s_large_n():\n", *n, *nRes);
 	    fast_s_large_n(X, y, n, P, nRes, max_it_scale,
 			   Groups, N_group,
 			   K_s, max_k, *rel_tol, *inv_tol, converged,
 			   best_r, bb, rrhoc, iipsi, beta_s, scale, *trace_lev, *mts, *ss);
-	else
+	} else {
+	    if(*trace_lev)
+		Rprintf("lmrob_S(n = %d, nRes = %d): fast_s() [non-large n]:\n", *n, *nRes);
 	    fast_s(X, y, n, P, nRes, max_it_scale,
 		   K_s, max_k, *rel_tol, *inv_tol, converged,
 		   best_r, bb, rrhoc, iipsi, beta_s, scale, *trace_lev, *mts, *ss);
+	}
     } else {
 	*scale = find_scale(y, *bb, rrhoc, *iipsi, *scale, *n, *P,
 			    *max_it_scale);
@@ -1852,8 +1859,6 @@ int fast_s_with_memory(double *X, double *y,
 	}
 	/* FIXME: is_ok ?? */
 
-	/* disp_vec(beta_cand,p); */
-
 	/* improve the re-sampling candidate */
 
 	/* conv = FALSE : do *K refining steps */
@@ -2059,9 +2064,9 @@ int refine_fast_s(const double X[], double *wx, const double y[], double *wy,
  * y	   = vector ( n )   of responses
  * weights = robustness weights wt[] * y[]	(of length n)
  * res	   = residuals	y[] - x[,] * beta	(of length n)
- * conv:  FALSE means do kk refining steps
- *	  TRUE  means refine until convergence(rel_tol, max_k)
- *      In the latter case, 'conv' *returns* TRUE if refinements converged
+ * conv: FALSE means do kk refining steps      (and conv stays FALSE)
+ *	 TRUE  means refine until convergence(rel_tol, max_k)
+ *             and in this case, 'conv' *returns* TRUE if refinements converged
  * beta_cand= candidate beta[] (of length p)	Input *and* Output
  * is	    = initial scale			input
 
