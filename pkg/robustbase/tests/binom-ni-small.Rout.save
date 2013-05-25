@@ -1,5 +1,5 @@
 
-R version 3.0.0 Patched (2013-04-25 r62670) -- "Masked Marvel"
+R version 3.0.1 Patched (2013-05-24 r62794) -- "Good Sport"
 Copyright (C) 2013 The R Foundation for Statistical Computing
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
@@ -222,7 +222,7 @@ In glmrobMqle(X = X, y = Y, weights = weights, start = start, offset = offset,  
 > rg0. <- glmrob(cbind(k0, n0-k0) ~ x, family = binomial, subset = n0 > 0)
 > 
 > coef(summary(rg0)) # not yet good (cf. 'g0' above!) -- but the one of rg0. is
-             Estimate Std. Error z-value Pr(>|z|)
+             Estimate Std. Error z value Pr(>|z|)
 (Intercept) -1.852918        NaN     NaN      NaN
 x            3.847520        NaN     NaN      NaN
 > stopifnot(all.equal(coef(rg0), coef(rg0.)))
@@ -248,7 +248,7 @@ Call:  glmrob(formula = cbind(k3, n3 - k3) ~ x, family = binomial)
 
 
 Coefficients:
-            Estimate Std. Error z-value Pr(>|z|)    
+            Estimate Std. Error z value Pr(>|z|)    
 (Intercept)  -2.8901     0.3499  -8.260   <2e-16 ***
 x             5.5039     0.6447   8.537   <2e-16 ***
 ---
@@ -282,7 +282,7 @@ Call:  glmrob(formula = cbind(k3, n3 - k3) ~ x, family = binomial, tcc = 5)
 
 
 Coefficients:
-            Estimate Std. Error z-value Pr(>|z|)    
+            Estimate Std. Error z value Pr(>|z|)    
 (Intercept)  -2.9454     0.3420  -8.611   <2e-16 ***
 x             5.5461     0.6259   8.861   <2e-16 ***
 ---
@@ -316,7 +316,7 @@ Call:  glmrob(formula = cbind(k3, n3 - k3) ~ x, family = binomial, tcc = 15,    
 
 
 Coefficients:
-            Estimate Std. Error z-value Pr(>|z|)    
+            Estimate Std. Error z value Pr(>|z|)    
 (Intercept)  -2.9456     0.3420  -8.612   <2e-16 ***
 x             5.5464     0.6259   8.861   <2e-16 ***
 ---
@@ -351,8 +351,8 @@ test.acc
 +                     rg3.15  [no.comp], tol = 1e-13))
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  0.572 0.04 0.607 0 0 
+Time elapsed:  0.548 0.044 0.584 0 0 
 > 
 > proc.time()
    user  system elapsed 
-  0.576   0.040   0.607 
+  0.548   0.044   0.584 

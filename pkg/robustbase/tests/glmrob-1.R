@@ -8,17 +8,22 @@ source(system.file("xtraR/ex-funs.R", package = "robustbase"))
 
 ### very simple model [with outliers]
 set.seed(113)
-y <- rpois(17, lambda = 4)
+y <- rpois(17, lambda = 4) ## -> target:  beta_0 = log(E[Y]) = log(4) = 1.386294
+
 y[1:2] <- 99:100 # outliers
 y
 rm1 <- glmrob(y ~ 1, family = poisson, trace = TRUE,
               acc = 1e-13) # default is just 1e-4
-cm1 <- glm   (y ~ 1, family = poisson, trace = TRUE)
-
+## and check the robustness weights:
 assert.EQ(c(0.0287933850640724, 0.0284930623638766,
 		      0.950239140568007, 0.874115394740014),
 		    local({w <- rm1$w.r; w[ w != 1 ] }), tol = 1e-14)
 assert.EQ(coef(rm1), c("(Intercept)" = 1.41710946076738),tol = 1e-14)
+
+cm1 <- glm   (y ~ 1, family = poisson, trace = TRUE)
+
+rmMT <- glmrob(y ~ 1, family = poisson, trace = TRUE, method="MT")
+sMT <- summary(rmMT)
 
 if(FALSE) # for manual digging:
 debug(robustbase:::glmrobMqle)

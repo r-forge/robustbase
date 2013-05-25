@@ -69,19 +69,18 @@ mk.m_rho <- function(cw,
 
 
 
-
 ##' Tukey's Bisquare (aka "biweight") rho function: rho~() = rho scaled to have rho(Inf) = 1
 rho <- function(x,cw) pmin(1, 1 - (1-(x/cw)^2)^3)
-## even faster:
+## faster:
 rho <- function(x,cw) .M.chi(x, cc=cw, psi="tukey")
 ## NB: in sumaConPesos(), mm(.), ... we make use of the fact  that  rho(Inf) = 1
-
-##############################################################
+psi <- function(x,cw, deriv=0) .M.psi(x, cc=cw, psi="tukey", deriv=deriv)
 
 espRho <- function(lam, xx, cw)
 {
-## compute  E_lambda [ rho_{cw}( sqrt(Y)-xx ) ],  given  (lambda, xx, cw)
+## compute  E := E_lambda [ rho_{cw}( sqrt(Y)-xx ) ],  given  (lambda, xx, cw)
 ## for Y ~ Pois(lambda) ;  rho(.) = Tukey's Bisquare
+## ==>  E = \sum_{k=0}^\infty   rho( sqrt(k)-xx, .) * dpois(k, .)
     k <- seq(as.integer((max(0,xx-cw))^2), as.integer((xx+cw)^2)+1L)
     inner <- (rhoS.k <- rho(sqrt(k)-xx, cw)) < 1
     ii <- k[inner]
@@ -199,7 +198,8 @@ betaExacto <- function(x,y)
     ## to each subsample assign the maximum likelihood estimator and
     ## fixing the case mle has NA components
     p <- ncol(x)
-    fitE <- tryCatch(glm(y ~ x-1, family = poisson()),
+    fitE <- tryCatch(glm.fit(x=x, y=y, family = poisson()),
+                     ## TODO , weights = weights, offset = offset
                      error = function(e)e)
     if(inherits(fitE, "error")) {
         message("betaExacto glm(.) error: ", fitE$message)
@@ -218,11 +218,114 @@ betaExacto <- function(x,y)
     fitE $ coefficients
 }
 
+
 
+###--- Utilities for  Asymptotic Covariance Matrix -----------------
+
+##' computes  the First Derivative of mm()
+mmd <- function(lam,cw, m.approx)
+{
+    qq1 <- qpois(.001,lam)
+    qq2 <- qpois(.999,lam)
+    ind <- qq1:qq2
+    k.. <- sqrt(ind) - mm(lam, m.approx)
+    dP <- dpois(ind,lam)
+    rr1 <- (-dP+(ind*dP/lam)) * psi(k..,cw)
+    rr2 <- dP*psi(k..,cw, deriv=1)
+    rr1 <- sum(rr1)
+    rr2 <- sum(rr2)
+    list(ind=ind, rr1=rr1, rr2=rr2, d = rr1/rr2)
+}
+
+##' computes  the  Second Derivative of mm()
+mmdd <- function(lam,cw, m.approx)
+{
+    out <- mmd(lam,cw, m.approx) ## FIXME: can reuse even more from  mmd() !
+    ind <- out[["ind"]]
+    NUM <- out[[2]]
+    DEN <- out[[3]]
+    mm1 <- out[["d"]] ## = mm'(.)
+    k.. <- sqrt(ind) - mm(lam, m.approx)
+    dP <- dpois(ind,lam)
+    NUMP <- ddpois(ind,lam) * psi(k..,cw) -
+        (-dP+(ind*dP/lam))* psi(k..,cw, deriv=1) * mm1
+    DENP <- (-dP+(ind*dP/lam)) * psi(k..,cw, deriv=1) -
+            dP*psi(k..,cw, deriv=2) * mm1
+    NUMP <- sum(NUMP)
+    DENP <- sum(DENP)
+
+    (NUMP*DEN - DENP*NUM) / DEN^2
+}
+
+###############################################################
+
+ddpois <- function(x,lam)
+{
+    ## The second derivative of the Poisson probability function
+    dpois(x,lam)*(1-(2*x/lam)+((x^2)/(lam^2))-(x/(lam^2)))
+}
+
+##' Compute asymptotic covariance matrix of the MT estimator
+covasin <- function(x,y,beta,cw, m.approx,w)
+{
+    p <- ncol(x)
+    n <- length(y)
+    mm1 <- mm2 <- numeric(n)
+    de <- nu <- matrix(0,p,p)
+
+    lam <- x%*%beta
+    elam <- exp(lam)
+    r <- sqrt(y) - mm(elam, m.approx)
+    psi0 <- psi(r,cw)
+    psi1 <- psi(r,cw, deriv=1)
+    for ( i in 1:n)
+    {
+	## FIXME: Make more efficient!!	 {mmd is used in mmdd())
+	mm1[i] <- mmd (elam[i], cw, m.approx)[[4]]
+	mm2[i] <- mmdd(elam[i], cw, m.approx)
+    }
+    nu1 <- w*psi0*mm1*elam
+    de1 <- -psi1*(mm1^2)*(elam^2)+psi0*mm2*(elam^2)+psi0*mm1*elam
+    de1 <- w*de1
+
+    for (i in 1:n) { ## FIXME (?)  -- can be vectorized
+	zzt <- tcrossprod(x[i,])
+	nu <- nu+ (nu1[i]^2)*zzt
+	de <- de+ de1[i]*zzt
+    }
+    nu <- nu/n
+    de <- solve(de/n)
+    ## Cov_{asympt.} =
+    de %*% nu %*% t(de) / n
+}
+
+
+
+## cw = 2.1, nsubm = 500, maxitOpt = 200, tolOpt = 1e-6,
+glmrobMT.control <- function(cw = 2.1, nsubm = 500, acc = 1e-06, maxit = 200)
+{
+    if (!is.numeric(acc) || acc <= 0)
+	stop("value of acc must be > 0")
+    ## if (test.acc != "coef")
+    ##     stop("Only 'test.acc = \"coef\"' is currently implemented")
+    ## if (!(any(test.vec == c("coef", "resid"))))
+    ##	  stop("invalid argument for test.acc")
+    if (!is.numeric(nsubm) || nsubm <= 0)
+	stop("number of subsamples must be > 0")
+    if (!is.numeric(maxit) || maxit <= 0)
+	stop("maximum number of iterations must be > 0")
+    if (!is.numeric(cw) || cw <= 0)
+	stop("value of the tuning constant c (cw) must be > 0")
+    list(cw=cw, nsubm=nsubm, acc=acc, maxit=maxit)
+}
 
 ###################################################################################
-glmrobMT <- function(x,y, cw = 2.1, wts = "none", nsubm = 500,
-                     maxitOpt = 200, tolOpt = 1e-6, trace.lev = 1)
+##' @param intercept logical, if true, x[,] has an intercept column which should
+##'                  not be used for rob.wts
+glmrobMT <- function(x,y, weights = NULL, start = NULL, offset = NULL,
+                     weights.on.x = "none",
+                     control = glmrobMT.control(...), intercept = TRUE,
+                     trace.lev = 1, ...)
 {
     ## MAINFUNCTION  Computes the MT or WMT estimator  for Poisson regression  with intercept starting from the estimator computed in the function
     ## beta0IniC.
@@ -238,28 +341,87 @@ glmrobMT <- function(x,y, cw = 2.1, wts = "none", nsubm = 500,
     ##$final is the final estimate (first component is the intercept)
     ##$nsamples is the number of well  conditioned  subsamples
     ## REQUIRED PACKAGES: tools, rrcov
-    m.approx <- mk.m_rho(cw)
-    n <- nrow(x)
-    x1 <- cbind(rep(1,n),x)
-    w <- robXweights(wts, x1)
-    if(trace.lev) cat("Computing initial estimate with ", nsubm, " sub samples:\n")
-    out <- beta0IniCP(x1, y, cw = cw, w = w, m.approx = m.approx, nsubm = nsubm, trace.lev = trace.lev)
-    beta0 <- out[[1]]
+    stopifnot(is.numeric(cw <- control$cw), cw > 0,
+              is.numeric(nsubm <- control$nsubm))
+    family <- poisson() # only one, currently
 
-    oCtrl <- list(trace = trace.lev, maxit = maxitOpt,
+    n <- nrow(x)
+    p <- ncol(x)
+    if (is.null(weights))
+	weights <- rep.int(1, n)
+    else if(any(weights <= 0))
+	stop("All weights must be positive")
+    if(!is.null(offset)) stop("non-trivial 'offset' is not yet implemented")
+    ## if (is.null(offset))
+    ##     offset <- rep.int(0, n) else if(!all(offset==0))
+    ##         warning("'offset' not fully implemented")
+
+    linkinv <- family$linkinv
+    variance <- family$variance
+
+    ## Copy-paste from ./glmrobMqle.R    [overkill currently: Poisson has  sni == ni == 1]
+    ni <- as.vector(weights)
+    sni <- sqrt(ni)
+    comp.V.resid <- expression({
+	Vmu <- variance(mu)
+	if (any(is.na(Vmu)))  stop("NAs in V(mu)")
+	if (any(Vmu == 0))    stop("0s in V(mu)")
+	sVF <- sqrt(Vmu)   # square root of variance function
+	residP <- (y - mu)* sni/sVF  # Pearson residuals
+    })
+
+
+    m.approx <- mk.m_rho(cw)
+    w <- robXweights(weights.on.x, x, intercept=intercept)
+
+    if(is.null(start)) {
+        if(trace.lev) cat("Computing initial estimate with ", nsubm, " sub samples:\n")
+        out <- beta0IniCP(x, y, cw = cw, w = w, m.approx = m.approx, nsubm = nsubm, trace.lev = trace.lev)
+        start <- out[[1]]
+    } else { ## user provided start:
+        if(!is.numeric(start) || length(start) != p)
+            stop(gettextf("'start' must be an initial estimate of beta, of length %d", p))
+    }
+
+    oCtrl <- list(trace = trace.lev, maxit = control$maxit,
                   ## "L-BFGS-B" specific
-                  lmm = 9, factr = 1/(10*tolOpt))
+                  lmm = 9, factr = 1/(10*control$acc))
 
     if(trace.lev) cat("Optim()izing  sumaConPesos()\n")
-### FIXME: see very slow convergence e.g. for the Possum data example
+### FIXME: quite slow convergence e.g. for the Possum data ( ../tests/glmrob-1.R )
 ### -----  maybe improve by providing gradient ??
-    estim2 <- optim(beta0, sumaConPesos, method = "L-BFGS-B",
-                    x = x1, y = y, w = w, cw = cw, m.approx = m.approx, control = oCtrl)
+    estim2 <- optim(start, sumaConPesos, method = "L-BFGS-B",
+                    x = x, y = y, w = w, cw = cw, m.approx = m.approx, control = oCtrl)
+    o.counts <- estim2$counts
+
     if(estim2$convergence) ## there was a problem
         warning("optim(.) non-convergence: ", estim2$convergence,
                 if(nzchar(estim2$message)) paste0("\n", estim2$message))
 
-    list("initial" = beta0, "final" = estim2$par, nsubm = nsubm, "nOksub" = out[[2]],
-	 converged = (estim2$convergence == 0), optim.counts = estim2$counts,
-	 optim.control = oCtrl, wts=wts, cw=cw, weights = w)
+    beta <- estim2$par
+    cov <- covasin(x,y, beta=beta, cw=cw, m.approx=m.approx, w=w)
+    eta <- as.vector(x %*% beta) # + offset
+    mu <- linkinv(eta)
+    eval(comp.V.resid)#-> residP ==(here!) == residPS
+
+    ## As sumaConPesos() computes
+    ##     eta <- x %*% beta
+    ##     s <- rho(sqrt(y) - mm(exp(eta), m.approx), cw)
+    ##     sum(s*w)
+    ## we could say that   "psi(x) / x" -- weights would be
+    w.r <- .M.wgt(sqrt(y) - mm(exp(eta), m.approx), cw, psi="tukey")
+
+    names(mu) <- names(eta) <- names(residP) # re-add after computation
+    names(beta) <- names(start) <- nmB <- colnames(x)
+    ## maybe:  dimnames(cov) <- list(nmB, nmB)
+
+    list(coefficients = beta, initial = start,
+         family = poisson(), # <- only case for now
+         coefficients = beta, residuals = residP, # s.resid = residPS,
+         fitted.values = mu, linear.predictors = eta,
+         cov = cov,
+         nsubm = nsubm, "nOksub" = out[[2]],
+	 converged = (estim2$convergence == 0), iter = o.counts[[1]], optim.counts = o.counts,
+	 cw=cw,
+         weights.on.x=weights.on.x, w.x = w, w.r = w.r, optim.control = oCtrl)
 }

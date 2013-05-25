@@ -1,7 +1,7 @@
 glmrob <-
 function (formula, family, data, weights, subset,
 	  na.action, start = NULL, offset,
-          method = c("Mqle", "BY", "WBY"),
+          method = c("Mqle", "BY", "WBY", "MT"),
 	  weights.on.x = c("none", "hat", "robCov", "covMcd"), control = NULL,
 	  model = TRUE, x = FALSE, y = TRUE, contrasts = NULL, trace.lev = 0,
 	  ...)
@@ -90,14 +90,17 @@ function (formula, family, data, weights, subset,
 			"method='%s' is only applicable for binomial family, but family=\"\"",
                               method, fami))
                       ### FIXME: use glmrobBY(..) with these arguments, including 'weights'
-                      glmrobBY(X=X, y=Y, weights=weights,
-                               start=start,
-                               method=method,
+                      glmrobBY(X=X, y=Y, weights=weights, start=start,
+                               method=method, ## == "BY" / "WBY"
                                weights.on.x = weights.on.x, control = control,
                                intercept = attr(mt, "intercept") > 0,
                                trace.lev=trace.lev)
                   },
-
+                  "MT" = {
+                      glmrobMT(x=X,y=Y, weights=weights, start=start, offset = offset,
+                               weights.on.x=weights.on.x, control=control,
+                               intercept = attr(mt, "intercept") > 0, trace.lev=trace.lev)
+                  },
 		  stop("invalid 'method': ", method))
     ##-	    if (any(offset) && attr(mt, "intercept") > 0) {
     ##-		fit$null.deviance <- glm.fit(x = X[, "(Intercept)", drop = FALSE],
@@ -136,7 +139,7 @@ summary.glmrob <- function(object, correlation=FALSE, symbolic.cor=FALSE, ...)
     zvalue <- coefs/s.err
     pvalue <- 2 * pnorm(-abs(zvalue))
     coef.table <- cbind("Estimate" = coefs, "Std. Error" = s.err,
-			"z-value" = zvalue, "Pr(>|z|)" = pvalue)
+			"z value" = zvalue, "Pr(>|z|)" = pvalue)
 
     ans <- c(object[c("call", "terms", "family", "iter", "control", "method",
 		      "residuals", "fitted.values", "w.r", "w.x")],
@@ -278,7 +281,7 @@ residuals.glmrob <-
     res <- switch(type,
 ##		  deviance = if(object$df.residual > 0) {
 		  deviance = if((nobs(object) - p) > 0) {
-		      d.res <- sqrt(pmax((object$family$dev.resids)(y, mu, wts), 0))
+		      d.res <- sqrt(pmax.int((object$family$dev.resids)(y, mu, wts), 0))
 		      ifelse(y > mu, d.res, -d.res)
 		  } else rep.int(0, length(mu)),
 		  pearson = (y-mu)*sqrt(wts)/sqrt(object$family$variance(mu)),

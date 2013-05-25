@@ -57,9 +57,9 @@ export(Sn, Qn, Qn.old,
 
        glmrob,
        nlrob
-       , glmrobMqle.control, glmrobBY.control
+       , glmrobMqle.control, glmrobBY.control, glmrobMT.control
        , BYlogreg ## R/BYlogreg.R FIXME: add to glmrob() and "deprecate"
-       , glmrobMT ## R/MTestimador2.R  (for now .. FIXME)
+       ## , glmrobMT ## R/MTestimador2.R
        )
 
 
@@ -91,6 +91,7 @@ S3method(residuals, lmrob)
 S3method(variable.names, lmrob)
 S3method(weights, glmrob)
 S3method(weights, lmrob)
+S3method(weights, nlrob, weights.lmrob)# use the same as "lmrob"
 
 S3method(formula, nlrob)
 S3method(fitted, nlrob)

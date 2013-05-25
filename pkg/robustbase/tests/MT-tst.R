@@ -127,11 +127,10 @@ set.seed(113)
 y <- rpois(17, lambda = 4)
 y[1:2] <- 99:100 # outliers
 y.1 <- y
-## To call Victor's version of glmrobMT()  for this case, we need  "hoop jumps"
-x.1 <- matrix(0, nrow=length(y.1), ncol=0)
+x.1 <- cbind(rep(1, length(y)))
 
 options("robustbase:m_rho_recompute" = TRUE)#-> recompute in any case:
-showSys.time( r <- glmrobMT(x.1, y.1, nsubm=100) )# some output
+showSys.time( r <- glmrob(y ~ 1, family = poisson, method = "MT", nsubm=100) )# some output
 str(r)
 
 ## was   c(ini = 1.30833281965018, est = 1.29369680430613)
@@ -139,25 +138,28 @@ str(r)
 ##       c(ini = 1.30833281965018, est = 1.29369680430627)
 r.64b <- c(ini = 1.30833281965018, est = 1.29369680452016)
 stopifnot(r$converged)
-assert.EQ(r$initial, r.64b[["ini"]], tol = 1e-13)# rel.diff: 3.394.e-16
-assert.EQ(r$final,   r.64b[["est"]], tol = 1e-09)# as long we use different optim())
+assert.EQ(r$initial,      r.64b[["ini"]], check.attr=FALSE, tol = 1e-13)# rel.diff: 3.394.e-16
+assert.EQ(r$coefficients, r.64b[["est"]], check.attr=FALSE, tol = 1e-09)# as long we use different optim())
 
 
 ## now, as the algorithm has a random start:
 set.seed(7)
 nSim <- if(doExtras) 20 else 2
-showSys.time(LL <- replicate(nSim, glmrobMT(x.1, y.1, trace.lev=0),
+showSys.time(LL <- replicate(nSim,
+     glmrob(y ~ 1, family = poisson, method = "MT"),
                              simplify=FALSE))
 ini <- sapply(LL, `[[`, "initial")
-est <- sapply(LL, `[[`, "final")
+est <- sapply(LL, `[[`, "coefficients")
 ## surprise:  all the 20 initial estimators are identical:
 stopifnot(diff(range(ini)) == 0,
           diff(range(est)) == 0)
 ## probably too accurate ... but ok, for now
-assert.EQ(est[1], r.64b[["est"]], tol = 1e-10)# Winbuilder needed ~ 2e-11
-assert.EQ(ini[1], r.64b[["ini"]], tol = 1e-10)
+assert.EQ(est[1], r.64b[["est"]], check.attr=FALSE, tol = 1e-10)# Winbuilder needed ~ 2e-11
+assert.EQ(ini[1], r.64b[["ini"]], check.attr=FALSE, tol = 1e-10)
 
-
+ccvv <- sapply(LL, `[[`, "cov")
+stopifnot(ccvv[1] == ccvv)
+assert.EQ(print(ccvv[1]), 0.0145309081924157, tol = 1e-7, giveRE=TRUE)
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
 ## "Platform" info

@@ -16,7 +16,7 @@ glmrobMqleDiffQuasiDevB <- function(mu, mu0, y, ni, w.x, phi, tcc)
 	residP <- (y-pr)*sqrt(ni/Vmu)
 
 	## First part: nui
-	nui <- pmax(-tcc, pmin(tcc, residP))
+	nui <- pmax.int(-tcc, pmin.int(tcc, residP))
 
 	## Second part: Enui
 	H <- floor(u - tcc*sqrt(ni*Vmu))
@@ -60,7 +60,7 @@ glmrobMqleDiffQuasiDevPois <- function(mu, mu0, y, ni, w.x, phi, tcc)
 	residP <- (y-u)/sqrt(Vmu)
 
 	## First part: nui
-	nui <- pmax(-tcc, pmin(tcc, residP))
+	nui <- pmax.int(-tcc, pmin.int(tcc, residP))
 
 	## Second part: Enui
 	H <- floor(u - tcc*sqrt(Vmu))
@@ -98,7 +98,7 @@ glmrobMqleDiffQuasiDevGamma <- function(mu, mu0, y, ni, w.x, phi, tcc,
 	## First part: nui
 	sV <- s.ph * u ## = sqrt(dispersion * Gamma()$variance)
 	residP <- (y-u)/sV
-	nui <- pmax(-tcc, pmin(tcc, residP))
+	nui <- pmax.int(-tcc, pmin.int(tcc, residP))
 
 	## Second part: Enui
         ## what follows is similar to glmrob.Mqle.Epsipois except a
@@ -118,7 +118,7 @@ glmrobMqleDiffQuasiDevGamma <- function(mu, mu0, y, ni, w.x, phi, tcc,
 	## First part: nui
 	sV <- sqrt(phi) * u ## = sqrt(dispersion * Gamma()$variance)
 	residP <- (y-u)/sV
-	nui <- pmax(-tcc, pmin(tcc, residP))
+	nui <- pmax.int(-tcc, pmin.int(tcc, residP))
         (nui  / sV)
     }
     f.cnui2 <- function(u, y, ni, phi, tcc)

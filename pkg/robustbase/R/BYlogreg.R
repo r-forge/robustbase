@@ -223,8 +223,8 @@ glmrobBY.control <-
 glmrobBY <- function(X, y,
                      weights = NULL, start = NULL, offset = NULL,
                      method = c("WBY","BY"), weights.on.x = "none",
-                     control = glmrobBY.control(), intercept = TRUE,
-                     trace.lev = 0)
+                     control = glmrobBY.control(...), intercept = TRUE,
+                     trace.lev = 0, ...)
 {
 ### THIS is *NOT* exported
 

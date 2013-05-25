@@ -5,7 +5,8 @@ if(getRversion() >= "2.15.1")
 globalVariables(c("residP", "residPS", "dmu.deta"), add=TRUE)
 
 ##' @title
-##' @param wts
+##' @param wts a character string \dQuote{weights.on.x} specifying how weights should be computed
+##'            *or* a numeric vector of final weights in which case nothing is computed.
 ##' @param X  n x p  design matrix aka model.matrix()
 ##' @param intercept logical, if true, X[,] has an intercept column which should
 ##'                  not be used for rob.wts
@@ -32,7 +33,7 @@ robXweights <- function(wts, X, intercept=TRUE) {
                 stop("All weights.on.x must be none negative")
         }
     }
-    else ## ncoef == 0
+    else ## p = ncoef == 0 {maybe intercept, but that's not relevant here}
         rep.int(1,nobs)
 }
 
@@ -46,10 +47,10 @@ glmrobMqle <-
              trace = FALSE)
 {
     ## To DO:
-    ## o weights are not really implemented. e.g. as "user weights for poisson"
+    ## o weights are not really implemented as *extra* user weights; rather as "glm-weights"
     ## o offset is not fully implemented (really? -- should have test case!)
 
-    X <- as.matrix(X)
+    if(!is.matrix(X)) X <- as.matrix(X)
 ## never used:
 ##     xnames <- dimnames(X)[[2]]
 ##     ynames <- if (is.matrix(y)) rownames(y) else names(y)
@@ -77,7 +78,7 @@ glmrobMqle <-
     stopifnot(control$maxit >= 1, (tcc <- control$tcc) >= 0)
 
     ## note that etastart and mustart are used to make 'family$initialize' run
-    etastart <-  NULL;  mustart <- NULL
+    etastart <- NULL;  mustart <- NULL
     ## note that 'weights' are used and set by binomial()$initialize !
     eval(family$initialize) ## --> n, mustart, y and weights (=ni)
     ni <- as.vector(weights)# dropping attributes for computation
@@ -192,7 +193,7 @@ glmrobMqle <-
         eval(comp.scaling) #-> (sV, residPS)
         eval(comp.Epsi.init)
 	## Computation of alpha and (7) using matrix column means:
-	cpsi <- pmax.int(-tcc, pmin(residPS,tcc)) - eval(Epsi)
+	cpsi <- pmax.int(-tcc, pmin.int(residPS,tcc)) - eval(Epsi)
 	EEq <- colMeans(cpsi * w.x * sni/sV * dmu.deta * X)
 	##
 	## Solve  1/n (t(X) %*% B %*% X) %*% delta.coef	  = EEq
@@ -349,7 +350,7 @@ glmrobMqle.control <-
 
 ## FIXME:  Do use a "robFamily", a  *list* of functions
 ## ------  which all have the same environment
-##   ===> can get same efficiency as expressions, but better OO
+##   ===> can get same efficiency as expressions, but better OOP
 
 
 ### --- Poisson -- family ---
@@ -511,7 +512,7 @@ Huberprop2.gehtnicht <- function(phi, ns.resid, mu, Vmu, tcc)
     compEpsi2 <- eval(Epsi2)
     ##
     ## return h :=
-    sum(pmax.int(-tcc,pmin(ns.resid*snu,tcc))^2) -  nobs*compEpsi2
+    sum(pmax.int(-tcc,pmin.int(ns.resid*snu,tcc))^2) -  nobs*compEpsi2
 }
 
 Huberprop2 <- function(phi, ns.resid, mu, Vmu, tcc)
@@ -533,5 +534,5 @@ Huberprop2 <- function(phi, ns.resid, mu, Vmu, tcc)
     ##
     compEpsi2 <- tcc^2 + (pPtc - pMtc)*(1-tcc^2) + GLtcc - GUtcc
     ## return h :=
-    sum(pmax.int(-tcc,pmin(ns.resid*snu,tcc))^2) -  nobs*compEpsi2
+    sum(pmax.int(-tcc,pmin.int(ns.resid*snu,tcc))^2) -  nobs*compEpsi2
 }

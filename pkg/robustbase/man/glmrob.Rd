@@ -1,8 +1,7 @@
 \name{glmrob}
 \alias{glmrob}
-
 \title{Robust Fitting of Generalized Linear Models}
-
+\encoding{utf8}
 \description{
   \code{glmrob} is used to fit generalized linear models by robust
   methods.  The models are specified by giving a symbolic description of
@@ -13,7 +12,7 @@
 
 \usage{
 glmrob(formula, family, data, weights, subset, na.action,
-       start = NULL, offset, method = c("Mqle", "BY", "WBY"),
+       start = NULL, offset, method = c("Mqle", "BY", "WBY", "MT"),
        weights.on.x = c("none", "hat", "robCov", "covMcd"), control = NULL,
        model = TRUE, x = FALSE, y = TRUE, contrasts = NULL, trace.lev = 0, ...)
 }
@@ -99,6 +98,10 @@ glmrob(formula, family, data, weights, subset, na.action,
   \code{\link{BYlogreg}(*, initwml= . )} for the (weighted) Bianco-Yohai
   estimator, where \code{initwml} is true for \code{"WBY"}, and false
   for \code{"BY"}.
+  \cr
+  \code{method="MT"}, currently only implemented for \code{family = poisson},
+  computes an \dQuote{[M]-Estimator based on [T]ransformation},
+  by Valdora and Yohai (2013).
 
   \code{weights.on.x= "robCov"} makes sense if all explanatory variables
   are continuous.
@@ -174,9 +177,12 @@ glmrob(formula, family, data, weights, subset, na.action,
   S. Heritier, E. Cantoni, S. Copt, M.-P. Victoria-Feser (2009)
   \emph{Robust Methods in Biostatistics}. Wiley Series in Probability
   and Statistics.
+
+  Marina Valdora and Víctor J. Yohai (2013)
+  Robust estimators for Generalized Linear Models.  In progress.
 }
 
-\author{Andreas Ruckstuhl}
+\author{Andreas Ruckstuhl ("Mqle") and Martin Maechler}
 %%\note{ }
 
 \seealso{
@@ -237,6 +243,9 @@ Efit4 <- glmrob(Ysum ~ Age10 + Base4*Trt, family = poisson,
                 data = epilepsy, method= "Mqle", weights.on.x = "covMcd",
                 control = glmrobMqle.control(tcc=1.2, maxit=100))
 )
+
+##--> See  example(possumDiv)  for another  Poisson-regression
+
 
 ### -------- Gamma family -- data from example(glm) ---
 

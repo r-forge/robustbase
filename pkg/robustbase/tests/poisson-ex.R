@@ -23,21 +23,23 @@ dim(X.)# 151 11
 Inf. <- 1e5 ## --- FIXME
 
 ## The following used to fail because glm.fit() returns NA coefficients
-## now fine
+## now fine .. keep this as test!
 glm.cr <- glmrob(y ~ X, family = "poisson", tcc = Inf.)
 (scr <- summary(glm.cr))
 
+scl <- summary(glm.cl <- glm   (Diversity ~ . , data=possumDiv, family=poisson))
+sc2 <- summary(glm.c2 <- glmrob(Diversity ~ . , data=possumDiv, family=poisson, tcc = Inf.))
+assert.EQ(coef(scl), coef(sc2), tol = 6e-6, giveRE=TRUE) # 1.369e-6
+
 ## c = 2.0
-g2 <- glmrob(y ~ X, family = "poisson", tcc = 2.0, trace=TRUE)
-summary(g2)
+summary(g2 <- glmrob(Diversity ~ . , data=possumDiv, family=poisson, tcc = 2.0, trace=TRUE))
 
 ## c = 1.6
-glm.r <- glmrob(y ~ X, family = "poisson", tcc = 1.6)
-coef(summary(glm.r))
-
+glm.r <- glmrob(Diversity ~ . , data=possumDiv, family=poisson, tcc = 1.6, trace=TRUE)
+(s.16 <- summary(glm.r))
 str(glm.r)
 
-## Now with *smaller* X (two variable less):
+## Now with *smaller* X (two variablesless):
 glm.c2 <- glmrob(y ~ X., family = "poisson", tcc = Inf.)
 summary(glm.c2)
 
@@ -77,52 +79,48 @@ if(!robustbase:::doExtras()) {
 }
 ## if ( doExtras ) -----------------------------------------------------
 
+X1 <- cbind(1, X.)
 
 if(FALSE) ## for debugging ...
 options(warn = 1, error=recover)
 
 set.seed(57)
 showSys.time(
-    m1 <- glmrobMT(x=X., y=y)
+    ## m1 <- glmrobMT(x=X1, y=y)
+    m1 <- glmrob(Diversity ~ ., data=possumDiv, family=poisson, method="MT")
 )
 
 stopifnot(m1$converged)
 assert.EQ(m1$initial,
- c(-0.82454076117497, -0.0107066895370536, -0.226958540075445, 0.0355906625338308,
-   0.048010654640958, 0.0847493155436896, 0.0133604488401352,  -0.0270535337324515,
-  -0.0511687347946107, 0.146022135657894, -0.00751380783260816, -0.417638086169032)
-          , tol = 1e-13, giveRE=TRUE)
+c(-0.851594294907422, -0.0107066895370536, -0.226958540075445, 0.0355906625338308,
+  0.048010654640958, 0.0847493155436896, 0.0133604488401352, -0.024115201062159,
+  0.0270535337324518, 0.146022135657894, -0.00751380783260833, -0.417638086169033)
+          , tol = 1e-13, check.attr=FALSE, giveRE=TRUE)
 
 ## MM: I'm shocked how much this changes after every tweak ...
-beta1 <-
-    c(-0.722624970605759, 0.00852749919992932, -0.166868774170829, 0.0409786388107873,
-      0.0423939127370058, 0.0631485302047043, 0.0186282885623113, -0.11434877228984,
-      -0.120681307761841, 0.091425088547055, -0.0253897328183308, -0.669546401877007)
-beta1 <-
-    c(-0.722420662687891, 0.0085476612701357, -0.166923595194219, 0.0409726077990677,
-      0.0423823207249915, 0.0631502421922883,  0.018628347957457, -0.114433619812227,
-      -0.120518637621447, 0.0912580486966675, -0.0256851944443132,-0.66933007259972)
 
-dput(signif(m1$final, 11)) ## -->
-beta1 <-
-    c(-0.72304482204, 0.0085405640576, -0.16692415306, 0.040971551487,
-      0.04239438605, 0.063155175129, 0.018634854707, -0.11436243387,
-      -0.1208732381, 0.091813775403, -0.025026973847, -0.6687316155)
+dput(signif(unname(coef(m1)), 11)) ## -->
+beta1 <- c(-0.83723213945, 0.0085385261915, -0.16697112315, 0.040985126003,
+           0.042400738973, 0.063168847366, 0.01863253681, -0.0064477807228,
+           0.11488937188, 0.091283185006, -0.025627390293, -0.66995658693)
 
-assert.EQ(m1$final, beta1, tol = 1e-10, giveRE=TRUE)
+assert.EQ(coef(m1), beta1, tol = 1e-10, check.attr=FALSE, giveRE=TRUE)
 
 ## The same, with another seed:
 set.seed(64)
 showSys.time(
-    m2 <- glmrobMT(x=X., y=y)
+    ## m2 <- glmrobMT(x=X1, y=y)
+    m2 <- glmrob(Diversity ~ ., data=possumDiv, family=poisson, method="MT")
 )
 
 stopifnot(m2$converged)
+if(FALSE)
+dput(signif(unname(m2$initial), 13)) ## -->
 assert.EQ(m2$initial,
-c(-0.848813174290401, 0.0277603844520112, -0.368017404584204, 0.0432574691289175,
-  0.0389531528916901, 0.0453714547998864, 0.0284798754102488, -0.355491639538963,
-  -0.284759564306845, 0.182295544952766, 0.132372033156218, -0.34199390948774)
-          , tol = 1e-13, giveRE=TRUE)
+c(-1.204304813829, 0.02776038445201, -0.3680174045842, 0.04325746912892,
+  0.03895315289169, 0.04537145479989, 0.02847987541025, 0.07073207523212,
+  0.355491639539, 0.1822955449528, 0.1323720331562, -0.3419939094877)
+          , tol = 1e-12, check.attr=FALSE, giveRE=TRUE)
 
 beta2 <-
  c(-0.722466858080995, 0.00853214741170862, -0.167080756780928, 0.0409708489859932,
@@ -134,13 +132,13 @@ beta2 <-
    0.0423638710960024, 0.0630362342605086, 0.0186359589765251, -0.116645159395719,
  -0.123130115061652, 0.0910865027225399, -0.0256449044169698, -0.67024227284216)
 
-dput(signif(m2$final, 11)) ## -->
+dput(signif(unname(coef(m2)), 11)) ## -->
 beta2 <-
-c(-0.71938931755, 0.0084763041669, -0.16596659995, 0.041002667812,
-0.042364559338, 0.063061193524, 0.018621818942, -0.11647222451,
--0.12313481108, 0.09100650256, -0.025718464922, -0.67048194804)
+c(-0.83687097624, 0.0085341676033, -0.1674299545, 0.040968820903,
+0.042397459287, 0.063159075944, 0.018625582804, -0.0063140636571,
+0.11426134017, 0.091317308575, -0.025373078819, -0.66957444238)
 
-assert.EQ(m2$final, beta2, tol = 1e-10, giveRE=TRUE)
+assert.EQ(coef(m2), beta2, tol = 1e-10, check.attr=FALSE, giveRE=TRUE)
 ## slight changes of algorithm often change the above by ~ 4e-4 !!!
 
 ###---- Model Selection -----
