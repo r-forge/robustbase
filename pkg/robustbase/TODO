@@ -18,8 +18,15 @@ o  Psi/Rho/Chi/Wgt Functions
 
    2) have "old" tukeyChi() & tukeyPsi1()  originally called from lmrob() , in
       ./R/biweight-funs.R
+   3) psi.*(....,  rho = FALSE/TRUE)   functions from Andreas
+      should be replaced by using the new  psi_func  objects
+      ./R/psi-funs-AR.R  &  ./man/pkg-internal.Rd
+      ~~~~~~~~~~~~~~~~~  ===> Change  nlrob() slightly: allowing 'psi'
+      to be a function *or* a psiFunc:
+      --> ./R/nlrob.R+psi ./man/nlrob.Rd+psi
+      Before that we *do* need "real" checks (numbers!) for nlrob
 
-   3) have the C-based functions, now used from lmrob(), in
+   4) have the C-based functions, now used from lmrob(), in
       ./R/lmrob.MM.R
 
       now called  .M.psi(), .M.chi(), .M.wgt() plus new .M.rhoInf()
@@ -116,10 +123,6 @@ o glmrob(<Gamma>):  anova() has  three variants: "V1", "Eva1", "Andreas1"
    - gives warning every time {-> easy to fix}
    -  Default is "V1" is that a good idea?
 
-
-o psi.*(....,  rho = FALSE/TRUE)   functions from Andreas
-  should be replaced by using the new  psi_func  objects
-  --> ./R/psi-funs-AR.R  &  ./man/pkg-internal.Rd
 
 o glmrob() needs a bit more tests in ./tests/
            [also consider those from man/glmrob.Rd]
