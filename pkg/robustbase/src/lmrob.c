@@ -351,6 +351,8 @@ void R_lmrob_S(double *X, double *y, int *n, int *P,
 }
 
 /* Called from R, this function computes an M-S-regression estimator */
+// not only called from ../R/lmrob.M.S.R,  but also ../inst/xtraR/m-s_fns.R
+//			~~~~~~~~~~~~~~~~	    ~~~~~~~~~~~~~~~~~~~~~~~
 void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
 		 int *nn, int *pp1, int *pp2, int *nRes, int *max_it_scale,
 		 double *scale, double *b1, double *b2,
@@ -390,7 +392,7 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
     double BET0 = 0.773372647623; /* = pnorm(0.75) */
 
     /* STEP 1: Orthgonalize X2 and y from X1 */
-    if (*orthogonalize > 0) {
+    if (*orthogonalize) {
 	COPY(X1, x1, n*p1);
 	F77_CALL(rllarsbi)(x1, y_work, &n, &p1, &n, &n, rel_tol,
 			   &NIT, &K, &KODE, &SIGMA, t1, y_tilde, SC1, SC2,
@@ -411,7 +413,7 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
     }
 
     /* STEP 2: Subsample */
-    if (*subsample > 0) {
+    if (*subsample) {
 	m_s_subsample(X1, y_work, n, p1, p2, *nRes, *max_it_scale,
 		      *rel_tol, *inv_tol, bb,
 		      rho_c, *ipsi, scale, *trace_lev,
@@ -424,7 +426,7 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
     }
 
     /* STEP 3: Transform back */
-    if (*orthogonalize > 0) {
+    if (*orthogonalize) {
 	/* t1 = ot1 + b1 - oT2 %*% b2 */
 	for(int i=0; i < p1; i++) t1[i] = ot1[i] + b1[i];
 	F77_CALL(dgemv)("N", &p1, &p2, &dmone, oT2, &p1, b2, &one, &done, t1, &one);
@@ -439,7 +441,7 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
     F77_CALL(dgemv)("N", &n, &p2, &dmone, X2, &n, b2, &one, &done, res, &one);
 
     /* STEP 4: Descent procedure */
-    if (*descent > 0) {
+    if (*descent) {
 	m_s_descent(X1, X2, y, n, p1, p2, *K_m_s, *max_k, *max_it_scale,
 		    *rel_tol, bb, rho_c, *ipsi, scale, *trace_lev,
 		    b1, b2, t1, t2, y_tilde, res, y_work, x1, x2,
@@ -2104,11 +2106,10 @@ int refine_fast_s(const double X[], double *wx, const double y[], double *wy,
 	}
 
     if( initial_scale < 0. )
-	initial_scale = MAD(res, n, 0., wy, weights); /* wy and weights used as work arrays */
+	initial_scale = MAD(res, n, 0., wy, weights);// wy and weights used as work arrays
     s0 = initial_scale;
-    if( *conv )
+    if(*conv)
 	kk = max_k;
-
     for(i=0; i < kk; i++) {
 	/* one step for the scale */
 	s0 = s0 * sqrt( sum_rho_sc(res, s0, n, p, rrhoc, ipsi) / b );
@@ -2138,12 +2139,11 @@ int refine_fast_s(const double X[], double *wx, const double y[], double *wy,
 	/* was "if(0)",	 since default lead to 'NOT converged' */
 	if(!converged) {
 	    *conv = FALSE;
-	    warning("S refinements did not converge (to tol=%g) in %d iterations",
+	    warning("S refinements did not converge (to refine.tol=%g) in %d (= k.max) steps",
 		    rel_tol, i);
 	}
-	if(trace_lev >= 2)
-	    Rprintf("refinements %sconverged in %d iterations\n",
-		    converged ? " " : "NOT ", i);
+	else if(trace_lev >= 2)
+	    Rprintf("S refinements converged in %d steps\n", i);
     }
     *scale = s0;
     return i; /* number of refinement steps */
@@ -2546,50 +2546,26 @@ double sum_rho_sc(const double r[], double scale, int n, int p, const double c[]
     return(s / ((double) n - p));
 }
 
-#define _USE_BLAS_
-
 /* ||x||_2^2 */
 double norm2(double *x, int n)
 {
     double s = 0.;
-#ifdef  _USE_BLAS_
     int one = 1;
     s = F77_CALL(dnrm2)(&n, x, &one);
     return( s*s );
-#else
-    int i;
-    for(i=0; i < n; i++)
-	s += x[i] * x[i];
-    return(s);
-#endif
 }
 
 /* ||x||_2 */
 double norm(double *x, int n)
 {
-#ifdef  _USE_BLAS_
     int one = 1;
     return(F77_CALL(dnrm2)(&n, x, &one));
-#else
-    int i;
-    double s = 0.;
-    for(i=0; i < n; i++)
-	s += x[i] * x[i];
-    return(sqrt(s));
-#endif
 }
 
 double norm1(double *x, int n)
 {
-#ifdef  _USE_BLAS_
     int one = 1;
     return(F77_CALL(dasum)(&n, x, &one));
-#else
-    int i; double s = 0.;
-    for(i=0; i < n; i++)
-	s += fabs(x[i]);
-    return(s);
-#endif
 }
 
 /* ||x-y||_2^2 */
