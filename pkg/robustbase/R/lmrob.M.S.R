@@ -131,15 +131,17 @@ lmrob.M.S <- function(x, y, control, mf, split) {
             max_k=as.integer(control$k.max),
             rel_tol=as.double(control$rel.tol),
 	    inv_tol=as.double(control$solve.tol),
-            converged=logical(1),
+            converged = logical(1),
             trace_lev=as.integer(control$trace.lev),
             orthogonalize=TRUE,
             subsample=TRUE,
             descent=TRUE,
             mts=as.integer(control$mts),
             ss=.convSs(control$subsampling)
-            )[c("b1","b2", "res","scale")]
+            )[c("b1","b2", "res","scale", "converged")]
 
+    if(!(conv <- z$converged))
+        warning("lmrob_M_S iterations did not converge")
     ## coefficients
     idx <- split$x1.idx
     cf <- numeric(length(idx))
@@ -149,5 +151,5 @@ lmrob.M.S <- function(x, y, control, mf, split) {
     control$method <- 'M-S'
     list(coefficients = cf, scale = z$scale, residuals = z$res,
          rweights = lmrob.rweights(z$res, z$scale, control$tuning.chi, control$psi),
-         control = control)
+         converged = conv, control = control)
 }
