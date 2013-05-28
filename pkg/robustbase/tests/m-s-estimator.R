@@ -145,3 +145,8 @@ for(i in 1:ncol(x2)) {
     x2.tilde[,i] <- tmp$resid
 }
 x2.tilde == 0
+
+
+## Specifying init="M-S" for a model without categorical variables
+## used to cause a segfault
+lmrob(LNOx ~ LNOxEm, NOxEmissions[1:10,], init="M-S")

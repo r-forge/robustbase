@@ -100,6 +100,10 @@ splitFrame <- function(mf, x = model.matrix(mt, mf),
 lmrob.M.S <- function(x, y, control, mf, split) {
     if (missing(split))
         split <- splitFrame(mf, x, control$split.type)
+    if (ncol(split$x1) == 0) {
+      warning("No categorical variables found in model. Reverting to lmrob.S.")
+      return(lmrob.S(x, y, control))
+    }
     x1 <- split$x1
     x2 <- split$x2
     storage.mode(x1) <- "double"
