@@ -72,9 +72,9 @@ mk.m_rho <- function(cw,
 ##' Tukey's Bisquare (aka "biweight") rho function: rho~() = rho scaled to have rho(Inf) = 1
 rho <- function(x,cw) pmin(1, 1 - (1-(x/cw)^2)^3)
 ## faster:
-rho <- function(x,cw) .M.chi(x, cc=cw, psi="tukey")
+rho <- function(x,cw) Mchi(x, cc=cw, psi="tukey")
 ## NB: in sumaConPesos(), mm(.), ... we make use of the fact  that  rho(Inf) = 1
-psi <- function(x,cw, deriv=0) .M.psi(x, cc=cw, psi="tukey", deriv=deriv)
+psi <- function(x,cw, deriv=0) Mpsi(x, cc=cw, psi="tukey", deriv=deriv)
 
 espRho <- function(lam, xx, cw)
 {
@@ -323,7 +323,7 @@ glmrobMT.control <- function(cw = 2.1, nsubm = 500, acc = 1e-06, maxit = 200)
 ##' @param intercept logical, if true, x[,] has an intercept column which should
 ##'                  not be used for rob.wts
 glmrobMT <- function(x,y, weights = NULL, start = NULL, offset = NULL,
-                     weights.on.x = "none",
+                     family = poisson(), weights.on.x = "none",
                      control = glmrobMT.control(...), intercept = TRUE,
                      trace.lev = 1, ...)
 {
@@ -343,8 +343,8 @@ glmrobMT <- function(x,y, weights = NULL, start = NULL, offset = NULL,
     ## REQUIRED PACKAGES: tools, rrcov
     stopifnot(is.numeric(cw <- control$cw), cw > 0,
               is.numeric(nsubm <- control$nsubm))
-    family <- poisson() # only one, currently
-
+    if(family$family != "poisson")
+	stop("Currently, only family 'poisson' is supported for the \"MT\" estimator")
     n <- nrow(x)
     p <- ncol(x)
     if (is.null(weights))
@@ -409,7 +409,7 @@ glmrobMT <- function(x,y, weights = NULL, start = NULL, offset = NULL,
     ##     s <- rho(sqrt(y) - mm(exp(eta), m.approx), cw)
     ##     sum(s*w)
     ## we could say that   "psi(x) / x" -- weights would be
-    w.r <- .M.wgt(sqrt(y) - mm(exp(eta), m.approx), cw, psi="tukey")
+    w.r <- Mwgt(sqrt(y) - mm(exp(eta), m.approx), cw, psi="tukey")
 
     names(mu) <- names(eta) <- names(residP) # re-add after computation
     names(beta) <- names(start) <- nmB <- colnames(x)

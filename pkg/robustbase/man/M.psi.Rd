@@ -1,8 +1,12 @@
-\name{M.psi}
-\alias{.M.chi}
-\alias{.M.psi}
-\alias{.M.wgt}
-\alias{.M.rhoInf}
+\name{Mpsi}
+\alias{Mchi}
+\alias{Mpsi}
+\alias{Mwgt}
+\alias{MrhoInf}
+\alias{.Mchi}
+\alias{.Mpsi}
+\alias{.Mwgt}
+\alias{.MrhoInf}
 \title{Psi / Chi / Wgt / Rho Functions for *M-Estimation}
 \description{
   Compute Psi / Chi / Wgt / Rho functions for M-estimation,
@@ -10,7 +14,7 @@
   %% TODO: More, notably definitions ... but they are all nicely in the
   %% vignette.. How can we link from here to there ???
 
-  \code{.M.rhoInf(x)} computes \eqn{\rho(\infty)}{rho(Inf)}, i.e., the
+  \code{MrhoInf(x)} computes \eqn{\rho(\infty)}{rho(Inf)}, i.e., the
   normalizing or scaling constant for the transformation
   from \eqn{\rho(\cdot)}{rho(.)} to
   \eqn{\tilde\rho(\cdot)}{rho~(.)}, where the latter, aka as
@@ -18,13 +22,13 @@
   which makes only sense for \dQuote{redescending} psi functions, i.e.,
   not for \code{"huber"}.
 
-  \code{.M.wgt(x, *)} computes \eqn{\psi(x)/x}  (fast and numerically accurately).
+  \code{Mwgt(x, *)} computes \eqn{\psi(x)/x}  (fast and numerically accurately).
 }
 \usage{
-.M.psi(x, cc, psi, deriv = 0)
-.M.chi(x, cc, psi, deriv = 0)
-.M.wgt(x, cc, psi)
-.M.rhoInf(cc, psi)
+Mpsi(x, cc, psi, deriv = 0)
+Mchi(x, cc, psi, deriv = 0)
+Mwgt(x, cc, psi)
+MrhoInf(cc, psi)
 }
 \arguments{
   \item{x}{numeric (\dQuote{abscissa} values) vector.}
@@ -36,19 +40,25 @@
     \code{"bisquare"}, \code{"lqq"}, \code{"welsh"}, \code{"optimal"},
     \code{"hampel"}, or \code{"ggw"}.}
   \item{deriv}{an integer, specifying the \emph{order} of derivative to
-    consider; particularly, \code{.M.psi(x, *, deriv = -1)} is the
+    consider; particularly, \code{Mpsi(x, *, deriv = -1)} is the
     principal function of \eqn{\psi()}{psi()}, typically denoted
     \eqn{\rho()}{rho()} in the literature.}
   %% FIXME: mention that  deriv = 2 is *partially* implemented
 }
 \details{
-  Theoretically, as \code{.M.wgt} (defined via \code{.M.psi}),
-  \code{.M.chi()} would not be needed explicitly as it can be computed
-  from \code{.M.psi()} and \code{.M.rhoInf()}, namely, by
-  \preformatted{.M.chi(x, *, deriv = d)  ==  .M.psi(x, *, deriv = d-1) / .M.rhoInf(*)}
+  Theoretically, \code{Mchi()} would not be needed explicitly as it can be computed
+  from \code{Mpsi()} and \code{MrhoInf()}, namely, by
+  \preformatted{Mchi(x, *, deriv = d)  ==  Mpsi(x, *, deriv = d-1) / MrhoInf(*)}
   for \eqn{d = 0, 1, 2}  (and \sQuote{*} containing \code{par, psi}, and
   equality is in the sense of \code{\link{all.equal}(x,y, tol)} with a
   small \code{tol}.
+
+  Similarly, \code{Mwgt} would not be needed strictly, as it could be
+  defined via \code{Mpsi}), but the explicit definition takes care of
+  0/0 and typically is of a more simple form.
+
+  For experts, there are slightly even faster versions,
+  \code{.Mpsi()}, \code{.Mwgt()}, etc.
 }
 \value{
   a numeric vector of the same length as \code{x}, with corresponding
@@ -70,17 +80,17 @@
 }
 \examples{
 x <- seq(-5,7, by=1/8)
-matplot(x, cbind(.M.psi(x, 4, "biweight"),
-                 .M.chi(x, 4, "biweight"),
-                 .M.wgt(x, 4, "biweight")), type = "l")
+matplot(x, cbind(Mpsi(x, 4, "biweight"),
+                 Mchi(x, 4, "biweight"),
+                 Mwgt(x, 4, "biweight")), type = "l")
 abline(h=0, v=0, lty=2, col=adjustcolor("gray", 0.6))
 
 hampelPsi
 (ccHa <- hampelPsi @ xtras $ tuningP $ k)
 psHa <- hampelPsi@psi(x)
-% FIXME: interesting as long as hampelPsi does not use .M.psi(... "hampel") !
-## using .M.psi():
-Mp.Ha <- .M.psi(x, cc = ccHa, psi = "hampel")
+% FIXME: interesting as long as hampelPsi does not use Mpsi(... "hampel") !
+## using Mpsi():
+Mp.Ha <- Mpsi(x, cc = ccHa, psi = "hampel")
 stopifnot(all.equal(Mp.Ha, psHa, tol = 1e-15))
 }
 \keyword{robust}

@@ -71,7 +71,7 @@ void fast_s(double *X, double *y,
 	    int *best_r, double *bb, double *rrhoc, int *iipsi,
 	    double *bbeta, double *sscale, int trace_lev, int mts, int ss);
 
-int rwls(const double X[], const double y[], int n, int p,
+Rboolean rwls(const double X[], const double y[], int n, int p,
 	 double *estimate, double *i_estimate,
 	 double *resid, double *loss,
 	 double scale, double epsilon,
@@ -154,23 +154,22 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 		   double *b1, double *b2, double *t1, double *t2,
 		   double *y_tilde, double *res, double *x1, double *x2,
 		   int *NIT, int *K, int *KODE, double *SIGMA, double *BET0,
-		   double *SC1, double *SC2, double *SC3, double *SC4, int mts, int ss);
+		   double *SC1, double *SC2, double *SC3, double *SC4, int mts, Rboolean ss);
 
-void m_s_descent(double *X1, double *X2, double *y,
+Rboolean m_s_descent(double *X1, double *X2, double *y,
 		 int n, int p1, int p2, int K_m_s, int max_k, int max_it_scale,
 		 double rel_tol, double *bb, double *rrhoc, int ipsi,
 		 double *sscale, int trace_lev,
 		 double *b1, double *b2, double *t1, double *t2,
 		 double *y_tilde, double *res, double *res2, double *x1, double *x2,
 		 int *NIT, int *K, int *KODE, double *SIGMA,  double *BET0,
-		 double *SC1, double *SC2, double *SC3, double *SC4,
-		 int *conv);
+		 double *SC1, double *SC2, double *SC3, double *SC4);
 
-int subsample(const double x[], const double y[], int n, int m,
-	      double *beta, int *ind_space, int *idc, int *idr,
-	      double *lu, double *v, int *p,
-	      double *Dr, double *Dc, int rowequ, int colequ,
-	      int sample, int mts, int ss, double tol_inv, int solve);
+Rboolean subsample(const double x[], const double y[], int n, int m,
+		   double *beta, int *ind_space, int *idc, int *idr,
+		   double *lu, double *v, int *p,
+		   double *Dr, double *Dc, int rowequ, int colequ,
+		   Rboolean sample, int mts, Rboolean ss, double tol_inv, Rboolean solve);
 
 int fast_s_with_memory(double *X, double *y,
 		       int *nn, int *pp, int *nRes, int *max_it_scale,
@@ -358,9 +357,10 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
 		 double *scale, double *b1, double *b2,
 		 double *rho_c, int *ipsi, double *bb,
 		 int *K_m_s, int *max_k, double *rel_tol, double *inv_tol,
-		 int *converged, int *trace_lev,
-		 int *orthogonalize, int *subsample,
-		 int *descent, int *mts, int *ss)
+		 int *converged,
+		 int *trace_lev,
+		 int *orthogonalize, int *subsample, int *descent,
+		 int *mts, int *ss)
 {
     /* Initialize (some of the) memory here,
      * so that we have to do it only once */
@@ -442,11 +442,11 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
 
     /* STEP 4: Descent procedure */
     if (*descent) {
-	m_s_descent(X1, X2, y, n, p1, p2, *K_m_s, *max_k, *max_it_scale,
-		    *rel_tol, bb, rho_c, *ipsi, scale, *trace_lev,
-		    b1, b2, t1, t2, y_tilde, res, y_work, x1, x2,
-		    &NIT, &K, &KODE, &SIGMA, &BET0, SC1, SC2, SC3, SC4,
-		    converged);
+	*converged = m_s_descent(
+	    X1, X2, y, n, p1, p2, *K_m_s, *max_k, *max_it_scale,
+	    *rel_tol, bb, rho_c, *ipsi, scale, *trace_lev,
+	    b1, b2, t1, t2, y_tilde, res, y_work, x1, x2,
+	    &NIT, &K, &KODE, &SIGMA, &BET0, SC1, SC2, SC3, SC4);
     }
 }
 
@@ -467,7 +467,7 @@ void R_lmrob_MM(double *X, double *y, int *n, int *P,
 /* starting from the S-estimate (beta_initial), use
  * irwls to compute the MM-estimate (beta_m)  */
 
-    *converged = rwls(X,y,*n,*P,beta_m, beta_initial, resid, loss,
+    *converged = (int)rwls(X,y,*n,*P,beta_m, beta_initial, resid, loss,
 		      *scale, *rel_tol,
 		      max_it, rho_c, *ipsi, *trace_lev);
     if (!converged)
@@ -491,8 +491,8 @@ void R_subsample(const double x[], const double y[], int *n, int *m,
     SETUP_EQUILIBRATION(*n, *m, x, 0);
 
     *status = subsample(Xe, y, *n, *m, beta, ind_space, idc, idr, lu, v, p,
-			Dr, Dc, rowequ, colequ, *sample, *mts, *ss, *tol_inv,
-			*solve);
+			Dr, Dc, rowequ, colequ, (Rboolean)*sample, *mts, (Rboolean)*ss,
+			*tol_inv, (Rboolean)*solve);
 
     COPY(Dr, _Dr, *n);
     COPY(Dc, _Dc, *m);
@@ -1488,7 +1488,7 @@ static void sample_noreplace(int *x, int n, int k, int *ind_space)
  * ---- the workhorse of the "lmrob_MM" algorithm;
  * in itself,  ``just'' an M-estimator :
  */
-int rwls(const double X[], const double y[], int n, int p,
+Rboolean rwls(const double X[], const double y[], int n, int p,
 	 double *estimate, double *i_estimate,
 	 double *resid, double* loss,
 	 double scale, double epsilon,
@@ -1558,8 +1558,7 @@ int rwls(const double X[], const double y[], int n, int p,
 
     CLEANUP_WLS;
 
-    return (int)converged;
-
+    return converged;
 } /* rwls() */
 
 /* sets the entries of a matrix to zero */
@@ -2158,15 +2157,13 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 		   double *b1, double *b2, double *t1, double *t2,
 		   double *y_tilde, double *res, double *x1, double *x2,
 		   int *NIT, int *K, int *KODE, double *SIGMA, double *BET0,
-		   double *SC1, double *SC2, double *SC3, double *SC4, int mts, int ss)
+		   double *SC1, double *SC2, double *SC3, double *SC4, int mts, Rboolean ss)
 {
-    int i, one = 1, info;
-    int p = p1 + p2, sing;
-    double b = *bb;
-    double sc = INFI, done = 1., dmone = -1.;
+    int i, one = 1, p = p1 + p2, info;
+    double b = *bb, sc = INFI, done = 1., dmone = -1.;
     *sscale = INFI;
 
-    if (trace_lev > 1)
+    if (trace_lev >= 1)
 	Rprintf("starting with subsampling procedure...\n");
 
     SETUP_SUBSAMPLE(n, p2, x2, 0);
@@ -2177,8 +2174,9 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     for(i=0; i < nResample; i++) {
 	R_CheckUserInterrupt();
 	/* STEP 1: Draw a subsample of size p2 from (X2, y) */
-	sing = subsample(Xe, y, n, p2, t2, ind_space, idc, idr, lu, v, pivot,
-			 Dr, Dc, rowequ, colequ, 1, mts, ss, inv_tol, 1);
+	Rboolean sing = subsample(Xe, y, n, p2, t2, ind_space, idc, idr, lu, v, pivot,
+				  Dr, Dc, rowequ, colequ, /* sample= */ TRUE, mts,
+				  ss, inv_tol, /*solve = */ TRUE);
 	if (sing) {
 	    *sscale = -1.;
 	    goto cleanup_and_return;
@@ -2202,9 +2200,8 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 	    /* scale will be better */
 	    /* STEP 5: Solve for sc */
 	    sc = find_scale(res, b, rrhoc, ipsi, sc, n, p, max_it_scale);
-	    if(trace_lev >= 2) {
-		Rprintf("Step %d: new candidate with sc = %.5f\n",i,sc);
-	    }
+	    if(trace_lev >= 2)
+		Rprintf(" step %3d: new candidate with sc = %10.5g\n",i,sc);
 	    /* STEP 6: Update best fit */
 	    *sscale = sc;
 	    COPY(t1, b1, p1);
@@ -2221,10 +2218,12 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     /* STEP 7: Clean up and return */
     if (trace_lev >= 1) {
 	Rprintf("Finished M-S subsampling with scale = %.5f\n",*sscale);
-	if (trace_lev > 2) {
-	     Rprintf("b1: "); disp_vec(b1,p1);
-	     Rprintf("b2: "); disp_vec(b2,p2);
+#define maybe_SHOW_b1_b2			\
+	if (trace_lev >= 2) {			\
+	     Rprintf(" b1: "); disp_vec(b1,p1);	\
+	     Rprintf(" b2: "); disp_vec(b2,p2);	\
 	}
+	maybe_SHOW_b1_b2;
     }
 
   cleanup_and_return:
@@ -2232,16 +2231,17 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     PutRNGstate();
 } /* m_s_subsample() */
 
-/* Descent step for M-S algorithm                        */
-void m_s_descent(double *X1, double *X2, double *y,
+/* Descent step for M-S algorithm
+ * Return value: convergence; note that convergence is *not* guaranteed
+ */
+Rboolean m_s_descent(double *X1, double *X2, double *y,
 		 int n, int p1, int p2, int K_m_s, int max_k, int max_it_scale,
 		 double rel_tol, double *bb, double *rrhoc,  int ipsi,
 		 double *sscale, int trace_lev,
 		 double *b1, double *b2, double *t1, double *t2,
 		 double *y_tilde, double *res, double *res2, double *x1, double *x2,
 		 int *NIT, int *K, int *KODE, double *SIGMA,  double *BET0,
-		 double *SC1, double *SC2, double *SC3, double *SC4,
-		 int *conv)
+		 double *SC1, double *SC2, double *SC3, double *SC4)
 {
     int j, k, nnoimpr = 0, nref = 0;
     int p = p1 + p2;
@@ -2255,14 +2255,16 @@ void m_s_descent(double *X1, double *X2, double *y,
     COPY(b2, t2, p2);
     COPY(res, res2, n);
 
-    if (trace_lev > 1)
+    if (trace_lev >= 1)
 	Rprintf("starting with descent procedure...\n");
 
     INIT_WLS(x2, y, n, p2);
 
-    if (trace_lev > 4) {
-	Rprintf("scale: %.5f\n", *sscale);
-	Rprintf("res2: "); disp_vec(res2,n);
+    if (trace_lev >= 2) {
+	Rprintf(" scale: %.5f\n", *sscale);
+	if (trace_lev >= 4) {
+	    Rprintf(" res2: "); disp_vec(res2,n);
+	}
     }
 
     /* Do descent steps until there is no improvement for   */
@@ -2300,12 +2302,18 @@ void m_s_descent(double *X1, double *X2, double *y,
 	double del = sqrt(norm_diff2(b1, t1, p1) + norm_diff2(b2, t2, p2));
 	double nrmB = sqrt(norm2(t1, p1) + norm2(t2, p2));
 	converged = (del < rel_tol * fmax2(rel_tol, nrmB));
-	if (trace_lev > 4) {
-	    Rprintf("weights: "); disp_vec(weights,n);
-	    Rprintf("t2: "); disp_vec(t2,p2);
-	    Rprintf("t1: "); disp_vec(t1,p1);
-	    Rprintf("res2: "); disp_vec(res2,n);
-	    Rprintf("sc: %.5f\n", sc);
+	if (trace_lev >= 2) {
+	    if(converged) Rprintf(" -->> converged\n");
+	    if (trace_lev >= 3) {
+		Rprintf("Ref.step %3d: #{no-improvements}=%3d; (del,dB)=(%12.7g,%12.7g)\n",
+			nref, nnoimpr, del, rel_tol * fmax2(rel_tol, nrmB));
+		if (trace_lev >= 4) {
+		    Rprintf("  weights: "); disp_vec(weights,n);
+		    Rprintf("  t2: "); disp_vec(t2,p2);
+		    Rprintf("  t1: "); disp_vec(t1,p1);
+		    Rprintf("  res2: "); disp_vec(res2,n);
+		}
+	    }
 	}
 	/* STEP 5: Update best fit */
 	if (sc < *sscale) {
@@ -2313,26 +2321,28 @@ void m_s_descent(double *X1, double *X2, double *y,
 	    COPY(t2, b2, p2);
 	    COPY(res2, res, n);
 	    *sscale = sc;
-	    if (trace_lev > 2)
+	    if (trace_lev >= 2)
 		Rprintf("Refinement step %d: better fit, scale: %.5f\n",
 			nref, sc);
 	    nnoimpr = 0;
-	} else nnoimpr++;
-    }
+	} else {
+	    if (trace_lev >= 2)
+		Rprintf("  sc: %.5f\n", sc);
+	    nnoimpr++;
+	}
+    } // while(.)
 
     if ( (!converged) & (nref == max_k) )
 	warning("M-S estimate: maximum number of refinement steps reached.");
-    *conv = converged;
 
     if (trace_lev >= 1) {
 	Rprintf("descent procedure: %sconverged.\n", converged ? "" : "not " );
-	if (trace_lev > 2) {
-	    Rprintf("b1: "); disp_vec(b1,p1);
-	    Rprintf("b2: "); disp_vec(b2,p2);
-	}
+	maybe_SHOW_b1_b2;
     }
 
     CLEANUP_WLS;
+
+    return converged;
 } /* m_s_descent() */
 
 /* draw a subsample of observations and calculate a candidate           *
@@ -2344,11 +2354,11 @@ void m_s_descent(double *X1, double *X2, double *y,
  * Parts of the algorithm are based on the Gaxpy version of the LU      *
  * decomposition with partial pivoting by                               *
  * Golub G. H., Van Loan C. F. (1996) - MATRIX Computations             */
-int subsample(const double x[], const double y[], int n, int m,
-	      double *beta, int *ind_space, int *idc, int *idr,
-	      double *lu, double *v, int *pivot,
-	      double *Dr, double *Dc, int rowequ, int colequ,
-	      int sample, int mts, int ss, double tol_inv, int solve)
+Rboolean subsample(const double x[], const double y[], int n, int m,
+		   double *beta, int *ind_space, int *idc, int *idr,
+		   double *lu, double *v, int *pivot,
+		   double *Dr, double *Dc, int rowequ, int colequ,
+		   Rboolean sample, int mts, Rboolean ss, double tol_inv, Rboolean solve)
 {
     /* x:         design matrix (n x m)
        y:         response vector
@@ -2396,7 +2406,7 @@ int subsample(const double x[], const double y[], int n, int m,
 
 Start:
     /* STEP 1: Calculate permutation of 1:n */
-    if (sample > 0) {
+    if (sample) {
 	sample_noreplace(idc, n, n, ind_space);
     } else for(k=0;k<n;k++) idc[k] = k;
     for(k=0;k<m;k++) idr[k] = k;

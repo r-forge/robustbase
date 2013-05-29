@@ -1,13 +1,13 @@
 2013-05-22  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* R/lmrob.MM.R (.M.psi, .M.chi, .M.wgt): now all work via .Call():
+	* R/lmrob.MM.R (Mpsi, Mchi, Mwgt): now all work via .Call():
 	is  9 x  faster for n ~ 4000, and a few NAs.
 
 2013-05-18  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* R/lmrob.MM.R (.M.rhoInf): new, providing rho(Inf), i.e.,
+	* R/lmrob.MM.R (MrhoInf): new, providing rho(Inf), i.e.,
 	the scaling constant (rho |--> rho~ = chi)
-	* R/lmrob.MM.R (.M.psi, .M.chi, .M.wgt): renamed, exported and documented,
+	* R/lmrob.MM.R (Mpsi, Mchi, Mwgt): renamed, exported and documented,
 	from former hidden lmrob.psifun(), lmrob.chifun(), lmrob.wgtfun().
 	* TODO: now has an extensive section on psi/rho/chi etc
 

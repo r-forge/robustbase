@@ -14,10 +14,10 @@ for(c. in c(0.1, 1:2, pi, 100)) {
 		 6/c.^2* tukeyPsi1(x, c., deriv= 0)),
 	      EQ(tukeyChi(x, c., deriv= 2),
 		 6/c.^2* tukeyPsi1(x, c., deriv= 1)),
-	      ## Now show equivalence with .M.psi():
-	      EQ(tukeyPsi1(x,     c.),      .M.psi(x,     c., "tukey")),
-	      EQ(tukeyPsi1(x,     c., d=1), .M.psi(x,     c., "tukey", d=1)),
-	      EQ(tukeyPsi1(x[ix], c., d=2), .M.psi(x[ix], c., "tukey", d=2))
+	      ## Now show equivalence with Mpsi():
+	      EQ(tukeyPsi1(x,     c.),      Mpsi(x,     c., "tukey")),
+	      EQ(tukeyPsi1(x,     c., d=1), Mpsi(x,     c., "tukey", d=1)),
+	      EQ(tukeyPsi1(x[ix], c., d=2), Mpsi(x[ix], c., "tukey", d=2))
 	      )
 }
 

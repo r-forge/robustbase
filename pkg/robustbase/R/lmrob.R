@@ -8,7 +8,7 @@ lmrob <-
 {
     ## to avoid problems with setting argument
     ## call lmrob.control here either with or without method arg.
-    if (missing(control))
+    if (miss.ctrl <- missing(control))
 	control <- if (missing(method))
 	    lmrob.control(...) else lmrob.control(method = method, ...)
     else ## check dots
@@ -33,7 +33,7 @@ lmrob <-
     if(!is.null(offset) && length(offset) != NROW(y))
 	stop(gettextf("number of offsets is %d, should equal %d (number of observations)",
 		      length(offset), NROW(y)), domain = NA)
-    if (!missing(control) && !missing(method) && method != control$method) {
+    if (!miss.ctrl && !missing(method) && method != control$method) {
 	warning("Methods argument set by method is different from method in control\n",
 		"Using the former, method = ", method)
 	control$method <- method
@@ -103,12 +103,17 @@ lmrob <-
 		x <- x[,p1]
 		attr(x, "assign") <- assign[p1] ## needed for splitFrame to work
 	    }
-	    if (!is.null(init)) {
+	    if (!is.null(ini <- init)) {
 		if (is.character(init)) {
 		    init <- switch(init,
-				   `M-S` = lmrob.M.S(x, y, control, mf),
-				   S = lmrob.S(x, y, control),
+				   "M-S" = lmrob.M.S(x, y, control, mf),
+				   "S"   = lmrob.S  (x, y, control),
 				   stop('init must be "S", "M-S", function or list'))
+		    if(ini == "M-S") { ## "M-S" sometimes reverts to "S":
+			ini <- init$control$method
+                        ## if(identical(ini, "M-S"))
+                        ##     control$method <- paste0(ini, control$method)
+                    }
 		} else if (is.function(init)) {
 		    init <- init(x=x, y=y, control=control, mf=mf)
 		} else if (is.list(init)) {
@@ -124,8 +129,8 @@ lmrob <-
 			    stop("Length of initial coefficients vector does not match rank of singular design matrix x")
 		    }
 		} else stop("unknown init argument")
-		stopifnot(!is.null(init$coef), !is.null(init$scale))
-		## modify (default) control$method
+		stopifnot(is.numeric(init$coef), is.numeric(init$scale))
+		## modify (default) control$method, possibly dropping first letter:
 		if (control$method == "MM" || substr(control$method, 1, 1) == "S")
 		    control$method <- substring(control$method, 2)
 		## check for control$cov argument
@@ -133,6 +138,8 @@ lmrob <-
 		    control$cov <- ".vcov.w"
 	    }
 	    z <- lmrob.fit(x, y, control, init=init) #-> ./lmrob.MM.R
+            if(is.character(ini) && !grepl(paste0("^", ini), control$method))
+                control$method <- paste0(ini, control$method)
 	    if (singular.fit) {
 		coef <- numeric(p)
 		coef[p2] <- NA
@@ -156,7 +163,7 @@ lmrob <-
 		      residuals = y, scale = NA, fitted.values = 0 * y,
 		      cov = matrix(,0,0), rweights = rep.int(as.numeric(NA), NROW(y)),
 		      weights = w, rank = 0, df.residual = NROW(y),
-		      converged = TRUE, iter = 0)
+		      converged = TRUE, iter = 0, control=control)
 	    if (is.matrix(y)) colnames(z$coefficients) <- colnames(x)
 	    else names(z$coefficients) <- colnames(x)
 	    if(!is.null(offset)) z$residuals <- y - offset
@@ -312,9 +319,13 @@ print.summary.lmrob <-
 	      symbolic.cor = x$symbolic.cor,
 	      signif.stars = getOption("show.signif.stars"), ...)
 {
-    cat("\nCall:\n")
-    cat(paste(deparse(x$call), sep = "\n", collapse = "\n"),
-	"\n\n", sep = "")
+    cat("\nCall:\n",
+	cl <- paste(deparse(x$call, width.cutoff=72), sep = "\n", collapse = "\n"),
+	"\n", sep = "")
+    control <- lmrob.control.neededOnly(x$control)
+    ## if(!any(grepl("method *= *['\"]", cl)))## 'method = ".."' not explicitly visible above
+    cat(" \\--> method = \"", control$method, '"\n', sep = "")
+    ## else cat("\n")
     resid <- x$residuals
     df <- x$df
     rdf <- df[2L]
@@ -336,11 +347,11 @@ print.summary.lmrob <-
 		cat("\nExact fit detected\n\nCoefficients:\n")
 	    } else {
 		cat("\nAlgorithm did not converge\n")
-		if (x$control$method == "S")
+		if (control$method == "S")
 		    cat("\nCoefficients of the *initial* S-estimator:\n")
 		else
 		    cat(sprintf("\nCoefficients of the %s-estimator:\n",
-				x$control$method))
+				control$method))
 	    }
 	    printCoefmat(x$coef, digits = digits, signif.stars = signif.stars,
 			 ...)
@@ -388,53 +399,18 @@ print.summary.lmrob <-
 
     } else cat("\nNo Coefficients\n")
 
-    ## modify control list to contain only parameters
-    ## that were actually used
-    control <- x$control
-    if (!is.null(control)) {
-	switch(sub("^(S|M-S).*", "\\1", control$method),
-	       S = { # remove all M-S specific control pars
-		   control$k.m_s <- NULL
-		   control$split.type <- NULL
-					# if large_n is not used, remove corresp control pars
-		   if (length(residuals) <= control$fast.s.large.n) {
-		       control$groups <- NULL
-		       control$n.group <- NULL
-		   }
-	       },
-	       `M-S` = { # remove all fast S specific control pars
-		   control$refine.tol <- NULL
-		   control$groups <- NULL
-		   control$n.group <- NULL
-		   control$best.r.s <- NULL
-		   control$k.fast.s <- NULL
-	       }, { # else: do not print any parameter used by initial ests. only
-		   control$tuning.chi <- NULL
-		   control$bb <- NULL
-		   control$refine.tol <- NULL
-		   control$nResample <- NULL
-		   control$groups <- NULL
-		   control$n.group <- NULL
-		   control$best.r.s <- NULL
-		   control$k.fast.s <- NULL
-		   control$k.max <- NULL
-		   control$k.m_s <- NULL
-		   control$split.type <- NULL
-		   control$mts <- NULL
-		   control$subsampling <- NULL
-	       } )
-	if (!grepl("D", control$method)) control$numpoints <- NULL
-	if (x$control$method == 'SM') control$method <- x$control$method <- 'MM'
-	printControl(control, digits = digits)
-    }
-
+    if (!is.null(control))
+	printControl(control, digits = digits, drop. = "method")
     invisible(x)
 }
 
 
 print.lmrob <- function(x, digits = max(3, getOption("digits") - 3), ...)
 {
-    cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
+    cat("\nCall:\n", cl <- deparse(x$call, width.cutoff=72), "\n", sep = "")
+    control <- lmrob.control.neededOnly(x$control)
+    if(!any(grepl("method *= *['\"]", cl)))## 'method = ".."' not explicitly visible above
+	cat(" \\--> method = \"", control$method, '"\n', sep = "") else cat("\n")
     if(length((cf <- coef(x)))) {
 	if( x$converged )
 	    cat("Coefficients:\n")
@@ -443,11 +419,11 @@ print.lmrob <- function(x, digits = max(3, getOption("digits") - 3), ...)
 		cat("Exact fit detected\n\nCoefficients:\n")
 	    } else {
 		cat("Algorithm did not converge\n\n")
-		if (x$control$method == "S")
+		if (control$method == "S")
 		    cat("Coefficients of the *initial* S-estimator:\n")
 		else
 		    cat(sprintf("Coefficients of the %s-estimator:\n",
-				x$control$method))
+				control$method))
 	    }
 	}
 	print(format(coef(x), digits = digits), print.gap = 2, quote = FALSE)
@@ -456,8 +432,24 @@ print.lmrob <- function(x, digits = max(3, getOption("digits") - 3), ...)
     invisible(x)
 }
 
-
-print.lmrob.S <- print.lmrob
+print.lmrob.S <- function(x, digits = max(3, getOption("digits") - 3), ...)
+{
+    cat("S-estimator lmrob.S():\n")
+    if(length((cf <- coef(x)))) {
+	if (x$converged)
+	    cat("Coefficients:\n")
+	else if (x$scale == 0)
+	    cat("Exact fit detected\n\nCoefficients:\n")
+	else
+	    cat("Algorithm did not converge\n\n")
+	print(format(cf, digits = digits), print.gap = 2, quote = FALSE)
+    } else cat("No coefficients\n")
+    cat("scale = ",format(x$scale, digits=digits), "; ",
+	if(x$converged)"converged" else "did NOT converge",
+	" in ", x$k.iter, " refinement steps\n")
+    printControl(x$control, digits = digits, drop. = "method")
+    invisible(x)
+}
 
 
 ## practically identical to  stats:::qr.lm :
@@ -554,7 +546,7 @@ weights.lmrob <- function(object, type = c("prior", "robustness"), ...) {
 
 printControl <-
     function(ctrl, digits = getOption("digits"),
-	     str.names = "seed",
+	     str.names = "seed", drop. = character(0),
 	     header = "Algorithmic parameters:",
 	     ...)
 {
@@ -565,14 +557,15 @@ printControl <-
 
     cat(header,"\n")
     is.str <- (nc <- names(ctrl)) %in% str.names
+    do. <- !is.str & !(nc %in% drop.)
     is.ch <- sapply(ctrl, is.character)
     real.ctrl <- sapply(ctrl, function(x)
 			length(x) > 0 && is.numeric(x) && x != round(x))
-    PR(ctrl[!is.str & real.ctrl], digits = digits, ...)
+    PR(ctrl[do. & real.ctrl], digits = digits, ...)
     ## non-real, non-char ones (typically integers), but dropping 0-length ones
-    PR(ctrl[!is.str & !is.ch & !real.ctrl], ...)
+    PR(ctrl[do. & !is.ch & !real.ctrl], ...)
     ## char ones
-    PR(ctrl[!is.str & is.ch], ...)
+    PR(ctrl[do. & is.ch], ...)
     if(any(is.str))
 	for(n in nc[is.str]) {
 	    cat(n,":")
@@ -603,16 +596,16 @@ summarizeRobWeights <-
 		formE <- function(e) formatC(e, digits = max(2, digits-3), width=1)
 		i0 <- which(w0)
 		maxw <- max(w[w0])
-		c3 <- paste("with |weight| ",
-			    if(maxw == 0) "= 0" else paste("<=", formE(maxw)),
-			    " ( < ", formE(eps), ");", sep='')
+		c3 <- paste0("with |weight| ",
+                             if(maxw == 0) "= 0" else paste("<=", formE(maxw)),
+			    " ( < ", formE(eps), ");")
 		cat0(if(n0 > 1) {
 		       cc <- sprintf("%d observations c(%s)",
 				     n0, strwrap(paste(i0, collapse=",")))
 		       c2 <- " are outliers"
-		       paste(cc,
+		       paste0(cc,
 			     if(nchar(cc)+ nchar(c2)+ nchar(c3) > getOption("width"))
-			     "\n	", c2, sep='')
+			     "\n	", c2)
 		     } else
 		       sprintf("observation %d is an outlier", i0),
 		     c3, "\n")

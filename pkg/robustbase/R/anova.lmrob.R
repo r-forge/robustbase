@@ -111,7 +111,7 @@ anovaLmrobPair <- function(FMfit, reduced.model, initCoef, test)
 	y <- FMfit$residuals + FMfit$fitted.values
 	s0 <- FMfit$scale
 	psi <- function(u, deriv = 0)
-	    .M.psi(u, cc = FMfit$control$tuning.psi,
+	    Mpsi(u, cc = FMfit$control$tuning.psi,
                          psi = FMfit$control$psi, deriv)
 	iC <-
 	    if(is.null(initCoef)) {

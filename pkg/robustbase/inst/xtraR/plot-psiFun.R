@@ -8,10 +8,10 @@
 
 p.psiFun <- function(x, psi, par, main=FALSE, ...)
 {
-    m.psi <- cbind(rho  = .M.psi(x, par, psi,deriv=-1),
-                   psi  = .M.psi(x, par, psi,deriv= 0),
-                   Dpsi = .M.psi(x, par, psi,deriv= 1),
-                   wgt  = .M.wgt(x, par, psi))
+    m.psi <- cbind(rho  = Mpsi(x, par, psi,deriv=-1),
+                   psi  = Mpsi(x, par, psi,deriv= 0),
+                   Dpsi = Mpsi(x, par, psi,deriv= 1),
+                   wgt  = Mwgt(x, par, psi))
     robustbase:::matplotPsi(x, m.psi, psi=psi, par=par, main=main, ...) ## -> cbind(x, m.psi)
 }
 p.psiFun2 <- function(x, psi, par, main="short", ...)
@@ -54,24 +54,24 @@ chkPsi.. <- function(x, psi, par, tol = 1e-4, quiet=FALSE) {
     dx <- diff(x)
     x0 <- sort(x)
     x <- c(-Inf, Inf, NA, NaN, x0)
-    rho  <- .M.psi(x, par, psi, deriv=-1)
-    psix <- .M.psi(x, par, psi, deriv= 0)
-    Dpsi <- .M.psi(x, par, psi, deriv= 1)
-    wgt  <- .M.wgt(x, par, psi)
+    rho  <- Mpsi(x, par, psi, deriv=-1)
+    psix <- Mpsi(x, par, psi, deriv= 0)
+    Dpsi <- Mpsi(x, par, psi, deriv= 1)
+    wgt  <- Mwgt(x, par, psi)
 
-    chi  <- .M.chi(x, par, psi)
-    chi1 <- .M.chi(x, par, psi, deriv=1)
-    chi2 <- .M.chi(x, par, psi, deriv=2)
-    rho.Inf <- .M.rhoInf(par, psi)
+    chi  <- Mchi(x, par, psi)
+    chi1 <- Mchi(x, par, psi, deriv=1)
+    chi2 <- Mchi(x, par, psi, deriv=2)
+    rho.Inf <- MrhoInf(par, psi)
     stopifnot(all.equal(rep(rho.Inf,2), rho[1:2]),
 	      all.equal(chi, rho  / rho.Inf),
 	      all.equal(chi1,psix / rho.Inf),
 	      all.equal(chi2,Dpsi / rho.Inf)
 	      )
 
-    D2psi <- tryCatch(.M.psi(x, par, psi, deriv= 2), error=function(e)e)
+    D2psi <- tryCatch(Mpsi(x, par, psi, deriv= 2), error=function(e)e)
     has2 <- !inherits(D2psi, "error")
-    if(!quiet & !has2) message("Not checking psi''() := .M.psi(*, deriv=2)")
+    if(!quiet & !has2) message("Not checking psi''() := Mpsi(*, deriv=2)")
     stopifnot(is.numeric(psix),
               ## check NA / NaN :
               identical5(x[3:4], rho[3:4], psix[3:4], Dpsi[3:4], wgt[3:4]),

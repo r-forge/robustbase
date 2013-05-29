@@ -63,21 +63,16 @@ function (formula, family, data, weights, subset,
 	    stop("'start' must be a numeric vector, NULL, or a character string")
 	start <-
 	    switch(start,
-		   "lmrobMM" = {
+		   "lmrob" =, "lmrobMM" = {
 		       if(!is.null(weights))
 			   warnings("weights are not yet used in computing start estimate")
-		       lmrob.fit.MM(X, family$linkinv(Y),
-				    control=lmrob.control())$coefficients
+		       lmrob.fit(x = X, y = family$linkinv(Y),
+				 control=lmrob.control())$coefficients
 		   },
 		   stop("invalid 'start' string"))
     }
     fit <- switch(method,
-		  "cubif" = ## FIXME: not yet implemented !
-		  stop("glmrobCubif() has not yet been implemented")
-		  ## glmrobCubif(X = X, y = Y, weights = weights, start = start,
-		  ##		 offset = offset, family = family,
-		  ##		 weights.on.x = weights.on.x, control = control,
-		  ##		 intercept = attr(mt, "intercept") > 0,trace=trace)
+		  "cubif" = stop("For method 'cubif', use glmRob() from package 'robust'")
 		  ,
 		  "Mqle" = ## --> ./glmrobMqle.R
 		  glmrobMqle(X = X, y = Y, weights = weights, start = start,
@@ -98,13 +93,13 @@ function (formula, family, data, weights, subset,
                   },
                   "MT" = {
                       glmrobMT(x=X,y=Y, weights=weights, start=start, offset = offset,
-                               weights.on.x=weights.on.x, control=control,
+			       family=family, weights.on.x=weights.on.x, control=control,
                                intercept = attr(mt, "intercept") > 0, trace.lev=trace.lev)
                   },
 		  stop("invalid 'method': ", method))
     ##-	    if (any(offset) && attr(mt, "intercept") > 0) {
     ##-		fit$null.deviance <- glm.fit(x = X[, "(Intercept)", drop = FALSE],
-    ##-		    y = Y, weights = weights, offset = offset, family = family,
+    ##-		    y = Y, weights = weights, offset = offset,
     ##-		    control = control, intercept = TRUE)$deviance
     ##-	    }
     fit$na.action <- attr(mf, "na.action")
@@ -238,7 +233,6 @@ print.summary.glmrob <-
     }
 
     printControl(x$control, digits = digits)
-
     cat("\n")
     invisible(x)
 }

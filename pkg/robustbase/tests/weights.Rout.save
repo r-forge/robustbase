@@ -1,5 +1,5 @@
 
-R version 3.0.1 Patched (2013-05-16 r62758) -- "Good Sport"
+R version 3.0.1 Patched (2013-05-28 r62825) -- "Good Sport"
 Copyright (C) 2013 The R Foundation for Statistical Computing
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
@@ -88,8 +88,8 @@ Coefficients:
 > (rm0 <- lmrob(y ~ x1*x2 + x3 + x4 + x5 + offset(os), data,                   control=ctrl))
 
 Call:
-lmrob(formula = y ~ x1 * x2 + x3 + x4 + x5 + offset(os), data = data,     control = ctrl)
-
+lmrob(formula = y ~ x1 * x2 + x3 + x4 + x5 + offset(os), data = data, control = ctrl)
+ \--> method = "MM"
 Coefficients:
 (Intercept)          x1b          x1c          x2B          x2C          x2D  
     0.01008     -1.14140      0.48156      0.01357      0.86985      0.15178  
@@ -102,8 +102,8 @@ Coefficients:
 > (rm1 <- lmrob(y ~ x1*x2 + x3 + x4 + x5 + offset(os), data,  weights=weights, control=ctrl))
 
 Call:
-lmrob(formula = y ~ x1 * x2 + x3 + x4 + x5 + offset(os), data = data,     weights = weights, control = ctrl)
-
+lmrob(formula = y ~ x1 * x2 + x3 + x4 + x5 + offset(os), data = data, weights = weights,     control = ctrl)
+ \--> method = "MM"
 Coefficients:
 (Intercept)          x1b          x1c          x2B          x2C          x2D  
   -0.002961    -1.132857     0.492904     0.017959     0.858031     0.208510  
@@ -116,8 +116,8 @@ Coefficients:
 > (rm2 <- lmrob(y ~ x1*x2 + x3 + x4 + x5,              data2, offset=os,       control=ctrl))
 
 Call:
-lmrob(formula = y ~ x1 * x2 + x3 + x4 + x5, data = data2, offset = os,     control = ctrl)
-
+lmrob(formula = y ~ x1 * x2 + x3 + x4 + x5, data = data2, offset = os, control = ctrl)
+ \--> method = "MM"
 Coefficients:
 (Intercept)          x1b          x1c          x2B          x2C          x2D  
   -0.002961    -1.132857     0.492904     0.017959     0.858031     0.208510  
@@ -133,9 +133,8 @@ Coefficients:
 > (sr0 <- summary(rm0))
 
 Call:
-lmrob(formula = y ~ x1 * x2 + x3 + x4 + x5 + offset(os), data = data, 
-    control = ctrl)
-
+lmrob(formula = y ~ x1 * x2 + x3 + x4 + x5 + offset(os), data = data, control = ctrl)
+ \--> method = "MM"
 Residuals:
      Min       1Q   Median       3Q      Max 
 -1.50524 -0.48219  0.01663  0.42714  1.59122 
@@ -172,15 +171,15 @@ Algorithmic parameters:
              1            200            200              0           1000 
     compute.rd fast.s.large.n 
              0           2000 
-          psi   subsampling        method           cov 
-    "optimal" "nonsingular"          "MM"     ".vcov.w" 
+          psi   subsampling           cov 
+    "optimal" "nonsingular"     ".vcov.w" 
 seed : int(0) 
 > (sr1 <- summary(rm1))
 
 Call:
-lmrob(formula = y ~ x1 * x2 + x3 + x4 + x5 + offset(os), data = data, 
-    weights = weights, control = ctrl)
-
+lmrob(formula = y ~ x1 * x2 + x3 + x4 + x5 + offset(os), data = data, weights = weights, 
+    control = ctrl)
+ \--> method = "MM"
 Weighted Residuals:
     Min      1Q  Median      3Q     Max 
 -2.0956 -0.5369  0.0000  0.3925  2.0381 
@@ -217,15 +216,14 @@ Algorithmic parameters:
              1            200            200              0           1000 
     compute.rd fast.s.large.n 
              0           2000 
-          psi   subsampling        method           cov 
-    "optimal" "nonsingular"          "MM"     ".vcov.w" 
+          psi   subsampling           cov 
+    "optimal" "nonsingular"     ".vcov.w" 
 seed : int(0) 
 > (sr2 <- summary(rm2))
 
 Call:
-lmrob(formula = y ~ x1 * x2 + x3 + x4 + x5, data = data2, offset = os, 
-    control = ctrl)
-
+lmrob(formula = y ~ x1 * x2 + x3 + x4 + x5, data = data2, offset = os, control = ctrl)
+ \--> method = "MM"
 Residuals:
      Min       1Q   Median       3Q      Max 
 -1.52261 -0.51773  0.06925  0.38640  1.61986 
@@ -262,8 +260,8 @@ Algorithmic parameters:
              1            200            200              0           1000 
     compute.rd fast.s.large.n 
              0           2000 
-          psi   subsampling        method           cov 
-    "optimal" "nonsingular"          "MM"     ".vcov.w" 
+          psi   subsampling           cov 
+    "optimal" "nonsingular"     ".vcov.w" 
 seed : int(0) 
 > 
 > ## test Estimates, Std. Errors, ...
@@ -408,7 +406,7 @@ There were 14 warnings (use warnings() to see them)
 
 Call:
 lmrob(formula = y ~ x3, data = data, weights = weights)
-
+ \--> method = "MM"
 Coefficients:
 (Intercept)           x3  
     18.7474       0.1751  
@@ -416,4 +414,4 @@ Coefficients:
 > 
 > proc.time()
    user  system elapsed 
-  0.720   0.032   0.744 
+  0.781   0.068   0.923 

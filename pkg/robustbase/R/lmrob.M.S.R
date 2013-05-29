@@ -110,7 +110,7 @@ lmrob.M.S <- function(x, y, control, mf, split) {
     storage.mode(x2) <- "double"
     storage.mode(y) <- "double"
     c.chi <- lmrob.conv.cc(control$psi, control$tuning.chi)
-
+    traceLev <- as.integer(control$trace.lev)
     z <- .C(R_lmrob_M_S,
 	    x1,
 	    x2,
@@ -132,7 +132,7 @@ lmrob.M.S <- function(x, y, control, mf, split) {
             rel_tol=as.double(control$rel.tol),
 	    inv_tol=as.double(control$solve.tol),
             converged = logical(1),
-            trace_lev=as.integer(control$trace.lev),
+            trace_lev = traceLev,
             orthogonalize=TRUE,
             subsample=TRUE,
             descent=TRUE,
@@ -140,8 +140,9 @@ lmrob.M.S <- function(x, y, control, mf, split) {
             ss=.convSs(control$subsampling)
             )[c("b1","b2", "res","scale", "converged")]
 
-    if(!(conv <- z$converged))
-        warning("lmrob_M_S iterations did not converge")
+    conv <- z$converged
+    if(traceLev && !conv)
+	cat("lmrob_M_S iterations: descent steps did not converge\n")
     ## coefficients
     idx <- split$x1.idx
     cf <- numeric(length(idx))
@@ -151,5 +152,6 @@ lmrob.M.S <- function(x, y, control, mf, split) {
     control$method <- 'M-S'
     list(coefficients = cf, scale = z$scale, residuals = z$res,
          rweights = lmrob.rweights(z$res, z$scale, control$tuning.chi, control$psi),
-         converged = conv, control = control)
+         ## ../src/lmrob.c : m_s_descent() notes that convergence is *not* guaranteed
+	 converged = TRUE, descent.conv = conv, control = control)
 }

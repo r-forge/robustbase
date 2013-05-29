@@ -1,5 +1,5 @@
 
-R version 3.0.1 Patched (2013-05-22 r62772) -- "Good Sport"
+R version 3.0.1 Patched (2013-05-28 r62825) -- "Good Sport"
 Copyright (C) 2013 The R Foundation for Statistical Computing
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
@@ -29,7 +29,7 @@ Type 'q()' to quit R.
 +            x,
 +            ifelse((ea <- -((ax-c)^b)/(2*a)) < -708.4, 0, x * exp(ea)))
 + }
-> stopifnot(all.equal(.M.psi  (5:9, cc=c(0,a=1/8,b=2,c=1/8,NA), "GGW"),
+> stopifnot(all.equal(Mpsi  (5:9, cc=c(0,a=1/8,b=2,c=1/8,NA), "GGW"),
 + 		    psiGGW(5:9,	       a=1/8,b=2,c=1/8), tol = 1e-13))
 > 
 > 
@@ -55,18 +55,18 @@ Type 'q()' to quit R.
 +     stopifnot(is.numeric(tPar), is.character(psi))
 +     cat("Psi function ", psi,"; tuning par. c[]= (",
 +         paste(formatC(tPar, width=1), collapse=", "),")\n")
-+     for(FUN in list(.M.psi, .M.chi, .M.wgt))
++     for(FUN in list(Mpsi, Mchi, Mwgt))
 +           stopifnot(identical(d0, FUN(d0, tPar, psi=psi)),
 +                   identical(NN, FUN(NN, tPar, psi=psi)))
-+     stopifnot(identical(c(0,0,0), .M.psi(IoI, tPar,psi=psi)),
-+               identical(c(1,0,1), .M.chi(IoI, tPar,psi=psi)),
-+               identical(c(0,1,0), .M.wgt(IoI, tPar,psi=psi)))
++     stopifnot(identical(c(0,0,0), Mpsi(IoI, tPar,psi=psi)),
++               identical(c(1,0,1), Mchi(IoI, tPar,psi=psi)),
++               identical(c(0,1,0), Mwgt(IoI, tPar,psi=psi)))
 +     cat("chkPsi..(): ")
 +     chkPsi..(c(-5, 10), psi=psi, par=tPar)
 +     cat(" [Ok]\n------------------------\n\n")
 + }
 Psi function  GGW ; tuning par. c[]= ( -0.5, 1, 0.95, NA )
-chkPsi..(): Not checking psi''() := .M.psi(*, deriv=2)
+chkPsi..(): Not checking psi''() := Mpsi(*, deriv=2)
  [Ok]
 ------------------------
 
@@ -87,17 +87,17 @@ chkPsi..():  [Ok]
 ------------------------
 
 Psi function  optimal ; tuning par. c[]= ( 1.1 )
-chkPsi..(): Not checking psi''() := .M.psi(*, deriv=2)
+chkPsi..(): Not checking psi''() := Mpsi(*, deriv=2)
  [Ok]
 ------------------------
 
 Psi function  optimal ; tuning par. c[]= ( 0.1 )
-chkPsi..(): Not checking psi''() := .M.psi(*, deriv=2)
+chkPsi..(): Not checking psi''() := Mpsi(*, deriv=2)
  [Ok]
 ------------------------
 
 Psi function  Welsh ; tuning par. c[]= ( 2.3 )
-chkPsi..(): Not checking psi''() := .M.psi(*, deriv=2)
+chkPsi..(): Not checking psi''() := Mpsi(*, deriv=2)
  [Ok]
 ------------------------
 
@@ -138,7 +138,7 @@ chkPsi..(): Not checking psi''() := .M.psi(*, deriv=2)
 
 Call:
 lmrob(formula = Y ~ ., data = aircraft, method = "SMDM", psi = "bisquare")
-
+ \--> method = "SMDM"
 Residuals:
     Min      1Q  Median      3Q     Max 
 -8.5552 -1.8395 -0.2113  2.8205 46.6311 
@@ -170,8 +170,8 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol
            200              0           1000              0             10 
 fast.s.large.n 
           2000 
-          psi   subsampling        method           cov 
-   "bisquare" "nonsingular"        "SMDM"     ".vcov.w" 
+          psi   subsampling           cov 
+   "bisquare" "nonsingular"     ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(2)
@@ -179,7 +179,7 @@ seed : int(0)
 
 Call:
 lmrob(formula = Y ~ ., data = aircraft, method = "SMDM", psi = "optimal")
-
+ \--> method = "SMDM"
 Residuals:
     Min      1Q  Median      3Q     Max 
 -6.6691 -2.4291  0.2249  3.8876 54.2841 
@@ -209,8 +209,8 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol
            200              0           1000              0             10 
 fast.s.large.n 
           2000 
-          psi   subsampling        method           cov 
-    "optimal" "nonsingular"        "SMDM"     ".vcov.w" 
+          psi   subsampling           cov 
+    "optimal" "nonsingular"     ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(3)
@@ -218,7 +218,7 @@ seed : int(0)
 
 Call:
 lmrob(formula = Y ~ ., data = aircraft, method = "SMDM", psi = "ggw")
-
+ \--> method = "SMDM"
 Residuals:
     Min      1Q  Median      3Q     Max 
 -8.4418 -1.7993 -0.1711  2.8466 47.0906 
@@ -252,8 +252,8 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol   solve.tol
            200              0           1000              0             10 
 fast.s.large.n 
           2000 
-          psi   subsampling        method           cov 
-        "ggw" "nonsingular"        "SMDM"     ".vcov.w" 
+          psi   subsampling           cov 
+        "ggw" "nonsingular"     ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(4)
@@ -261,7 +261,7 @@ seed : int(0)
 
 Call:
 lmrob(formula = Y ~ ., data = aircraft, method = "SMDM", psi = "welsh")
-
+ \--> method = "SMDM"
 Residuals:
     Min      1Q  Median      3Q     Max 
 -8.7243 -1.9199 -0.2471  2.8060 45.9435 
@@ -293,8 +293,8 @@ tuning.chi         bb tuning.psi refine.tol    rel.tol  solve.tol
            200              0           1000              0             10 
 fast.s.large.n 
           2000 
-          psi   subsampling        method           cov 
-      "welsh" "nonsingular"        "SMDM"     ".vcov.w" 
+          psi   subsampling           cov 
+      "welsh" "nonsingular"     ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(5)
@@ -302,10 +302,9 @@ seed : int(0)
 +                       tuning.chi = c(-0.5, 1.5, NA, 0.5)))
 
 Call:
-lmrob(formula = Y ~ ., data = aircraft, method = "SMDM", psi = "ggw", 
-    tuning.psi = c(-0.5, 1.5, 0.85, NA), tuning.chi = c(-0.5, 
-        1.5, NA, 0.5))
-
+lmrob(formula = Y ~ ., data = aircraft, method = "SMDM", psi = "ggw", tuning.psi = c(-0.5, 
+    1.5, 0.85, NA), tuning.chi = c(-0.5, 1.5, NA, 0.5))
+ \--> method = "SMDM"
 Residuals:
     Min      1Q  Median      3Q     Max 
 -7.2207 -2.2226  0.3446  3.5745 52.2885 
@@ -339,8 +338,8 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol   solve.tol
            200              0           1000              0             10 
 fast.s.large.n 
           2000 
-          psi   subsampling        method           cov 
-        "ggw" "nonsingular"        "SMDM"     ".vcov.w" 
+          psi   subsampling           cov 
+        "ggw" "nonsingular"     ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(6)
@@ -348,10 +347,9 @@ seed : int(0)
 +                       tuning.chi = c(-0.5, 1.0, NA, 0.5)))
 
 Call:
-lmrob(formula = Y ~ ., data = aircraft, method = "SMDM", psi = "ggw", 
-    tuning.psi = c(-0.5, 1, 0.95, NA), tuning.chi = c(-0.5, 1, 
-        NA, 0.5))
-
+lmrob(formula = Y ~ ., data = aircraft, method = "SMDM", psi = "ggw", tuning.psi = c(-0.5, 
+    1, 0.95, NA), tuning.chi = c(-0.5, 1, NA, 0.5))
+ \--> method = "SMDM"
 Residuals:
     Min      1Q  Median      3Q     Max 
 -8.4182 -1.7447 -0.1322  2.8735 47.0376 
@@ -384,8 +382,8 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol   solve.tol
            200              0           1000              0             10 
 fast.s.large.n 
           2000 
-          psi   subsampling        method           cov 
-        "ggw" "nonsingular"        "SMDM"     ".vcov.w" 
+          psi   subsampling           cov 
+        "ggw" "nonsingular"     ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(7)
@@ -393,7 +391,7 @@ seed : int(0)
 
 Call:
 lmrob(formula = Y ~ ., data = aircraft, method = "SMDM", psi = "hampel")
-
+ \--> method = "SMDM"
 Residuals:
    Min     1Q Median     3Q    Max 
 -8.706 -1.937 -0.234  2.825 46.037 
@@ -427,8 +425,8 @@ tuning.psi3  refine.tol     rel.tol   solve.tol
            200              0           1000              0             10 
 fast.s.large.n 
           2000 
-          psi   subsampling        method           cov 
-     "hampel" "nonsingular"        "SMDM"     ".vcov.w" 
+          psi   subsampling           cov 
+     "hampel" "nonsingular"     ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(8)
@@ -446,7 +444,7 @@ attr(,"constants")
 
 Call:
 lmrob(formula = Y ~ ., data = aircraft, control = ctrl)
-
+ \--> method = "S"
 Residuals:
     Min      1Q  Median      3Q     Max 
 -7.6919 -1.9269  0.1767  3.7081 48.5800 
@@ -475,19 +473,19 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol   solve.tol
            500             50              2              1            200 
    maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
            200              0           1000              0           2000 
-          psi   subsampling        method           cov 
-        "ggw" "nonsingular"           "S" ".vcov.avar1" 
+          psi   subsampling           cov 
+        "ggw" "nonsingular" ".vcov.avar1" 
 seed : int(0) 
 Warning message:
 In lmrob.S(x, y, control = control) :
-  S refinements did not converge (to tol=1e-07) in 200 iterations
+  S refinements did not converge (to refine.tol=1e-07) in 200 (= k.max) steps
 > 
 > set.seed(9)
 > summary(mp8 <- update(mp0, psi = 'lqq'))
 
 Call:
 lmrob(formula = Y ~ ., data = aircraft, method = "SMDM", psi = "lqq")
-
+ \--> method = "SMDM"
 Residuals:
    Min     1Q Median     3Q    Max 
 -8.280 -1.717 -0.138  2.857 47.743 
@@ -521,8 +519,8 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol   solve.tol
            200              0           1000              0             10 
 fast.s.large.n 
           2000 
-          psi   subsampling        method           cov 
-        "lqq" "nonsingular"        "SMDM"     ".vcov.w" 
+          psi   subsampling           cov 
+        "lqq" "nonsingular"     ".vcov.w" 
 seed : int(0) 
 > 
 > set.seed(10)
@@ -540,7 +538,7 @@ attr(,"constants")
 
 Call:
 lmrob(formula = Y ~ ., data = aircraft, control = ctrl)
-
+ \--> method = "MM"
 Residuals:
      Min       1Q   Median       3Q      Max 
 -10.4131  -2.6546  -0.4163   3.7992  38.6135 
@@ -571,14 +569,14 @@ tuning.psi2 tuning.psi3 tuning.psi4  refine.tol     rel.tol   solve.tol
            500             50              2              1            200 
    maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
            200              0           1000              0           2000 
-          psi   subsampling        method           cov 
-        "lqq" "nonsingular"          "MM" ".vcov.avar1" 
+          psi   subsampling           cov 
+        "lqq" "nonsingular" ".vcov.avar1" 
 seed : int(0) 
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  6.587 0.153 6.883 0 0.007 
+Time elapsed:  6.466 0.112 6.704 0 0.006 
 > 
 > proc.time()
    user  system elapsed 
-  6.587   0.160   6.883 
+  6.466   0.118   6.704 

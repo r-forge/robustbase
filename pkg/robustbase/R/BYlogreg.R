@@ -73,6 +73,7 @@ BYlogreg <- function(x0, y, initwml=TRUE, # w.x=NULL,
 	stop("All observations have missing values!")
     p <- dx[2] # == ncol(x)
 
+    family <- binomial()
     ## Computation of the initial value of the optimization process
     gstart <-
         if(initwml) {
@@ -92,11 +93,11 @@ BYlogreg <- function(x0, y, initwml=TRUE, # w.x=NULL,
             vc  <- sqrt(qchisq(0.975, p-1))
             ##                 -----       FIXME: 'vc' should be argument!
             wrd <- D <= vc
-### FIXME: use glm.fit()
 ### FIXME_2: use  weights and "weights.on.x'  as in Mqle ( ./glmrobMqle.R )
-            glm(y~x0, family=binomial, subset = wrd)$coef
-        } else {
-            glm(y~x0, family=binomial)$coef
+	    ## glm(y~x0, family=binomial, subset = wrd)$coef
+	    glm.fit(x[wrd,,drop=FALSE], y[wrd], family=family)$coef
+	} else {
+	    glm.fit(x, y, family=family)$coef
         }
 
     sigma1 <- 1/sqrt(sum(gstart^2))

@@ -23,7 +23,7 @@ assert.EQ(coef(rm1), c("(Intercept)" = 1.41710946076738),tol = 1e-14)
 cm1 <- glm   (y ~ 1, family = poisson, trace = TRUE)
 
 rmMT <- glmrob(y ~ 1, family = poisson, trace = TRUE, method="MT")
-sMT <- summary(rmMT)
+(sMT <- summary(rmMT))
 
 if(FALSE) # for manual digging:
 debug(robustbase:::glmrobMqle)
@@ -41,8 +41,6 @@ okFit <- function(obj, check.attr=FALSE, ...) {
 ## check validity of several methods simultaneously:
 y. <- model.response(model.frame(rm1))
 stopifnot(okFit(cm1), okFit(rm1), y. == y)
-
-
 
 alr.c <- allresid(cm1)
 alr.r <- allresid(rm1)
@@ -99,8 +97,7 @@ iB <- 1:5
 assert.EQ(m.r2A[iB], m.r2[iB], tol = .003, giveRE=TRUE)
 
 
-
-assert.EQ(c("(Intercept)" = -2.9554950286, x0 = 1.2574679132),
+assert.EQ(c("Intercept" = -2.9554950286, x = 1.2574679132),
           ## 32-bit{ada-5}  -2.95549502890363   1.25746791332613
 	  m.r2$coef, tol=4e-10, giveRE=TRUE)
 assert.EQ( c(0.685919891749065, 0.256419206157062),

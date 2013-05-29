@@ -1,5 +1,5 @@
 TO DO
-------
+------ [MM:  grep-r -e '\(FIXME\|TODO\)'  ]
 
 o  BYlogreg()  [ R/BYlogreg.R ]
    --> more tests in ./tests/glmrob-1.R
@@ -29,7 +29,7 @@ o  Psi/Rho/Chi/Wgt Functions
    4) have the C-based functions, now used from lmrob(), in
       ./R/lmrob.MM.R
 
-      now called  .M.psi(), .M.chi(), .M.wgt() plus new .M.rhoInf()
+      now called  Mpsi(), Mchi(), Mwgt() plus new MrhoInf()
       {now exported and documented in man/M.psi.Rd }
 
     Further files, illustrating features, differences, etc:
@@ -46,7 +46,7 @@ o  Psi/Rho/Chi/Wgt Functions
 	      *CARE*: tukeyPsi1(*, d = 2) is now needed asymp.cov() of glmrobMT()
            .) provide  '1)'-i.e. psi_func  versions of them
 
-    *) .M.psi(*, "GGW") etc :  there is (??) no reasonable to directly specify
+    *) Mpsi(*, "GGW") etc :  there is (??) no reasonable to directly specify
        ---------------- the (a,b,c) tuning parameters
 
 
@@ -57,8 +57,15 @@ o  New  lmrob() "M-S" etc features:
 
    - checking .vcov.avar1() and its "posdefify" options ??
 
-   - lmrob.mar()  [should get a different name and] be part of robustbase;
-     e.g. via lmrob( ... control ..) or directly.
+   - lmrob.mar() [ inst/doc/estimating.functions.R ]: should become part
+     ~~~~~~~~~~  of robustbase, maybe under a better name,
+      e.g. via lmrob( ... control ..) or directly.
+
+o  Consider allowing
+   lmrob(*,  method = "M") --> default init = "ls" (Least Sq; as MASS:::rlm.default)
+   which calls  lmrob..M..fit() which is already documented as "simple"
+   M-estimator (though the *scale* is kept fixed; i.e., no  'proposal 2').
+
 
 o  inst/doc/lmrob_simulation.Rnw :
 
@@ -145,7 +152,7 @@ o anova.glmrob(): More modularization, allowing to provide own 'test' function.
   Test if Huber's C are different. Need theory to compare different C's and
   same model (which includes classical vs robust).
 
-o drop1() would be nice
+o add1() and/or drop1() would be nice
 
 
 --- nlrob ---
@@ -165,12 +172,7 @@ o more tests in	tests/
 o fully implement and test the multivariate case (y = matrix with > 1 col.)
 
 o src/lmrob.c :
-
-   Things to fix:
-
-   - does many many vector and vector-matrix things itself
-     instead of using BLAS and LAPACK
-   - does median() , MAD() instead of using R's  sort() routines
+    does median() , MAD() instead of using R's  sort() routines
 
 ----
 

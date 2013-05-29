@@ -1,10 +1,10 @@
+\title{MM-type Estimators for Linear Regression}
 \name{lmrob}
 \encoding{utf8}
 \alias{lmrob}
 % "Link to here", even those are not exported:
 \alias{.vcov.avar1}
 \alias{.vcov.w}
-\title{MM-type Estimators for Linear Regression}
 \description{
   Computes fast MM-type estimators for linear (regression) models.
 }
@@ -38,7 +38,8 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
     \code{NULL}, no action.  Value \code{\link{na.exclude}} can be useful.}
 
   \item{method}{string specifying the estimator-chain. \code{MM}
-    is interpreted as \code{SM}. See \emph{Details}.}
+    is interpreted as \code{SM}.  See \emph{Details}, notably the
+    currently recommended \code{setting = "KS2011"}.}
 
   \item{model, x, y}{logicals.  If \code{TRUE} the corresponding
     components of the fit (the model frame, the model matrix, the
@@ -62,7 +63,7 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
     estimate. See \emph{Details}.}
 
   \item{\dots}{additional arguments can be used to specify control
-    parameters directly instead of via \code{control}.}
+    parameters directly instead of (but not in addition to!) via \code{control}.}
 }
 \details{
   \describe{
@@ -76,13 +77,13 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
 
       The argument \code{setting} of \code{\link{lmrob.control}} is provided
       to set alternative defaults as suggested in Koller and Stahel (2011)
-      (use \code{setting='KS2011'}).  For details, see
+      (use \code{setting="KS2011"}).  For details, see
       \code{\link{lmrob.control}}.
     }
     \item{Initial Estimator \code{init}:}{
       The initial estimator may be specified using the argument
-      \code{init}. This argument can either be a string, a function or a
-      list.  A \emph{string} can be used to specify built in internal
+      \code{init}.  This can either be a string, a function or a list.
+      A \emph{string} can be used to specify built in internal
       estimators (currently \code{S} and \code{M-S}, see \emph{See also}
       below).  A \code{\link{function}} taking arguments \code{x, y,
       control, mf} (where \code{mf} stands for \code{model.frame}) and
@@ -101,7 +102,13 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
       (2006), calling \code{\link{lmrob.S}()}.  That function, since
       March 2012, uses \emph{nonsingular} subsampling which makes the
       Fast-S algorithm feasible for categorical data as well, see Koller
-      (2012).
+      (2012).  Note that convergence problems may still show up as
+      warnings, e.g., \preformatted{
+  S refinements did not converge (to refine.tol=1e-07) in 200 (= k.max) steps
+}
+      and often can simply be remedied by increasing (i.e. weakening)
+      \code{refine.tol} or increasing the allowed number of iterations
+      \code{k.max}, see \code{\link{lmrob.control}}.
     }
     \item{Method \code{method}:}{
       The following chain of estimates is customizable via the
@@ -215,8 +222,10 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
 \examples{
 data(coleman)
 set.seed(0)
+## Default for a very long time:
 summary( m1 <- lmrob(Y ~ ., data=coleman) )
-summary( m2 <- lmrob(Y ~ ., data=coleman, setting = 'KS2011') )
+## Nowadays strongly recommended for routine use:
+summary( m2 <- lmrob(Y ~ ., data=coleman, setting = "KS2011") )
 plot(residuals(m2) ~ weights(m2, type="robustness")) ##-> weights.lmrob()
 abline(h=0, lty=3)
 

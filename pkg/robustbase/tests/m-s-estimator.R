@@ -103,6 +103,7 @@ abline(0,1, col=adjustcolor("gray", 0.5))
 ## Test lmrob.M.S
 x <- model.matrix(fmS)
 control$trace.lev <- 3
+##      ---------   --
 set.seed(1003)
 fMS <- lmrob.M.S(x, y, control, fmS$model)
 resid <- drop(y - x %*% fMS$coef)
@@ -110,7 +111,7 @@ stopifnot(all.equal(resid, fMS$resid, check.attr=FALSE))
 
 ## Test direct call to lmrob
 set.seed(13)
-fiMS <- lmrob(Y ~ Region + X1 + X2 + X3, education, init="M-S")
+fiMS <- lmrob(Y ~ Region + X1 + X2 + X3, education, init = "M-S")
 out2 <- capture.output(summary(fiMS))
 writeLines(out2)
 
@@ -119,7 +120,10 @@ fiM.S <- lmrob(Y ~ Region + X1 + X2 + X3, education, init=lmrob.M.S)
 out3 <- capture.output(summary(fiM.S))
 
 ## must be the same {apart from the "init=" in the call}:
-stopifnot(identical(out2[-4], out3[-4]))
+i <- 3
+stopifnot(identical(out2[-i], out3[-i]))
+## the difference:
+c(rbind(out2[i], out3[i]))
 
 
 ###  "Skipping design matrix equilibration" warning can arise for reasonable designs -----
@@ -127,7 +131,7 @@ set.seed(1)
 x2 <- matrix(rnorm(2*30), 30, 2)
 data <- data.frame(y = rnorm(30), group = rep(letters[1:3], each=10), x2)
 
-obj <- lmrob(y ~ ., data, init="M-S")
+obj <- lmrob(y ~ ., data, init="M-S", trace.lev=1)
 
 ## illustration: the zero row is introduced during the orthogonalization of x2 wrt x1
 ## l1 regression always produces p zero residuals
@@ -148,5 +152,5 @@ x2.tilde == 0
 
 
 ## Specifying init="M-S" for a model without categorical variables
-## used to cause a segfault
+## used to cause a segfault; now uses "S"
 lmrob(LNOx ~ LNOxEm, NOxEmissions[1:10,], init="M-S")

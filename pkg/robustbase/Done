@@ -137,10 +137,17 @@ svn r279 | 2012-02:
 
 31) residuals.glmrob() now implemented (and *somewhat* tested)
 
+32) lmrob.lar() [for L1 regression] now available
+
 0.9-8:
 
-32)  BYlogreg() now also via  glmrob( method = "BY" / "WBY")
+33)  BYlogreg() now also via  glmrob( method = "BY" / "WBY")
 
-33) lmrob.psifun(), lmrob.chifun(), lmrob.wgtfun()  have been renamed
+34) lmrob.psifun(), lmrob.chifun(), lmrob.wgtfun()  have been renamed
     to  .M.psi(), .M.chi(), .M.wgt()  *and* are exported (and documented),
-    togehter with new .M.rhoInf()
+    together with new .M.rhoInf()
+
+35) src/lmrob.c: have been using _USE_BLAS_ in a few cases, for a while;
+    		 now dropped the old code.
+
+

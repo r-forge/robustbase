@@ -42,14 +42,18 @@ glmrob(formula, family, data, weights, subset, na.action,
     the \code{na.action} setting in \code{\link{options}}. The
     \dQuote{factory-fresh} default is \code{\link{na.omit}}.}
 
-  \item{start}{starting values for the parameters in the linear predictor.}
+  \item{start}{starting values for the parameters in the linear
+    predictor.  Note that specifying \code{start} has somewhat different
+    meaning for the different \code{method}s.  Notably, for \code{"MT"},
+    this skips the expensive computation of initial estimates via sub
+    samples, but needs to be \emph{robust} itself.}
 
   \item{offset}{this can be used to specify an \emph{a priori}
     known component to be included in the linear predictor
     during fitting.}
 
-  \item{method}{a character string specifying the robust fitting method.
-    The details of method specification are given below. }
+  \item{method}{a character string specifying the robust fitting
+    method.  The details of method specification are given below.}
 
   \item{weights.on.x}{
     character string (can be abbreviated) specifying how points
@@ -216,10 +220,13 @@ coef(Vfit1)
 
 Vfit2 <- glmrob(Y ~ log(Volume) + log(Rate), family=binomial, data=vaso,
                 method="Mqle", control = glmrobMqle.control(tcc=3.5))
-## Note the problems with  tcc <= 3 %% FIXME algorithm ???
 coef(Vfit2) # c = 3.5 ==> not much different from classical
+## Note the problems with  tcc <= 3 %% FIXME algorithm ???
 
-
+Vfit3 <- glmrob(Y ~ log(Volume) + log(Rate), family=binomial, data=vaso,
+                method= "BY")
+coef(Vfit3)## note that results differ much.
+## That's not unreasonable however, see Kuensch et al.(1989), p.465
 
 ## Poisson response --------------
 data(epilepsy)

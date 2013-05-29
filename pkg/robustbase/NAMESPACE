@@ -42,7 +42,7 @@ export(Sn, Qn, Qn.old,
 ## Not yet:
 ##     tukeyPsi, # = biweight / bisquare
        tukeyChi, tukeyPsi1, # TODO deprecate: see ./TODO
-       .M.psi, .M.chi, .M.wgt, .M.rhoInf,
+       Mpsi, Mchi, Mwgt, MrhoInf, .Mpsi, .Mchi, .Mwgt, .MrhoInf,
 
        lmrob, lmrob.fit,
        lmrob.fit.MM, lmrob..M..fit, lmrob..D..fit,

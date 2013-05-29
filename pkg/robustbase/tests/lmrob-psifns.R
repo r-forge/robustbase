@@ -12,7 +12,7 @@ psiGGW <- function(x, a,b,c) {
            x,
            ifelse((ea <- -((ax-c)^b)/(2*a)) < -708.4, 0, x * exp(ea)))
 }
-stopifnot(all.equal(.M.psi  (5:9, cc=c(0,a=1/8,b=2,c=1/8,NA), "GGW"),
+stopifnot(all.equal(Mpsi  (5:9, cc=c(0,a=1/8,b=2,c=1/8,NA), "GGW"),
 		    psiGGW(5:9,	       a=1/8,b=2,c=1/8), tol = 1e-13))
 
 
@@ -38,12 +38,12 @@ for(c.psi in c.psi.list) {
     stopifnot(is.numeric(tPar), is.character(psi))
     cat("Psi function ", psi,"; tuning par. c[]= (",
         paste(formatC(tPar, width=1), collapse=", "),")\n")
-    for(FUN in list(.M.psi, .M.chi, .M.wgt))
+    for(FUN in list(Mpsi, Mchi, Mwgt))
           stopifnot(identical(d0, FUN(d0, tPar, psi=psi)),
                   identical(NN, FUN(NN, tPar, psi=psi)))
-    stopifnot(identical(c(0,0,0), .M.psi(IoI, tPar,psi=psi)),
-              identical(c(1,0,1), .M.chi(IoI, tPar,psi=psi)),
-              identical(c(0,1,0), .M.wgt(IoI, tPar,psi=psi)))
+    stopifnot(identical(c(0,0,0), Mpsi(IoI, tPar,psi=psi)),
+              identical(c(1,0,1), Mchi(IoI, tPar,psi=psi)),
+              identical(c(0,1,0), Mwgt(IoI, tPar,psi=psi)))
     cat("chkPsi..(): ")
     chkPsi..(c(-5, 10), psi=psi, par=tPar)
     cat(" [Ok]\n------------------------\n\n")

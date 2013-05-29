@@ -1,4 +1,8 @@
 #### Testing M-S estimator --- self-contained utility functions ---
+####
+
+## Exercised from ../../tests/m-s-estimator.R
+##		  ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ## Test subsampling algorithm
 m_s_subsample <- function(x1, x2, y, control, orthogonalize=TRUE) {
@@ -121,12 +125,12 @@ m_s_descent_Ronly <- function(x1, x2, y, control, b1, b2, scale) {
     ## stop after k.fast.m_s step of no improvement
     if (control$trace.lev > 4) cat("scale:", scale, "\n")
     if (control$trace.lev > 4) cat("res:", rs, "\n")
-    n.imp <- nnoimprovement <- nref <- 0; conv <- FALSE
+    n.imp <- nnoimprovement <- nref <- 0L; conv <- FALSE
     while((nref <- nref + 1) <= control$k.max && !conv &&
           nnoimprovement < control$k.m_s) {
         ## STEP 1: UPDATE B2
         y.tilde <- y - x1 %*% t1
-        w <- .M.wgt(rs / sc, control$tuning.chi, control$psi)
+        w <- Mwgt(rs / sc, control$tuning.chi, control$psi)
         if (control$trace.lev > 4) cat("w:", w, "\n")
         z2 <- lm.wfit(x2, y.tilde, w)
         t2 <- z2$coef
@@ -141,15 +145,17 @@ m_s_descent_Ronly <- function(x1, x2, y, control, b1, b2, scale) {
         sc <- find_scale(rs, sc, n, p, control)
         if (control$trace.lev > 4) cat("sc:", sc, "\n")
         ## STEP 4: CHECK FOR CONVERGENCE
-        #... <FIXME>
+
+        ##... FIXME
+
         ## STEP 5: UPDATE BEST FIT
         if (sc < scale) {
             scale <- sc
             b1 <- t1
             b2 <- t2
-            nnoimprovement <- 0
-            n.imp <- n.imp + 1
-        } else nnoimprovement <- nnoimprovement + 1
+            nnoimprovement <- 0L
+            n.imp <- n.imp + 1L
+        } else nnoimprovement <- nnoimprovement + 1L
     }
     ## STEP 6: FINISH
     if (nref == control$k.max)

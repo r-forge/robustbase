@@ -1,5 +1,5 @@
 
-R version 3.0.0 Patched (2013-04-25 r62670) -- "Masked Marvel"
+R version 3.0.1 Patched (2013-05-28 r62825) -- "Good Sport"
 Copyright (C) 2013 The R Foundation for Statistical Computing
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
@@ -86,7 +86,7 @@ Loading required package: robustbase
 +     res[[i]] <- unlist(within(tmp, b1 <- drop(t1 + b1 - T2 %*% b2)))
 + })
 > cat('Time elapsed in subsampling: ', time,'\n')
-Time elapsed in subsampling:  0.532 0 0.531 0 0 
+Time elapsed in subsampling:  0.618 0 0.621 0 0 
 > ## show a summary of the results
 > summary(res1 <- do.call(rbind, res))
       b11               b12              b13                b14       
@@ -130,7 +130,7 @@ Time elapsed in subsampling:  0.532 0 0.531 0 0
 +                                     res[[i]][1:4], res[[i]][5:7], res[[i]][8]))
 + })
 > cat('Time elapsed in descent proc: ', time,'\n')
-Time elapsed in descent proc:  0.108 0 0.108 0 0 
+Time elapsed in descent proc:  0.11 0 0.111 0 0 
 > 
 > ## show a summary of the results
 > res4 <- do.call(rbind, res3)
@@ -156,38 +156,88 @@ Time elapsed in descent proc:  0.108 0 0.108 0 0
 > ## Test lmrob.M.S
 > x <- model.matrix(fmS)
 > control$trace.lev <- 3
+> ##      ---------   --
 > set.seed(1003)
 > fMS <- lmrob.M.S(x, y, control, fmS$model)
 starting with subsampling procedure...
-Step 0: new candidate with sc = 43.22688
-Step 1: new candidate with sc = 33.12505
-Step 18: new candidate with sc = 31.85586
-Step 136: new candidate with sc = 31.74081
-Step 338: new candidate with sc = 31.51188
+ step   0: new candidate with sc =     43.227
+ step   1: new candidate with sc =     33.125
+ step  18: new candidate with sc =     31.856
+ step 136: new candidate with sc =     31.741
+ step 338: new candidate with sc =     31.512
 Finished M-S subsampling with scale = 31.51188
-b1: -5.445072 7.825257 1.756708 7.656800 
-b2: 0.048442 0.037633 0.591759 
+ b1: -5.445072 7.825257 1.756708 7.656800 
+ b2: 0.048442 0.037633 0.591759 
 starting with descent procedure...
+ scale: 31.51188
+Ref.step   1: #{no-improvements}=  0; (del,dB)=(    2.621022,1.257901e-05)
 Refinement step 1: better fit, scale: 31.48594
+Ref.step   2: #{no-improvements}=  0; (del,dB)=(      1.9735,1.240235e-05)
+  sc: 31.49614
+Ref.step   3: #{no-improvements}=  1; (del,dB)=(    3.797445,1.225508e-05)
+  sc: 31.49812
+Ref.step   4: #{no-improvements}=  2; (del,dB)=(    5.286545,1.212076e-05)
 Refinement step 4: better fit, scale: 31.38752
+Ref.step   5: #{no-improvements}=  0; (del,dB)=(    1.579463,1.197111e-05)
 Refinement step 5: better fit, scale: 31.34287
+Ref.step   6: #{no-improvements}=  0; (del,dB)=(     1.64311,1.181277e-05)
 Refinement step 6: better fit, scale: 31.32908
+Ref.step   7: #{no-improvements}=  0; (del,dB)=(    1.697243,1.164868e-05)
+  sc: 31.33121
+Ref.step   8: #{no-improvements}=  1; (del,dB)=(    3.437778,1.148042e-05)
+  sc: 31.34209
+Ref.step   9: #{no-improvements}=  2; (del,dB)=(    5.214209,1.130885e-05)
+  sc: 31.35806
+Ref.step  10: #{no-improvements}=  3; (del,dB)=(    7.021834,1.113451e-05)
+  sc: 31.37715
+Ref.step  11: #{no-improvements}=  4; (del,dB)=(    8.857898,1.095767e-05)
+  sc: 31.39827
+Ref.step  12: #{no-improvements}=  5; (del,dB)=(    10.72095, 1.07785e-05)
+  sc: 31.42085
+Ref.step  13: #{no-improvements}=  6; (del,dB)=(    12.61038,1.059707e-05)
+  sc: 31.44458
+Ref.step  14: #{no-improvements}=  7; (del,dB)=(    14.52606,1.041342e-05)
+  sc: 31.46930
+Ref.step  15: #{no-improvements}=  8; (del,dB)=(    16.46816,1.022754e-05)
+  sc: 31.49495
+Ref.step  16: #{no-improvements}=  9; (del,dB)=(    18.43705,1.003943e-05)
+  sc: 31.52149
+Ref.step  17: #{no-improvements}= 10; (del,dB)=(    20.43319,9.849073e-06)
+  sc: 31.54893
+Ref.step  18: #{no-improvements}= 11; (del,dB)=(     22.4571,9.656463e-06)
+  sc: 31.57729
+Ref.step  19: #{no-improvements}= 12; (del,dB)=(    24.50936, 9.46158e-06)
+  sc: 31.60659
+Ref.step  20: #{no-improvements}= 13; (del,dB)=(    26.59057,9.264412e-06)
+  sc: 31.63687
+Ref.step  21: #{no-improvements}= 14; (del,dB)=(    28.70137,9.064948e-06)
+  sc: 31.66815
+Ref.step  22: #{no-improvements}= 15; (del,dB)=(     30.8424,8.863183e-06)
+  sc: 31.70048
+Ref.step  23: #{no-improvements}= 16; (del,dB)=(    33.01435,8.659117e-06)
+  sc: 31.73391
+Ref.step  24: #{no-improvements}= 17; (del,dB)=(    35.21792,8.452757e-06)
+  sc: 31.76847
+Ref.step  25: #{no-improvements}= 18; (del,dB)=(     37.4538,8.244117e-06)
+  sc: 31.80421
+Ref.step  26: #{no-improvements}= 19; (del,dB)=(    39.72276,8.033222e-06)
+  sc: 31.84118
 descent procedure: not converged.
-b1: -113.528805 -14.858187 -9.426368 27.485299 
-b2: 0.066846 0.036134 0.540701 
+ b1: -113.528805 -14.858187 -9.426368 27.485299 
+ b2: 0.066846 0.036134 0.540701 
+lmrob_M_S iterations: descent steps did not converge
 > resid <- drop(y - x %*% fMS$coef)
 > stopifnot(all.equal(resid, fMS$resid, check.attr=FALSE))
 > 
 > ## Test direct call to lmrob
 > set.seed(13)
-> fiMS <- lmrob(Y ~ Region + X1 + X2 + X3, education, init="M-S")
+> fiMS <- lmrob(Y ~ Region + X1 + X2 + X3, education, init = "M-S")
 > out2 <- capture.output(summary(fiMS))
 > writeLines(out2)
 
 Call:
-lmrob(formula = Y ~ Region + X1 + X2 + X3, data = education, 
-    init = "M-S")
-
+lmrob(formula = Y ~ Region + X1 + X2 + X3, data = education, init = "M-S")
+ \--> method = "M-SM"
 Residuals:
     Min      1Q  Median      3Q     Max 
 -62.729 -15.529  -1.572  23.392 174.750 
@@ -219,8 +269,8 @@ tuning.chi         bb tuning.psi    rel.tol  solve.tol
            500             50            200            200             20 
      trace.lev            mts     compute.rd fast.s.large.n 
              0           1000              0           2000 
-          psi   subsampling        method           cov    split.type 
-   "bisquare" "nonsingular"        "M-SM"     ".vcov.w"           "f" 
+          psi   subsampling           cov    split.type 
+   "bisquare" "nonsingular"     ".vcov.w"           "f" 
 seed : int(0) 
 > 
 > set.seed(13)
@@ -228,7 +278,12 @@ seed : int(0)
 > out3 <- capture.output(summary(fiM.S))
 > 
 > ## must be the same {apart from the "init=" in the call}:
-> stopifnot(identical(out2[-4], out3[-4]))
+> i <- 3
+> stopifnot(identical(out2[-i], out3[-i]))
+> ## the difference:
+> c(rbind(out2[i], out3[i]))
+[1] "lmrob(formula = Y ~ Region + X1 + X2 + X3, data = education, init = \"M-S\")"  
+[2] "lmrob(formula = Y ~ Region + X1 + X2 + X3, data = education, init = lmrob.M.S)"
 > 
 > 
 > ###  "Skipping design matrix equilibration" warning can arise for reasonable designs -----
@@ -236,7 +291,12 @@ seed : int(0)
 > x2 <- matrix(rnorm(2*30), 30, 2)
 > data <- data.frame(y = rnorm(30), group = rep(letters[1:3], each=10), x2)
 > 
-> obj <- lmrob(y ~ ., data, init="M-S")
+> obj <- lmrob(y ~ ., data, init="M-S", trace.lev=1)
+starting with subsampling procedure...
+Finished M-S subsampling with scale = 0.93330
+starting with descent procedure...
+descent procedure: converged.
+ rwls() used 12 it.; last ||b0 - b1||_1 = 4.61816e-08; convergence
 Warning message:
 In lmrob.M.S(x, y, control, mf) :
   Skipping design matrix equilibration (dgeequ): row 23 is exactly zero.
@@ -289,6 +349,22 @@ In lmrob.M.S(x, y, control, mf) :
 29 FALSE FALSE
 30 FALSE FALSE
 > 
+> 
+> ## Specifying init="M-S" for a model without categorical variables
+> ## used to cause a segfault; now uses "S"
+> lmrob(LNOx ~ LNOxEm, NOxEmissions[1:10,], init="M-S")
+
+Call:
+lmrob(formula = LNOx ~ LNOxEm, data = NOxEmissions[1:10, ], init = "M-S")
+ \--> method = "MM"
+Coefficients:
+(Intercept)       LNOxEm  
+     1.5118       0.4978  
+
+Warning message:
+In lmrob.M.S(x, y, control, mf) :
+  No categorical variables found in model. Reverting to lmrob.S.
+> 
 > proc.time()
    user  system elapsed 
-  1.404   0.040   1.441 
+  1.663   0.070   1.804 
