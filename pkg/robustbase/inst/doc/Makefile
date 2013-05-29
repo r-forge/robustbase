@@ -2,6 +2,8 @@
 
 DRIVERS = lmrob_simulation psi_functions
 
+Extras = lmrob_simulation_gg2
+
 #R_PROG = R-devel
 R_PROG = R
 
@@ -10,6 +12,11 @@ doc: all
 	${MAKE} clean
 
 all: $(DRIVERS:=.tex) $(DRIVERS:=.pdf)
+
+All: all $(Extras:=.pdf)
+
+lmrob_simulation_gg2.Rnw: lmrob_simulation.Rnw
+	sed '/^<</s/,eval=FALSE,/,eval=TRUE,/' $< > $@
 
 %.tex: %.Rnw
 	${R_PROG} CMD Sweave $<
