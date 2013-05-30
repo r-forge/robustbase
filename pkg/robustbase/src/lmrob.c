@@ -205,7 +205,7 @@ void zero_mat(double **a, int n, int m);
     } else                                                      \
 	lwork = (int)work0;                                     \
                                                                 \
-    if (trace_lev > 3)                                         \
+    if (trace_lev >= 4)                                         \
 	Rprintf("optimal block size: %d\n", lwork);             \
                                                                 \
     /* allocate */                                              \
@@ -239,7 +239,7 @@ void zero_mat(double **a, int n, int m);
 	    CLEANUP_WLS;					\
 	    error("dgels: illegal argument in %i. argument.", info); \
 	} else {                                                \
-	    if (trace_lev > 2) {				\
+	    if (trace_lev >= 4) {				\
 		Rprintf("robustness weights in last step: ");	\
 		disp_vec(weights, _n_);				\
 	    }                                                   \
@@ -330,14 +330,14 @@ void R_lmrob_S(double *X, double *y, int *n, int *P,
 
     if (*nRes > 0) {
 	if (*n > *cutoff) {
-	    if(*trace_lev)
+	    if(*trace_lev > 0)
 		Rprintf("lmrob_S(n = %d, nRes = %d): fast_s_large_n():\n", *n, *nRes);
 	    fast_s_large_n(X, y, n, P, nRes, max_it_scale,
 			   Groups, N_group,
 			   K_s, max_k, *rel_tol, *inv_tol, converged,
 			   best_r, bb, rrhoc, iipsi, beta_s, scale, *trace_lev, *mts, *ss);
 	} else {
-	    if(*trace_lev)
+	    if(*trace_lev > 0)
 		Rprintf("lmrob_S(n = %d, nRes = %d): fast_s() [non-large n]:\n", *n, *nRes);
 	    fast_s(X, y, n, P, nRes, max_it_scale,
 		   K_s, max_k, *rel_tol, *inv_tol, converged,
@@ -1526,15 +1526,15 @@ Rboolean rwls(const double X[], const double y[], int n, int p,
 	/* calculate residuals */
 	COPY(y, resid, n);
 	F77_CALL(dgemv)("N", &n, &p, &dmone, X, &n, estimate, &one, &done, resid, &one);
-	if(trace_lev >= 2) {
+	if(trace_lev >= 3) {
 	    /* get the residuals and loss for the new estimate */
 	    *loss = sum_rho_sc(resid,scale,n,0,rho_c,ipsi);
 	    Rprintf(" it %4d: L(b1) = %12g ", iterations, *loss);
 	}
 	/* check for convergence */
 	d_beta = norm1_diff(beta0,estimate, p);
-	if(trace_lev >= 2) {
-	    if(trace_lev >= 3) {
+	if(trace_lev >= 3) {
+	    if(trace_lev >= 4) {
 		Rprintf("\n  b1 = (");
 		for(j=0; j < p; j++)
 		    Rprintf("%s%11g", (j > 0)? ", " : "", estimate[j]);
@@ -1546,7 +1546,7 @@ Rboolean rwls(const double X[], const double y[], int n, int p,
 	COPY(estimate, beta0, p);
     } /* end while(!converged & iter <=...) */
 
-    if (trace_lev < 2)
+    if (trace_lev < 3)
 	/* get the residuals and loss for the new estimate */
 	*loss = sum_rho_sc(resid,scale,n,0,rho_c,ipsi);
 
@@ -1879,6 +1879,10 @@ int fast_s_with_memory(double *X, double *y,
 		best_betas[k][j] = beta_ref[j];
 	    pos_worst_scale = find_max(best_scales, *best_r);
 	    worst_sc = best_scales[pos_worst_scale];
+	    if (trace_lev >= 2) {
+	      Rprintf("sample[%3d]: found new candidate with scale %.7g\n", i, sc);
+	      Rprintf("             worst scale is now %.7g\n", worst_sc);
+	    }
 	}
     } /* for(i ) */
 
@@ -1967,7 +1971,7 @@ void fast_s(double *X, double *y,
 	    *sscale = -1.;
 	    goto cleanup_and_return;
 	}
-	if (trace_lev > 3) {
+	if (trace_lev >= 5) {
 	    Rprintf("sample[%3d]: idc = ", i); disp_veci(idc, p);
 	}
 
@@ -1980,7 +1984,7 @@ void fast_s(double *X, double *y,
 		      work, lwork, beta_cand, *K, &conv/* = FALSE*/,
 		      *max_k, rel_tol, trace_lev, b, rrhoc, ipsi, -1.,
 		      /* -> */ beta_ref, &sc);
-	if(trace_lev >= 2) {
+	if(trace_lev >= 3) {
 	    double del = norm_diff(beta_cand, beta_ref, p);
 	    Rprintf("sample[%3d]: after refine_(*, conv=FALSE):\n", i);
 	    Rprintf("beta_ref : "); disp_vec(beta_ref,p);
@@ -2002,6 +2006,10 @@ void fast_s(double *X, double *y,
 	    COPY(beta_ref, best_betas[k], p);
 	    pos_worst_scale = find_max(best_scales, *best_r);
 	    worst_sc = best_scales[pos_worst_scale];
+	    if (trace_lev >= 2) {
+	      Rprintf("sample[%3d]: found new candidate with scale %.7g\n", i, sc);
+	      Rprintf("             worst scale is now %.7g\n", worst_sc);
+	    }
 	}
 
     } /* for(i ) */
@@ -2085,7 +2093,7 @@ int refine_fast_s(const double X[], double *wx, const double y[], double *wy,
     Rboolean converged = FALSE;/* Wall */
     double s0, done = 1., dmone = -1., wtmp;
 
-    if (trace_lev >= 3) {
+    if (trace_lev >= 4) {
 	Rprintf("beta_cand before refinement : "); disp_vec(beta_cand,p);
     }
 
@@ -2121,7 +2129,7 @@ int refine_fast_s(const double X[], double *wx, const double y[], double *wy,
 	if(*conv) { /* check for convergence */
 	    double del = norm_diff(beta_cand, beta_ref, p);
 	    double nrmB= norm(beta_cand, p);
-	    if(trace_lev >= 3)
+	    if(trace_lev >= 4)
 		Rprintf(" i = %d, ||b[i]||= %.12g, ||b[i] - b[i-1]|| = %.15g\n",
 			i, nrmB, del);
 	    converged = (del <= rel_tol * fmax2(rel_tol, nrmB));
@@ -2141,7 +2149,7 @@ int refine_fast_s(const double X[], double *wx, const double y[], double *wy,
 	    warning("S refinements did not converge (to refine.tol=%g) in %d (= k.max) steps",
 		    rel_tol, i);
 	}
-	else if(trace_lev >= 2)
+	else if(trace_lev >= 3)
 	    Rprintf("S refinements converged in %d steps\n", i);
     }
     *scale = s0;
@@ -2163,7 +2171,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     double b = *bb, sc = INFI, done = 1., dmone = -1.;
     *sscale = INFI;
 
-    if (trace_lev >= 1)
+    if (trace_lev >= 2)
 	Rprintf("starting with subsampling procedure...\n");
 
     SETUP_SUBSAMPLE(n, p2, x2, 0);
@@ -2219,7 +2227,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     if (trace_lev >= 1) {
 	Rprintf("Finished M-S subsampling with scale = %.5f\n",*sscale);
 #define maybe_SHOW_b1_b2			\
-	if (trace_lev >= 2) {			\
+	if (trace_lev >= 3) {			\
 	     Rprintf(" b1: "); disp_vec(b1,p1);	\
 	     Rprintf(" b2: "); disp_vec(b2,p2);	\
 	}
@@ -2255,12 +2263,12 @@ Rboolean m_s_descent(double *X1, double *X2, double *y,
     COPY(b2, t2, p2);
     COPY(res, res2, n);
 
-    if (trace_lev >= 1)
+    if (trace_lev >= 2)
 	Rprintf("starting with descent procedure...\n");
 
     INIT_WLS(x2, y, n, p2);
 
-    if (trace_lev >= 2) {
+    if (trace_lev >= 3) {
 	Rprintf(" scale: %.5f\n", *sscale);
 	if (trace_lev >= 4) {
 	    Rprintf(" res2: "); disp_vec(res2,n);
@@ -2302,9 +2310,9 @@ Rboolean m_s_descent(double *X1, double *X2, double *y,
 	double del = sqrt(norm_diff2(b1, t1, p1) + norm_diff2(b2, t2, p2));
 	double nrmB = sqrt(norm2(t1, p1) + norm2(t2, p2));
 	converged = (del < rel_tol * fmax2(rel_tol, nrmB));
-	if (trace_lev >= 2) {
+	if (trace_lev >= 3) {
 	    if(converged) Rprintf(" -->> converged\n");
-	    if (trace_lev >= 3) {
+	    if (trace_lev >= 4) {
 		Rprintf("Ref.step %3d: #{no-improvements}=%3d; (del,dB)=(%12.7g,%12.7g)\n",
 			nref, nnoimpr, del, rel_tol * fmax2(rel_tol, nrmB));
 		if (trace_lev >= 4) {
@@ -2321,7 +2329,7 @@ Rboolean m_s_descent(double *X1, double *X2, double *y,
 	    COPY(t2, b2, p2);
 	    COPY(res2, res, n);
 	    *sscale = sc;
-	    if (trace_lev >= 2)
+	    if (trace_lev >= 3)
 		Rprintf("Refinement step %d: better fit, scale: %.5f\n",
 			nref, sc);
 	    nnoimpr = 0;
