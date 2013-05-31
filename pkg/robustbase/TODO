@@ -60,6 +60,7 @@ o  New  lmrob() "M-S" etc features:
    - lmrob.mar() [ inst/doc/estimating.functions.R ]: should become part
      ~~~~~~~~~~  of robustbase, maybe under a better name,
       e.g. via lmrob( ... control ..) or directly.
+     It is much used in the simulations of Koller & Stahel (2011)
 
 o  Consider allowing
    lmrob(*,  method = "M") --> default init = "ls" (Least Sq; as MASS:::rlm.default)

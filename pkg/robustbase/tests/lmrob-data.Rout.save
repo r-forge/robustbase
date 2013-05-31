@@ -1,5 +1,5 @@
 
-R version 3.0.1 Patched (2013-05-28 r62825) -- "Good Sport"
+R version 3.0.1 Patched (2013-05-24 r62794) -- "Good Sport"
 Copyright (C) 2013 The R Foundation for Statistical Computing
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
@@ -87,8 +87,8 @@ Largest model fitted by lmrob(), i.e. SM
   pseudoDf Test.Stat Df Pr(>chisq)
 1       24                        
 2       25    1.4492  1     0.2287
-> stopifnot(all.equal(A1$Pr[2], A2$Pr[2], tol=1e-14))
-> 
+> stopifnot(all.equal(A1[2,"Pr(>chisq)"],
++ 		    A2[2,"Pr(>chisq)"], tol=1e-14))
 > anova(m0.sali, m1.sali, test = "Deviance")
 Robust Deviance Table
 
@@ -342,8 +342,8 @@ seed : int(0)
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # "stats"
-Time elapsed:  0.643 0.059 0.773 0 0.006 
+Time elapsed:  0.5 0.028 0.515 0 0 
 > 
 > proc.time()
    user  system elapsed 
-  0.643   0.065   0.773 
+  0.500   0.028   0.515 

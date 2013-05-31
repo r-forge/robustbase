@@ -21,6 +21,7 @@
 
 tukeyChi <- function(x, cc, deriv = 0)
 {
+    .Deprecated("Mchi")
     x <- x / cc
     x2 <- x*x
     out <- x2 > 1
@@ -45,6 +46,7 @@ tukeyChi <- function(x, cc, deriv = 0)
 ## the (future!) S4 object tukeyPsi() !
 tukeyPsi1 <- function(x, cc, deriv = 0)
 {
+    .Deprecated("Mpsi")
     ## This version of psi() is scaled such that psi'(0) = 1
     x2 <- (x / cc)^2
     if(deriv < 0) out <- x2 > 1 else in. <- x2 < 1

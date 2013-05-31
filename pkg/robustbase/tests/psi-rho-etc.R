@@ -6,6 +6,7 @@ EQ <- function(x,y) all.equal(x,y, tol = 1e-13)
 
 ## Demonstrate that  one of  tukeyChi() / tukeyPsi1() is superfluous
 x <- seq(-4,4, length=201)
+suppressWarnings(
 for(c. in c(0.1, 1:2, pi, 100)) {
     ix <- abs(x) != c.
     stopifnot(EQ(tukeyChi(x, c.),
@@ -20,6 +21,7 @@ for(c. in c(0.1, 1:2, pi, 100)) {
 	      EQ(tukeyPsi1(x[ix], c., d=2), Mpsi(x[ix], c., "tukey", d=2))
 	      )
 }
+)
 
 ## Test if default arguments are used
 h2Psi <- chgDefaults(huberPsi, k = 2)

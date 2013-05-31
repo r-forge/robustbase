@@ -17,10 +17,38 @@ stopifnot(all.equal(Mpsi  (5:9, cc=c(0,a=1/8,b=2,c=1/8,NA), "GGW"),
 
 
 ## Check that psi(<empty>)  |->  <empty>  works; ditto for +-Inf, NA,..
-cG <- c(-.5,1,.95,NA)
+cG <- c(-.5, 1, .95, NA) # one of the 6 "builtin"s
 d0 <- numeric()
 IoI <- c(-Inf, 0, Inf)
 NN <- c(NaN, NA)
+
+cGs <- list(  c(-.4, 1.5,    0.85,  NA)
+            , c(-.4, 1.5 ,   0.90,  NA)
+            , c(-.4, 1.5 ,   0.95,  NA)
+            , c(-.4, 1.5,    0.975, NA)
+            , c(-.4, 1.5,    0.99 , NA)
+            , c(-.4, 1.5,    0.995, NA)
+            ##
+            , c(-.4, 1.25,   0.975, NA)
+            , c(-.4, 1.1,    0.975, NA)
+            , c(-.4, 1.025,  0.975, NA)
+            , c(-.4, 1.0125, 0.975, NA)
+            ##
+            ## FIXME , c(-.1, 1.25, 0.95, NA)
+            ## FIXME , c(-.1, 1.25, 0.99, NA)
+            )
+st <- system.time(
+cG.cnst <- lapply(cGs, function(cc)
+                  lmrob.control(psi = "ggw", tuning.psi = cc)$tuning.psi)
+)
+cat('Time for constants computation of tuning.psi: ', st,'\n')
+cGct <- t(sapply(cG.cnst, attr, "constants"))[,-1]
+colnames(cGct) <- c("a","b","c", "rhoInf")
+signif(cGct, 4)
+stopifnot(all.equal(sapply(cG.cnst, function(cc) MrhoInf(cc, "ggw")),
+                    cGct[,"rhoInf"]))
+
+
 ## Do these checks for a *list* of (c.par, psi) combinations:
 c.psi.list <- list(
     list(cG, "GGW"),
@@ -39,7 +67,7 @@ for(c.psi in c.psi.list) {
     cat("Psi function ", psi,"; tuning par. c[]= (",
         paste(formatC(tPar, width=1), collapse=", "),")\n")
     for(FUN in list(Mpsi, Mchi, Mwgt))
-          stopifnot(identical(d0, FUN(d0, tPar, psi=psi)),
+	stopifnot(identical(d0, FUN(d0, tPar, psi=psi)),
                   identical(NN, FUN(NN, tPar, psi=psi)))
     stopifnot(identical(c(0,0,0), Mpsi(IoI, tPar,psi=psi)),
               identical(c(1,0,1), Mchi(IoI, tPar,psi=psi)),

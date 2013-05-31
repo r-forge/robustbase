@@ -885,13 +885,22 @@ lmrob.conv.cc <- function(psi, cc)
 
     return(cc)
 }
-
-lmrob.ggw.mx <- function(a, b, c, ...) ## find x with minimal slope
-    optimize(Mpsi, c(c, max(a+b+2*c, 0.5)),
-             cc=c(0, a, b, c, 1), psi = 'ggw', deriv = 1, ...)[[1]]
+##' @title For GGW's psi(), find x with minimal slope, and the min.slope
+##' @param a "scale" of GGW's psi
+##' @param b exponent of GGW's psi
+##' @param c "huber-cutoff" of GGW's psi
+##' @param ... further arguments passed to optimize()
+##' @return the return value of optimize():  list(minimum, objective)
+##' @author Manuel Kohler and Martin Maechler
+lmrob.ggw.mxs <- function(a, b, c, ...) {
+    ipsi <- .psi2ipsi('ggw')
+    ccc <- c(0, a, b, c, 1) ## == lmrob.conv.cc('ggw', cc=c(0, a, b, c, 1))
+    optimize(.Mpsi, c(c, max(a+b+2*c, 0.5)), ccc=ccc, ipsi=ipsi,
+	     deriv = 1, ...)
+}
 
 lmrob.ggw.ms <- function(a, b, c, ...) ## find minimal slope
-    Mpsi(lmrob.ggw.mx(a, b, c, ...), c(0, a, b, c, 1), 'ggw', 1)
+    lmrob.ggw.mxs(a, b, c, ...)[["objective"]]
 
 lmrob.ggw.finda <- function(ms, b, c, ...) ## find a constant
 {
@@ -903,13 +912,19 @@ lmrob.ggw.finda <- function(ms, b, c, ...) ## find a constant
 
 lmrob.ggw.ac <- function(a, b, c) ## calculate asymptotic efficiency
 {
-    lmrob.E(Mpsi(r, c(0, a, b, c, 1), 'ggw', 1), use.integrate = TRUE)^2 /
-    lmrob.E(Mpsi(r, c(0, a, b, c, 1), 'ggw')^2, use.integrate = TRUE)
+    ipsi <- .psi2ipsi('ggw')
+    abc <- c(0, a, b, c)
+    ccc <- c(abc, 1)
+    lmrob.E(.Mpsi(r, ccc, ipsi, deriv=1), use.integrate = TRUE)^2 /
+    lmrob.E(.Mpsi(r, ccc, ipsi) ^2,       use.integrate = TRUE)
 }
 
-lmrob.ggw.bp <- function(a, b, c) { ## calculate kappa
-    nc <- integrate(function(x) Mpsi(x, c(0, a, b, c, 1), 'ggw'), 0, Inf)$value
-    lmrob.E(Mchi(r, c(0, a, b, c, nc), 'ggw'), use.integrate = TRUE)
+lmrob.ggw.bp <- function(a, b, c, ...) { ## calculate kappa
+    ipsi <- .psi2ipsi('ggw')
+    abc <- c(0, a, b, c)
+    ccc <- c(abc, 1)
+    ccc[[5]] <- nc <- integrate(.Mpsi, 0, Inf, ccc=ccc, ipsi=ipsi, ...)$value
+    lmrob.E(.Mchi(r, ccc, ipsi), use.integrate = TRUE)
 }
 
 lmrob.ggw.findc <- function(ms, b, eff = NA, bp = NA) {
@@ -929,13 +944,21 @@ lmrob.ggw.findc <- function(ms, b, eff = NA, bp = NA) {
     }
 
     a <- lmrob.ggw.finda(ms, b, c)
-    nc <- integrate(function(x) Mpsi(x, c(0, a, b, c, 1), 'ggw'), 0, Inf)$value
-    return(c(0, a, b, c, nc))
+    ipsi <- .psi2ipsi('ggw')
+    ccc <- c(0, a, b, c, 1)
+    nc <- integrate(.Mpsi, 0, Inf, ccc=ccc, ipsi=ipsi)$value
+    ## return
+    c(0, a, b, c, nc)
 }
 
 lmrob.efficiency <-  function(psi, cc, ...) {
-  integrate(function(x) Mpsi(x, cc, psi, 1)*dnorm(x), -Inf, Inf, ...)$value^2 /
-  integrate(function(x) Mpsi(x, cc, psi)^2 *dnorm(x), -Inf, Inf, ...)$value
+    ipsi <- .psi2ipsi(psi)
+    ccc <- lmrob.conv.cc(psi, cc=cc)
+
+    integrate(function(x) .Mpsi(x, ccc=ccc, ipsi=ipsi, deriv=1)*dnorm(x),
+	      -Inf, Inf, ...)$value^2 /
+    integrate(function(x) .Mpsi(x, ccc=ccc, ipsi=ipsi)^2 *dnorm(x),
+	      -Inf, Inf, ...)$value
 }
 
 lmrob.bp <- function(psi, cc, ...)
@@ -991,7 +1014,8 @@ lmrob.const <- function(cc, psi)
                      isTRUE(all.equal(cc, c(-.5, 1.5, 0.95, NA))) ||
                      isTRUE(all.equal(cc, c(-.5, 1.5, 0.85, NA))) ||
                      isTRUE(all.equal(cc, c(-.5, 1.5, NA, 0.5))))) {
-                   attr(cc, 'constants') <- lmrob.ggw.findc(cc[1],cc[2],cc[3],cc[4])
+		   attr(cc, 'constants') <-
+			lmrob.ggw.findc(ms=cc[1], b=cc[2], eff=cc[3], bp=cc[4])
                }
            },
            "lqq" = { ## only calculate for non-standard coefficients

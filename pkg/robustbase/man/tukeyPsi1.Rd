@@ -1,4 +1,5 @@
 \name{tukeyPsi1}
+\alias{robustbase-deprecated}
 \alias{tukeyPsi1}
 \alias{tukeyChi}
 \title{Tukey's Bi-square Score (Psi) and "Chi" (Rho) Functions and Derivatives}
@@ -45,6 +46,7 @@ tukeyChi (x, cc, deriv = 0)
 }
 \author{Matias Salibian-Barrera, Martin Maechler and Andreas Ruckstuhl}
 \examples{
+\dontshow{oop <- options(warn = -1) # against the "deprecated" warnings}
 op <- par(mfrow = c(3,1), oma = c(0,0, 2, 0),
           mgp = c(1.5, 0.6, 0), mar= .1+c(3,4,3,2))
 x <- seq(-2.5, 2.5, length = 201)
@@ -71,5 +73,6 @@ plot.(x, tukeyPsi1(x, cc, deriv =  1), type = "l", col = 2); abline(h=1,lty=3)
 mtext(sprintf("tukeyPsi1(x, c = \%g, deriv),  deriv = 0, -1, 1", cc),
       outer = TRUE, font = par("font.main"), cex = par("cex.main"))
 par(op)
+\dontshow{options(oop)}
 }
 \keyword{robust}

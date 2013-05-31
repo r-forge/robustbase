@@ -110,6 +110,10 @@ resid <- drop(y - x %*% fMS$coef)
 stopifnot(all.equal(resid, fMS$resid, check.attr=FALSE))
 
 ## Test direct call to lmrob
+## 1. trace_lev output:
+set.seed(17)
+fMS <- lmrob(Y ~ Region + X1 + X2 + X3, education, init = "M-S", trace.lev=2)
+
 set.seed(13)
 fiMS <- lmrob(Y ~ Region + X1 + X2 + X3, education, init = "M-S")
 out2 <- capture.output(summary(fiMS))
