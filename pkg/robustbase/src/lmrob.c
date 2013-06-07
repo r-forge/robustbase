@@ -200,13 +200,13 @@ void zero_mat(double **a, int n, int m);
     F77_CALL(dgels)("N", &_n_, &_p_, &one, _X_, &_n_, _y_,      \
 		    &_n_, &work0, &lwork, &info);               \
     if (info) {                                                 \
-	warning("problem determining optimal block size, using minimum"); \
+	warning(" Problem determining optimal block size, using minimum"); \
 	lwork = 2*_p_;                                          \
     } else                                                      \
 	lwork = (int)work0;                                     \
                                                                 \
     if (trace_lev >= 4)                                         \
-	Rprintf("optimal block size: %d\n", lwork);             \
+	Rprintf(" Optimal block size for DGELS: %d\n", lwork); \
                                                                 \
     /* allocate */                                              \
     work =    (double *) Calloc(lwork, double);                 \
@@ -237,14 +237,14 @@ void zero_mat(double **a, int n, int m);
     if (info) {					                \
 	if (info < 0) {                                         \
 	    CLEANUP_WLS;					\
-	    error("dgels: illegal argument in %i. argument.", info); \
+	    error("DGELS: illegal argument in %i. argument.", info); \
 	} else {                                                \
 	    if (trace_lev >= 4) {				\
-		Rprintf("robustness weights in last step: ");	\
+		Rprintf(" Robustness weights in failing step: ");	\
 		disp_vec(weights, _n_);				\
 	    }                                                   \
 	    CLEANUP_WLS;					\
-	    error("dgels: weighted design matrix not of full rank (column %d). Exiting.", info); \
+	    error("DGELS: weighted design matrix not of full rank (column %d).\nUse control parameter 'trace.lev = 4' to get diagnostic output.", info); \
 	}                                                       \
     }
 
@@ -265,17 +265,17 @@ void zero_mat(double **a, int n, int m);
     if (info) {                                                 \
 	if (info < 0) {                                         \
 	    CLEANUP_EQUILIBRATION;				\
-	    error("dgeequ: illegal argument in %i. argument", -1 * info); \
+	    error("DGEEQ: illegal argument in %i. argument", -1 * info); \
 	} else if (info > _n_) {                                \
 	    if (_large_n_) {                                    \
 	        error("Fast S large n strategy failed. Use control parameter 'fast.s.large.n = Inf'."); \
 	    } else {						\
-                error("dgeequ: column %i of the design matrix is exactly zero.", info - _n_); \
+                error("DGEEQU: column %i of the design matrix is exactly zero.", info - _n_); \
 	    }                                                   \
 	} else {                                                \
 	/* FIXME: replace dgeequ by our own version */          \
 	/* that does not treat this as error */                 \
-	    warning("Skipping design matrix equilibration (dgeequ): row %i is exactly zero.", info); \
+	    warning(" Skipping design matrix equilibration (DGEEQU): row %i is exactly zero.", info); \
 	}                                                       \
     } else {							\
         /* scale _X_ */                                         \
@@ -362,6 +362,9 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
 		 int *orthogonalize, int *subsample, int *descent,
 		 int *mts, int *ss)
 {
+    if(*trace_lev > 0)
+	Rprintf("lmrob_M_S(n = %d, nRes = %d):\n", *nn, *nRes);
+
     /* Initialize (some of the) memory here,
      * so that we have to do it only once */
     int i, n = *nn, p1 = *pp1, p2 = *pp2, one = 1;
@@ -422,7 +425,7 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
 		      SC1, SC2, SC3, SC4, *mts, *ss);
 
 	if (*scale < 0)
-	    error("m_s_subsample() stopped prematurely.");
+	    error("m_s_subsample() stopped prematurely (scale < 0).");
     }
 
     /* STEP 3: Transform back */
@@ -464,8 +467,11 @@ void R_lmrob_MM(double *X, double *y, int *n, int *P,
 		int *max_it, double *rho_c, int *ipsi, double *loss,
 		double *rel_tol, int *converged, int *trace_lev, int *mts, int *ss)
 {
-/* starting from the S-estimate (beta_initial), use
- * irwls to compute the MM-estimate (beta_m)  */
+    /* starting from the S-estimate (beta_initial), use
+     * irwls to compute the MM-estimate (beta_m)  */
+    
+    if(*trace_lev > 0)
+	Rprintf("lmrob_MM(): rwls():\n");
 
     *converged = (int)rwls(X,y,*n,*P,beta_m, beta_initial, resid, loss,
 		      *scale, *rel_tol,
@@ -608,7 +614,7 @@ double rho_inf(const double k[], int ipsi) {
     double c = k[0];
 
     switch(ipsi) {
-    default: error("rho_inf: ipsi=%d not implemented.", ipsi);
+    default: error("rho_inf(): ipsi=%d not implemented.", ipsi);
     case 0: return(R_PosInf); // huber
     case 1: return(c*c/6.); // biweight
     case 2: return(c*c); // GaussWeight
@@ -638,7 +644,7 @@ double normcnst(const double k[], int ipsi) {
     double c = k[0];
 
     switch(ipsi) {
-    default: error("normcnst: ipsi=%d not implemented.", ipsi);
+    default: error("normcnst(): ipsi=%d not implemented.", ipsi);
     case 0: return(0.); // huber {normcnst() should never be used for that!}
     case 1: return(6./(c*c)); // biweight
     case 2: return(1./(c*c)); // GaussWeight
@@ -668,7 +674,7 @@ double rho(double x, const double c[], int ipsi)
      * This rho() is normalized to 1, called rho~() or chi() in other contexts
      */
     switch(ipsi) {
-    default: error("rho: ipsi=%d not implemented.", ipsi);
+    default: error("rho(): ipsi=%d not implemented.", ipsi);
     case 0: return(rho_huber(x, c)); // huber
     case 1: return(rho_biwgt(x, c)); // biweight
     case 2: return(rho_gwgt(x, c)); // GaussWeight
@@ -687,7 +693,7 @@ double psi(double x, const double c[], int ipsi)
      * this is actually rho' and not psi
      */
     switch(ipsi) {
-    default: error("psi: ipsi=%d not implemented.", ipsi);
+    default: error("psi(): ipsi=%d not implemented.", ipsi);
     case 0: return(psi_huber(x, c)); // huber
     case 1: return(psi_biwgt(x, c)); // biweight
     case 2: return(psi_gwgt(x, c)); // GaussWeight
@@ -705,7 +711,7 @@ double psip(double x, const double c[], int ipsi)
      * this is actually rho'' and not psip
      */
     switch(ipsi) {
-    default: error("psip: ipsi=%d not implemented.", ipsi);
+    default: error("psip(): ipsi=%d not implemented.", ipsi);
     case 0: return(psip_huber(x, c)); // huber
     case 1: return(psip_biwgt(x, c)); // biweight
     case 2: return(psip_gwgt(x, c)); // GaussWeight
@@ -727,7 +733,7 @@ double psi2(double x, const double c[], int ipsi)
     case 4: return(psi2_hmpl(x, c)); // Hampel
     case 6: return(psi2_lqq(x, c)); // LQQ (piecewise linear psi')
 
-    default: error("psi2: ipsi=%d not yet implemented.", ipsi);
+    default: error("psi2(): ipsi=%d not implemented.", ipsi);
 /*
     case 2: return(psi2_gwgt(x, c)); // GaussWeight
     case 3: return(psi2_opt(x, c)); // Optimal
@@ -1184,7 +1190,7 @@ double rho_ggw(double x, const double k[])
 	int j;
 	double c;
 	switch((int)k[0]) {
-	default: error("rho_ggw: Case (%i) not implemented.", (int)k[0]);
+	default: error("rho_ggw(): case (%i) not implemented.", (int)k[0]);
 	case 1: j = 0; c = 1.694;     break;
 	case 2: j = 1; c = 1.2442567; break;
 	case 3: j = 2; c = 0.4375470; break;
@@ -1230,7 +1236,7 @@ double rho_ggw(double x, const double k[])
 	       &limit, &lenw, &last,
 	       iwork, work);
 	if (ier >= 1) {
-	    error("error while calling Rdqags: %i", ier);
+	    error("Error while calling Rdqags(): ier = %i", ier);
 	}
 	return(result/k[4]);
     }
@@ -1529,7 +1535,7 @@ Rboolean rwls(const double X[], const double y[], int n, int p,
 	if(trace_lev >= 3) {
 	    /* get the residuals and loss for the new estimate */
 	    *loss = sum_rho_sc(resid,scale,n,0,rho_c,ipsi);
-	    Rprintf(" it %4d: L(b1) = %12g ", iterations, *loss);
+	    Rprintf("  it %4d: L(b1) = %.12g ", iterations, *loss);
 	}
 	/* check for convergence */
 	d_beta = norm1_diff(beta0,estimate, p);
@@ -1537,7 +1543,7 @@ Rboolean rwls(const double X[], const double y[], int n, int p,
 	    if(trace_lev >= 4) {
 		Rprintf("\n  b1 = (");
 		for(j=0; j < p; j++)
-		    Rprintf("%s%11g", (j > 0)? ", " : "", estimate[j]);
+		    Rprintf("%s%.11g", (j > 0)? ", " : "", estimate[j]);
 		Rprintf(");");
 	    }
 	    Rprintf(" ||b0 - b1||_1 = %g\n", d_beta);
@@ -1673,6 +1679,8 @@ void fast_s_large_n(double *X, double *y,
 		xsamp(j, k) = X(indices[ij], k);
 	    ysamp[j] = y[indices[ij]];
 	}
+	if (trace_lev)
+	    Rprintf(" Subsampling to find candidate betas in group %d:\n", i);
 	if(fast_s_with_memory(xsamp, ysamp,
 			      &n_group, pp, nRes, max_it_scale, K, max_k, rel_tol, inv_tol,
 			      trace_lev, best_r, bb, rrhoc,
@@ -1720,9 +1728,9 @@ void fast_s_large_n(double *X, double *y,
     zero_mat(final_best_betas, *best_r, p);
     for(i=0; i < (*best_r * groups); i++) {
 	if(trace_lev >= 3) {
-	    Rprintf("sample[%3d]: before refine_(*, conv=FALSE):\n", i);
-	    Rprintf("beta_cand : "); disp_vec(best_betas[i],p);
-	    Rprintf("with scale %.15g\n", best_scales[i]);
+	    Rprintf("  Sample[%3d]: before refine_(*, conv=FALSE):\n", i);
+	    Rprintf("   beta_cand : "); disp_vec(best_betas[i],p);
+	    Rprintf("   with scale %.15g\n", best_scales[i]);
 
 	}
 	refine_fast_s(xsamp, wx, ysamp, wy, weights, sg, p, res,
@@ -1730,8 +1738,8 @@ void fast_s_large_n(double *X, double *y,
 		      kk, &conv/* = FALSE*/, *max_k, rel_tol, trace_lev,
 		      b, rrhoc, ipsi, best_scales[i], /* -> */ beta_ref, &sc);
 	if(trace_lev >= 3) {
-	    Rprintf("after refine: beta_ref : "); disp_vec(beta_ref,p);
-	    Rprintf("with scale %.15g\n", sc);
+	    Rprintf("   after refine: beta_ref : "); disp_vec(beta_ref,p);
+	    Rprintf("   with scale %.15g\n", sc);
 	}
 	if ( sum_rho_sc(res, worst_sc, sg, p, rrhoc, ipsi) < b ) {
 	    /* scale will be better */
@@ -1750,6 +1758,9 @@ void fast_s_large_n(double *X, double *y,
  * betas in the whole sample until convergence (max_k, rel_tol)
  */
     best_sc = INFI; *converged = 1;  k = 0;
+    if(trace_lev)
+	Rprintf(" Now refine() to convergence for %d very best ones:\n",
+		*best_r);
 
     for(i=0; i < *best_r; i++) {
 	conv = TRUE;
@@ -1759,12 +1770,15 @@ void fast_s_large_n(double *X, double *y,
 			     b, rrhoc, ipsi, final_best_scales[i],
 			     /* -> */ beta_ref, &sc);
 	if(trace_lev)
-	    Rprintf(" best [%d]: %d iterations, i.e. %sconverged\n",
-		    i, it_k, conv ? " " : "NOT ");
+	    Rprintf("  Best[%d]: %sconvergence (%d iter.)",
+		    i, conv ? "" : "NON ", it_k);
 	if(best_sc > sc) {
+	    if(trace_lev)
+		Rprintf(": -> improved scale to %.15g", sc);
 	    best_sc = sc;
 	    COPY(beta_ref, bbeta, p);
 	}
+	if (trace_lev) Rprintf("\n");
 	if (!conv && *converged) *converged = 0;
 	if (k < it_k) k = it_k;
     }
@@ -1880,8 +1894,8 @@ int fast_s_with_memory(double *X, double *y,
 	    pos_worst_scale = find_max(best_scales, *best_r);
 	    worst_sc = best_scales[pos_worst_scale];
 	    if (trace_lev >= 2) {
-	      Rprintf("sample[%3d]: found new candidate with scale %.7g\n", i, sc);
-	      Rprintf("             worst scale is now %.7g\n", worst_sc);
+	      Rprintf("  Sample[%3d]: found new candidate with scale %.7g\n", i, sc);
+	      Rprintf("               worst scale is now %.7g\n", worst_sc);
 	    }
 	}
     } /* for(i ) */
@@ -1961,6 +1975,9 @@ void fast_s(double *X, double *y,
 
 /* resampling approximation  */
 
+    if (trace_lev)
+	Rprintf(" Subsampling to find candidate betas:\n", i);
+
     for(i=0; i < nResample; i++) {
 
 	R_CheckUserInterrupt();
@@ -1972,7 +1989,7 @@ void fast_s(double *X, double *y,
 	    goto cleanup_and_return;
 	}
 	if (trace_lev >= 5) {
-	    Rprintf("sample[%3d]: idc = ", i); disp_veci(idc, p);
+	    Rprintf("  Sample[%3d]: idc = ", i); disp_veci(idc, p);
 	}
 
 	/* disp_vec(beta_cand,p); */
@@ -1986,14 +2003,14 @@ void fast_s(double *X, double *y,
 		      /* -> */ beta_ref, &sc);
 	if(trace_lev >= 3) {
 	    double del = norm_diff(beta_cand, beta_ref, p);
-	    Rprintf("sample[%3d]: after refine_(*, conv=FALSE):\n", i);
-	    Rprintf("beta_ref : "); disp_vec(beta_ref,p);
-	    Rprintf(" with ||beta_ref - beta_cand|| = %.12g, --> sc = %.15g\n",
+	    Rprintf("  Sample[%3d]: after refine_(*, conv=FALSE):\n", i);
+	    Rprintf("   beta_ref : "); disp_vec(beta_ref,p);
+	    Rprintf("   with ||beta_ref - beta_cand|| = %.12g, --> sc = %.15g\n",
 		    del, sc);
 	}
 	if(fabs(sc) == 0.) { /* exact zero set by refine_*() */
 	    if(trace_lev >= 1)
-		Rprintf("too many exact zeroes -> leaving refinement!\n");
+		Rprintf(" Too many exact zeroes -> leaving refinement!\n");
 	    *sscale = sc;
 	    COPY(beta_cand, bbeta, p);
 	    goto cleanup_and_return;
@@ -2007,8 +2024,8 @@ void fast_s(double *X, double *y,
 	    pos_worst_scale = find_max(best_scales, *best_r);
 	    worst_sc = best_scales[pos_worst_scale];
 	    if (trace_lev >= 2) {
-	      Rprintf("sample[%3d]: found new candidate with scale %.7g\n", i, sc);
-	      Rprintf("             worst scale is now %.7g\n", worst_sc);
+	      Rprintf("  Sample[%3d]: found new candidate with scale %.7g\n", i, sc);
+	      Rprintf("               worst scale is now %.7g\n", worst_sc);
 	    }
 	}
 
@@ -2016,22 +2033,23 @@ void fast_s(double *X, double *y,
 
 /* now look for the very best */
     if(trace_lev)
-	Rprintf("now refine() to convergence for %d very best ones:\n",
+	Rprintf(" Now refine() to convergence for %d very best ones:\n",
 		*best_r);
 
     best_sc = INFI; *converged = 1;  k = 0;
     for(i=0; i < *best_r; i++) {
 	conv = TRUE;
+	if(trace_lev >= 4) Rprintf("  i=%d:\n", i);
 	it_k = refine_fast_s(X, wx, y, wy, weights, n, p, res, work, lwork,
 			     best_betas[i], *K,  &conv /* = TRUE */, *max_k,
 			     rel_tol, trace_lev, b, rrhoc, ipsi,
 			     best_scales[i], /* -> */ beta_ref, &aux);
 	if(trace_lev)
-	    Rprintf("i=%2d: %sconvergence (%d iter.):",
+	    Rprintf("  Best[%d]: %sconvergence (%d iter.)",
 		    i, (conv) ? "" : "NON ", it_k);
 	if(aux < best_sc) {
 	    if(trace_lev)
-		Rprintf(" -> improved scale to %.15g", aux);
+		Rprintf(": -> improved scale to %.15g", aux);
 	    best_sc = aux;
 	    COPY(beta_ref, bbeta, p);
 	}
@@ -2094,7 +2112,7 @@ int refine_fast_s(const double X[], double *wx, const double y[], double *wy,
     double s0, done = 1., dmone = -1., wtmp;
 
     if (trace_lev >= 4) {
-	Rprintf("beta_cand before refinement : "); disp_vec(beta_cand,p);
+	Rprintf("   beta_cand before refinement : "); disp_vec(beta_cand,p);
     }
 
     /* calculate residuals */
@@ -2130,7 +2148,7 @@ int refine_fast_s(const double X[], double *wx, const double y[], double *wy,
 	    double del = norm_diff(beta_cand, beta_ref, p);
 	    double nrmB= norm(beta_cand, p);
 	    if(trace_lev >= 4)
-		Rprintf(" i = %d, ||b[i]||= %.12g, ||b[i] - b[i-1]|| = %.15g\n",
+		Rprintf("   it %4d, ||b[i]||= %.12g, ||b[i] - b[i-1]|| = %.15g\n",
 			i, nrmB, del);
 	    converged = (del <= rel_tol * fmax2(rel_tol, nrmB));
 	    if(converged)
@@ -2149,8 +2167,6 @@ int refine_fast_s(const double X[], double *wx, const double y[], double *wy,
 	    warning("S refinements did not converge (to refine.tol=%g) in %d (= k.max) steps",
 		    rel_tol, i);
 	}
-	else if(trace_lev >= 3)
-	    Rprintf("S refinements converged in %d steps\n", i);
     }
     *scale = s0;
     return i; /* number of refinement steps */
@@ -2172,7 +2188,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     *sscale = INFI;
 
     if (trace_lev >= 2)
-	Rprintf("starting with subsampling procedure...\n");
+	Rprintf(" Starting subsampling procedure...\n");
 
     SETUP_SUBSAMPLE(n, p2, x2, 0);
 
@@ -2198,7 +2214,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 			   NIT, K, KODE, SIGMA, t1, res, SC1, SC2,
 			   SC3, SC4, BET0);
 	if (*KODE > 1) {
-	    REprintf("\nm_s_subsample(): Problem in rllarsbi (rilars). KODE=%d. Exiting.\n",
+	    REprintf("m_s_subsample(): Problem in RLLARSBI (RILARS). KODE=%d. Exiting.\n",
 		     *KODE);
 	    *sscale = -1.;
 	    goto cleanup_and_return;
@@ -2209,7 +2225,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 	    /* STEP 5: Solve for sc */
 	    sc = find_scale(res, b, rrhoc, ipsi, sc, n, p, max_it_scale);
 	    if(trace_lev >= 2)
-		Rprintf(" step %3d: new candidate with sc = %10.5g\n",i,sc);
+		Rprintf("  Sample[%3d]: new candidate with sc = %10.5g\n",i,sc);
 	    /* STEP 6: Update best fit */
 	    *sscale = sc;
 	    COPY(t1, b1, p1);
@@ -2225,11 +2241,11 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 
     /* STEP 7: Clean up and return */
     if (trace_lev >= 1) {
-	Rprintf("Finished M-S subsampling with scale = %.5f\n",*sscale);
+	Rprintf(" Finished M-S subsampling with scale = %.5f\n",*sscale);
 #define maybe_SHOW_b1_b2			\
 	if (trace_lev >= 3) {			\
-	     Rprintf(" b1: "); disp_vec(b1,p1);	\
-	     Rprintf(" b2: "); disp_vec(b2,p2);	\
+	     Rprintf("  b1: "); disp_vec(b1,p1);\
+	     Rprintf("  b2: "); disp_vec(b2,p2);\
 	}
 	maybe_SHOW_b1_b2;
     }
@@ -2264,21 +2280,21 @@ Rboolean m_s_descent(double *X1, double *X2, double *y,
     COPY(res, res2, n);
 
     if (trace_lev >= 2)
-	Rprintf("starting with descent procedure...\n");
+	Rprintf(" Starting descent procedure...\n");
 
     INIT_WLS(x2, y, n, p2);
 
     if (trace_lev >= 3) {
-	Rprintf(" scale: %.5f\n", *sscale);
-	if (trace_lev >= 4) {
-	    Rprintf(" res2: "); disp_vec(res2,n);
+	Rprintf("  Scale: %.5f\n", *sscale);
+	if (trace_lev >= 5) {
+	    Rprintf("   res2: "); disp_vec(res2,n);
 	}
     }
 
     /* Do descent steps until there is no improvement for   */
     /* K_m_s steps or we are converged                      */
     /* (convergence is not guaranteed)                      */
-    while ( (nref++ < max_k) & (!converged) & (nnoimpr < K_m_s) ) {
+    while ( (nref++ <= max_k) & (!converged) & (nnoimpr < K_m_s) ) {
 	R_CheckUserInterrupt();
 	/* STEP 1: update b2 (save it to t2) */
 	/* y_tilde = y - x1 %*% t1 */
@@ -2300,7 +2316,7 @@ Rboolean m_s_descent(double *X1, double *X2, double *y,
 			   SC1, SC2, SC3, SC4, BET0);
 	if (*KODE > 1) {
 	    CLEANUP_WLS;
-	    error("m_s_descent(): Problem in rllarsbi (rilars). KODE=%d. Exiting.",
+	    error("m_s_descent(): Problem in RLLARSBI (RILARS). KODE=%d. Exiting.",
 		  *KODE);
 	}
 	/* STEP 3: Compute the scale estimate */
@@ -2313,13 +2329,13 @@ Rboolean m_s_descent(double *X1, double *X2, double *y,
 	if (trace_lev >= 3) {
 	    if(converged) Rprintf(" -->> converged\n");
 	    if (trace_lev >= 4) {
-		Rprintf("Ref.step %3d: #{no-improvements}=%3d; (del,dB)=(%12.7g,%12.7g)\n",
+		Rprintf("   Ref.step %3d: #{no-improvements}=%3d; (del,dB)=(%12.7g,%12.7g)\n",
 			nref, nnoimpr, del, rel_tol * fmax2(rel_tol, nrmB));
-		if (trace_lev >= 4) {
-		    Rprintf("  weights: "); disp_vec(weights,n);
-		    Rprintf("  t2: "); disp_vec(t2,p2);
-		    Rprintf("  t1: "); disp_vec(t1,p1);
-		    Rprintf("  res2: "); disp_vec(res2,n);
+		if (trace_lev >= 5) {
+		    Rprintf("    weights: "); disp_vec(weights,n);
+		    Rprintf("    t2: "); disp_vec(t2,p2);
+		    Rprintf("    t1: "); disp_vec(t1,p1);
+		    Rprintf("    res2: "); disp_vec(res2,n);
 		}
 	    }
 	}
@@ -2329,22 +2345,28 @@ Rboolean m_s_descent(double *X1, double *X2, double *y,
 	    COPY(t2, b2, p2);
 	    COPY(res2, res, n);
 	    *sscale = sc;
-	    if (trace_lev >= 3)
-		Rprintf("Refinement step %d: better fit, scale: %.5f\n",
+	    if (trace_lev >= 2)
+		Rprintf("  Refinement step %3d: better fit, scale: %10.5g\n",
 			nref, sc);
 	    nnoimpr = 0;
 	} else {
-	    if (trace_lev >= 2)
-		Rprintf("  sc: %.5f\n", sc);
+	    if (trace_lev >= 3)
+		Rprintf("  Refinement step %3d: no improvement, scale: %10.5g\n",
+			nref, sc);
 	    nnoimpr++;
 	}
     } // while(.)
 
     if ( (!converged) & (nref == max_k) )
-	warning("M-S estimate: maximum number of refinement steps reached.");
+	warning(" M-S estimate: maximum number of refinement steps reached.");
 
     if (trace_lev >= 1) {
-	Rprintf("descent procedure: %sconverged.\n", converged ? "" : "not " );
+	Rprintf(" Descent procedure: %sconverged (best scale: %.5g, last step: %.5g)\n", 
+		converged ? "" : "not ", *sscale, sc);
+	if (nnoimpr == K_m_s)
+	    Rprintf("  The procedure stopped after %d steps because there was no improvement in the last %d steps.\n  To increase this number, use the control parameter 'k.m_s'.\n", nref, nnoimpr);
+	else if (trace_lev >= 2) 
+	    Rprintf("  No improvements in %d out of %d steps.\n", nnoimpr, nref);
 	maybe_SHOW_b1_b2;
     }
 
@@ -2469,14 +2491,14 @@ Start:
 		if (ss == 0) {
 		    attempt++;
 		    if (attempt >= mts) {
-			warning("Too many singular resamples. Aborting subsample().\n See parameter subsampling in help of lmrob.config().");
+			warning("Too many singular resamples. Aborting subsample().\n See parameter 'subsampling; in help of lmrob.config().");
 			return(2);
 		    }
 		    goto Start;
 		}
 		idc[j] = idc[--len_idc];
 		if (len_idc <= j) {
-		    warning("subsample: could not find non-singular subsample.");
+		    warning("subsample(): could not find non-singular subsample.");
 		    return(1);
 		}
 	    } else {

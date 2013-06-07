@@ -150,8 +150,6 @@ lmrob.M.S <- function(x, y, control, mf, split) {
             )[c("b1","b2", "res","scale", "converged")]
 
     conv <- z$converged
-    if(traceLev && !conv)
-	cat("lmrob_M_S iterations: descent steps did not converge\n")
     ## coefficients
     idx <- split$x1.idx
     cf <- numeric(length(idx))
