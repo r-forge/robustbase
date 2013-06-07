@@ -104,6 +104,15 @@ lmrob.M.S <- function(x, y, control, mf, split) {
       warning("No categorical variables found in model. Reverting to lmrob.S.")
       return(lmrob.S(x, y, control))
     }
+    ## this is the same as in lmrob.S():
+    if (length(seed <- control$seed) > 0) {
+        if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
+            seed.keep <- get(".Random.seed", envir = .GlobalEnv,
+                             inherits = FALSE)
+            on.exit(assign(".Random.seed", seed.keep, envir = .GlobalEnv))
+        }
+        assign(".Random.seed", seed, envir = .GlobalEnv) ## why not set.seed(seed)
+    }
     x1 <- split$x1
     x2 <- split$x2
     storage.mode(x1) <- "double"
