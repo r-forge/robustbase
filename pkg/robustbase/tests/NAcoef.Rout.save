@@ -1,5 +1,5 @@
 
-R version 3.0.1 Patched (2013-05-28 r62825) -- "Good Sport"
+R version 3.0.1 Patched (2013-06-09 r62918) -- "Good Sport"
 Copyright (C) 2013 The R Foundation for Statistical Computing
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
@@ -383,7 +383,7 @@ Coefficients:
 
 Warning message:
 In lmrob.M.S(x, y, control, mf) :
-  Skipping design matrix equilibration (dgeequ): row 12 is exactly zero.
+   Skipping design matrix equilibration (DGEEQU): row 12 is exactly zero.
 > lmrob(y ~ x1*x2 + x3 + x4 + x5, data, init=lmrob.lar)
 
 Call:
@@ -488,4 +488,4 @@ seed : int(0)
 > 
 > proc.time()
    user  system elapsed 
-  0.788   0.057   0.927 
+  0.801   0.082   0.966 

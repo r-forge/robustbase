@@ -1,5 +1,5 @@
 
-R version 3.0.1 Patched (2013-05-28 r62825) -- "Good Sport"
+R version 3.0.1 Patched (2013-06-09 r62918) -- "Good Sport"
 Copyright (C) 2013 The R Foundation for Statistical Computing
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
@@ -303,10 +303,10 @@ In lmrob.S(model.matrix(model, NOxEmissions)[1:682, ], NOxEmissions$LNOx[1:682],
 > control <- lmrob.control(fast.s.large.n = Inf)
 > try(ret <- lmrob.S(model.matrix(model, NOxEmissions)[1:682,], NOxEmissions$LNOx[1:682], control))
 Error in lmrob.S(model.matrix(model, NOxEmissions)[1:682, ], NOxEmissions$LNOx[1:682],  : 
-  dgeequ: column 30 of the design matrix is exactly zero.
+  DGEEQU: column 30 of the design matrix is exactly zero.
 > ## this still fails, but this error is to be expected since only a part
 > ## of the design matrix is given
 > 
 > proc.time()
    user  system elapsed 
-  0.904   0.078   1.047 
+  0.857   0.084   1.009 
