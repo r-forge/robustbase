@@ -1,7 +1,7 @@
 
-R Under development (unstable) (2013-05-30 r62840) -- "Unsuffered Consequences"
+R version 3.0.1 (2013-05-16) -- "Good Sport"
 Copyright (C) 2013 The R Foundation for Statistical Computing
-Platform: x86_64-unknown-linux-gnu (64-bit)
+Platform: x86_64-apple-darwin10.8.0 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -86,7 +86,7 @@ Loading required package: robustbase
 +     res[[i]] <- unlist(within(tmp, b1 <- drop(t1 + b1 - T2 %*% b2)))
 + })
 > cat('Time elapsed in subsampling: ', time,'\n')
-Time elapsed in subsampling:  0.619 0.002 0.626 0 0 
+Time elapsed in subsampling:  0.361 0.002 0.362 0 0 
 > ## show a summary of the results
 > summary(res1 <- do.call(rbind, res))
       b11               b12              b13                b14       
@@ -130,7 +130,7 @@ Time elapsed in subsampling:  0.619 0.002 0.626 0 0
 +                                     res[[i]][1:4], res[[i]][5:7], res[[i]][8]))
 + })
 > cat('Time elapsed in descent proc: ', time,'\n')
-Time elapsed in descent proc:  0.109 0 0.11 0 0 
+Time elapsed in descent proc:  0.064 0 0.065 0 0 
 > 
 > ## show a summary of the results
 > res4 <- do.call(rbind, res3)
@@ -159,47 +159,49 @@ Time elapsed in descent proc:  0.109 0 0.11 0 0
 > ##      ---------   --
 > set.seed(1003)
 > fMS <- lmrob.M.S(x, y, control, fmS$model)
-starting with subsampling procedure...
- step   0: new candidate with sc =     43.227
- step   1: new candidate with sc =     33.125
- step  18: new candidate with sc =     31.856
- step 136: new candidate with sc =     31.741
- step 338: new candidate with sc =     31.512
-Finished M-S subsampling with scale = 31.51188
- b1: -5.445072 7.825257 1.756708 7.656800 
- b2: 0.048442 0.037633 0.591759 
-starting with descent procedure...
- scale: 31.51188
-Refinement step 1: better fit, scale: 31.48594
-  sc: 31.49614
-  sc: 31.49812
-Refinement step 4: better fit, scale: 31.38752
-Refinement step 5: better fit, scale: 31.34287
-Refinement step 6: better fit, scale: 31.32908
-  sc: 31.33121
-  sc: 31.34209
-  sc: 31.35806
-  sc: 31.37715
-  sc: 31.39827
-  sc: 31.42085
-  sc: 31.44458
-  sc: 31.46930
-  sc: 31.49495
-  sc: 31.52149
-  sc: 31.54893
-  sc: 31.57729
-  sc: 31.60659
-  sc: 31.63687
-  sc: 31.66815
-  sc: 31.70048
-  sc: 31.73391
-  sc: 31.76847
-  sc: 31.80421
-  sc: 31.84118
-descent procedure: not converged.
- b1: -113.528805 -14.858187 -9.426368 27.485299 
- b2: 0.066846 0.036134 0.540701 
-lmrob_M_S iterations: descent steps did not converge
+lmrob_M_S(n = 50, nRes = 500):
+ Starting subsampling procedure...
+  Sample[  0]: new candidate with sc =     43.227
+  Sample[  1]: new candidate with sc =     33.125
+  Sample[ 18]: new candidate with sc =     31.856
+  Sample[136]: new candidate with sc =     31.741
+  Sample[338]: new candidate with sc =     31.512
+ Finished M-S subsampling with scale = 31.51188
+  b1: -5.445072 7.825257 1.756708 7.656800 
+  b2: 0.048442 0.037633 0.591759 
+ Starting descent procedure...
+  Scale: 31.51188
+  Refinement step   1: better fit, scale:     31.486
+  Refinement step   2: no improvement, scale:     31.496
+  Refinement step   3: no improvement, scale:     31.498
+  Refinement step   4: better fit, scale:     31.388
+  Refinement step   5: better fit, scale:     31.343
+  Refinement step   6: better fit, scale:     31.329
+  Refinement step   7: no improvement, scale:     31.331
+  Refinement step   8: no improvement, scale:     31.342
+  Refinement step   9: no improvement, scale:     31.358
+  Refinement step  10: no improvement, scale:     31.377
+  Refinement step  11: no improvement, scale:     31.398
+  Refinement step  12: no improvement, scale:     31.421
+  Refinement step  13: no improvement, scale:     31.445
+  Refinement step  14: no improvement, scale:     31.469
+  Refinement step  15: no improvement, scale:     31.495
+  Refinement step  16: no improvement, scale:     31.521
+  Refinement step  17: no improvement, scale:     31.549
+  Refinement step  18: no improvement, scale:     31.577
+  Refinement step  19: no improvement, scale:     31.607
+  Refinement step  20: no improvement, scale:     31.637
+  Refinement step  21: no improvement, scale:     31.668
+  Refinement step  22: no improvement, scale:       31.7
+  Refinement step  23: no improvement, scale:     31.734
+  Refinement step  24: no improvement, scale:     31.768
+  Refinement step  25: no improvement, scale:     31.804
+  Refinement step  26: no improvement, scale:     31.841
+ Descent procedure: not converged (best scale: 31.329, last step: 31.841)
+  The procedure stopped after 27 steps because there was no improvement in the last 20 steps.
+  To increase this number, use the control parameter 'k.m_s'.
+  b1: -113.528805 -14.858187 -9.426368 27.485299 
+  b2: 0.066846 0.036134 0.540701 
 > resid <- drop(y - x %*% fMS$coef)
 > stopifnot(all.equal(resid, fMS$resid, check.attr=FALSE))
 > 
@@ -207,37 +209,20 @@ lmrob_M_S iterations: descent steps did not converge
 > ## 1. trace_lev output:
 > set.seed(17)
 > fMS <- lmrob(Y ~ Region + X1 + X2 + X3, education, init = "M-S", trace.lev=2)
-starting with subsampling procedure...
- step   0: new candidate with sc =     720.84
- step   1: new candidate with sc =     32.106
- step  69: new candidate with sc =     31.856
- step 128: new candidate with sc =     31.122
-Finished M-S subsampling with scale = 31.12236
-starting with descent procedure...
-  sc: 31.27199
-  sc: 31.05436
-  sc: 31.09082
-  sc: 30.92164
-  sc: 31.08801
-  sc: 30.93476
-  sc: 31.08545
-  sc: 30.93873
-  sc: 31.08315
-  sc: 30.93929
-  sc: 31.08117
-  sc: 30.93872
-  sc: 30.92951
-  sc: 31.13822
-  sc: 30.94525
-  sc: 31.09139
-  sc: 30.94206
-  sc: 30.93106
-  sc: 31.13166
-  sc: 30.94305
-  sc: 30.93417
-  sc: 31.13426
-descent procedure: not converged.
-lmrob_M_S iterations: descent steps did not converge
+lmrob_M_S(n = 50, nRes = 500):
+ Starting subsampling procedure...
+  Sample[  0]: new candidate with sc =     720.84
+  Sample[  1]: new candidate with sc =     32.106
+  Sample[ 69]: new candidate with sc =     31.856
+  Sample[128]: new candidate with sc =     31.122
+ Finished M-S subsampling with scale = 31.12236
+ Starting descent procedure...
+  Refinement step   1: better fit, scale:     30.963
+  Refinement step   4: better fit, scale:     30.888
+ Descent procedure: not converged (best scale: 30.888, last step: 31.134)
+  The procedure stopped after 25 steps because there was no improvement in the last 20 steps.
+  To increase this number, use the control parameter 'k.m_s'.
+lmrob_MM(): rwls():
  rwls() used 19 it.; last ||b0 - b1||_1 = 1.76872e-05; convergence
 > 
 > set.seed(13)
@@ -302,12 +287,14 @@ seed : int(0)
 > data <- data.frame(y = rnorm(30), group = rep(letters[1:3], each=10), x2)
 > 
 > obj <- lmrob(y ~ ., data, init="M-S", trace.lev=1)
-Finished M-S subsampling with scale = 0.93330
-descent procedure: converged.
+lmrob_M_S(n = 30, nRes = 500):
+ Finished M-S subsampling with scale = 0.93330
+ Descent procedure: converged (best scale: 0.92746, last step: 0.92746)
+lmrob_MM(): rwls():
  rwls() used 12 it.; last ||b0 - b1||_1 = 4.61816e-08; convergence
 Warning message:
 In lmrob.M.S(x, y, control, mf) :
-  Skipping design matrix equilibration (dgeequ): row 23 is exactly zero.
+   Skipping design matrix equilibration (DGEEQU): row 23 is exactly zero.
 > 
 > ## illustration: the zero row is introduced during the orthogonalization of x2 wrt x1
 > ## l1 regression always produces p zero residuals
@@ -375,4 +362,4 @@ In lmrob.M.S(x, y, control, mf) :
 > 
 > proc.time()
    user  system elapsed 
-  1.612   0.059   1.751 
+  1.093   0.029   1.112 

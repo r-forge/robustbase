@@ -2294,7 +2294,7 @@ Rboolean m_s_descent(double *X1, double *X2, double *y,
     /* Do descent steps until there is no improvement for   */
     /* K_m_s steps or we are converged                      */
     /* (convergence is not guaranteed)                      */
-    while ( (nref++ <= max_k) & (!converged) & (nnoimpr < K_m_s) ) {
+    while ( (nref++ < max_k) & (!converged) & (nnoimpr < K_m_s) ) {
 	R_CheckUserInterrupt();
 	/* STEP 1: update b2 (save it to t2) */
 	/* y_tilde = y - x1 %*% t1 */
