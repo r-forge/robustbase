@@ -86,30 +86,30 @@ Loading required package: robustbase
 +     res[[i]] <- unlist(within(tmp, b1 <- drop(t1 + b1 - T2 %*% b2)))
 + })
 > cat('Time elapsed in subsampling: ', time,'\n')
-Time elapsed in subsampling:  0.361 0.002 0.362 0 0 
+Time elapsed in subsampling:  0.372 0.002 0.374 0 0 
 > ## show a summary of the results
 > summary(res1 <- do.call(rbind, res))
       b11               b12              b13                b14       
  Min.   :-316.24   Min.   :-33.92   Min.   :-35.8704   Min.   :16.43  
  1st Qu.:-223.37   1st Qu.:-23.66   1st Qu.: -8.9603   1st Qu.:29.92  
  Median :-163.19   Median :-21.37   Median : -7.2929   Median :32.20  
- Mean   :-161.00   Mean   :-22.02   Mean   : -8.1235   Mean   :32.14  
+ Mean   :-161.11   Mean   :-22.02   Mean   : -8.0727   Mean   :32.15  
  3rd Qu.:-103.36   3rd Qu.:-18.42   3rd Qu.: -5.9055   3rd Qu.:35.72  
  Max.   :  61.83   Max.   :-12.03   Max.   :  0.7015   Max.   :42.23  
       b21                b22               b23             scale      
- Min.   :-0.03808   Min.   :0.01744   Min.   :0.2752   Min.   :29.79  
+ Min.   :-0.03808   Min.   :0.02111   Min.   :0.2555   Min.   :29.79  
  1st Qu.:-0.00397   1st Qu.:0.03927   1st Qu.:0.4956   1st Qu.:30.43  
  Median : 0.02160   Median :0.04716   Median :0.6381   Median :30.91  
- Mean   : 0.02740   Mean   :0.04612   Mean   :0.6224   Mean   :30.95  
+ Mean   : 0.02734   Mean   :0.04618   Mean   :0.6219   Mean   :30.95  
  3rd Qu.: 0.05561   3rd Qu.:0.05224   3rd Qu.:0.7473   3rd Qu.:31.35  
  Max.   : 0.10427   Max.   :0.06938   Max.   :0.9172   Max.   :32.18  
 > ## compare with fast S solution
 > fmS <- lmrob(Y ~ Region + X1 + X2 + X3, education, init="S")
 > coef(fmS)
   (Intercept)       Region2       Region3       Region4            X1 
--135.72592070  -20.64576533   -9.84881705   24.58013150    0.03405590 
+-135.72592554  -20.64576283   -9.84881727   24.58013066    0.03405591 
            X2            X3 
-   0.04327562    0.57895740 
+   0.04327562    0.57895741 
 > fmS$scale
 [1] 26.40386
 > 
@@ -130,20 +130,20 @@ Time elapsed in subsampling:  0.361 0.002 0.362 0 0
 +                                     res[[i]][1:4], res[[i]][5:7], res[[i]][8]))
 + })
 > cat('Time elapsed in descent proc: ', time,'\n')
-Time elapsed in descent proc:  0.064 0 0.065 0 0 
+Time elapsed in descent proc:  0.065 0 0.065 0 0 
 > 
 > ## show a summary of the results
 > res4 <- do.call(rbind, res3)
 > summary(res4[,1:8])
       b11              b12              b13               b14       
- Min.   :-316.3   Min.   :-30.56   Min.   :-36.478   Min.   :16.43  
+ Min.   :-316.3   Min.   :-30.56   Min.   :-36.501   Min.   :16.43  
  1st Qu.:-222.4   1st Qu.:-23.09   1st Qu.: -8.960   1st Qu.:27.96  
  Median :-160.7   Median :-21.00   Median : -7.868   Median :30.46  
- Mean   :-158.2   Mean   :-20.60   Mean   : -9.045   Mean   :30.83  
+ Mean   :-158.2   Mean   :-20.60   Mean   : -9.046   Mean   :30.84  
  3rd Qu.:-102.7   3rd Qu.:-17.40   3rd Qu.: -6.842   3rd Qu.:32.75  
- Max.   : 101.1   Max.   :-12.24   Max.   : -4.032   Max.   :42.23  
+ Max.   : 101.7   Max.   :-12.24   Max.   : -4.032   Max.   :42.23  
       b21                b22               b23             scale      
- Min.   :-0.02141   Min.   :0.01464   Min.   :0.2043   Min.   :29.79  
+ Min.   :-0.02141   Min.   :0.01459   Min.   :0.2034   Min.   :29.79  
  1st Qu.: 0.02048   1st Qu.:0.03873   1st Qu.:0.5007   1st Qu.:30.37  
  Median : 0.04169   Median :0.04271   Median :0.6381   Median :30.57  
  Mean   : 0.03911   Mean   :0.04359   Mean   :0.6270   Mean   :30.70  
@@ -362,4 +362,4 @@ In lmrob.M.S(x, y, control, mf) :
 > 
 > proc.time()
    user  system elapsed 
-  1.093   0.029   1.112 
+  1.116   0.032   1.138 

@@ -2396,8 +2396,8 @@ Rboolean subsample(const double x[], const double y[], int n, int m,
        m:         ncol of x  ( == p )
        beta:      [out] candidate parameters (length m)
        ind_space: (required in sample_noreplace, length n)
+                  holds the index permutation
        idc:       (required in sample_noreplace, !! length n !!)
-                  holds the index permutation,
 		  [out] index of observations used in subsample
        idr:       work array of length m
        lu:        [out] LU decomposition of subsample of xt (m x m)
@@ -2424,7 +2424,7 @@ Rboolean subsample(const double x[], const double y[], int n, int m,
              1: singular (matrix xt does not contain a m dim. full rank
                           submatrix)
              2: too many singular resamples (simple subsampling case)    */
-    int j, k, l, one = 1, mu = 0, tmpi, len_idc = n, attempt = 0;
+    int j, k, l, one = 1, mu = 0, tmpi, i = 0, attempt = 0;
     double tmpd;
     Rboolean sing;
 
@@ -2437,15 +2437,20 @@ Rboolean subsample(const double x[], const double y[], int n, int m,
 Start:
     /* STEP 1: Calculate permutation of 1:n */
     if (sample) {
-	sample_noreplace(idc, n, n, ind_space);
-    } else for(k=0;k<n;k++) idc[k] = k;
+	sample_noreplace(ind_space, n, n, idc);
+    } else for(k=0;k<n;k++) ind_space[k] = k;
     for(k=0;k<m;k++) idr[k] = k;
 
     /* STEP 2: Calculate LU decomposition of the first m cols of xt     *
-     *         using the order in idc                                   */
+     *         using the order in ind_space                             */
     for(j = 0; j < m; j++) {
 	sing=TRUE;
-	do {
+	do {	
+	    if (i+j == n) {
+		warning("subsample(): could not find non-singular subsample.");
+		return(1);
+	    }
+	    idc[j] = ind_space[i+j];
 	    if (j == 0) {
 		for(k=j;k<m;k++) v[k] = xt(k, j);
 	    } else {
@@ -2453,7 +2458,7 @@ Start:
 		/* z = solve(lu[0:(j-1), 0:(j-1)], xt[0:(j-1), j]) */
 		F77_CALL(dtrsv)("L", "N", "U", &j, lu, &m, u(0, j), &one);
 		/* Rprintf("Step %d: z = ", j);  */
-		/* for(i=0; i < n; i++) Rprintf("%lf ",a[i]); */
+		/* for(i=0; i < j; i++) Rprintf("%lf ",U(i, j)); */
 		/* Rprintf("\n"); */
 		/* v[j:(m-1)] = xt[j:(m-1), j] - L[j:(m-1), 0:(j-1)] %*% z */
 		for(k=j;k<m;k++) {
@@ -2496,11 +2501,8 @@ Start:
 		    }
 		    goto Start;
 		}
-		idc[j] = idc[--len_idc];
-		if (len_idc <= j) {
-		    warning("subsample(): could not find non-singular subsample.");
-		    return(1);
-		}
+		/* drop observation and try next one */
+		i++;
 	    } else {
 		sing = FALSE;
 		U(j, j) = v[j];
