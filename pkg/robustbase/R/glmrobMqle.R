@@ -1,7 +1,6 @@
 #### Mallows quasi-likelihood estimator of E. Cantoni and E. Ronchetti (2001)
 #### based originally on Eva Cantoni's S-plus code "robGLM"
 
-if(getRversion() >= "2.15.1")
 globalVariables(c("residP", "residPS", "dmu.deta"), add=TRUE)
 
 ##' @title

@@ -87,15 +87,25 @@ lmrob <-
 	    y <- wts * y
 	}
 	## check for singular fit
-	## from lm.fit:
-	z0 <- .Call(stats:::C_Cdqrls, x, y, tol = control$solve.tol)
-	singular.fit <- z0$rank < p
-	if (z0$rank > 0) {
+
+        ## faster, but no longer "allowed" by the Crania:
+        ## z0 <- .Call(stats:::C_Cdqrls, x, y, tol = control$solve.tol)
+	if(getRversion() >= "3.1.0") {
+	    z0 <- .lm.fit(x, y, tol = control$solve.tol)
+	    piv <- z0$pivot
+	} else {
+	    z0 <- lm.fit(x, y, tol = control$solve.tol)
+	    piv <- z0$qr$pivot
+	}
+	rankQR <- z0$rank
+
+	singular.fit <- rankQR < p
+	if (rankQR > 0) {
 	    if (singular.fit) {
 		if (!singular.ok) stop("singular fit encountered")
-		pivot <- z0$pivot
-		p1 <- pivot[seq_len(z0$rank)]
-		p2 <- pivot[(z0$rank+1):p]
+		pivot <- piv
+		p1 <- pivot[seq_len(rankQR)]
+		p2 <- pivot[(rankQR+1):p]
 		## to avoid problems in the internal fitting methods,
 		## split into singular and non-singular matrices,
 		## can still re-add singular part later
@@ -148,14 +158,15 @@ lmrob <-
 		z$coefficients <- coef
 		## Update QR decomposition (z$qr)
 		## pad qr and qraux with zeroes (columns that were pivoted to the right in z0)
-		qr0 <- matrix(0, length(y), p)
-		qr0[,1L:z0$rank] <- z$qr$qr
-		rownames(qr0) <- dn[[1L]]
-		colnames(qr0) <- dn[[2L]][z0$pivot]
-		z$qr$qr <- qr0
-		z$qr$qraux <- c(z$qr$qraux, rep.int(0, p-z0$rank))
-		## set pivot
-		z$qr$pivot <- z0$pivot
+                d.p <- p-rankQR
+                n <- NROW(y)
+		z$qr[c("qr","qraux","pivot")] <-
+		    list(matrix(c(z$qr$qr, rep.int(0, d.p*n)), n, p,
+				dimnames = list(dn[[1L]], dn[[2L]][piv])),
+			 ## qraux:
+			 c(z$qr$qraux, rep.int(0, d.p)),
+			 ## pivot:
+			 piv)
 	    }
 	} else { ## rank 0
 	    z <- list(coefficients = if (is.matrix(y)) matrix(NA,p,ncol(y))

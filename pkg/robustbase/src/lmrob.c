@@ -362,9 +362,6 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
 		 int *orthogonalize, int *subsample, int *descent,
 		 int *mts, int *ss)
 {
-    if(*trace_lev > 0)
-	Rprintf("lmrob_M_S(n = %d, nRes = %d):\n", *nn, *nRes);
-
     /* Initialize (some of the) memory here,
      * so that we have to do it only once */
     int i, n = *nn, p1 = *pp1, p2 = *pp2, one = 1;
@@ -372,6 +369,11 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
     /* (Pointers to) Arrays - to be allocated */
     double *t1, *t2, *y_tilde, *y_work, done = 1., dmone = -1.;
     double *x1, *x2, *ot1, *oT2, *ptr;
+
+    if(*trace_lev > 0) Rprintf(
+	"lmrob_M_S(n = %d, nRes = %d, (p1,p2)=(%d,%d), (orth,subs,desc)=(%d,%d,%d))\n",
+	n, *nRes, p1, p2,
+	*orthogonalize, *subsample, *descent);
 
     t1 =      (double *) R_alloc(n,  sizeof(double)); /* size n needed for rllarsbi */
     t2 =      (double *) R_alloc(p2, sizeof(double));
@@ -469,7 +471,7 @@ void R_lmrob_MM(double *X, double *y, int *n, int *P,
 {
     /* starting from the S-estimate (beta_initial), use
      * irwls to compute the MM-estimate (beta_m)  */
-    
+
     if(*trace_lev > 0)
 	Rprintf("lmrob_MM(): rwls():\n");
 
@@ -1815,9 +1817,10 @@ void fast_s_large_n(double *X, double *y,
 
 int fast_s_with_memory(double *X, double *y,
 		       int *nn, int *pp, int *nRes, int *max_it_scale,
-		       int *K, int *max_k, double rel_tol, double inv_tol,  int trace_lev,
-		       int *best_r, double *bb, double *rrhoc, int *iipsi,
-		       double **best_betas, double *best_scales, int mts, int ss)
+		       int *K, int *max_k, double rel_tol, double inv_tol,
+		       int trace_lev, int *best_r, double *bb, double *rrhoc,
+		       int *iipsi, double **best_betas, double *best_scales,
+		       int mts, int ss)
 {
 /*
  * Called from fast_s_large_n(), the adjustment for large "n",
@@ -1894,7 +1897,8 @@ int fast_s_with_memory(double *X, double *y,
 	    pos_worst_scale = find_max(best_scales, *best_r);
 	    worst_sc = best_scales[pos_worst_scale];
 	    if (trace_lev >= 2) {
-	      Rprintf("  Sample[%3d]: found new candidate with scale %.7g\n", i, sc);
+	      Rprintf("  Sample[%3d]: found new candidate with scale %.7g\n",
+		      i, sc);
 	      Rprintf("               worst scale is now %.7g\n", worst_sc);
 	    }
 	}
@@ -2188,12 +2192,14 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     *sscale = INFI;
 
     if (trace_lev >= 2)
-	Rprintf(" Starting subsampling procedure...\n");
+	Rprintf(" Starting subsampling procedure.. ");
 
     SETUP_SUBSAMPLE(n, p2, x2, 0);
 
     /*	set the seed */
     GetRNGstate();
+
+    if (trace_lev >= 2) Rprintf(" [setup Ok]\n");
 
     for(i=0; i < nResample; i++) {
 	R_CheckUserInterrupt();
@@ -2361,11 +2367,11 @@ Rboolean m_s_descent(double *X1, double *X2, double *y,
 	warning(" M-S estimate: maximum number of refinement steps reached.");
 
     if (trace_lev >= 1) {
-	Rprintf(" Descent procedure: %sconverged (best scale: %.5g, last step: %.5g)\n", 
+	Rprintf(" Descent procedure: %sconverged (best scale: %.5g, last step: %.5g)\n",
 		converged ? "" : "not ", *sscale, sc);
 	if (nnoimpr == K_m_s)
 	    Rprintf("  The procedure stopped after %d steps because there was no improvement in the last %d steps.\n  To increase this number, use the control parameter 'k.m_s'.\n", nref, nnoimpr);
-	else if (trace_lev >= 2) 
+	else if (trace_lev >= 2)
 	    Rprintf("  No improvements in %d out of %d steps.\n", nnoimpr, nref);
 	maybe_SHOW_b1_b2;
     }
@@ -2445,7 +2451,7 @@ Start:
      *         using the order in ind_space                             */
     for(j = 0; j < m; j++) {
 	sing=TRUE;
-	do {	
+	do {
 	    if (i+j == n) {
 		warning("subsample(): could not find non-singular subsample.");
 		return(1);
