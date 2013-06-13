@@ -132,8 +132,8 @@ subsample <- function(x, y=rnorm(n), compareMatrix = TRUE,
     } else {
         stopifnot(all.equal(LU.$L, L, tol=eq.tol),
                   all.equal(LU.$U, U, tol=eq.tol),
-                  all.equal(LU.$p, pivot, tol=0),
-                  all.equal(LU.$idc, idc, tol=0))
+		  LU.$p == pivot,
+		  LU.$idc == idc)
     }
 
     ## compare with Matrix result
