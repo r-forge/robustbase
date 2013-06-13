@@ -89,6 +89,7 @@ showSys.time(
     ## m1 <- glmrobMT(x=X1, y=y)
     m1 <- glmrob(Diversity ~ ., data=possumDiv, family=poisson, method="MT")
 )
+writeLines(tail(capture.output(warnings())))
 
 stopifnot(m1$converged)
 assert.EQ(m1$initial,
@@ -99,12 +100,22 @@ c(-0.851594294907422, -0.0107066895370536, -0.226958540075445, 0.035590662533830
 
 ## MM: I'm shocked how much this changes after every tweak ...
 
-dput(signif(unname(coef(m1)), 11)) ## -->
-beta1 <- c(-0.83723213945, 0.0085385261915, -0.16697112315, 0.040985126003,
-           0.042400738973, 0.063168847366, 0.01863253681, -0.0064477807228,
-           0.11488937188, 0.091283185006, -0.025627390293, -0.66995658693)
+(arch <- Sys.info()[["machine"]])
 
-assert.EQ(coef(m1), beta1, tol = 1e-10, check.attr=FALSE, giveRE=TRUE)
+dput(signif(unname(coef(m1)), 11)) ## -->
+beta1 <- list(i686 =
+c(-0.83703411949, 0.0085332123121, -0.16723425506, 0.040966496642,
+  0.042392008333, 0.063163791628, 0.018623119547, -0.0063568893968,
+  0.1143288682, 0.091609212, -0.025109234019, -0.6689999431)
+, "x86_64" =
+c(-0.83723213945, 0.0085385261915, -0.16697112315, 0.040985126003,
+  0.042400738973, 0.063168847366, 0.01863253681, -0.0064477807228,
+  0.11488937188, 0.091283185006, -0.025627390293, -0.66995658693)
+)
+## just FYI :
+assert.EQ(beta1[[1]], beta1[[2]], tol = 0.002, check.attr=FALSE, giveRE=TRUE)
+
+assert.EQ(coef(m1), beta1[[arch]], tol = 1e-10, check.attr=FALSE, giveRE=TRUE)
 
 ## The same, with another seed:
 set.seed(64)
@@ -112,11 +123,12 @@ showSys.time(
     ## m2 <- glmrobMT(x=X1, y=y)
     m2 <- glmrob(Diversity ~ ., data=possumDiv, family=poisson, method="MT")
 )
+writeLines(tail(capture.output(warnings())))
 
 stopifnot(m2$converged)
 if(FALSE)
 dput(signif(unname(m2$initial), 13)) ## -->
-assert.EQ(m2$initial,
+assert.EQ(m2$initial, ## so this is *not* platform (32bit/64bit) dependent:
 c(-1.204304813829, 0.02776038445201, -0.3680174045842, 0.04325746912892,
   0.03895315289169, 0.04537145479989, 0.02847987541025, 0.07073207523212,
   0.355491639539, 0.1822955449528, 0.1323720331562, -0.3419939094877)
@@ -133,12 +145,20 @@ beta2 <-
  -0.123130115061652, 0.0910865027225399, -0.0256449044169698, -0.67024227284216)
 
 dput(signif(unname(coef(m2)), 11)) ## -->
-beta2 <-
+beta2 <- list(i686 =
+c(-0.83731166205, 0.0085694733057, -0.16776715809, 0.040959111008,
+  0.042395767814, 0.063185207067, 0.018635039106, -0.0062832385739,
+  0.11406869258, 0.091362008749, -0.025362102704, -0.6688654014)
+, "x86_64" =
 c(-0.83687097624, 0.0085341676033, -0.1674299545, 0.040968820903,
-0.042397459287, 0.063159075944, 0.018625582804, -0.0063140636571,
-0.11426134017, 0.091317308575, -0.025373078819, -0.66957444238)
+  0.042397459287, 0.063159075944, 0.018625582804, -0.0063140636571,
+  0.11426134017, 0.091317308575, -0.025373078819, -0.66957444238)
+)
 
-assert.EQ(coef(m2), beta2, tol = 1e-10, check.attr=FALSE, giveRE=TRUE)
+## just FYI :
+assert.EQ(beta2[[1]], beta2[[2]], tol = 0.001, check.attr=FALSE, giveRE=TRUE)
+
+assert.EQ(coef(m2), beta2[[arch]], tol = 1e-10, check.attr=FALSE, giveRE=TRUE)
 ## slight changes of algorithm often change the above by ~ 4e-4 !!!
 
 ###---- Model Selection -----
