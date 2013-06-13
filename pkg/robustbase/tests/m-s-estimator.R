@@ -162,7 +162,7 @@ lmrob(LNOx ~ LNOxEm, NOxEmissions[1:10,], init="M-S")
 
 ## Now an ANOVA model with *only* categorical variables
 n <- 64 # multiple of 16
-stopifnot(n % 16 == 0)
+stopifnot(n %% 16 == 0)
 d.AOV <- data.frame(y = round(100*rnorm(64)),
 		    A=gl(4,n/4), B=gl(2,8, n), C=gl(2,4,n))
 fm <- lmrob(y ~ A*B*C, data = d.AOV, init = "M-S", trace.lev=2)

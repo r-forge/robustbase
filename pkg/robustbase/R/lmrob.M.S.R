@@ -101,8 +101,12 @@ lmrob.M.S <- function(x, y, control, mf, split) {
     if (missing(split))
         split <- splitFrame(mf, x, control$split.type)
     if (ncol(split$x1) == 0) {
-      warning("No categorical variables found in model. Reverting to lmrob.S.")
+      warning("No categorical variables found in model. Reverting to S-estimator.")
       return(lmrob.S(x, y, control))
+    }
+    if (ncol(split$x2) == 0) {
+        warning("No categorical variables found in model. Reverting to L1-estimator.")
+        return(lmrob.lar(x, y, control))
     }
     ## this is the same as in lmrob.S():
     if (length(seed <- control$seed) > 0) {
