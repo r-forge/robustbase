@@ -84,7 +84,7 @@ la2 <- 5*2^seq(0, 10, by = 0.25)
 c.s <- .25*c(1:10, 15, 50)
 mL <- lapply(c.s, function(cc) mkM(cc, lambda = la2, recompute=TRUE))
 str(mL, max=1) # a list of functions..
-stopifnot(all.equal(la2, environment(mL[[1]])$x0))
+assert.EQ(la2, environment(mL[[1]])$x0)
 mmL <- sapply(mL, function(F) get("y0", environment(F)))
 matplot(la2, mmL, type ="l") # "all the same" from very far ...
 mm.d. <- mmL - sqrt(la2)

@@ -231,6 +231,8 @@ lmrob <-
     z
 }
 
+if(getRversion() < "3.1.0") globalVariables(".lm.fit")
+
 ##' @title Warn about extraneous arguments in the "..."	 (of its caller)
 ##' @return
 ##' @author Martin Maechler, June 2012
