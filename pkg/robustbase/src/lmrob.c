@@ -46,7 +46,6 @@
    - Code clean up: removed all subroutines that were unused.
 */
 
-#include <R.h>
 #include <Rmath.h>
 
 #include <R_ext/BLAS.h>
@@ -54,6 +53,8 @@
 #include <R_ext/Lapack.h>
 
 #include "robustbase.h"
+//-> <R.h>, <Rinternals.h>  -> XLENGTH, R_xlen_t
+
 
 /* these  will also move to "lmrob.h" ---
  *  but first make many of these 'static' <<< FIXME!

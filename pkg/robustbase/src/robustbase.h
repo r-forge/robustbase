@@ -13,6 +13,15 @@
 #define dngettext(pkg, String, StringP, N) (N > 1 ? StringP : String)
 #endif
 
+#ifndef LONG_VECTOR_SUPPORT
+# ifndef XLENGTH
+   // for  R <= 2.15.x :
+#  define XLENGTH(x) LENGTH(x)
+   typedef int R_xlen_t;
+# endif
+#endif
+
+
 
 /* --------- ./qn_sn.c : -------- */
 #define Sint int
