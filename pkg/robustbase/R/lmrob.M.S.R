@@ -105,7 +105,7 @@ lmrob.M.S <- function(x, y, control, mf, split) {
       return(lmrob.S(x, y, control))
     }
     if (ncol(split$x2) == 0) {
-        warning("No categorical variables found in model. Reverting to L1-estimator.")
+        warning("No continuous variables found in model. Reverting to L1-estimator.")
         return(lmrob.lar(x, y, control))
     }
     ## this is the same as in lmrob.S():
