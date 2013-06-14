@@ -31,12 +31,12 @@ str(Egr)# 17 x 60
 mLeg <- function(pos, type="o")
     legend(pos, legend=paste("lambda = ", format(lambdas, digits=2)),
            lty=1:5, col=1:6, pch= c(1:9, 0, letters, LETTERS), bty="n")
-matplot(Egr[, gr[,"cw"] == 1.0 ], type="o", main= "c_w = 1.0" ); mLeg("bottomright")
-matplot(Egr[, gr[,"cw"] == 1.5 ], type="o", main= "c_w = 1.5" ); mLeg("bottomright")
-matplot(Egr[, gr[,"cw"] == 1.75], type="o", main= "c_w = 1.75"); mLeg("bottomright")
-matplot(Egr[, gr[,"cw"] == 2.0 ], type="o", main= "c_w = 2.0" ); mLeg("bottomright")
-matplot(Egr[, gr[,"cw"] == 2.25], type="o", main= "c_w = 2.25"); mLeg("bottomright")
-matplot(Egr[, gr[,"cw"] == 3.0 ], type="o", main= "c_w = 3.0" ); mLeg("bottomright")
+matplot(Egr[, gr[,"cw"]== 1.0 ], type="o",main="c_w = 1.0" ); mLeg("bottomright")
+matplot(Egr[, gr[,"cw"]== 1.5 ], type="o",main="c_w = 1.5" ); mLeg("bottomright")
+matplot(Egr[, gr[,"cw"]== 1.75], type="o",main="c_w = 1.75"); mLeg("bottomright")
+matplot(Egr[, gr[,"cw"]== 2.0 ], type="o",main="c_w = 2.0" ); mLeg("bottomright")
+matplot(Egr[, gr[,"cw"]== 2.25], type="o",main="c_w = 2.25"); mLeg("bottomright")
+matplot(Egr[, gr[,"cw"]== 3.0 ], type="o",main="c_w = 3.0" ); mLeg("bottomright")
 
 dev.off()
 
@@ -44,23 +44,32 @@ dev.off()
 ## Explore the m() function: ---------------------------------------------
 pdf("MT-m_rho.pdf")
 
-mkM <- robustbase:::mk.m_rho
+mkM <- robustbase:::mk.m_rho # itself calling splinefun(*, "monoH.FC")
+getSpline.xy <- function(splfun) {
+    ## Depending on the version of R, the
+    ## environment of splinefun() slightly changes:
+    stopifnot(is.function(splfun), length(e <- environment(splfun)) > 0)
+    if("x0" %in% ls(e))
+	list(x = e$x0, y = e$y0)
+    else list(x = e$x, y = e$y)
+}
+
 m21 <- mkM(2.1, recompute=TRUE)# the default 'cw = 2.1'
 m16 <- mkM(1.6, recompute=TRUE)
 p.m2 <- function(mrho, from = 0, to, col=2, addKnots=TRUE, pchK=4, cexK=1.5, ...) {
     stopifnot(is.function(mrho))
     curve(mrho, from, to, col=col, ...)
     curve(sqrt(x), add=TRUE, col=adjustcolor("gray",.5), lwd=2)
-    if(addKnots) { e <- environment(mrho); points(e$x0, e$y0, pch=pchK, cex=cexK) }
+    if(addKnots) points(getSpline.xy(mrho), pch=pchK, cex=cexK)
 }
 p.m.diff <- function(mrho, from = 0, to, col=2, addKnots=TRUE, pchK=4, cexK=1.5, ...) {
     stopifnot(is.function(mrho))
     curve(mrho(x) - sqrt(x), from=from, to=to, n=512, col=col, ...)
     abline(h=0,lty=3)
     if(addKnots) {
-        e <- environment(mrho); x <- e$x0
-        if(is.numeric(x))
-            points(x, e$y0 - sqrt(x), pch=pchK, cex=cexK)
+	xy <- getSpline.xy(mrho)
+	if(is.numeric(x <- xy$x))
+	    points(x, xy$y - sqrt(x), pch=pchK, cex=cexK)
         else warning("'addKnots' not available: No knots in function's environment")
     }
 }
@@ -84,8 +93,8 @@ la2 <- 5*2^seq(0, 10, by = 0.25)
 c.s <- .25*c(1:10, 15, 50)
 mL <- lapply(c.s, function(cc) mkM(cc, lambda = la2, recompute=TRUE))
 str(mL, max=1) # a list of functions..
-assert.EQ(la2, environment(mL[[1]])$x0)
-mmL <- sapply(mL, function(F) get("y0", environment(F)))
+assert.EQ(la2, getSpline.xy(mL[[1]])$x)
+mmL <- sapply(mL, function(F) getSpline.xy(F)$y)
 matplot(la2, mmL, type ="l") # "all the same" from very far ...
 mm.d. <- mmL - sqrt(la2)
 matplot(la2, mm.d., type ="l", xlab=quote(lambda)); abline(h=0, lty=3)
