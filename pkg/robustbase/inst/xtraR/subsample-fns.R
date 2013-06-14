@@ -133,7 +133,8 @@ subsample <- function(x, y=rnorm(n), compareMatrix = TRUE,
         stopifnot(all.equal(LU.$L, L, tol=eq.tol),
                   all.equal(LU.$U, U, tol=eq.tol),
 		  LU.$p == pivot,
-		  LU.$idc == idc)
+                  ## only compare the indices selected before stopping
+		  LU.$idc[seq_along(LU.$p)] == idc[seq_along(pivot)])
     }
 
     ## compare with Matrix result
