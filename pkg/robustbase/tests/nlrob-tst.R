@@ -20,7 +20,11 @@ stopifnot(all.equal(Y, fitted(fm1) + residuals(fm1), check.attr=FALSE),
 	  identical3(c(fitted(fm1)), predict(fm1), predict(fm1, newdata=DNase1)),
 	  ## robust fit :
 	  identical3(fitted(rm1), predict(rm1), predict(rm1, newdata=DNase1)),
-	  all.equal(Y, unname(fitted(rm1) + residuals(rm1)))
+	  all.equal(Y, unname(fitted(rm1) + residuals(rm1))),
+	  all.equal(coef(rm1),
+		    c(Asym=2.35963008, xmid=1.49945088, scal=1.04506392)),
+	  all.equal(sqrt(diag(rm1$cov)),
+		    c(Asym=0.0862687305, xmid=0.0902194608, scal=0.0350383389))
 	  )
 
 ## From: "Pascal A. Niklaus" <pascal.niklaus@ieu.uzh.ch>
@@ -72,6 +76,17 @@ lines(x, predict(nlR1), col=4)
 legend("top", c("f(x)", "least squares", "robust"),
        col=c("tomato", palette()[3:4]), lty=c(2,1,1))
 
-## These both do *not* converge currently
-update(nlR1, psi = robustbase:::psi.bisquare)# failed in earlier versions
-update(nlR1, psi = robustbase:::psi.hampel)  # failed in earlier versions
+## These both now *do* converge, but failed earlier
+(nlbi <- update(nlR1, psi = robustbase:::psi.bisquare))
+(nlFH <- update(nlR1, psi = robustbase:::psi.hampel))
+lines(x, predict(nlbi), col=5)
+lines(x, predict(nlFH), col=6)
+
+stopifnot(nlR1$status == "converged", nlbi$status == "converged",
+	  nlFH$status == "converged",
+	  all.equal(coef(nlR1), c(a=9.914874,	b=3.98612416, c=0.250896252)),
+	  all.equal(coef(nlbi), c(a=9.94745828, b=3.95420997, c=0.253583549)),
+	  all.equal(coef(nlFH), c(a=9.94242831, b=3.97370746, c=0.252907618)),
+	  all.equal(predict(nlR1), predict(nlbi), tol = 0.05),
+	  all.equal(predict(nlR1), predict(nlFH), tol = 0.05),
+	  TRUE)

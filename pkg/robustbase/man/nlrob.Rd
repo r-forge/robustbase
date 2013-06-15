@@ -4,6 +4,7 @@
 \alias{fitted.nlrob}
 \alias{residuals.nlrob}
 \alias{predict.nlrob}
+\alias{vcov.nlrob}
 \description{
   \code{nlrob} fits a nonlinear regression model by robust
   M-estimators, using iterated reweighted least squares (IWLS).
