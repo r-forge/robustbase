@@ -122,8 +122,7 @@ nlrob(formula, data, start, weights = NULL, na.action = na.fail,
 }
 \note{
   This function used to be named \code{\link[sfsmisc]{rnls}}
-  and has been in package \pkg{sfsmisc}, but will be deprecated and dropped
-  there, eventually.
+  and has been in package \pkg{sfsmisc} in the past, but been dropped there.
 }
 
 \seealso{ \code{\link{nls}}, \code{\link[MASS]{rlm}}.
