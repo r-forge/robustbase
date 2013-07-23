@@ -3,9 +3,9 @@ configure-hint-Kurt
 R/glmrobMqle\.R\+-
 .*\.zip
 .*/.*-not-yet
-vignette/Makefile
-vignette/.*\.eps
-vignette/.*\.(tex|toc|aux|log|bbl|blg)
+vignettes/Makefile
+vignettes/.*\.eps
+vignettes/.*\.(tex|toc|aux|log|bbl|blg)
 inst/doc/r.*\.Rdata
 tests/m-s-estimator.Rout.save
 tests/mc-etc.Rout.save
