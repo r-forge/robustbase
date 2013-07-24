@@ -1,6 +1,6 @@
 Package: robustbase
-Version: 0.9-9
-Date: 2013-07-23
+Version: 0.9-10
+Date: 2013-07-24
 Title: Basic Robust Statistics
 Author: Original code by many authors, notably
 	Peter Rousseeuw and Christophe Croux, see file 'Copyrights';
