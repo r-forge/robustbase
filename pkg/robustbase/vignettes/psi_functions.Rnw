@@ -14,6 +14,8 @@
 \newcommand{\abs}[1]{\left| #1 \right|}
 \DeclareMathOperator{\sign}{sign}
 \newcommand{\R}{\mathbb{R}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand*{\pkg}[1]{\texttt{#1}}
 \newtheorem{definition}{Definition}
 %% The following is R's share/texmf/Rd.sty
 \usepackage{color}
@@ -80,13 +82,14 @@ e.g., for the M-estimator defining the median.
 A \emph{$\rho$-function} can be represented by the following % definite
 integral of a $\psi$-function,
 \begin{equation}\label{def.rho}
-  \rho(x) = \int_0^x \psi(x) dx\;,
+  \rho(x) = \int_0^x \psi(u) du\;,
 \end{equation}
 which entails that $\rho(0) = 0$ and $\rho$ is an even function.
 \end{definition}
 
 A $\psi$-function is called \emph{redescending} if $\psi(x) = 0$ for
-all $x \ge x_r$ for $x_r < \infty$.  Corresponding to a redescending
+all $x \ge x_r$ for $x_r < \infty$, and $x_r$ is often called
+\emph{rejection point}.  Corresponding to a redescending
 $\psi$-function, we define the function $\tilde\rho$, a version of $\rho$
 standardized such as to attain maximum value one.  Formally,
 \begin{equation}
@@ -95,7 +98,18 @@ standardized such as to attain maximum value one.  Formally,
 \end{equation}
 Note that $\rho(\infty) = \rho(x_r) \equiv \rho(x) \ \forall \abs{x} >= x_r$.
 $\tilde\rho$ is a $\rho$-function as defined in
-\citet{MarRMY06} and has been called $\chi$ function in other contexts.
+\citet{MarRMY06} and has been called $\chi$ function in other contexts. For
+example, in package \pkg{robustbase}, \code{Mchi(x, *)} computes
+$\tilde\rho(x)$, whereas \code{Mpsi(x, *, deriv=-1)} computes $\rho(x)$,
+both according to the above definitions.
+
+Note that this definition does require a finite rejection point $x_r$. Consequently,
+e.g., the score function $s(x) = -f'(x)/f(x)$ for the Cauchy ($= t_1$)
+distribution, which is $s(x) = 2x/(1+x^2)$ and hence non-monotone and ``re
+descends'' to 0 for $x\to \pm\infty$, and $\psi_C(x) := s(x)/2$ also
+fulfills ${\psi_C}'(0) = 1$, but it has $x_r=\infty$ and hence $\psi_C()$
+is \emph{not} a redescending $psi$-function in our sense.
+%%
 %% --> ../../TODO  section  'Psi/Rho/Chi/Wgt Functions'
 %%     ~~~~~~~~~~
 %%
