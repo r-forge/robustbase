@@ -275,7 +275,7 @@ globalVariables("r", add=TRUE) ## below and in other lmrob.E() expressions
             } else if (isTRUE(all.equal(c.psi, lmrob.control(psi = psi)$tuning.psi))) {
                 switch(psi,
                        bisquare = 1.052632, welsh = 1.052670, optimal = 1.052642,
-                       hampel = 1.05265, lwg = 1.052628,
+		       hampel = 1.05265, lqq = 1.052628,
                        stop(':.vcov.w: unsupported psi function'))
             } else lmrob.E(psi(r)^2, obj=obj) / lmrob.E(psi(r,1), obj=obj)^2
         varcorr <- 1
