@@ -29,10 +29,11 @@ glmrobMqleDiffQuasiDevPois(mu, mu0, y, ni, w.x, phi, tcc)
 %                test.vec = "resid", wt.method = "inv.var")
 
 
-%% for modsel.* aka anova.glmrob():
-psi.bisquare(u, c = 4.685, deriv = 0, rho = FALSE)
-psi.hampel(u, a = 2, b = 4, c = 8, deriv = 0, rho = FALSE)
-psi.huber(u, k = 1.345, deriv = 0, rho = FALSE)
+%% For modsel.* aka anova.glmrob(); later for nlrob() only;
+%% eliminated, 2013-07-26 {for robustbase 0.9-11}, MM :
+%% psi.bisquare(u, c = 4.685, deriv = 0, rho = FALSE)
+%% psi.hampel(u, a = 2, b = 4, c = 8, deriv = 0, rho = FALSE)
+%% psi.huber(u, k = 1.345, deriv = 0, rho = FALSE)
 }
 
 \author{Andreas Ruckstuhl}

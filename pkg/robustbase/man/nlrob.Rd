@@ -11,9 +11,10 @@
 }
 \usage{
 nlrob(formula, data, start, weights = NULL, na.action = na.fail,
-      psi = psi.huber, test.vec = c("resid", "coef", "w"), maxit = 20,
+      psi = .Mwgt.psi1("huber", cc=1.345),
+      test.vec = c("resid", "coef", "w"), maxit = 20,
       acc = 1e-06, algorithm = "default", control = nls.control(),
-      trace = FALSE, ...)
+      trace = FALSE)
 
 \method{fitted}{nlrob}(object, ...)
 \method{residuals}{nlrob}(object, type = , ...)% FIXME: more 'type's + DOCU
@@ -55,6 +56,8 @@ nlrob(formula, data, start, weights = NULL, na.action = na.fail,
       constant(s)', deriv)} that for \code{deriv=0} returns
     \eqn{\psi(x)/x}{psi(x)/x} and for \code{deriv=1} returns
     \eqn{\psi'(x)}{psi'(x)}.  Tuning constants will be passed in via one
+%%% FIXME .Mwgt.psi1();  tuning constants no longer can be passed
+%%% separately !!   add examples
     or several arguments, depending on the psi function. (See also
     \code{\link[MASS]{rlm}}).}
   \item{test.vec}{character string specifying the convergence
@@ -78,10 +81,10 @@ nlrob(formula, data, start, weights = NULL, na.action = na.fail,
     When the \code{"plinear"} algorithm is used, the conditional
     estimates of the linear parameters are printed after the nonlinear
     parameters.}
-  \item{\dots}{optional arguments (tuning constants) to be passed to the
-    psi function (see \code{psi} above).}
+
   \item{object}{an \R object of class \code{"nlrob"}, typically
     resulting from \code{nlrob(..)}.}
+  \item{\dots}{potentially optional arguments passed to the extractor methods.}
   \item{type}{a string specifying the \emph{type} of residuals desired.
     Currently, \code{"response"} and \code{"working"} are supported.
     %% FIXME: 1. document these (here)  2. write and support more types

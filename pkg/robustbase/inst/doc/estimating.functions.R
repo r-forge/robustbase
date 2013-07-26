@@ -543,7 +543,7 @@ lmrob.dscale <- function(r, control,
   w <- Mwgt(r, control$tuning.psi, control$psi)
   scale <- sqrt(sum(w * r^2) / kappa / sum(tau^2*w))
   psi <- control$psi
-  c.psi <- robustbase:::lmrob.conv.cc(psi, control$tuning.psi)
+  c.psi <- robustbase:::.psi.conv.cc(psi, control$tuning.psi)
   ret <- .C("R_find_D_scale",
             r = as.double(r),
             kappa = as.double(kappa),

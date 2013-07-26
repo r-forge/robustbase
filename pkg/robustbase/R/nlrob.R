@@ -1,8 +1,9 @@
 nlrob <-
     function (formula, data, start, weights = NULL, na.action = na.fail,
-	      psi = psi.huber, test.vec = c("resid", "coef", "w"),
+	      psi = .Mwgt.psi1("huber", cc=1.345),
+              test.vec = c("resid", "coef", "w"),
 	      maxit = 20, acc = 1e-06, algorithm = "default",
-	      control = nls.control(), trace = FALSE, ...)
+	      control = nls.control(), trace = FALSE)
 {
     ## Purpose:
     ##	Robust fitting of nonlinear regression models. The fitting is
@@ -70,7 +71,7 @@ nlrob <-
 	    ## -----   Scale <- min(abs(resid)[resid != 0])
 	}
 	else {
-	    w <- psi(resid/Scale, ...)
+	    w <- psi(resid/Scale)
 	    if (!is.null(weights))
 		w <- w * weights
 	    data$..nlrob.w <- w ## use a variable name the user "will not" use
@@ -105,8 +106,8 @@ nlrob <-
     } else {
 	AtWAinv <- chol2inv(out$m$Rmat())
 	dimnames(AtWAinv) <- list(names(coef), names(coef))
-	tau <- (mean(psi(resid/Scale, ...)^2) /
-		(mean(psi(resid/Scale, deriv=TRUE, ...))^2))
+	tau <- (mean(psi(resid/Scale)^2) /
+		(mean(psi(resid/Scale, d=TRUE))^2))
 	asCov <- AtWAinv * Scale^2 * tau
     }
 
@@ -119,7 +120,7 @@ nlrob <-
 		   coefficients = coef,
 		   working.residuals = as.vector(resid),
 		   fitted.values = fit, residuals = y - fit,
-		   Scale = Scale, w = w, rweights = psi(resid/Scale, ...),
+		   Scale = Scale, w = w, rweights = psi(resid/Scale),
 		   cov=asCov, status = status, iter=iiter,
 		   psi = psi, data = dataName,
 		   dataClasses = attr(attr(mf, "terms"), "dataClasses")))

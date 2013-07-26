@@ -17,7 +17,6 @@ importFrom("stats", .lm.fit)
 
 importFrom("utils", globalVariables)
 
-##no longer: importFrom("MASS", psi.bisquare, psi.hampel, psi.huber)
 ## MASS has many rlm S3 methods; should we use some of them - for rnls() ?!
 ## we also currently use MASS::cov.rob(); but probably only temporarily
 
@@ -45,6 +44,9 @@ export(Sn, Qn, Qn.old,
 ##     tukeyPsi, # = biweight / bisquare
        tukeyChi, tukeyPsi1, # TODO deprecate: see ./TODO
        Mpsi, Mchi, Mwgt, MrhoInf, .Mpsi, .Mchi, .Mwgt, .MrhoInf,
+       .Mwgt.psi1,
+       .Mchi.tuning.default, .Mpsi.tuning.default,
+       .Mchi.tuning.defaults,.Mpsi.tuning.defaults,
 
        lmrob, lmrob.fit,
        lmrob.fit.MM, lmrob..M..fit, lmrob..D..fit,

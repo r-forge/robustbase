@@ -173,7 +173,7 @@ $x_r = \sup\{t; \psi(t) > 0\} < \infty$.
 From \texttt{lmrob}, the psi functions are available via
 \texttt{lmrob.control},
 <<lmrob-psi, echo=TRUE,fig=FALSE>>=
-formals(lmrob.control) $ psi
+names(.Mpsi.tuning.defaults)
 @ %$
 and their $\psi$, $\rho$, $\psi'$, and weight function $w(x) := \psi(x)/x$,
 are all computed efficiently via C code, and are defined and visualized in
