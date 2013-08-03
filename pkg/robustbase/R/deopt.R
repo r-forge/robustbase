@@ -1,3 +1,6 @@
+### "FIXME":  There's the  'DEoptim'  package.
+###           Shall we really re-invent the wheel?
+
 jde <- function(lower, upper, f0, fn, constr = NULL, meq = 0, slack = 1e-5,
                 NP = 10*d, Fl = 0.1, Fu = 1, tau1 = 0.1, tau2 = 0.1, tau3 = 0.1,
                 jitter_factor = 0.001,
@@ -259,5 +262,6 @@ jde <- function(lower, upper, f0, fn, constr = NULL, meq = 0, slack = 1e-5,
     res
 }
 
+## rather the whole package via 'ByteCompile: yes' in ../DESCRIPTION ?
 library(compiler)
 jde <- cmpfun(jde)

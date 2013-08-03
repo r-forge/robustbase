@@ -1,10 +1,13 @@
-stopifnot(require("PolynomF"), require("robustbase"))
-source(system.file("deopt.R", package = "robustbase"))
-source(system.file("nlregrob.R", package = "robustbase"))
+stopifnot(require("robustbase"))
+## as long as we don't export these (nor provide an nlrob(., method=.) interface:
+nlrob.MM  <- robustbase:::nlrob.MM
+nlrob.tau <- robustbase:::nlrob.tau
+nlrob.CM  <- robustbase:::nlrob.CM
+nlrob.mtl <- robustbase:::nlrob.mtl
 
-# Stromberg, Arnold J. (1993).
-# Computation of high breakdown nonlinear regression parameters.
-# J. Amer. Statist. Assoc. 88(421), 237-244.
+## Stromberg, Arnold J. (1993).
+## Computation of high breakdown nonlinear regression parameters.
+## J. Amer. Statist. Assoc. 88(421), 237-244.
 
 set.seed(2345) # for reproducibility
 df <- data.frame(x = sort( runif(30, 0, 10) ), err = rnorm(30))
@@ -116,3 +119,4 @@ stopifnot(
     all.equal( coef(Rfit.leverage.tau.optimal), coef(Cfit), tolerance = 0.1 ),
     all.equal( coef(Rfit.leverage.CM)[-3], coef(Cfit), tolerance = 0.5 ),
     all.equal( coef(Rfit.leverage.mtl)[-3], coef(Cfit), tolerance = 0.5 ) )
+
