@@ -1,5 +1,3 @@
-library(robustbase)
-
 nlrob.MM <- function(model, data, pnames, lower, upper,
                      tolerance = 1e-5, f0 = NULL,
                      estim = c("S", "lts"),
@@ -25,8 +23,9 @@ nlrob.MM <- function(model, data, pnames, lower, upper,
 
 
 {
-    stopifnot(require("PolynomF"))
-
+    if(!require("PolynomF"))
+	stop(gettextf("You must install the 'PolynomF' package before you can use %s",
+		      "nlrob.MM()"), domain=NA)
     estim <- match.arg(estim)
     psi <- match.arg(psi)
     if (is.null(tuning.chi.scale))
@@ -164,7 +163,7 @@ nlrob.MM <- function(model, data, pnames, lower, upper,
                    fitted.values = fit, residuals = y - fit, crit = crit, initial = initial,
                    Scale = sigma, status = status, counts = counts, data = dataName),
               class = "nlrob")
-}
+}## nlrob.MM
 
 nlrob.tau <- function(model, data, pnames, lower, upper,
                       tolerance = 1e-5, f0 = NULL,
@@ -190,7 +189,9 @@ nlrob.tau <- function(model, data, pnames, lower, upper,
 
 
 {
-    stopifnot(require("PolynomF"))
+    if(!require("PolynomF"))
+	stop(gettextf("You must install the 'PolynomF' package before you can use %s",
+                      "nlrob.tau()"), domain=NA)
 
     psi <- match.arg(psi)
     if (is.null(tuning.chi.scale))
@@ -299,7 +300,7 @@ nlrob.tau <- function(model, data, pnames, lower, upper,
                    fitted.values = fit, residuals = y - fit, crit = crit, Scale = Scale,
                    status = status, iter = iter, data = dataName),
               class = "nlrob")
-}
+}## nlrob.tau
 
 nlrob.CM <- function(model, data, pnames, lower, upper,
                      tolerance = 1e-5, f0 = NULL,
@@ -413,7 +414,7 @@ nlrob.CM <- function(model, data, pnames, lower, upper,
                    fitted.values = fit, residuals = y - fit, crit = crit,
                    status = status, iter = iter, data = dataName),
               class = "nlrob")
-}
+}## nlrob.CM
 
 nlrob.mtl <- function(model, data, pnames, lower, upper,
                       cutoff = 2.5,
@@ -533,10 +534,12 @@ nlrob.mtl <- function(model, data, pnames, lower, upper,
                    fitted.values = fit, residuals = resid, crit = crit, quan = quan,
                    status = status, iter = iter, data = dataName),
               class = "nlrob")
-}
+}## nlrob.mtl
 
+## rather the whole package via 'ByteCompile: yes' in ../DESCRIPTION ?
 library(compiler)
 nlrob.MM <- cmpfun(nlrob.MM)
 nlrob.tau <- cmpfun(nlrob.tau)
 nlrob.CM <- cmpfun(nlrob.CM)
 nlrob.mtl <- cmpfun(nlrob.mtl)
+
