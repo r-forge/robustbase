@@ -95,7 +95,7 @@
   \emph{Journal of Global Optimization} \bold{11}, 341--359.
 }
 \seealso{
-  Function \code{\link{DEoptim}{DEoptim}} in the
+  Function \code{\link[DEoptim]{DEoptim}} in the
   \pkg{DEoptim} package has many more options than
   \code{jde()}, but does not allow constraints in the same
   flexible manner.
