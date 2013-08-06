@@ -11,6 +11,7 @@
 }
 \usage{
 nlrob(formula, data, start, weights = NULL, na.action = na.fail,
+      method = "M",% <-- more to come
       psi = .Mwgt.psi1("huber", cc=1.345),
       test.vec = c("resid", "coef", "w"), maxit = 20,
       acc = 1e-06, algorithm = "default", control = nls.control(),
@@ -99,16 +100,21 @@ nlrob(formula, data, start, weights = NULL, na.action = na.fail,
   \code{nlrob()} returns an object of S3 class \code{"nlrob"}, also
   inheriting from class \code{"nls"}, (see \code{\link{nls}}).
 
-  It is a list with components
-  \item{FIXME }{???}
-
+  It is a list with several components; they are not documented yet,
+  as some of them will probably change.
+  %% E.g. 'cov' = vcov() is currently computed in any case,
+  %% which is not quite desirable.
+  Instead, rather use \dQuote{accessor} methods, where possible:
   There are methods (at least) for the generic accessor functions
-  \code{\link{summary}}, \code{\link{coefficients}},
-  \code{fitted.values} and \code{residuals}.
+  \code{\link{summary}()}, \code{\link{coefficients}()} (aka \code{coef()})
+  \code{fitted.values()}, \code{residuals()}, and \code{\link{vcov}()},
+  the latter for the variance-covariance matrix of the estimated
+  parameters, as returned by \code{coef()}, i.e., not including the
+  variance of the errors.
 
   \code{residuals(.)}, by default \code{type = "response"}, returns
   the residuals \eqn{e_i}, defined above as
-  \eqn{e_i = Y_i - f_(x_i, \theta)}{e[i] = Y[i] - f(x[i],theta)}.
+  \eqn{e_i = Y_i - f_(x_i, \hat\theta)}{e[i] = Y[i] - f(x[i], theta^)}.
   These differ from the standardized or weighted residuals which, e.g.,
   are assumed to be normally distributed, and a version of which is
   returned in \code{working.residuals} component.

@@ -152,30 +152,26 @@
 	     in addition to '$residuals' and '$raw.residuals';
 	     drop it or document it !
 
---- nlrob ---
+* nlrob()
 
-**  residuals( nlrob(), type = "...") should provide types
-   	      "as in the litterature"
+** residuals( nlrob(), type = "...") should provide types "as in the litterature"
 
-**  Add method = "..." : the more robust methods "tau", "CM" and "MTL"
-   Eduardo Conceicao
+** nlrob(*, method = "...") should call methods "tau", "CM", "MTL", "MM"
+   by Eduardo Conceicao
 
-------
+*** TODO: shouldn't we rename jde() to jdeopt() or even jdeoptim(), jDEoptim(), or JDEoptim()
+R users already know optim() etc.. so the name seems more logical for them.
 
-
-** Add data sets from the MMY-book -- mostly done {do we have *all* ?}
-
-
---- lmrob --- --- --- --- ---
-
-** more tests in	tests/
+* More lmrob() considerations
+** DONE more tests in	tests/
 
 ** fully implement and test the multivariate case (y = matrix with > 1 col.)
-
 ** src/lmrob.c :
     does median() , MAD() instead of using R's  sort() routines
 
-----
+* Misceallanous
+** Add data sets from the MMY-book -- mostly done {do we have *all* ?}
+
 
 ** Alternative version of covOGK() for correlation-only
   using's Huber's correlation formula which ensures [-1,1] range
