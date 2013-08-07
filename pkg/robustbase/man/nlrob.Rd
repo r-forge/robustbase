@@ -6,16 +6,17 @@
 \alias{predict.nlrob}
 \alias{vcov.nlrob}
 \description{
-  \code{nlrob} fits a nonlinear regression model by robust
-  M-estimators, using iterated reweighted least squares (IWLS).
+  \code{nlrob} fits a nonlinear regression model by robust methods.
+  Per default, by an M-estimator, using iterated reweighted least
+  squares (called \dQuote{IRLS} or also \dQuote{IWLS}).
 }
 \usage{
 nlrob(formula, data, start, weights = NULL, na.action = na.fail,
       method = "M",% <-- more to come
       psi = .Mwgt.psi1("huber", cc=1.345),
       test.vec = c("resid", "coef", "w"), maxit = 20,
-      acc = 1e-06, algorithm = "default", control = nls.control(),
-      trace = FALSE)
+      acc = 1e-06, algorithm = "default", doCov = FALSE,
+      control = nls.control(), trace = FALSE)
 
 \method{fitted}{nlrob}(object, ...)
 \method{residuals}{nlrob}(object, type = , ...)% FIXME: more 'type's + DOCU
@@ -25,9 +26,11 @@ nlrob(formula, data, start, weights = NULL, na.action = na.fail,
   \item{formula}{a nonlinear \code{\link{formula}} including variables
     and parameters of the model, such as \code{y ~ f(x, theta)} (cf. \code{\link{nls}}).
     (For some checks: if \eqn{f(.)} is linear, then we need
-    parentheses, e.g., \code{y ~ (a + b * x)}.)
-%% FIXME in code -- long overdue, as nls() is more flexible *SINCE* R 2.2.1
-    Do not use \code{w} as variable or parameter name!
+    parentheses, e.g., \code{y ~ (a + b * x)};
+    (note that \code{._nlrob.w} is not allowed as variable or parameter name))
+    %% FIXME in code -- long overdue, as nls() is more flexible *SINCE* R 2.2.1
+    %% Do not use \code{w} as variable or parameter name!
+    %% FIXME: this should really no longer be needed ==> add a check
   }
   \item{data}{an optional data frame containing the variables
     in the model.  If not found in \code{data}, the variables are taken
@@ -53,14 +56,30 @@ nlrob(formula, data, start, weights = NULL, na.action = na.fail,
     here since the residuals length is different from
     \code{nrow(data) == length(w)}.
   }
+  \item{method}{a character string specifying which method to use.  The
+    default is \code{"M"}, for historical and back-compatibility
+    reasons.
+    \describe{
+      \item{"M"}{Computes an M-estimator, using \code{\link{nls}(*,
+	  weights=*)} iteratively (hence, IRLS) where the weights compuvia IRLS and }
+      \item{"MM"}{}%% FIXME
+      \item{"CM"}{}
+      \item{"mtl"}{}
+    }
+    Note that all methods but \code{"M"} are \dQuote{random}, hence
+    typically to be preceded by \code{\link{set.seed}()} in usage.
+  }
   \item{psi}{a function (possibly by name) of the form \code{g(x, 'tuning
       constant(s)', deriv)} that for \code{deriv=0} returns
     \eqn{\psi(x)/x}{psi(x)/x} and for \code{deriv=1} returns
-    \eqn{\psi'(x)}{psi'(x)}.  Tuning constants will be passed in via one
-%%% FIXME .Mwgt.psi1();  tuning constants no longer can be passed
-%%% separately !!   add examples
-    or several arguments, depending on the psi function. (See also
-    \code{\link[MASS]{rlm}}).}
+    \eqn{\psi'(x)}{psi'(x)}.  Note that tuning constants can \emph{not}
+    be passed separately, but directly via the specification of \code{psi},
+    typically via a simple \code{\link{.Mwgt.psi1}()} call as per
+    default.
+
+    Note that this has been a deliberately non-backcompatible change
+    for robustbase version 0.90-0 (summer 2013).
+  }
   \item{test.vec}{character string specifying the convergence
     criterion. The relative change is tested for residuals with a value
     of \code{"resid"} (the default), for coefficients with
@@ -70,6 +89,11 @@ nlrob(formula, data, start, weights = NULL, na.action = na.fail,
   \item{algorithm}{character string specifying the algorithm to use for
     \code{\link{nls}}, see there. The default algorithm is a
     Gauss-Newton algorithm.}
+  \item{doCov}{a logical specifying if \code{nlrob()} should compute the
+    asymptotic variance-covariance matrix (see \code{\link{vcov}})
+    already.  This used to be hard-wired to \code{TRUE}; however, the
+    default has been set to \code{FALSE}, as \code{\link{vcov}(obj)} and
+    \code{\link{summary}(obj)} can easily compute it when needed.}
   \item{control}{an optional list of control settings for \code{\link{nls}}.
     See \code{\link{nls.control}} for the names of the settable control
     values and their effect.}
@@ -130,10 +154,10 @@ nlrob(formula, data, start, weights = NULL, na.action = na.fail,
   Help page, testing, more cleanup, methods: Martin Maechler.
 }
 \note{
-  This function used to be named \code{\link[sfsmisc]{rnls}}
-  and has been in package \pkg{sfsmisc} in the past, but been dropped there.
+  This function (with the only method \code{"M"}) used to be named
+  \code{\link[sfsmisc]{rnls}} and has been in package \pkg{sfsmisc} in
+  the past, but been dropped there.
 }
-
 \seealso{ \code{\link{nls}}, \code{\link[MASS]{rlm}}.
 }
 \examples{

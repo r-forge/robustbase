@@ -14,7 +14,7 @@ summary(fm1)
 ## robust
 rm1 <- nlrob(formula(fm1), data = DNase1, trace = TRUE,
 	     start = list(Asym = 3, xmid = 0, scal = 1))
-summary(rm1)
+(sm1 <- summary(rm1))
 stopifnot(all.equal(Y, fitted(fm1) + residuals(fm1), check.attr=FALSE),
 	  ## fitted(<nls>) has "label" attribute
 	  identical3(c(fitted(fm1)), predict(fm1), predict(fm1, newdata=DNase1)),
@@ -23,7 +23,7 @@ stopifnot(all.equal(Y, fitted(fm1) + residuals(fm1), check.attr=FALSE),
 	  all.equal(Y, unname(fitted(rm1) + residuals(rm1))))
 assert.EQ(coef(rm1),
 	  c(Asym=2.35963008, xmid=1.49945088, scal=1.04506392), tol = 1e-8)
-assert.EQ(sqrt(diag(rm1$cov)),
+assert.EQ(sqrt(diag(sm1$cov)),
 	  ## 32b 0.08626872273,     0.0902194541,      0.03503833759
 	  c(Asym=0.0862687305, xmid=0.0902194608, scal=0.0350383389),
 	  tol = 7e-7)

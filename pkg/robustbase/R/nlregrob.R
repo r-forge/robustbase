@@ -144,11 +144,13 @@ nlrob.MM <- function(model, data, pnames, lower, upper,
     if (length(lower) == 1)
 	lower <- rep(lower, npar)
     if (length(lower) != npar)
-	stop(gettextf("lower must be either of length %d, or length 1", npar))
+	stop(gettextf("lower must be either of length %d, or length 1",
+                      npar), domain=NA)
     if (length(upper) == 1)
 	upper <- rep(upper, npar)
     if (length(upper) != npar)
-	stop(gettextf("upper must be either of length %d, or length 1", npar))
+	stop(gettextf("upper must be either of length %d, or length 1",
+                      npar), domain=NA)
     stopifnot(is.numeric(lower), is.numeric(upper), lower <= upper)
     y <- eval(model[[2L]], as.list(data))
     nobs <- length(y)
@@ -306,11 +308,13 @@ nlrob.tau <- function(model, data, pnames, lower, upper,
     if (length(lower) == 1)
 	lower <- rep(lower, npar)
     if (length(lower) != npar)
-	stop(gettextf("lower must be either of length %d, or length 1", npar))
+	stop(gettextf("lower must be either of length %d, or length 1",
+		      npar), domain=NA)
     if (length(upper) == 1)
 	upper <- rep(upper, npar)
     if (length(upper) != npar)
-	stop(gettextf("upper must be either of length %d, or length 1", npar))
+	stop(gettextf("upper must be either of length %d, or length 1",
+		      npar), domain=NA)
     stopifnot(is.numeric(lower), is.numeric(upper), lower <= upper)
     y <- eval(model[[2L]], as.list(data))
     nobs <- length(y)
@@ -432,11 +436,13 @@ nlrob.CM <- function(model, data, pnames, lower, upper,
     if (length(lower) == 1)
 	lower <- rep(lower, npar)
     if (length(lower) != npar)
-	stop(gettextf("lower must be either of length %d, or length 1", npar))
+	stop(gettextf("lower must be either of length %d, or length 1",
+		      npar), domain=NA)
     if (length(upper) == 1)
 	upper <- rep(upper, npar)
     if (length(upper) != npar)
-	stop(gettextf("upper must be either of length %d, or length 1", npar))
+	stop(gettextf("upper must be either of length %d, or length 1",
+		      npar), domain=NA)
     stopifnot(is.numeric(lower), is.numeric(upper), lower <= upper)
     if ("sigma" %in% pnames) {
 	if ("sigma" %in% varNames || "sigma" %in% names(data))
@@ -559,11 +565,13 @@ nlrob.mtl <- function(model, data, pnames, lower, upper,
     if (length(lower) == 1)
 	lower <- rep(lower, npar)
     if (length(lower) != npar)
-	stop(gettextf("lower must be either of length %d, or length 1", npar))
+	stop(gettextf("lower must be either of length %d, or length 1",
+		      npar), domain=NA)
     if (length(upper) == 1)
 	upper <- rep(upper, npar)
     if (length(upper) != npar)
-	stop(gettextf("upper must be either of length %d, or length 1", npar))
+	stop(gettextf("upper must be either of length %d, or length 1",
+		      npar), domain=NA)
     stopifnot(is.numeric(lower), is.numeric(upper), lower <= upper)
     if ("sigma" %in% pnames) {
 	if ("sigma" %in% varNames || "sigma" %in% names(data))

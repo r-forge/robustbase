@@ -1,8 +1,10 @@
 nlrob <-
     function (formula, data, start, weights = NULL, na.action = na.fail,
+              method = "M",# <-- more to come
 	      psi = .Mwgt.psi1("huber", cc=1.345),
               test.vec = c("resid", "coef", "w"),
 	      maxit = 20, acc = 1e-06, algorithm = "default",
+              doCov = FALSE,
 	      control = nls.control(), trace = FALSE)
 {
     ## Purpose:
@@ -30,8 +32,10 @@ nlrob <-
 	  (is.vector(start) && is.numeric(start)))
 	|| any(is.na(match(pnames, varNames))))
 	stop("'start' must be a list or numeric vector named with parameters in 'formula'")
-    if ("w" %in% varNames || "w" %in% pnames || "w" %in% names(data))
-	stop("Do not use 'w' as a variable name or as a parameter name")
+    nm <- "._nlrob.w"
+    if (nm %in% c(varNames, pnames, names(data)))
+	stop(gettextf("Do not use '%s' as a variable name or as a parameter name",
+		      nm), domain=NA)
     if (!is.null(weights)) {
 	if (length(weights) != nrow(data))
 	    stop("'length(weights)' must equal the number of observations")
@@ -74,11 +78,11 @@ nlrob <-
 	    w <- psi(resid/Scale)
 	    if (!is.null(weights))
 		w <- w * weights
-	    data$..nlrob.w <- w ## use a variable name the user "will not" use
-	    ..nlrob.w <- NULL # FIXME workaround for codetools
+	    data$._nlrob.w <- w ## use a variable name the user "will not" use
+	    ._nlrob.w <- NULL # FIXME workaround for codetools
 	    out <- nls(formula, data = data, start = start,
                        algorithm = algorithm, trace = trace,
-                       weights = ..nlrob.w,
+                       weights = ._nlrob.w,
                        na.action = na.action, control = control)
 
 	    ## same sequence as in start! Ok for test.vec:
@@ -92,8 +96,10 @@ nlrob <-
 	    break
     }
 
-    if(!converged && !method.exit)
+    if(!converged || method.exit) {
 	warning(status <- paste("failed to converge in", maxit, "steps"))
+        if(method.exit) converged <- FALSE
+    }
 
     if(!is.null(weights)) { ## or just   out$weights  ??
 	tmp <- weights != 0
@@ -101,13 +107,11 @@ nlrob <-
     }
 
     ## --- Estimated asymptotic covariance of the robust estimator
-    if (!converged && !method.exit) {
-	asCov <- NA
-    } else {
+    rw <- psi(resid/Scale)
+    asCov <- if(!converged || !doCov) NA else { ## compare with .vcov.m() below
 	AtWAinv <- chol2inv(out$m$Rmat())
 	dimnames(AtWAinv) <- list(names(coef), names(coef))
-	tau <- (mean(psi(resid/Scale)^2) /
-		(mean(psi(resid/Scale, d=TRUE))^2))
+	tau <- mean(rw^2) / mean(psi(resid/Scale, d=TRUE))^2
 	asCov <- AtWAinv * Scale^2 * tau
     }
 
@@ -120,11 +124,22 @@ nlrob <-
 		   coefficients = coef,
 		   working.residuals = as.vector(resid),
 		   fitted.values = fit, residuals = y - fit,
-		   Scale = Scale, w = w, rweights = psi(resid/Scale),
+		   Scale = Scale, w = w, rweights = rw,
 		   cov=asCov, status = status, iter=iiter,
 		   psi = psi, data = dataName,
 		   dataClasses = attr(attr(mf, "terms"), "dataClasses")))
 }
+
+.vcov.m <- function(m, nms.coef, psi, Scale, resid, res.sc = resid/Scale) {
+    AtWAinv <- chol2inv(m$Rmat())
+    stopifnot(length(Scale) == 1, Scale >= 0,
+              is.character(nms.coef), length(nms.coef) == nrow(AtWAinv))
+    dimnames(AtWAinv) <- list(nms.coef, nms.coef)
+    rw <- psi(res.sc)
+    tau <- mean(rw^2) / mean(psi(res.sc, d=TRUE))^2
+    asCov <- AtWAinv * Scale^2 * tau
+}
+
 
 ## The 'nls' method is *not* correct
 formula.nlrob <- function(x, ...) x$formula
@@ -188,7 +203,14 @@ residuals.nlrob <- function (object, type = c("response", "working", "pearson"),
 }
 
 
-vcov.nlrob <- function (object, ...) object$cov
+vcov.nlrob <- function (object, ...) {
+    if(!is.na(cv <- object$cov)) cv
+    else {
+        sc <- object$Scale
+        .vcov.m(object$m, names(coef(object)), psi=object$psi, Scale= sc,
+                res.sc = object$working.residuals / sc)
+    }
+}
 
 summary.nlrob <- function (object, correlation = FALSE, symbolic.cor = FALSE, ...)
 {
@@ -199,18 +221,23 @@ summary.nlrob <- function (object, correlation = FALSE, symbolic.cor = FALSE, ..
     rdf <- n - p
     ans <- object[c("formula", "residuals", "Scale", "w", "rweights", "cov",
 		    "call", "status", "iter", "control")]
+    conv <- ans$status == "converged"
+    sc   <- ans$Scale
+    if(is.na(ans[["cov"]]) && conv)
+	ans$cov <- .vcov.m(object$m, names(param), psi=object$psi, Scale= sc,
+			   res.sc = object$working.residuals / sc)
     ans$df <- c(p, rdf)
     cf <-
-	if(ans$status == "converged") {
-	    se <- sqrt(diag(object$cov))
+	if(conv) {
+	    se <- sqrt(diag(ans$cov))
 	    tval <- param/se
 	    cbind(param, se, tval, 2 * pt(abs(tval), rdf, lower.tail = FALSE))
 	} else cbind(param, NA, NA, NA)
     dimnames(cf) <- list(names(param),
 			 c("Estimate", "Std. Error", "t value", "Pr(>|t|)"))
     ans$coefficients <- cf
-    if(correlation && rdf > 0 && ans$status == "converged") {
-	ans$correlation <- object$cov / outer(se, se)
+    if(correlation && rdf > 0 && conv) {
+	ans$correlation <- ans$cov / outer(se, se)
 	ans$symbolic.cor <- symbolic.cor
     }
     class(ans) <- "summary.nlrob"
