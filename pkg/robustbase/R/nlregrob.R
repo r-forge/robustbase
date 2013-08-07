@@ -34,7 +34,7 @@
 ##' @param tuning.chi.scale
 ##' @param tuning.chi.M
 ##' @param optim.control
-##' @param ... optional arguments for optimization, e.g., \code{trace = TRUE}, passed to \code{\link{jde}(.)}.
+##' @param ... optional arguments for optimization, e.g., \code{trace = TRUE}, passed to \code{\link{JDEoptim}(.)}.
 ##' @return
 ##' @references
 ##' Yohai, V.J. (1987)
@@ -167,7 +167,7 @@ nlrob.MM <- function(model, data, pnames, lower, upper,
 	)
     switch(estim, lts = h <- (nobs + npar + 1)%/%2)
 
-    initial <- jde(lower, upper, f0, objective.initial, tol = tolerance, ...)
+    initial <- JDEoptim(lower, upper, f0, objective.initial, tol = tolerance, ...)
     names(initial$par) <- pnames
     res <- y - eval( model[[3L]], c(as.list(data), initial$par) )
 
@@ -214,7 +214,7 @@ nlrob.MM <- function(model, data, pnames, lower, upper,
 ##' @param psi
 ##' @param tuning.chi.scale
 ##' @param tuning.chi.tau
-##' @param ... optional arguments for optimization, e.g., \code{trace = TRUE}, passed to \code{\link{jde}(.)}.
+##' @param ... optional arguments for optimization, e.g., \code{trace = TRUE}, passed to \code{\link{JDEoptim}(.)}.
 ##' @return
 ##' @references
 ##' Yohai, V.J., and Zamar, R.H. (1988).
@@ -329,7 +329,7 @@ nlrob.tau <- function(model, data, pnames, lower, upper,
 	else 1/rho.inv( 1/(nobs+1) )
 	)
 
-    optRes <- jde(lower, upper, f0, objective, tol = tolerance, ...)
+    optRes <- JDEoptim(lower, upper, f0, objective, tol = tolerance, ...)
     coef <- optRes$par
     names(coef) <- pnames
     crit <- optRes$value
@@ -363,7 +363,7 @@ nlrob.tau <- function(model, data, pnames, lower, upper,
 ##' @param f0
 ##' @param psi
 ##' @param tuning.chi
-##' @param ... optional arguments for optimization, e.g., \code{trace = TRUE}, passed to \code{\link{jde}(.)}.
+##' @param ... optional arguments for optimization, e.g., \code{trace = TRUE}, passed to \code{\link{JDEoptim}(.)}.
 ##' @return
 ##' @references
 ##'   Mendes, B.V.M., and Tyler, D.E. (1996)
@@ -456,7 +456,7 @@ nlrob.CM <- function(model, data, pnames, lower, upper,
 	f0 <- mean(scale(y, scale = FALSE)^2)
     stopifnot(is.numeric(f0), f0 > 0)
 
-    optRes <- jde(lower, upper, f0, objective, con, tol = tolerance, ...)
+    optRes <- JDEoptim(lower, upper, f0, objective, con, tol = tolerance, ...)
     coef <- optRes$par
     names(coef) <- pnames
     crit <- optRes$value
@@ -488,7 +488,7 @@ nlrob.CM <- function(model, data, pnames, lower, upper,
 ##' @param cutoff
 ##' @param tolerance
 ##' @param f0
-##' @param ... optional arguments for optimization, e.g., \code{trace = TRUE}, passed to \code{\link{jde}(.)}.
+##' @param ... optional arguments for optimization, e.g., \code{trace = TRUE}, passed to \code{\link{JDEoptim}(.)}.
 ##' @return
 ##' @references
 ##' Hadi, Ali S., and Luceno, Alberto (1997).
@@ -586,7 +586,7 @@ nlrob.mtl <- function(model, data, pnames, lower, upper,
     stopifnot(is.numeric(f0), f0 > 0)
     hlow <- (nobs + npar + 1)%/%2
 
-    optRes <- jde(lower, upper, f0, objective, tol = tolerance, ...)
+    optRes <- JDEoptim(lower, upper, f0, objective, tol = tolerance, ...)
     coef <- optRes$par
     names(coef) <- pnames
     crit <- optRes$value

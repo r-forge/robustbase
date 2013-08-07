@@ -61,7 +61,7 @@ export(Sn, Qn, Qn.old,
 
        glmrob,
        nlrob
-       , jde
+       , JDEoptim
        , glmrobMqle.control, glmrobBY.control, glmrobMT.control
        , BYlogreg ## R/BYlogreg.R FIXME: add to glmrob() and "deprecate"
        ## , glmrobMT ## R/MTestimador2.R

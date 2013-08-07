@@ -1,5 +1,4 @@
 require("robustbase")
-jde <- robustbase:::jde # as long as we don't export it
 
 c.time <- function(...) cat('Time elapsed: ', ..., '\n')
 S.time <- function(expr) c.time(system.time(expr))
@@ -7,18 +6,18 @@ source(system.file("xtraR/opt-test-funs.R", package = "robustbase"))
 ## sf1(), swf() + RND, HEND, and alkylation list of $obj and $con  testing functions
 
 set.seed(2345)
-S.time(sf1. <- jde(c(-100, -100), c(100, 100),  1, sf1, tol = 1e-7))
-S.time(swf. <- jde(rep(-500, 10), rep(500, 10), 1, swf, tol = 1e-7))
-S.time(RND. <- jde(c(1e-5, 1e-5), c(16, 16), 1, RND$obj, RND$con, tol = 1e-7))
-S.time(HEND. <- jde(c(	100,  1000,  1000 , 10,	   10),
-		    c(10000, 10000, 10000, 1000, 1000), f0=1,
-		    fn = HEND$obj, constr = HEND$con,
-		    tol = 0.1, trace = TRUE))
+S.time(sf1. <- JDEoptim(c(-100, -100), c(100, 100),  1, sf1, tol = 1e-7))
+S.time(swf. <- JDEoptim(rep(-500, 10), rep(500, 10), 1, swf, tol = 1e-7))
+S.time(RND. <- JDEoptim(c(1e-5, 1e-5), c(16, 16), 1, RND$obj, RND$con, tol = 1e-7))
+S.time(HEND. <- JDEoptim(c(  100,  1000,  1000 ,  10,   10),
+                         c(10000, 10000, 10000, 1000, 1000), f0=1,
+                         fn = HEND$obj, constr = HEND$con,
+                         tol = 0.1, trace = TRUE))
 S.time(alkylation. <-
-       jde(c(1500,   1, 3000, 85, 90,  3, 145),
-	   c(2000, 120, 3500, 93, 95, 12, 162), f0=1,
-	   fn = alkylation$obj, constr = alkylation$con,
-	   tol = 0.1, trace = TRUE))
+       JDEoptim(c(1500,   1, 3000, 85, 90,  3, 145),
+                c(2000, 120, 3500, 93, 95, 12, 162), f0=1,
+                fn = alkylation$obj, constr = alkylation$con,
+                tol = 0.1, trace = TRUE))
 bare.p.v <- function(r) unlist(unname(r[c("par", "value")]))
 stopifnot(
     all.equal(bare.p.v(sf1.), c(0, 0, 0), tolerance = 1e-4 ),

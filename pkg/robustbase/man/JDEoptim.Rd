@@ -1,8 +1,8 @@
-\name{jde}
-\alias{jde}
+\name{JDEoptim}
+\alias{JDEoptim}
 \title{Constrained Nonlinear Minimization via Differential Evolution}
 \usage{
-  jde(lower, upper, f0, fn, constr = NULL, meq = 0,
+  JDEoptim(lower, upper, f0, fn, constr = NULL, meq = 0,
     slack = 1e-05, NP = 10 * d, Fl = 0.1, Fu = 1,
     tau1 = 0.1, tau2 = 0.1, tau3 = 0.1,
     jitter_factor = 0.001, tol = 1e-15,
@@ -97,7 +97,7 @@
 \seealso{
   Function \code{\link[DEoptim]{DEoptim}} in the
   \pkg{DEoptim} package has many more options than
-  \code{jde()}, but does not allow constraints in the same
+  \code{JDEoptim()}, but does not allow constraints in the same
   flexible manner.
 }
 \examples{
@@ -106,15 +106,15 @@ source(system.file("xtraR/opt-test-funs.R", package = "robustbase"))
 ##  RND, HEND, and alkylation, each list of $obj and $con  testing functions
 
 sf1 # the function to minimize
-jde(c(-100, -100), c(100, 100),  1, sf1, tol = 1e-7, trace = TRUE)
+JDEoptim(c(-100, -100), c(100, 100),  1, sf1, tol = 1e-7, trace = TRUE)
 
 swf # potentially high-dim. function to minimize
-jde(rep(-500, 10), rep(500, 10), 1, swf, tol = 1e-7, trace = TRUE)
+JDEoptim(rep(-500, 10), rep(500, 10), 1, swf, tol = 1e-7, trace = TRUE)
 
-jde(c(1e-5, 1e-5), c(16, 16), 1,
+JDEoptim(c(1e-5, 1e-5), c(16, 16), 1,
     RND$obj, RND$con, tol = 1e-7, trace = TRUE)
-jde(c(100, 1000, 1000, 10, 10), c(10000, 10000, 10000, 1000, 1000), 1,
+JDEoptim(c(100, 1000, 1000, 10, 10), c(10000, 10000, 10000, 1000, 1000), 1,
     HEND$obj, HEND$con, tol = 1e-7, trace = TRUE)
-jde(c(1500, 1, 3000, 85, 90, 3, 145), c(2000, 120, 3500, 93, 95, 12, 162), 1,
+JDEoptim(c(1500, 1, 3000, 85, 90, 3, 145), c(2000, 120, 3500, 93, 95, 12, 162), 1,
     alkylation$obj, alkylation$con, tol = 1e-7, trace = TRUE)
 }
