@@ -33,7 +33,7 @@ Cfit <- nls(y ~ Expo(x, a, b), data = df, start = c(a = 1, b = 0.2),
 Rfit.MM.S.bisquare <-
     nlrob.MM( y ~ Expo(x, a, b), data = df, pnames = c("a", "b"),
               lower = c(-10, -2), upper = c(10, 2),
-              NP = NP, init = true_params )
+              NP = NP, add_to_init_pop = true_params )
 Rfit.MM.S.lqq <- update(Rfit.MM.S.bisquare, psi = "lqq")
 Rfit.MM.S.optimal <- update(Rfit.MM.S.bisquare, psi = "optimal")
 Rfit.MM.S.hampel <- update(Rfit.MM.S.bisquare, psi = "hampel")
@@ -45,15 +45,17 @@ Rfit.MM.lts.hampel <- update(Rfit.MM.S.bisquare, estim = "lts", psi = "hampel")
 Rfit.tau.bisquare <-
     nlrob.tau( y ~ Expo(x, a, b), data = df, pnames = c("a", "b"),
                lower = c(-10, -2), upper = c(10, 2),
-               NP = NP, init = true_params )
+               NP = NP, add_to_init_pop = true_params )
 Rfit.tau.optimal <- update(Rfit.tau.bisquare, psi = "optimal")
 
-Rfit.CM <- nlrob.CM( y ~ Expo(x, a, b), data = df, pnames = c("a", "b", "sigma"),
+Rfit.CM <- nlrob.CM( y ~ Expo(x, a, b), data = df,
+                     pnames = c("a", "b", "sigma"),
                      lower = c(-10, -2, 0), upper = c(10, 2, 10),
-                     NP = NP, init = true_params_sigma )
-Rfit.mtl <- nlrob.mtl( y ~ Expo(x, a, b), data = df, pnames = c("a", "b", "sigma"),
+                     NP = NP, add_to_init_pop = true_params_sigma )
+Rfit.mtl <- nlrob.mtl( y ~ Expo(x, a, b), data = df,
+                       pnames = c("a", "b", "sigma"),
                        lower = c(-10, -2, 0), upper = c(10, 2, 3),
-                       NP = NP, init = true_params_sigma )
+                       NP = NP, add_to_init_pop = true_params_sigma )
 
 ## 40% outliers present
 df$y[15:27] <- df$y[15:27] + 100
@@ -129,12 +131,12 @@ stopifnot(
     excl( all.equal( coef(Rfit.leverage.MM.S.lqq), coef(Cfit), tol = 0.1 ) ),
     excl( all.equal( coef(Rfit.leverage.MM.S.optimal), coef(Cfit), tol = 0.1 ) ),
     excl( all.equal( coef(Rfit.leverage.MM.S.hampel), coef(Cfit), tol = 0.1 ) ),
-    all.equal( coef(Rfit.leverage.MM.lts.bisquare), coef(Cfit), tolerance = 0.1 ),
+    all.equal( coef(Rfit.leverage.MM.lts.bisquare), coef(Cfit), tol = 0.1 ),
     all.equal( coef(Rfit.leverage.MM.lts.lqq), coef(Cfit), tolerance = 0.1 ),
-    all.equal( coef(Rfit.leverage.MM.lts.optimal), coef(Cfit), tolerance = 0.1 ),
+    all.equal( coef(Rfit.leverage.MM.lts.optimal), coef(Cfit), tol = 0.1 ),
     all.equal( coef(Rfit.leverage.MM.lts.hampel), coef(Cfit), tolerance = 0.1 ),
     all.equal( coef(Rfit.leverage.tau.bisquare), coef(Cfit), tolerance = 0.2 ),
     all.equal( coef(Rfit.leverage.tau.optimal), coef(Cfit), tolerance = 0.2 ),
     all.equal( coef(Rfit.leverage.CM)[-3], coef(Cfit), tolerance = 0.2 ),
-    all.equal( coef(Rfit.leverage.mtl)[-3], coef(Cfit), tolerance = 0.2 ) )
+    all.equal( coef(Rfit.leverage.mtl)[-3], coef(Cfit), tolerance = 0.5 ) )
 
