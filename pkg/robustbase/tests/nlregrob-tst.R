@@ -112,7 +112,7 @@ stopifnot(
     all.equal( coef(Rfit.tau.bisquare), coef(Cfit), tolerance = 0.1 ),
     all.equal( coef(Rfit.tau.optimal), coef(Cfit), tolerance = 0.1 ),
     all.equal( coef(Rfit.CM)[-3], coef(Cfit), tolerance = 0.1 ),
-    all.equal( coef(Rfit.mtl)[-3], coef(Cfit), tolerance = 0.1 ),
+    all.equal( coef(Rfit.mtl)[-3], coef(Cfit), tolerance = 0.2 ),
     ## 40% outliers present
     all.equal( coef(Rfit.out.MM.S.bisquare), coef(Cfit), tolerance = 0.1 ),
     all.equal( coef(Rfit.out.MM.S.lqq), coef(Cfit), tolerance = 0.1 ),
@@ -138,5 +138,5 @@ stopifnot(
     all.equal( coef(Rfit.leverage.tau.bisquare), coef(Cfit), tolerance = 0.2 ),
     all.equal( coef(Rfit.leverage.tau.optimal), coef(Cfit), tolerance = 0.2 ),
     all.equal( coef(Rfit.leverage.CM)[-3], coef(Cfit), tolerance = 0.2 ),
-    all.equal( coef(Rfit.leverage.mtl)[-3], coef(Cfit), tolerance = 0.5 ) )
+    all.equal( coef(Rfit.leverage.mtl)[-3], coef(Cfit), tolerance = 0.4 ) )
 

@@ -11,7 +11,7 @@
 ##' @param fn
 ##' @param constr
 ##' @param meq
-##' @param slack
+##' @param eps
 ##' @param NP
 ##' @param Fl
 ##' @param Fu
@@ -64,7 +64,7 @@
 ##'          alkylation$obj, alkylation$con, tol = 1e-7, trace = TRUE)
 ##' @author Eduardo L. T. Conceicao
 JDEoptim <-
-    function(lower, upper, fn, constr = NULL, meq = 0, slack = 1e-5,
+    function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
              NP = 10*d, Fl = 0.1, Fu = 1, tau1 = 0.1, tau2 = 0.1, tau3 = 0.1,
              jitter_factor = 0.001,
              tol = 1e-15, maxiter = 200*d, fnscale = 1,
@@ -85,13 +85,13 @@ JDEoptim <-
     }
 
     performReproduction <- function() {
-        ignore <- runif(d) > CR[i]
+        ignore <- runif(d) > CRtrial
         if (all(ignore))                  # ensure that trial gets at least
             ignore[sample(d, 1)] <- FALSE # one mutant parameter
         # Source for trial is the base vector plus weighted differential
         trial <- if (runif(1) <= pF[i])
-            X.base + F[, i]*(X.r1 - X.r2)
-        else X.base + 0.5*(F[, i] + 1)*(X.r1 + X.r2 - 2*X.base)
+            X.base + Ftrial*(X.r1 - X.r2)
+        else X.base + 0.5*(Ftrial + 1)*(X.r1 + X.r2 - 2*X.base)
         # or trial parameter comes from target vector X.i itself.
         trial[ignore] <- X.i[ignore]
         trial
@@ -103,6 +103,8 @@ JDEoptim <-
             if (ftrial <= fpop[i]) {
                 pop[, i] <- trial
                 fpop[i] <- ftrial
+                F[, i] <- Ftrial
+                CR[i] <- CRtrial
             }
         })
     } else {
@@ -117,12 +119,16 @@ JDEoptim <-
                 if (TAVtrial <= TAVpop[i]) {
                     pop[, i] <- trial
                     hpop[, i] <- htrial
+                    F[, i] <- Ftrial
+                    CR[i] <- CRtrial
                     TAVpop[i] <- TAVtrial
                 }
             } else if (TAVpop[i] > mu) {
                 pop[, i] <- trial
                 fpop[i] <- fn1(trial)
                 hpop[, i] <- htrial
+                F[, i] <- Ftrial
+                CR[i] <- CRtrial
                 TAVpop[i] <- TAVtrial
                 FF <- sum(TAVpop <= mu)/NP
                 mu <- mu*(1 - FF/NP)
@@ -132,6 +138,8 @@ JDEoptim <-
                     pop[, i] <- trial
                     fpop[i] <- ftrial
                     hpop[, i] <- htrial
+                    F[, i] <- Ftrial
+                    CR[i] <- CRtrial
                     TAVpop[i] <- TAVtrial
                     FF <- sum(TAVpop <= mu)/NP
                     mu <- mu*(1 - FF/NP)
@@ -163,12 +171,11 @@ JDEoptim <-
     if (!is.null(constr)) {
         stopifnot(is.function(constr))
         stopifnot(length(meq) == 1, meq == as.integer(meq), meq >= 0)
-        if (length(slack) == 1)
-            slack <- rep(slack, meq)
-        if (length(slack) != meq)
+        if (length(eps) == 1)
+            eps <- rep(eps, meq)
+        if (length(eps) != meq)
             stop("slack must be either of length meq, or length 1")
     }
-    stopifnot(length(NP) == 1, NP == as.integer(NP), NP >= 4)
     stopifnot(length(Fl) == 1, is.numeric(Fl),
               length(Fu) == 1, is.numeric(Fu),
               Fl <= Fu)
@@ -198,7 +205,7 @@ JDEoptim <-
             equalIndex <- 1:meq
             constr1 <- function(par) {
                 h <- constr(par, ...)
-                h[equalIndex] <- abs(h[equalIndex]) - slack
+                h[equalIndex] <- abs(h[equalIndex]) - eps
                 h
             }
         } else constr1 <- function(par) constr(par, ...)
@@ -215,6 +222,7 @@ JDEoptim <-
         pop <- unname(cbind(pop, add_to_init_pop))
         NP <- ncol(pop)
     }
+    stopifnot(length(NP) == 1, NP == as.integer(NP), NP >= 4)
     F <- if (defaultopt.jitter)
         (1 + jitter_factor*runif(d, -0.5, 0.5)) %o% runif(NP, Fl, Fu)
     else matrix(runif(NP, Fl, Fu), nrow = 1)
@@ -254,14 +262,15 @@ JDEoptim <-
             # Differential evolution research - trends and open questions.
             # In: U. K. Chakraborty (Ed.), Advances in Differential Evolution,
             # SCI 143, Springer-Verlag, pp 11-12
-            if (runif(1) <= tau1) {
-                F[, i] <- if (defaultopt.jitter)
+            Ftrial <- if (runif(1) <= tau1) {
+                if (defaultopt.jitter)
                     runif(1, Fl, Fu) * (1 + jitter_factor*runif(d, -0.5, 0.5))
                 else runif(1, Fl, Fu)
-            }
+            } else F[, i]
             # CRi update
-            if (runif(1) <= tau2)
-                CR[i] <- runif(1)
+            CRtrial <- if (runif(1) <= tau2)
+                runif(1)
+            else CR[i]
             # pFi update
             if (runif(1) <= tau3)
                 pF[i] <- runif(1)
