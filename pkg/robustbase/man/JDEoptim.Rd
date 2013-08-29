@@ -25,19 +25,19 @@
 
   \item{meq}{An optional positive integer specifying that the first \code{meq} constraints are treated as \emph{equality} constraints, all the remaining as \emph{inequality} constraints. Defaults to \code{0} (inequality constraints only).}
 
-  \item{eps}{An optional real vector of small positive tolerance values with length \code{meq} which transforms equalities into \eqn{|h_i(x)| - \epsilon <= 0} inequalities. A scalar value is expanded to apply to all equalities. Default is \code{1e-5}.}
+  \item{eps}{An optional real vector of small positive tolerance values with length \code{meq} used in the transformation of equalities into inequalities of the form \eqn{|h_i(x)| - \epsilon <= 0}. A scalar value is expanded to apply to all equality constraints. Default is \code{1e-5}.}
 
   \item{NP}{An optional positive integer giving the number of candidate solutions in the randomly distributed initial population. Defaults to \code{10*length(lower)}.}
 
-  \item{Fl}{An optional scalar which represents the minimum value that the \emph{scaling factor} \code{F} could take. The default is almost always satisfactory. Default is \code{0.1}.}
+  \item{Fl}{An optional scalar which represents the minimum value that the \emph{scaling factor} \code{F} could take. Default is \code{0.1}, which is almost always satisfactory.}
 
-  \item{Fu}{An optional scalar which represents the maximum value that the \emph{scaling factor} \code{F} could take. The default is almost always satisfactory. Default is \code{1}.}
+  \item{Fu}{An optional scalar which represents the maximum value that the \emph{scaling factor} \code{F} could take. Default is \code{1}, which is almost always satisfactory.}
 
   \item{tau1}{An optional scalar which represents a probability in the mutation strategy DE/rand/1/either-or. Defaults to \code{0.1}.}
 
-  \item{tau2}{An optional scalar which represents the probability that the \emph{scaling factor} \code{F} is updated. The default is almost always satisfactory. Defaults to \code{0.1}.}
+  \item{tau2}{An optional scalar which represents the probability that the \emph{scaling factor} \code{F} is updated. Defaults to \code{0.1}, which is almost always satisfactory.}
 
-  \item{tau3}{An optional constant value which represents the probability that the \emph{crossover probability} \code{CR} is updated. The default is almost always satisfactory. Defaults to \code{0.1}.}
+  \item{tau3}{An optional constant value which represents the probability that the \emph{crossover probability} \code{CR} is updated. Defaults to \code{0.1}, which is almost always satisfactory.}
 
   \item{jitter_factor}{An optional tuning constant for \emph{jitter}. If \code{NULL} only \emph{dither} is used. Defaults to \code{0.001}.}
 
@@ -45,9 +45,9 @@
 
   \item{maxiter}{An optional positive integer specifying the maximum number of iterations that may be performed before the algorithm is halted. Defaults to \code{200*length(lower)}.}
 
-  \item{fnscale}{An optional positive scalar specifying the typical magnitude of \code{fn}. It is used only in the stopping criterion given below in \sQuote{Details}. Defaults to \code{1}.}
+  \item{fnscale}{An optional positive scalar specifying the typical magnitude of \code{fn}. It is used only in the \emph{stopping criterion}. Defaults to \code{1}. See \sQuote{Details}.}
 
-  \item{FUN}{An optional character string controlling which function should be applied to the population of candidate solutions \code{fn} values to be compared with the so-far best one \code{min(fn(.))}. If \dQuote{\code{median}} the \code{median} function is used; else, if \dQuote{\code{max}} the \code{max} function is used. It defaults to \dQuote{\code{median}}.}
+  \item{FUN}{An optional character string controlling which function should be applied to the \code{fn} values of the candidate solutions in a generation to be compared with the so-far best one when evaluating the \emph{stopping criterion}. If \dQuote{\code{median}} the \code{median} function is used; else, if \dQuote{\code{max}} the \code{max} function is used. It defaults to \dQuote{\code{median}}. See \sQuote{Details}.}
 
   \item{add_to_init_pop}{An optional real vector of length \code{length(lower)} or matrix with \code{length(lower)} rows specifying initial values of the parameters to be optimized which are appended to the randomly generated initial population. It defaults to \code{NULL}.}
 
@@ -63,12 +63,14 @@
 \details{
   The setting of the \emph{control parameters} of standard Differential Evolution (DE) is crucial for the algorithm's performance. Unfortunately, when the generally recommended values for these parameters (see, \emph{e.g.}, Storn and Price, 1997) are unsuitable for use, their determination is often difficult and time consuming. The jDE algorithm proposed in Brest \emph{et al.} (2006) employs a simple self-adaptive scheme to perform the automatic setting of control parameters scale factor \code{F} and crossover rate \code{CR}.
 
-  This implementation differs from the original description, most notably in the use of the \emph{DE/rand/1/either-or} mutation strategy (Price \emph{et al.}, 2005), combination of \emph{jitter with dither} (Storn 2008), and its use of only a \emph{single population} (Babu and Angira 2006) instead of two as in classical DE.
+  This implementation differs from the original description, most notably in the use of the \emph{DE/rand/1/either-or} mutation strategy (Price \emph{et al.}, 2005), combination of \emph{jitter with dither} (Storn 2008), and its use of only a \emph{single population} (Babu and Angira 2006) instead of separate current and child populations as in classical DE.
 
   Constraint handling is done using the approach described in Zhang and Rangaiah (2012).
 
-  MORE HERE
-}
+  The algorithm is stopped if
+  \deqn{\frac{\mathrm{FUN}\{[\mathrm{fn}(x_1),\ldots,\mathrm{fn}(x_\mathrm{npop})]\} - \mathrm{fn}(x_\mathrm{best})}{\mathrm{fnscale}} <= \mathrm{tol}}{( FUN{ [fn(x[1]),\ldots,fn(x[npop])] } - fn(x[best]) )/fnscale <= tol,}
+where the \dQuote{best} individual \eqn{x_\mathrm{best}}{x[best]} is the \emph{feasible} solution with the lowest objective function value in the population and the total number of elements in the population, \code{npop}, is \code{NP+NCOL(add_to_init_pop)}.
+ This is a variant of the \emph{Diff} criterion studied by Zielinski and Laur (2008), which was found to yield the best results.}
 \value{
   A list with the following components:
   \item{par}{The best set of parameters found.}
@@ -79,7 +81,7 @@
 
   \item{convergence}{An integer code. \code{0} indicates successful completion. \code{1} indicates that the iteration limit \code{maxiter} has been reached.}
   and if \code{details = TRUE}:
-  \item{poppar}{Matrix of dimension \code{(length(lower), npop)}, with columns corresponding to the parameter vectors remaining in the population. The total number of elements in the population, \code{npop}, is \code{NP + NCOL(add_to_init_pop)}.}
+  \item{poppar}{Matrix of dimension \code{(length(lower), npop)}, with columns corresponding to the parameter vectors remaining in the population.}
 
   \item{popcost}{The values of \code{fn} associated with \code{poppar}, vector of length \code{npop}.}
 }
@@ -119,6 +121,13 @@
   An efficient constraint handling method with integrated differential
   evolution for numerical and engineering optimization.
   \emph{Computers and Chemical Engineering}, \bold{37}, 74--88.
+
+  Zielinski, K. and Laur, R. (2008)
+  Stopping criteria for differential evolution in constrained
+  single-objective optimization;
+  in Chakraborty, U. K., Ed.,
+  \emph{Advances in differential evolution}.
+  SCI 143, Springer-Verlag, Berlin, pp. 111-138.
 }
 \seealso{
   Function \code{\link[DEoptim]{DEoptim()}} in the
