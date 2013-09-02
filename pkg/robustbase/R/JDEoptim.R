@@ -176,6 +176,7 @@ JDEoptim <-
         if (length(eps) != meq)
             stop("slack must be either of length meq, or length 1")
     }
+    stopifnot(length(NP) == 1, NP == as.integer(NP))
     stopifnot(length(Fl) == 1, is.numeric(Fl),
               length(Fu) == 1, is.numeric(Fu),
               Fl <= Fu)
@@ -222,7 +223,7 @@ JDEoptim <-
         pop <- unname(cbind(pop, add_to_init_pop))
         NP <- ncol(pop)
     }
-    stopifnot(length(NP) == 1, NP == as.integer(NP), NP >= 4)
+    stopifnot(NP >= 4)
     F <- if (defaultopt.jitter)
         (1 + jitter_factor*runif(d, -0.5, 0.5)) %o% runif(NP, Fl, Fu)
     else matrix(runif(NP, Fl, Fu), nrow = 1)
