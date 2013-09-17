@@ -144,8 +144,17 @@ set.seed(1234)
 #   Griewank function
 #
 #   -600 <= xi <= 600, i = {1, 2, ..., n}
-#   The global minimum is located at x* = (0, 0, ..., 0)
-#   with f(x*) = 0.
+#   The function has a global minimum located at
+#   x* = (0, 0, ..., 0) with f(x*) = 0. Number of local minima
+#   for arbitrary n is unknown, but in the two dimensional case
+#   there are some 500 local minima.
+#
+#   Source:
+#     Ali, M. Montaz, Khompatraporn, Charoenchai, and
+#     Zabinsky, Zelda B. (2005).
+#     A numerical evaluation of several stochastic algorithms
+#     on selected continuous global optimization test problems.
+#     Journal of Global Optimization 31, 635-672.
 griewank <- function(x) {
     1 + crossprod(x)/4000 - prod( cos(x/sqrt(seq_along(x))) )
 }
