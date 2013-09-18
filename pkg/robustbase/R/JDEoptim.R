@@ -174,7 +174,7 @@ JDEoptim <-
         if (length(eps) == 1)
             eps <- rep(eps, meq)
         if (length(eps) != meq)
-            stop("slack must be either of length meq, or length 1")
+            stop("eps must be either of length meq, or length 1")
     }
     stopifnot(length(NP) == 1, NP == as.integer(NP))
     stopifnot(length(Fl) == 1, is.numeric(Fl),
