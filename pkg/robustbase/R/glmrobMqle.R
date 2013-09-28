@@ -318,7 +318,7 @@ wts_HiiDist <- function(X) {
 wts_RobDist <- function(X, intercept, covFun)
 {
     D2 <- if(intercept) { ## X[,] has intercept column which should not be used for rob.wts
-	X <- as.matrix(X[, -1])
+	X <- X[, -1, drop=FALSE]
 	Xrc <- covFun(X)
 	mahalanobis(X, center = Xrc$center, cov = Xrc$cov)
     }

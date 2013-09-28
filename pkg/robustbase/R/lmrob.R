@@ -246,7 +246,7 @@ chk.s <- function(...) {
 
 
 ##' Robust Mahalanobis Distances
-##' internal function, used in lmrob() and maybe plot.lmrob()
+##' internal function, used in lmrob() and plot.lmrob()
 robMD <- function(x, intercept, ...) {
     if(intercept == 1) x <- x[, -1, drop=FALSE]
     if(ncol(x) >= 1) {
