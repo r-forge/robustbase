@@ -88,6 +88,9 @@
        ---------------- the (a,b,c) tuning parameters
 
 
+** *New*  Mwgt(*,  deriv=1) would correspond to  Dwgt in psiFunc() which
+   Manuel needs as well.
+
 * New  lmrob() "M-S" etc features:
 
 ** Function names with "." (which are exported) are frowned upon

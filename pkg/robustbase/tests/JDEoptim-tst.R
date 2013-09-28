@@ -4,6 +4,7 @@ c.time <- function(...) cat('Time elapsed: ', ..., '\n')
 S.time <- function(expr) c.time(system.time(expr))
 source(system.file("xtraR/opt-test-funs.R", package = "robustbase"))
 ## sf1(), swf() + RND, HEND, and alkylation list of $obj and $con  testing functions
+(doExtras <- robustbase:::doExtras())
 
 set.seed(2345)
 S.time(sf1. <- JDEoptim(c(-100, -100), c(100, 100), sf1, tol = 1e-7,
@@ -18,6 +19,7 @@ S.time(HEND. <-
                 fn = HEND$obj, constr = HEND$con,
                 tol = 0.1, trace = TRUE,
                 add_to_init_pop = c(579.19, 1360.13, 5109.92, 182.01, 295.60)))
+if(doExtras)
 S.time(alkylation. <-
        JDEoptim(c(1500,   1, 3000, 85, 90,  3, 145),
                 c(2000, 120, 3500, 93, 95, 12, 162),
@@ -33,10 +35,11 @@ stopifnot(
     all.equal( bare.p.v(HEND.),
                c(579.19, 1360.13, 5109.92, 182.01, 295.60, 7049.25),
                tolerance = 2e-3 ),
+    if(doExtras)
     all.equal( bare.p.v(alkylation.),
-               c(1698.256922, 54.274463, 3031.357313, 90.190233,
-                 95.0, 10.504119, 153.535355, -1766.36),
-               tolerance = 1e-4 )
+              c(1698.256922, 54.274463, 3031.357313, 90.190233,
+                95.0, 10.504119, 153.535355, -1766.36),
+              tolerance = 1e-4 ) else TRUE
     )
 
 c.time(proc.time())

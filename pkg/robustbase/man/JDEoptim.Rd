@@ -2,10 +2,12 @@
 \alias{JDEoptim}
 \title{Nonlinear Constrained Optimization via Differential Evolution}
 \description{
-  An implementation of the jDE variant of the Differential Evolution stochastic algorithm for global optimization of nonlinear programming problems.
+  An implementation of the jDE variant of the Differential Evolution
+  stochastic algorithm for global optimization of nonlinear programming
+  problems.
 }
 \usage{
-  JDEoptim(lower, upper, fn,
+JDEoptim(lower, upper, fn,
     constr = NULL, meq = 0, eps = 1e-05,
     NP = 10*d, Fl = 0.1, Fu = 1,
     tau1 = 0.1, tau2 = 0.1, tau3 = 0.1,
@@ -16,12 +18,19 @@
     details = FALSE, ...)
 }
 \arguments{
-  \item{lower}{A real vector of \emph{lower} bounds for the parameters to be optimized over.}
-  \item{upper}{A real vector of \emph{upper} bounds for the parameters to be optimized over.}
-
-  \item{fn}{A nonlinear objective \code{\link{function}} to be \emph{minimized} that takes as first argument the vector of parameters over which minimization is to take place. It should return a scalar result that is the value of the function at that point.}
-
-  \item{constr}{An optional \code{\link{function}} for specifying the nonlinear constraints under which we want to minimize \code{fn}. They should be given in the form \eqn{h_i(x) = 0, g_i(x) <= 0}. This function takes the vector of parameters as its first argument and returns a real vector with the length of the total number of constraints. It defaults to \code{NULL}, meaning that \emph{bound-constrained} minimization is used.}
+  \item{lower, upper}{numeric vectors of \emph{lower} or \emph{upper}
+    bounds, respectively, for the parameters to be optimized over.}
+  \item{fn}{(nonlinear) objective \code{\link{function}} to be
+    \emph{minimized}.  It takes as first argument the vector of
+    parameters over which minimization is to take place.  It must return
+    the value of the function at that point.}
+  \item{constr}{An optional \code{\link{function}} for specifying the
+    nonlinear constraints under which we want to minimize \code{fn}.
+    They should be given in the form \eqn{h_i(x) = 0, g_i(x) \le 0}.
+    This function takes the vector of parameters as its first argument
+    and returns a real vector with the length of the total number of
+    constraints.  It defaults to \code{NULL}, meaning that
+s    \emph{bound-constrained} minimization is used.}
 
   \item{meq}{An optional positive integer specifying that the first \code{meq} constraints are treated as \emph{equality} constraints, all the remaining as \emph{inequality} constraints. Defaults to \code{0} (inequality constraints only).}
 
@@ -68,7 +77,8 @@
   Constraint handling is done using the approach described in Zhang and Rangaiah (2012).
 
   The algorithm is stopped if
-  \deqn{\frac{\mathrm{FUN}\{[\mathrm{fn}(x_1),\ldots,\mathrm{fn}(x_\mathrm{npop})]\} - \mathrm{fn}(x_\mathrm{best})}{\mathrm{fnscale}} <= \mathrm{tol}}{( FUN{ [fn(x[1]),\ldots,fn(x[npop])] } - fn(x[best]) )/fnscale <= tol,}
+  \deqn{\frac{\mathrm{FUN}\{[\mathrm{fn}(x_1),\ldots,\mathrm{fn}(x_\mathrm{npop})]\} - \mathrm{fn}(x_\mathrm{best})}{\mathrm{fnscale}} \le \mathrm{tol}}{%
+    ( FUN{ [fn(x[1]),\ldots,fn(x[npop])] } - fn(x[best]) )/fnscale <= tol,}
 where the \dQuote{best} individual \eqn{x_\mathrm{best}}{x[best]} is the \emph{feasible} solution with the lowest objective function value in the population and the total number of elements in the population, \code{npop}, is \code{NP+NCOL(add_to_init_pop)}.
  This is a variant of the \emph{Diff} criterion studied by Zielinski and Laur (2008), which was found to yield the best results.}
 \value{
@@ -95,12 +105,12 @@ where the \dQuote{best} individual \eqn{x_\mathrm{best}}{x[best]} is the \emph{f
   Babu, B. V. and Angira, R. (2006)
   Modified differential evolution (MDE) for optimization of
   non-linear chemical processes.
-  \emph{Computers and Chemical Engineering}, \bold{30}, 989--1002.
+  \emph{Computers and Chemical Engineering} \bold{30}, 989--1002.
 
   Brest, J., Greiner, S., Boskovic, B., Mernik, M. and Zumer, V. (2006)
   Self-adapting control parameters in differential evolution: a
   comparative study on numerical benchmark problems.
-  \emph{IEEE Transactions on Evolutionary Computation}, \bold{10}, 646--657.
+  \emph{IEEE Transactions on Evolutionary Computation} \bold{10}, 646--657.
 
   Price, K. V., Storn, R. M. and Lampinen, J. A. (2005)
   \emph{Differential Evolution: A practical approach to global optimization}.
@@ -115,22 +125,22 @@ where the \dQuote{best} individual \eqn{x_\mathrm{best}}{x[best]} is the \emph{f
   Storn, R. and Price, K. (1997)
   Differential evolution - a simple and efficient heuristic for global
   optimization over continuous spaces.
-  \emph{Journal of Global Optimization}, \bold{11}, 341--359.
+  \emph{Journal of Global Optimization} \bold{11}, 341--359.
 
   Zhang, H. and Rangaiah, G. P. (2012)
   An efficient constraint handling method with integrated differential
   evolution for numerical and engineering optimization.
-  \emph{Computers and Chemical Engineering}, \bold{37}, 74--88.
+  \emph{Computers and Chemical Engineering} \bold{37}, 74--88.
 
   Zielinski, K. and Laur, R. (2008)
   Stopping criteria for differential evolution in constrained
   single-objective optimization;
   in Chakraborty, U. K., Ed.,
   \emph{Advances in differential evolution}.
-  SCI 143, Springer-Verlag, Berlin, pp. 111-138.
+  SCI 143, Springer-Verlag, Berlin, pp. 111--138.
 }
 \seealso{
-  Function \code{\link[DEoptim]{DEoptim()}} in the
+  Function \code{\link[DEoptim]{DEoptim}()} in the
   \pkg{DEoptim} package has many more options than
   \code{JDEoptim()}, but does not allow constraints in the same
   flexible manner.

@@ -172,7 +172,7 @@ assert.EQ(print(ccvv[1]), 0.0145309081924157, tol = 1e-7, giveRE=TRUE)
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
 ## "Platform" info
-SysI <- Sys.info()[c(1:2,4:5)]
-if(require("sfsmisc") && Sys.info()[["sysname"]] == "Linux")
+(SysI <- Sys.info()[c("sysname", "release", "nodename", "machine")])
+if(require("sfsmisc") && SysI[["sysname"]] == "Linux")
     ## not on the Mac (yet)
     c(SysI, MIPS=Sys.MIPS(), Sys.sizes()) else SysI

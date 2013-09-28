@@ -1,6 +1,6 @@
 Package: robustbase
 Version: 0.90-0
-Date: 2013-08-..
+Date: 2013-09-28
 Title: Basic Robust Statistics
 Author: Original code by many authors, notably
 	Peter Rousseeuw and Christophe Croux, see file 'Copyrights';
@@ -18,7 +18,7 @@ Description: "Essential" Robust Statistics.  The goal is to provide
  statistics where we strive to cover the book "Robust Statistics,
  Theory and Methods" by Maronna, Martin and Yohai; Wiley 2006.
 Depends: R (>= 2.15.1), stats, graphics, methods
-Imports: stats, graphics, utils
+Imports: utils
 Suggests: PolynomF,
 	  grid, MASS, lattice, boot, cluster, Matrix, robust, fit.models,
 	  MPV, xtable, ggplot2, RColorBrewer, reshape2, sfsmisc, catdata
