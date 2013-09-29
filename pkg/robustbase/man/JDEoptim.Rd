@@ -24,49 +24,49 @@ JDEoptim(lower, upper, fn,
     \emph{minimized}.  It takes as first argument the vector of
     parameters over which minimization is to take place.  It must return
     the value of the function at that point.}
-  \item{constr}{An optional \code{\link{function}} for specifying the
+  \item{constr}{an optional \code{\link{function}} for specifying the
     nonlinear constraints under which we want to minimize \code{fn}.
     They should be given in the form \eqn{h_i(x) = 0, g_i(x) \le 0}.
     This function takes the vector of parameters as its first argument
     and returns a real vector with the length of the total number of
     constraints.  It defaults to \code{NULL}, meaning that
-s    \emph{bound-constrained} minimization is used.}
+    \emph{bound-constrained} minimization is used.}
 
-  \item{meq}{An optional positive integer specifying that the first \code{meq} constraints are treated as \emph{equality} constraints, all the remaining as \emph{inequality} constraints. Defaults to \code{0} (inequality constraints only).}
+  \item{meq}{an optional positive integer specifying that the first \code{meq} constraints are treated as \emph{equality} constraints, all the remaining as \emph{inequality} constraints. Defaults to \code{0} (inequality constraints only).}
 
-  \item{eps}{An optional real vector of small positive tolerance values with length \code{meq} used in the transformation of equalities into inequalities of the form \eqn{|h_i(x)| - \epsilon <= 0}. A scalar value is expanded to apply to all equality constraints. Default is \code{1e-5}.}
+  \item{eps}{an optional real vector of small positive tolerance values with length \code{meq} used in the transformation of equalities into inequalities of the form \eqn{|h_i(x)| - \epsilon \le 0}. A scalar value is expanded to apply to all equality constraints. Default is \code{1e-5}.}
 
-  \item{NP}{An optional positive integer giving the number of candidate solutions in the randomly distributed initial population. Defaults to \code{10*length(lower)}.}
+  \item{NP}{an optional positive integer giving the number of candidate solutions in the randomly distributed initial population. Defaults to \code{10*length(lower)}.}
 
-  \item{Fl}{An optional scalar which represents the minimum value that the \emph{scaling factor} \code{F} could take. Default is \code{0.1}, which is almost always satisfactory.}
+  \item{Fl}{an optional scalar which represents the minimum value that the \emph{scaling factor} \code{F} could take. Default is \code{0.1}, which is almost always satisfactory.}
 
-  \item{Fu}{An optional scalar which represents the maximum value that the \emph{scaling factor} \code{F} could take. Default is \code{1}, which is almost always satisfactory.}
+  \item{Fu}{an optional scalar which represents the maximum value that the \emph{scaling factor} \code{F} could take. Default is \code{1}, which is almost always satisfactory.}
 
-  \item{tau1}{An optional scalar which represents a probability in the mutation strategy DE/rand/1/either-or. Defaults to \code{0.1}.}
+  \item{tau1}{an optional scalar which represents a probability in the mutation strategy DE/rand/1/either-or. Defaults to \code{0.1}.}
 
-  \item{tau2}{An optional scalar which represents the probability that the \emph{scaling factor} \code{F} is updated. Defaults to \code{0.1}, which is almost always satisfactory.}
+  \item{tau2}{an optional scalar which represents the probability that the \emph{scaling factor} \code{F} is updated. Defaults to \code{0.1}, which is almost always satisfactory.}
 
-  \item{tau3}{An optional constant value which represents the probability that the \emph{crossover probability} \code{CR} is updated. Defaults to \code{0.1}, which is almost always satisfactory.}
+  \item{tau3}{an optional constant value which represents the probability that the \emph{crossover probability} \code{CR} is updated. Defaults to \code{0.1}, which is almost always satisfactory.}
 
-  \item{jitter_factor}{An optional tuning constant for \emph{jitter}. If \code{NULL} only \emph{dither} is used. Defaults to \code{0.001}.}
+  \item{jitter_factor}{an optional tuning constant for \emph{jitter}. If \code{NULL} only \emph{dither} is used. Defaults to \code{0.001}.}
 
-  \item{tol}{An optional positive scalar giving the tolerance for the stopping criterion. Default is \code{1e-15}.}
+  \item{tol}{an optional positive scalar giving the tolerance for the stopping criterion. Default is \code{1e-15}.}
 
-  \item{maxiter}{An optional positive integer specifying the maximum number of iterations that may be performed before the algorithm is halted. Defaults to \code{200*length(lower)}.}
+  \item{maxiter}{an optional positive integer specifying the maximum number of iterations that may be performed before the algorithm is halted. Defaults to \code{200*length(lower)}.}
 
-  \item{fnscale}{An optional positive scalar specifying the typical magnitude of \code{fn}. It is used only in the \emph{stopping criterion}. Defaults to \code{1}. See \sQuote{Details}.}
+  \item{fnscale}{an optional positive scalar specifying the typical magnitude of \code{fn}. It is used only in the \emph{stopping criterion}. Defaults to \code{1}. See \sQuote{Details}.}
 
-  \item{FUN}{An optional character string controlling which function should be applied to the \code{fn} values of the candidate solutions in a generation to be compared with the so-far best one when evaluating the \emph{stopping criterion}. If \dQuote{\code{median}} the \code{median} function is used; else, if \dQuote{\code{max}} the \code{max} function is used. It defaults to \dQuote{\code{median}}. See \sQuote{Details}.}
+  \item{FUN}{an optional character string controlling which function should be applied to the \code{fn} values of the candidate solutions in a generation to be compared with the so-far best one when evaluating the \emph{stopping criterion}. If \dQuote{\code{median}} the \code{median} function is used; else, if \dQuote{\code{max}} the \code{max} function is used. It defaults to \dQuote{\code{median}}. See \sQuote{Details}.}
 
-  \item{add_to_init_pop}{An optional real vector of length \code{length(lower)} or matrix with \code{length(lower)} rows specifying initial values of the parameters to be optimized which are appended to the randomly generated initial population. It defaults to \code{NULL}.}
+  \item{add_to_init_pop}{an optional real vector of length \code{length(lower)} or matrix with \code{length(lower)} rows specifying initial values of the parameters to be optimized which are appended to the randomly generated initial population. It defaults to \code{NULL}.}
 
-  \item{trace}{An optional logical value indicating if a trace of the iteration progress should be printed. Default is \code{FALSE}.}
+  \item{trace}{an optional logical value indicating if a trace of the iteration progress should be printed. Default is \code{FALSE}.}
 
-  \item{triter}{An optional positive integer that controls the frequency of tracing when \code{trace = TRUE}. Default is \code{triter = 1}, which means that \code{iteration : < value of stopping test > ( value of best solution ) best solution { index of violated constraints }} is printed at every iteration.}
+  \item{triter}{an optional positive integer that controls the frequency of tracing when \code{trace = TRUE}. Default is \code{triter = 1}, which means that \code{iteration : < value of stopping test > ( value of best solution ) best solution { index of violated constraints }} is printed at every iteration.}
 
-  \item{details}{An optional logical value. If \code{TRUE} the output will contain the parameters in the final population and their respective \code{fn} values. Defaults to \code{FALSE}.}
+  \item{details}{an optional logical value. If \code{TRUE} the output will contain the parameters in the final population and their respective \code{fn} values. Defaults to \code{FALSE}.}
 
-  \item{...}{Optional additional arguments passed to \code{fn()}
+  \item{...}{optional additional arguments passed to \code{fn()}
   \emph{and} \code{constr()} if that is not \code{NULL}.}
 }
 \details{
@@ -205,7 +205,7 @@ JDEoptim(c(0, 0, 100), c(34, 17, 300),
 #   0.0 <= x3 <= 240.0*, 0.0 <= x4 <= 240.0
 #   Roughly guessed*
 #   The global optimum is (x1, x2, x3, x4; f) =
-#   (1.100000, 0.600000, 56.99482, 51.00125; 7019.031)
+#   (1.100000, 0.600000, 56.99482, 51.00125; 7019.031).
 #
 #   Source:
 #     Lampinen, Jouni, and Zelinka, Ivan (1999).

@@ -20,9 +20,9 @@ nlrob.mtl <- robustbase:::nlrob.mtl
 
 (doExtras <- robustbase:::doExtras())
 if(doExtras) {
-    NP <- 20 # population size =  NP (random) + 1 (true parameters)
+    NP <- 20
 } else { ## fast
-    NP <- 9
+    NP <- 9 # population size = NP (random) + 1 (true parameters)
 }
 
 use.true <- !doExtras # (but not necessarily ..)
@@ -70,13 +70,13 @@ S.time(Rfit.tau.bisquare <-
 S.time(Rfit.tau.optimal <- update(Rfit.tau.bisquare, psi = "optimal"))
 
 S.time(Rfit.CM <- nlrob.CM( y ~ Expo(x, a, b), data = d.exp30,
-                           pnames = c("a", "b", "sigma"),
-                           lower = c(-10, -2, 0), upper = c(10, 2, 10),
-                           NP = NP, add_to_init_pop = true_params_sigma ))
+                            pnames = c("a", "b", "sigma"),
+                            lower = c(-10, -2, 0), upper = c(10, 2, 10),
+                            NP = NP, add_to_init_pop = true_params_sigma ))
 S.time(Rfit.mtl <- nlrob.mtl( y ~ Expo(x, a, b), data = d.exp30,
-                             pnames = c("a", "b", "sigma"),
-                             lower = c(-10, -2, 0), upper = c(10, 2, 3),
-                             NP = NP, add_to_init_pop = true_params_sigma ))
+                              pnames = c("a", "b", "sigma"),
+                              lower = c(-10, -2, 0), upper = c(10, 2, 3),
+                              NP = NP, add_to_init_pop = true_params_sigma ))
 showProc.time()
 
 ## 40% outliers present {use different data name: seen in print(<fitted model>)
@@ -88,9 +88,9 @@ Rf.out.MM.S.optimal    <- update(Rf.out.MM.S.bisquare, psi = "optimal")
 Rf.out.MM.S.hampel     <- update(Rf.out.MM.S.bisquare, psi = "hampel")
 showProc.time()
 Rf.out.MM.lts.bisquare <- update(Rf.out.MM.S.bisquare, estim= "lts")
-Rf.out.MM.lts.lqq <-      update(Rf.out.MM.S.bisquare, estim= "lts", psi= "lqq")
-Rf.out.MM.lts.optimal <-  update(Rf.out.MM.S.bisquare, estim= "lts", psi="optimal")
-Rf.out.MM.lts.hampel <-   update(Rf.out.MM.S.bisquare, estim= "lts", psi= "hampel")
+Rf.out.MM.lts.lqq      <- update(Rf.out.MM.S.bisquare, estim= "lts", psi= "lqq")
+Rf.out.MM.lts.optimal  <- update(Rf.out.MM.S.bisquare, estim= "lts", psi="optimal")
+Rf.out.MM.lts.hampel   <- update(Rf.out.MM.S.bisquare, estim= "lts", psi= "hampel")
 showProc.time()
 
 Rf.out.tau.bisquare <- update(Rfit.tau.bisquare, data=d.exp40out)
@@ -107,19 +107,19 @@ d.exp.Hlev <- within(d.exp40out, {
     y[28:30] <- y[28:30] + 500
 })
 
-Rf.Hlev.MM.S.bisquare  <- update(Rfit.MM.S.bisquare, data = d.exp.Hlev)
-Rf.Hlev.MM.S.lqq       <- update(Rf.Hlev.MM.S.bisquare, psi = "lqq")
-Rf.Hlev.MM.S.optimal   <- update(Rf.Hlev.MM.S.bisquare, psi = "optimal")
-Rf.Hlev.MM.S.hampel    <- update(Rf.Hlev.MM.S.bisquare, psi = "hampel")
+Rf.Hlev.MM.S.bisquare   <- update(Rfit.MM.S.bisquare, data = d.exp.Hlev)
+Rf.Hlev.MM.S.lqq        <- update(Rf.Hlev.MM.S.bisquare, psi = "lqq")
+Rf.Hlev.MM.S.optimal    <- update(Rf.Hlev.MM.S.bisquare, psi = "optimal")
+Rf.Hlev.MM.S.hampel     <- update(Rf.Hlev.MM.S.bisquare, psi = "hampel")
 showProc.time()
-Rf.Hlev.MM.lts.bisquare<- update(Rf.Hlev.MM.S.bisquare, estim="lts")
-Rf.Hlev.MM.lts.lqq     <- update(Rf.Hlev.MM.S.bisquare, estim="lts", psi= "lqq")
-Rf.Hlev.MM.lts.optimal <- update(Rf.Hlev.MM.S.bisquare, estim="lts", psi="optimal")
-Rf.Hlev.MM.lts.hampel  <- update(Rf.Hlev.MM.S.bisquare, estim="lts", psi= "hampel")
+Rf.Hlev.MM.lts.bisquare <- update(Rf.Hlev.MM.S.bisquare, estim="lts")
+Rf.Hlev.MM.lts.lqq      <- update(Rf.Hlev.MM.S.bisquare, estim="lts", psi= "lqq")
+Rf.Hlev.MM.lts.optimal  <- update(Rf.Hlev.MM.S.bisquare, estim="lts", psi="optimal")
+Rf.Hlev.MM.lts.hampel   <- update(Rf.Hlev.MM.S.bisquare, estim="lts", psi= "hampel")
 showProc.time()
 
 Rf.Hlev.tau.bisquare <- update(Rfit.tau.bisquare, data = d.exp.Hlev)
-Rf.Hlev.tau.optimal <-  update(Rf.Hlev.tau.bisquare, psi = "optimal")
+Rf.Hlev.tau.optimal  <- update(Rf.Hlev.tau.bisquare, psi = "optimal")
 
 Rf.Hlev.CM  <- update(Rfit.CM,  data = d.exp.Hlev)
 Rf.Hlev.mtl <- update(Rfit.mtl, data = d.exp.Hlev)
