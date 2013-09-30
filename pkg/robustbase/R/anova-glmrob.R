@@ -12,7 +12,7 @@ anova.glmrob <- function(object, ...,
 	    dotargs <- dotargs[!named]
 	}
     }
-    is.glmrob <- unlist(lapply(dotargs, function(x) inherits(x, "glmrob")))
+    is.glmrob <- vapply(dotargs, inherits, NA, what="glmrob")
     if(!all(is.glmrob) || !inherits(object, "glmrob"))
 	stop("anova.glmrob() only works for 'glmrob' objects")
     test <- match.arg(test)

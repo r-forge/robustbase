@@ -15,16 +15,15 @@ anova.lmrob <- function(object, ..., test = c("Wald", "Deviance"), verbose=getOp
       stop("For test = 'Deviance', the estimator chain has to end with 'M'")
     if (length(dotargs) > 0) {
 	length.tl <- function(x) length(attr(terms(x),"term.labels"))
-	isFormula <- unlist(lapply(dotargs, function(x) class(x) == "formula"))
+	isFormula <- vapply(dotargs, inherits, NA, what = "formula")
+	h <- vapply(dotargs, length.tl, 0L)
 	if(all(isFormula)) {
-	    h <- unlist(lapply(dotargs, function(x) length.tl(x)))
 	    if(any(h >= length.tl(object)))
 		stop("The first object does not contain the largest model")
 	    modform <- dotargs
 	}
 	else {
 	    if(verbose) message("All models are refitted except the largest one")
-	    h <- unlist(lapply(dotargs, function(x) length.tl(x)))
 	    if(any(h >= length.tl(object))) {
 		h <- c(length.tl(object),h)
 		dotargs <- c(list(object), dotargs)[order(h, decreasing = TRUE)]
@@ -33,10 +32,10 @@ anova.lmrob <- function(object, ..., test = c("Wald", "Deviance"), verbose=getOp
 		    stop("anova.lmrob() only works for 'lmrob' objects")
 		dotargs <- dotargs[-1]
 	    }
-	    modform <- lapply(dotargs, function(x) formula(x))
+	    modform <- lapply(dotargs, formula)
 	}
-	initCoef <- lapply(dotargs, function(x) coef(x))
-	return(anovaLmrobList(object, modform,	initCoef, test = test))
+	initCoef <- lapply(dotargs, coef)
+	return(anovaLmrobList(object, modform, initCoef, test = test))
     }
     ##
     ## "'Anova Table' for a single model object
