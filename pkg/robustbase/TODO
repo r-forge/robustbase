@@ -1,6 +1,6 @@
-				[MM:  grep-r -e '\(FIXME\|TODO\)'  ]
+				-*- org -*- [MM:  grep-r -e '\(FIXME\|TODO\)'  ]
 * glmrob
-**  BYlogreg()  [ R/BYlogreg.R ]
+** BYlogreg()  [ R/BYlogreg.R ]
    --> more tests in ./tests/glmrob-1.R
    --> glm.fit() instead of glm()
    --> vcov() instead of just std.err. {is already there}
@@ -44,31 +44,23 @@
 
 ** add1() and/or drop1() would be nice
 
-
 * Psi/Rho/Chi/Wgt Functions
    Our "mess":  We have quite a few "partial" collections of rho/psi functions:
 
-** 1) have the nice S4 class psi_func  + psiFunc() and .defDwgt() functions in
-
-      ./R/psi-rho-funs.R    with explorations, ideas in
-      ~~~~~~~~~~~~~~~~~~
-      ./experi-psi-rho-funs.R
-
-** 2) have "old" tukeyChi() & tukeyPsi1()  originally called from lmrob() , in
+** 1) have the nice S4 class psi_func  + psiFunc() and .defDwgt() functions
+   in ./R/psi-rho-funs.R  with explorations, ideas in
+      ~~~~~~~~~~~~~~~~~~  ./experi-psi-rho-funs.R
+** DONE 2) deprecated: "old" tukeyChi() & tukeyPsi1()  originally called from lmrob() , in
       ./R/biweight-funs.R
 ** 3) psi.*(....,  rho = FALSE/TRUE)   functions from Andreas
       should be replaced by using the new  psi_func  objects
       ./R/psi-funs-AR.R  &  ./man/pkg-internal.Rd
-      ~~~~~~~~~~~~~~~~~  ===> Change  nlrob() slightly: allowing 'psi'
-      to be a function *or* a psiFunc:
-      --> ./R/nlrob.R+psi ./man/nlrob.Rd+psi
-      Before that we *do* need "real" checks (numbers!) for nlrob
-
-** 4) have the C-based functions, now used from lmrob(), in
-      ./R/lmrob.MM.R
-
-      now called  Mpsi(), Mchi(), Mwgt() plus new MrhoInf()
-      {now exported and documented in man/M.psi.Rd }
+      ~~~~~~~~~~~~~~~~~  
+*** DONE nlrob() changed: uses psi = .Mwgt.psi1("huber", cc=1.345) as default
+*** TODO ------- also allow psi to be a 'psiFunc':
+      --> ./R/nlrob.R ; consider even more *real* checks; now in tests/nlrob-tst.R
+** 4) have (C-based) functions Mpsi(), Mchi(), Mwgt(), etc, used from lmrob(), 
+      in ./R/lmrob.MM.R {now exported and documented in man/M.psi.Rd }
 
     Further files, illustrating features, differences, etc:
 
@@ -79,20 +71,15 @@
 	./tests/psi-rho-etc.R   	compute asymp.efficiency and breakdown point !
 	./tests/lmrob-psifns.R 	   	plot and lmrob()-test them
 
-    TODO: Done: -> '32)'; Rest:
-	   .) *Deprecate* the "2)", tukeyChi() etc, making them call the M.*fun():
-	      *CARE*: tukeyPsi1(*, d = 2) is now needed asymp.cov() of glmrobMT()
-           .) provide  '1)'-i.e. psi_func  versions of them
+*** DONE 
+*** Deprecate* the "2)", tukeyChi() etc, making them call the M.*fun():
+*** TODO  provide  '1)'-i.e. psi_func  versions of them
 
-    *) Mpsi(*, "GGW") etc :  there is (??) no reasonable to directly specify
-       ---------------- the (a,b,c) tuning parameters
+*** Mpsi(*, "GGW") etc :  there is (??) no reasonable to directly specify (a,b,c) tuning pars
 
-
-** *New*  Mwgt(*,  deriv=1) would correspond to  Dwgt in psiFunc() which
-   Manuel needs as well.
-
+*** TODO *New* Mwgt(*,  deriv=1) would correspond to Dwgt in psiFunc() which Manuel needs
+   
 * New  lmrob() "M-S" etc features:
-
 ** Function names with "." (which are exported) are frowned upon
      e.g.  lmrob.split()
 
