@@ -13,7 +13,7 @@ importFrom("stats", alias, anova, case.names, coef, confint, cov,
            )
 ## ^^^^ MASS has a bit more; take it as example
 if(getRversion() >= "3.1.0")
-importFrom("stats", .lm.fit)
+importFrom("stats", .lm.fit, confint.lm, dummy.coef.lm)
 
 importFrom("utils", globalVariables)
 
