@@ -59,17 +59,17 @@ R users already know optim() etc.. so the name seems more logical for them.
     We have quite a few "partial" collections of rho/psi functions; 
     some are "sync"ed now, some not yet::
 *** TODO 1) have the nice S4 class psi_func  + psiFunc() and .defDwgt() functions
-    in ./R/psi-rho-funs.R  with explorations, ideas in
-       ~~~~~~~~~~~~~~~~~~  ./experi-psi-rho-funs.R
-*** DONE 2) deprecated: "old" tukeyChi() & tukeyPsi1()  originally called from lmrob() , in
-       ./R/biweight-funs.R
-*** TODO 3) psi.*(....,  rho = FALSE/TRUE)   functions from Andreas
-       should be replaced by using the new  psi_func  objects
-       ./R/psi-funs-AR.R  &  ./man/pkg-internal.Rd
-       ~~~~~~~~~~~~~~~~~  
-**** DONE nlrob() changed: uses psi = .Mwgt.psi1("huber", cc=1.345) as default
+    in file:R/psi-rho-funs.R  with further explorations, ideas in 
+    file:/experi-psi-rho-funs.R
+**** TODO print/show of such psi_func should show more; at least the psi function
+**** TODO str.psi_func() should be a bit nicer than the current default str()
 **** TODO nlrob(): also allow psi to be a 'psiFunc':
        --> ./R/nlrob.R ; consider even more *real* checks; now in tests/nlrob-tst.R
+*** DONE 2) deprecated: "old" tukeyChi() & tukeyPsi1()  originally called from lmrob() , in
+       ./R/biweight-funs.R
+*** DONE 3) psi.*(....,  rho = FALSE/TRUE)   functions from Andreas
+       ([[file:.R/psi-funs-AR.R]]) replaced by using the new  psi_func  objects
+**** DONE nlrob() changed: uses psi = .Mwgt.psi1("huber", cc=1.345) as default
 *** TODO 4) have (C-based) functions Mpsi(), Mchi(), Mwgt(), etc, used from lmrob(), 
        in ./R/lmrob.MM.R
 **** DONE now exported and documented in man/M.psi.Rd 
