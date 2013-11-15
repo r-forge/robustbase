@@ -15,7 +15,7 @@
 ##' Copyright 2013, Eduardo L. T. Conceicao
 ##' Available under the GPL (>= 2)
 ##' @title MM-estimator for Nonlinear Regression
-##' @param model
+##' @param formula
 ##' @param data
 ##' @param pnames
 ##' @param lower
@@ -40,17 +40,14 @@
 ##'           lower = 0, upper = 3,
 ##'           optim.control = list(trace = 1), trace = TRUE )
 ##' @author Eduardo L. T. Conceicao
-nlrob.MM <- function(model, data, pnames, lower, upper,
+nlrob.MM <- function(formula, data, pnames, lower, upper,
                      tolerance = 1e-5, f0 = NULL,
-                     estim = c("S", "lts"),
+                     init = c("S", "lts"),
                      psi = c("bisquare", "lqq", "optimal", "hampel"),
                      tuning.chi.scale = NULL, tuning.chi.M = NULL,
                      optim.control = list(), ...)
 {
-    if(!require("PolynomF"))
-        stop(gettextf("You must install the 'PolynomF' package before you can use %s",
-                      "nlrob.MM()"), domain=NA)
-    estim <- match.arg(estim)
+    init <- match.arg(init)
     psi <- match.arg(psi)
     if (is.null(tuning.chi.scale))
         tuning.chi.scale <- switch(psi, bisquare = 1.56,
@@ -64,10 +61,20 @@ nlrob.MM <- function(model, data, pnames, lower, upper,
     c1 <- tuning.chi.scale
     c2 <- tuning.chi.M
 
+    ## Preliminary psi-specific checks / computations:
+    switch(psi,
+           "bisquare" = {
+               if(!require("PolynomF"))
+		   stop(gettextf(
+		"You must install package 'PolynomF' before you can use %s",
+		"nlrob.MM(*, psi=bisquare)"), domain=NA)
+           },
+           "lqq" = { # lqqMax = rho(Inf), used in rho.inv() *and* ..
+               c12 <- c1[1]+c1[2]
+               lqqMax <- (c1[1]*c1[3] - 2*c12)/(1-c1[3]) + c12})
+
     rho1 <- function(t) Mchi(t, c1, psi)
     rho2 <- function(t) Mchi(t, c2, psi)
-
-    switch(psi, lqq = const <- (c1[1]*c1[3] - 2*c1[1] -2*c1[2])/(1-c1[3]) + c1[1] + c1[2])
 
     rho.inv <- switch(psi, bisquare = function(y) {
         x <- polynom()
@@ -76,11 +83,11 @@ nlrob.MM <- function(model, data, pnames, lower, upper,
         t <- Re( t[Im(t) == 0] )
         unique( t[t >= 0] ) * c1
     }, lqq = function(y) {
-        uniroot( function(x) rho1(x) - y, lower = 0, upper = const )$root
+        uniroot( function(x) rho1(x) - y, lower = 0, upper = lqqMax )$root
     }, optimal = function(y) {
-        # Salibian-Barrera, Matias, Willems, Gert, and Zamar, Ruben (2008).
-        # The fast-tau estimator for regression.
-        # Journal of Computational and Graphical Statistics 17, 659-682.
+        ## Salibian-Barrera, Matias, Willems, Gert, and Zamar, Ruben (2008).
+        ## The fast-tau estimator for regression.
+        ## Journal of Computational and Graphical Statistics 17, 659-682.
         sqrt(y/1.38) * c1 * 3
     }, hampel = function(y) {
         C <- MrhoInf(c1, psi)
@@ -94,43 +101,46 @@ nlrob.MM <- function(model, data, pnames, lower, upper,
 
     M_scale <- function(sigma, u) sum( rho1(u/sigma) )/nobs - 0.5
 
-    objective.initial <- switch(estim, lts = function(par) {
-        names(par) <- pnames
-        fit <- eval( model[[3L]], c(as.list(data), par) )
-        sum(sort.int( (y - fit)^2, partial = h )[1:h])
-    }, S = function(par) {
-        names(par) <- pnames
-        fit <- eval( model[[3L]], c(as.list(data), par) )
-        res <- y - fit
-        # Rousseeuw, Peter J., and Leroy, Annick M. (1987).
-        # Robust Regression & Outlier Detection.
-        # John Wiley & Sons, New York, p. 137.
-        med_abs_res <- median(abs(res))
-        sigma <- uniroot( M_scale,
-                          lower = constant[1L] * med_abs_res,
-                          upper = constant[2L] * med_abs_res,
-                          u = res )$root
-        sigma
-    })
+    objective.initial <-
+        switch(init,
+               "lts" = function(par) { ## 'h' is defined "global"ly
+                   names(par) <- pnames
+                   fit <- eval( formula[[3L]], c(data, par) )
+                   sum(sort.int( (y - fit)^2, partial = h )[1:h])
+               },
+               "S" = function(par) {
+                   names(par) <- pnames
+                   fit <- eval( formula[[3L]], c(data, par) )
+                   res <- y - fit
+                   ## Rousseeuw, Peter J., and Leroy, Annick M. (1987).
+                   ## Robust Regression & Outlier Detection.
+                   ## John Wiley & Sons, New York, p. 137.
+                   med_abs_res <- median(abs(res))
+                   sigma <- uniroot( M_scale,
+                                    lower = constant[1L] * med_abs_res,
+                                    upper = constant[2L] * med_abs_res,
+                                    u = res )$root
+                   sigma
+               })
 
     objective.M <- function(par, sigma) {
         names(par) <- pnames
-        fit <- eval( model[[3L]], c(as.list(data), par) )
+        fit <- eval( formula[[3L]], c(data, par) )
         sum(rho2( (y - fit)/sigma ))
     }
 
-
-    model <- as.formula(model)
+    formula <- as.formula(formula)
     dataName <- substitute(data)
-    varNames <- all.vars(model)
-    data <- as.data.frame(data)
-    if (length(model) == 2L) {
-        model[[3L]] <- model[[2L]]
-        model[[2L]] <- 0
+    varNames <- all.vars(formula)
+    obsNames <- rownames(data <- as.data.frame(data))
+    data <- as.list(data)# to be used as such
+    if (length(formula) == 2L) { ## as nls
+        formula[[3L]] <- formula[[2L]]
+        formula[[2L]] <- 0
     }
 
     if (!is.character(pnames) || any(is.na(match(pnames, varNames))))
-        stop("'pnames' must be a character vector named with parameters in 'model'")
+        stop("'pnames' must be a character vector named with parameters in 'formula'")
     npar <- length(pnames)
     if (length(lower) == 1)
         lower <- rep(lower, npar)
@@ -141,29 +151,29 @@ nlrob.MM <- function(model, data, pnames, lower, upper,
     if (length(upper) != npar)
         stop(gettextf("upper must be either of length %d, or length 1", npar))
     stopifnot(is.numeric(lower), is.numeric(upper), lower <= upper)
-    y <- eval(model[[2L]], as.list(data))
+    y <- eval(formula[[2L]], data)
     nobs <- length(y)
     stopifnot(nobs >= npar)
     if (is.null(f0))
         f0 <- sum(scale(y, scale = FALSE)^2)
     stopifnot(is.numeric(f0), f0 > 0)
     constant <- c(
-        switch(psi, bisquare = 1/c1, lqq = 1/const,
-               optimal = 1/c1 * 1/3, hampel = 1/c1[3]),
-        if (nobs %% 2)
-            2/rho.inv( 2/(nobs+2) )
-        else 1/rho.inv( 1/(nobs+1) )
-        )
-    switch(estim, lts = h <- (nobs + npar + 1)%/%2)
+        switch(psi, bisquare = 1/c1,
+               lqq = 1/lqqMax,
+               optimal = 1/c1 * 1/3,
+               hampel = 1/c1[3]),
+        if(nobs %% 2) 2/rho.inv(2/(nobs+2)) else 1/rho.inv(1/(nobs+1)))
+    switch(init, lts = h <- (nobs + npar + 1)%/%2)
 
     initial <- JDEoptim(lower, upper, objective.initial,
                         tol = tolerance, fnscale = f0, ...)
     names(initial$par) <- pnames
-    res <- y - eval( model[[3L]], c(as.list(data), initial$par) )
+    res <- y - eval( formula[[3L]], c(data, initial$par) )
 
+    med_abs_res <- median(abs(res))
     sigma <- uniroot( M_scale,
-                      lower = constant[1L] * median(abs(res)),
-                      upper = constant[2L] * median(abs(res)),
+                      lower = constant[1L] * med_abs_res,
+                      upper = constant[2L] * med_abs_res,
                       u = res )$root
 
     con <- list(fnscale = initial$value, parscale = initial$par)
@@ -172,26 +182,21 @@ nlrob.MM <- function(model, data, pnames, lower, upper,
                 control = c(con, optim.control) )
     coef <- M$par
     names(coef) <- pnames
-    crit <- M$value
-    counts <- M$counts
-    status <- if (M$convergence == 0)
-        "converged"
-    else if (M$convergence == 1)
-        "maximum number of iterations reached without convergence"
-    else M$message
-    fit <- eval( model[[3L]], c(as.list(data), coef) )
-    names(fit) <- rownames(data)
-
-    structure(list(call = match.call(),
-                   formula = model,
-                   nobs = nobs,
+    status <-
+	if (M$convergence == 0) "converged"
+	else if (M$convergence == 1)
+	    "maximum number of iterations reached without convergence"
+	else M$message
+    fit <- eval( formula[[3L]], c(data, coef) )
+    names(fit) <- obsNames
+    structure(list(call = match.call(), formula=formula, nobs=nobs,
                    coefficients = coef,
                    fitted.values = fit,
                    residuals = y - fit,
-                   crit = crit,
+                   crit = M$value,
                    initial = initial,
                    Scale = sigma,
-                   status = status, counts = counts, data = dataName),
+                   status = status, counts = M$counts, data = dataName),
               class = "nlrob")
 } ## nlrob.MM
 
@@ -201,7 +206,7 @@ nlrob.MM <- function(model, data, pnames, lower, upper,
 ##' Copyright 2013, Eduardo L. T. Conceicao
 ##' Available under the GPL (>= 2)
 ##' @title Tau-estimator for Nonlinear (Constrained) Regression
-##' @param model
+##' @param formula
 ##' @param data
 ##' @param pnames
 ##' @param lower
@@ -225,15 +230,11 @@ nlrob.MM <- function(model, data, pnames, lower, upper,
 ##'            lower = 0, upper = 3,  trace = TRUE )
 ##'
 ##' @author Eduardo L. T. Conceicao
-nlrob.tau <- function(model, data, pnames, lower, upper,
+nlrob.tau <- function(formula, data, pnames, lower, upper,
                       tolerance = 1e-5, f0 = NULL,
                       psi = c("bisquare", "optimal"),
                       tuning.chi.scale = NULL, tuning.chi.tau = NULL, ...)
 {
-    if(!require("PolynomF"))
-        stop(gettextf("You must install the 'PolynomF' package before you can use %s",
-                      "nlrob.tau()"), domain=NA)
-
     psi <- match.arg(psi)
     if (is.null(tuning.chi.scale))
         tuning.chi.scale <- switch(psi, bisquare = list(b = 0.20, cc = 1.55),
@@ -247,13 +248,19 @@ nlrob.tau <- function(model, data, pnames, lower, upper,
     b2 <- tuning.chi.tau$b
     c2 <- tuning.chi.tau$cc
 
+    ## Preliminary psi-specific checks / computations:
+    switch(psi, "bisquare" = {
+	if(!require("PolynomF"))
+	    stop(gettextf(
+		"You must install package 'PolynomF' before you can use %s",
+		"nlrob.tau(*, psi=bisquare)"), domain=NA)
+
+	b1 <- b1/MrhoInf(c1, psi)
+	b2 <- b2/MrhoInf(c2, psi)
+    })
+
     rho1 <- function(t) Mchi(t, c1, psi)
     rho2 <- function(t) Mchi(t, c2, psi)
-
-    switch(psi, bisquare = {
-        b1 <- b1/MrhoInf(c1, psi)
-        b2 <- b2/MrhoInf(c2, psi)
-    })
 
     rho.inv <- switch(psi, bisquare = function(y) {
         x <- polynom()
@@ -262,9 +269,9 @@ nlrob.tau <- function(model, data, pnames, lower, upper,
         t <- Re( t[Im(t) == 0] )
         unique( t[t >= 0] ) * c1
     }, optimal = function(y) {
-        # Salibian-Barrera, Matias, Willems, Gert, and Zamar, Ruben (2008).
-        # The fast-tau estimator for regression.
-        # Journal of Computational and Graphical Statistics 17, 659-682.
+        ## Salibian-Barrera, Matias, Willems, Gert, and Zamar, Ruben (2008).
+        ## The fast-tau estimator for regression.
+        ## Journal of Computational and Graphical Statistics 17, 659-682.
         sqrt(y/1.38) * c1 * 3
     })
 
@@ -273,11 +280,11 @@ nlrob.tau <- function(model, data, pnames, lower, upper,
 
     objective <- function(par) {
         names(par) <- pnames
-        fit <- eval( model[[3L]], c(as.list(data), par) )
+        fit <- eval( formula[[3L]], c(data, par) )
         res <- y - fit
-        # Rousseeuw, Peter J., and Leroy, Annick M. (1987).
-        # Robust Regression & Outlier Detection.
-        # John Wiley & Sons, New York, p. 137.
+        ## Rousseeuw, Peter J., and Leroy, Annick M. (1987).
+        ## Robust Regression & Outlier Detection.
+        ## John Wiley & Sons, New York, p. 137.
         med_abs_res <- median(abs(res))
         sigma <- uniroot( M_scale,
                           lower = constant[1L] * med_abs_res,
@@ -286,18 +293,18 @@ nlrob.tau <- function(model, data, pnames, lower, upper,
         tau_scale2(res, sigma)
     }
 
-
-    model <- as.formula(model)
+    formula <- as.formula(formula)
     dataName <- substitute(data)
-    varNames <- all.vars(model)
-    data <- as.data.frame(data)
-    if (length(model) == 2L) {
-        model[[3L]] <- model[[2L]]
-        model[[2L]] <- 0
+    varNames <- all.vars(formula)
+    obsNames <- rownames(data <- as.data.frame(data))
+    data <- as.list(data)# to be used as such
+    if (length(formula) == 2L) { ## as nls
+        formula[[3L]] <- formula[[2L]]
+        formula[[2L]] <- 0
     }
 
     if (!is.character(pnames) || any(is.na(match(pnames, varNames))))
-        stop("'pnames' must be a character vector named with parameters in 'model'")
+        stop("'pnames' must be a character vector named with parameters in 'formula'")
     npar <- length(pnames)
     if (length(lower) == 1)
         lower <- rep(lower, npar)
@@ -308,40 +315,34 @@ nlrob.tau <- function(model, data, pnames, lower, upper,
     if (length(upper) != npar)
         stop(gettextf("upper must be either of length %d, or length 1", npar))
     stopifnot(is.numeric(lower), is.numeric(upper), lower <= upper)
-    y <- eval(model[[2L]], as.list(data))
+    y <- eval(formula[[2L]], data)
     nobs <- length(y)
     stopifnot(nobs >= npar)
     if (is.null(f0))
         f0 <- mean(scale(y, scale = FALSE)^2)
     stopifnot(is.numeric(f0), f0 > 0)
     constant <- c(
-        switch(psi, bisquare = 1/c1, optimal = 1/c1 * 1/3),
-        if (nobs %% 2)
-            2/rho.inv( 2/(nobs+2) )
-        else 1/rho.inv( 1/(nobs+1) )
-        )
-
+        switch(psi,
+               bisquare = 1/c1,
+               optimal = 1/c1 * 1/3),
+        if (nobs %% 2) 2/rho.inv(2/(nobs+2)) else 1/rho.inv(1/(nobs+1)))
     optRes <-
         JDEoptim(lower, upper, objective, tol = tolerance, fnscale = f0, ...)
     coef <- optRes$par
     names(coef) <- pnames
-    crit <- optRes$value
     iter <- optRes$iter
-    status <- if (optRes$convergence == 0)
-        "converged"
-    else paste("failed to converge in", iter, "steps")
-    fit <- eval( model[[3L]], c(as.list(data), coef) )
-    names(fit) <- rownames(data)
-    Scale <- sqrt(optRes$value)
-
-    structure(list(call = match.call(),
-                   formula = model,
-                   nobs = nobs,
+    status <-
+        if (optRes$convergence == 0)
+            "converged"
+        else paste("failed to converge in", iter, "steps")
+    fit <- eval( formula[[3L]], c(data, coef) )
+    names(fit) <- obsNames
+    structure(list(call = match.call(), formula=formula, nobs=nobs,
                    coefficients = coef,
                    fitted.values = fit,
                    residuals = y - fit,
-                   crit = crit,
-                   Scale = Scale,
+                   crit = optRes$value,
+                   Scale = sqrt(optRes$value),
                    status = status, iter = iter, data = dataName),
               class = "nlrob")
 } ## nlrob.tau
@@ -352,7 +353,7 @@ nlrob.tau <- function(model, data, pnames, lower, upper,
 ##' Copyright 2013, Eduardo L. T. Conceicao
 ##' Available under the GPL (>= 2)
 ##' @title CM-estimator of Nonlinear Regression
-##' @param model
+##' @param formula
 ##' @param data
 ##' @param pnames
 ##' @param lower
@@ -375,7 +376,7 @@ nlrob.tau <- function(model, data, pnames, lower, upper,
 ##'            lower = 0, upper = c(3, 3, 3, 0.1),
 ##'            trace = TRUE )
 ##' @author Eduardo L. T. Conceicao
-nlrob.CM <- function(model, data, pnames, lower, upper,
+nlrob.CM <- function(formula, data, pnames, lower, upper,
 		     tolerance = 1e-5, f0 = NULL,
 		     psi = c("bisquare", "lqq", "welsh", "optimal", "hampel", "ggw"),
 		     tuning.chi = NULL, ...)
@@ -395,19 +396,19 @@ nlrob.CM <- function(model, data, pnames, lower, upper,
     if ("sigma" %in% pnames) {
         objective <- function(par) {
             names(par) <- pnames
-            fit <- eval( model[[3L]], c(as.list(data), par) )
+            fit <- eval( formula[[3L]], c(as.list(data), par) )
             sigma <- par["sigma"]
             c * sum(rho( (y - fit)/sigma ))/nobs + log(sigma)
         }
         con <- function(par) {
             names(par) <- pnames
-            fit <- eval( model[[3L]], c(as.list(data), par) )
+            fit <- eval( formula[[3L]], c(as.list(data), par) )
             M_scale(par["sigma"], y - fit)
         }
     } else {
         objective <- function(par) {
             names(par) <- pnames
-            fit <- eval( model[[3L]], c(as.list(data), par) )
+            fit <- eval( formula[[3L]], c(as.list(data), par) )
             resid <- y - fit
             sigma <- mad(resid)
             c * sum(rho( resid/sigma ))/nobs + log(sigma)
@@ -416,17 +417,17 @@ nlrob.CM <- function(model, data, pnames, lower, upper,
     }
 
 
-    model <- as.formula(model)
+    formula <- as.formula(formula)
     dataName <- substitute(data)
-    varNames <- all.vars(model)
+    varNames <- all.vars(formula)
     data <- as.data.frame(data)
-    if (length(model) == 2L) {
-        model[[3L]] <- model[[2L]]
-        model[[2L]] <- 0
+    if (length(formula) == 2L) {
+        formula[[3L]] <- formula[[2L]]
+        formula[[2L]] <- 0
     }
 
     if (!is.character(pnames) || any(is.na(match(pnames[!(pnames == "sigma")], varNames))))
-        stop("'pnames' must be a character vector named with parameters in 'model'")
+        stop("'pnames' must be a character vector named with parameters in 'formula'")
     npar <- length(pnames)
     if (length(lower) == 1)
         lower <- rep(lower, npar)
@@ -439,10 +440,10 @@ nlrob.CM <- function(model, data, pnames, lower, upper,
     stopifnot(is.numeric(lower), is.numeric(upper), lower <= upper)
     if ("sigma" %in% pnames) {
         if ("sigma" %in% varNames || "sigma" %in% names(data))
-            stop("Do not use 'sigma' as a variable name or as a parameter name in 'model'")
+            stop("Do not use 'sigma' as a variable name or as a parameter name in 'formula'")
         stopifnot(lower[pnames == "sigma"] >= 0)
     }
-    y <- eval(model[[2L]], as.list(data))
+    y <- eval(formula[[2L]], as.list(data))
     nobs <- length(y)
     stopifnot(nobs >= npar)
     if (is.null(f0))
@@ -453,21 +454,18 @@ nlrob.CM <- function(model, data, pnames, lower, upper,
                        tol = tolerance, fnscale = f0, ...)
     coef <- optRes$par
     names(coef) <- pnames
-    crit <- optRes$value
     iter <- optRes$iter
     status <- if (optRes$convergence == 0)
         "converged"
     else paste("failed to converge in", iter, "steps")
-    fit <- eval( model[[3L]], c(as.list(data), coef) )
+    fit <- eval( formula[[3L]], c(as.list(data), coef) )
     names(fit) <- rownames(data)
 
-    structure(list(call = match.call(),
-                   formula = model,
-                   nobs = nobs,
+    structure(list(call = match.call(), formula=formula, nobs=nobs,
                    coefficients = coef,
                    fitted.values = fit,
                    residuals = y - fit,
-                   crit = crit,
+                   crit = optRes$value,
                    status = status, iter = iter, data = dataName),
               class = "nlrob")
 } ## nlrob.CM
@@ -479,7 +477,7 @@ nlrob.CM <- function(model, data, pnames, lower, upper,
 ##' Copyright 2013, Eduardo L. T. Conceicao
 ##' Available under the GPL (>= 2)
 ##' @title Maximum Trimmed Likelihood (MTL) Estimator for Nonlinear Regression
-##' @param model
+##' @param formula
 ##' @param data
 ##' @param pnames
 ##' @param lower
@@ -509,7 +507,7 @@ nlrob.CM <- function(model, data, pnames, lower, upper,
 ##'            lower = 0, upper = c(3, 3, 3, 0.1),
 ##'            trace = TRUE )
 ##' @author Eduardo L. T. Conceicao
-nlrob.mtl <- function(model, data, pnames, lower, upper,
+nlrob.mtl <- function(formula, data, pnames, lower, upper,
                       cutoff = 2.5,
                       tolerance = 1e-5, f0 = NULL, ...)
 {
@@ -527,7 +525,7 @@ nlrob.mtl <- function(model, data, pnames, lower, upper,
     if ("sigma" %in% pnames) {
         objective <- function(par) {
             names(par) <- pnames
-            fit <- eval( model[[3L]], c(as.list(data), par) )
+            fit <- eval( formula[[3L]], c(as.list(data), par) )
             sigma <- par["sigma"]
             tp <- trim( abs( (y - fit)/sigma ) )
             h <- tp$h
@@ -536,7 +534,7 @@ nlrob.mtl <- function(model, data, pnames, lower, upper,
     } else {
         objective <- function(par) {
             names(par) <- pnames
-            fit <- eval( model[[3L]], c(as.list(data), par) )
+            fit <- eval( formula[[3L]], c(as.list(data), par) )
             resid <- y - fit
             sigma <- mad(resid)
             tp <- trim( abs(resid/sigma) )
@@ -546,17 +544,17 @@ nlrob.mtl <- function(model, data, pnames, lower, upper,
     }
 
 
-    model <- as.formula(model)
+    formula <- as.formula(formula)
     dataName <- substitute(data)
-    varNames <- all.vars(model)
+    varNames <- all.vars(formula)
     data <- as.data.frame(data)
-    if (length(model) == 2L) {
-        model[[3L]] <- model[[2L]]
-        model[[2L]] <- 0
+    if (length(formula) == 2L) {
+        formula[[3L]] <- formula[[2L]]
+        formula[[2L]] <- 0
     }
 
     if (!is.character(pnames) || any(is.na(match(pnames[!(pnames == "sigma")], varNames))))
-        stop("'pnames' must be a character vector named with parameters in 'model'")
+        stop("'pnames' must be a character vector named with parameters in 'formula'")
     npar <- length(pnames)
     if (length(lower) == 1)
         lower <- rep(lower, npar)
@@ -569,10 +567,10 @@ nlrob.mtl <- function(model, data, pnames, lower, upper,
     stopifnot(is.numeric(lower), is.numeric(upper), lower <= upper)
     if ("sigma" %in% pnames) {
         if ("sigma" %in% varNames || "sigma" %in% names(data))
-            stop("Do not use 'sigma' as a variable name or as a parameter name in 'model'")
+            stop("Do not use 'sigma' as a variable name or as a parameter name in 'formula'")
         stopifnot(lower[pnames == "sigma"] >= 0)
     }
-    y <- eval(model[[2L]], as.list(data))
+    y <- eval(formula[[2L]], as.list(data))
     nobs <- length(y)
     stopifnot(nobs >= npar)
     if (is.null(f0))
@@ -589,15 +587,13 @@ nlrob.mtl <- function(model, data, pnames, lower, upper,
     status <- if (optRes$convergence == 0)
         "converged"
     else paste("failed to converge in", iter, "steps")
-    fit <- eval( model[[3L]], c(as.list(data), coef) )
+    fit <- eval( formula[[3L]], c(as.list(data), coef) )
     names(fit) <- rownames(data)
     resid <- y - fit
     quan <-
         trim( resid/(if ("sigma" %in% pnames) coef["sigma"] else mad(resid)) )$h
 
-    structure(list(call = match.call(),
-                   formula = model,
-                   nobs = nobs,
+    structure(list(call = match.call(), formula=formula, nobs=nobs,
                    coefficients = coef,
                    fitted.values = fit,
                    residuals = resid,
@@ -606,11 +602,3 @@ nlrob.mtl <- function(model, data, pnames, lower, upper,
                    status = status, iter = iter, data = dataName),
               class = "nlrob")
 } ## nlrob.mtl
-
-## rather the whole package via 'ByteCompile: yes' in ../DESCRIPTION ?
-library(compiler)
-nlrob.MM <- cmpfun(nlrob.MM)
-nlrob.tau <- cmpfun(nlrob.tau)
-nlrob.CM <- cmpfun(nlrob.CM)
-nlrob.mtl <- cmpfun(nlrob.mtl)
-

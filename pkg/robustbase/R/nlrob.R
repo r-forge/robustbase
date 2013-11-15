@@ -16,7 +16,7 @@ nlrob <-
     ## -------------------------------------------------------------------------
 
     ##- some checks
-    mf <- call <- match.call() # << and more as in nls()  ['mf': FIXME or drop]
+    call <- match.call() # << and more as in nls()
     formula <- as.formula(formula)
     if (length(formula) != 3)
 	stop("'formula' should be a formula of the type 'y  ~ f(x, alpha)'")
@@ -127,7 +127,7 @@ nlrob <-
 		   Scale = Scale, w = w, rweights = rw,
 		   cov=asCov, status = status, iter=iiter,
 		   psi = psi, data = dataName,
-		   dataClasses = attr(attr(mf, "terms"), "dataClasses")))
+		   dataClasses = attr(attr(call, "terms"), "dataClasses")))
 }
 
 .vcov.m <- function(m, nms.coef, psi, Scale, resid, res.sc = resid/Scale) {
