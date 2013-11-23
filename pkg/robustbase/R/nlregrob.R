@@ -41,7 +41,7 @@
 ##'           optim.control = list(trace = 1), trace = TRUE )
 ##' @author Eduardo L. T. Conceicao
 nlrob.MM <- function(formula, data, pnames, lower, upper,
-                     tolerance = 1e-5, f0 = NULL,
+                     tolerance = 1e-7, f0 = NULL,
                      init = c("S", "lts"),
                      psi = c("bisquare", "lqq", "optimal", "hampel"),
                      tuning.chi.scale = NULL, tuning.chi.M = NULL,
@@ -231,7 +231,7 @@ nlrob.MM <- function(formula, data, pnames, lower, upper,
 ##'
 ##' @author Eduardo L. T. Conceicao
 nlrob.tau <- function(formula, data, pnames, lower, upper,
-                      tolerance = 1e-5, f0 = NULL,
+                      tolerance = 1e-7, f0 = NULL,
                       psi = c("bisquare", "optimal"),
                       tuning.chi.scale = NULL, tuning.chi.tau = NULL, ...)
 {
@@ -377,7 +377,7 @@ nlrob.tau <- function(formula, data, pnames, lower, upper,
 ##'            trace = TRUE )
 ##' @author Eduardo L. T. Conceicao
 nlrob.CM <- function(formula, data, pnames, lower, upper,
-		     tolerance = 1e-5, f0 = NULL,
+		     tolerance = 1e-7, f0 = NULL,
 		     psi = c("bisquare", "lqq", "welsh", "optimal", "hampel", "ggw"),
 		     tuning.chi = NULL, ...)
 {
@@ -509,7 +509,7 @@ nlrob.CM <- function(formula, data, pnames, lower, upper,
 ##' @author Eduardo L. T. Conceicao
 nlrob.mtl <- function(formula, data, pnames, lower, upper,
                       cutoff = 2.5,
-                      tolerance = 1e-5, f0 = NULL, ...)
+                      tolerance = 1e-7, f0 = NULL, ...)
 {
     trim <- function(t) {
         t <- sort.int(t)

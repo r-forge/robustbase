@@ -310,7 +310,3 @@ JDEoptim <-
     }
     res
 }
-
-## rather the whole package via 'ByteCompile: yes' in ../DESCRIPTION ?
-library(compiler)
-JDEoptim <- cmpfun(JDEoptim)

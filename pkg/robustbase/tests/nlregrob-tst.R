@@ -22,11 +22,11 @@ nlrob.mtl <- robustbase:::nlrob.mtl
 if(doExtras) {
     NP <- 20
 } else { ## fast
-    NP <- 9 # population size = NP (random) + 1 (true parameters)
+    NP <- 10
 }
 
 use.true <- !doExtras # (but not necessarily ..)
-if(use.true) {
+if(use.true) { # population size = NP (random) + 1 (true parameters)
     true_params       <- c(1, 0.2)
     true_params_sigma <- c(1, 0.2, 1)
 } else {
@@ -153,12 +153,10 @@ assert.EQ(coef(Rf.out.tau.optimal),	cfcl, tol = 0.1, giveRE=TRUE)
 assert.EQ(coef(Rf.out.CM)[-3],		cfcl, tol = 0.1, giveRE=TRUE)
 assert.EQ(coef(Rf.out.mtl)[-3],		cfcl, tol = 0.1, giveRE=TRUE)
 ## presence of high leverage point outliers
-if(use.true) {
 assert.EQ(coef(Rf.Hlev.MM.S.bisquare),	cfcl, tol = .1, giveRE=TRUE)
 assert.EQ(coef(Rf.Hlev.MM.S.lqq),	cfcl, tol = .1, giveRE=TRUE)
 assert.EQ(coef(Rf.Hlev.MM.S.optimal),	cfcl, tol = .1, giveRE=TRUE)
 assert.EQ(coef(Rf.Hlev.MM.S.hampel),	cfcl, tol = .1, giveRE=TRUE)
-}
 assert.EQ(coef(Rf.Hlev.MM.lts.bisquare),cfcl,tol = .1, giveRE=TRUE)
 assert.EQ(coef(Rf.Hlev.MM.lts.lqq),	cfcl, tol = .1, giveRE=TRUE)
 assert.EQ(coef(Rf.Hlev.MM.lts.optimal), cfcl, tol = .1, giveRE=TRUE)
