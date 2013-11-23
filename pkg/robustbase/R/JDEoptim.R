@@ -249,12 +249,12 @@ JDEoptim <-
     iteration <- 0
 
     while (eval(rule)) { # generation loop
-        iteration <- iteration + 1
-        if (iteration > maxiter) {
+        if (iteration >= maxiter) {
             warning("maximum number of iterations reached without convergence")
             convergence <- 1
             break
         }
+        iteration <- iteration + 1
 
         for (i in popIndex) { # Start loop through population
             # Fi update
@@ -302,7 +302,7 @@ JDEoptim <-
 
     res <- list(par = pop[, x.best.ind],
                 value = fpop[x.best.ind],
-                iter = iteration - 1,
+                iter = iteration,
                 convergence = convergence)
     if (details) {
         res$poppar <- pop
