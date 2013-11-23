@@ -138,7 +138,7 @@ assert.EQ(coef(Rfit.MM.lts.hampel),	cfcl, tol = 0.01, giveRE=TRUE)
 assert.EQ(coef(Rfit.tau.bisquare),	cfcl, tol = 0.02, giveRE=TRUE)# 0.009873
 assert.EQ(coef(Rfit.tau.optimal),	cfcl, tol = 0.01, giveRE=TRUE)
 assert.EQ(coef(Rfit.CM)[-3],		cfcl, tol = 0.01, giveRE=TRUE)
-assert.EQ(coef(Rfit.mtl)[-3],		cfcl, tol = 0.5, giveRE=TRUE)## FIXME?
+assert.EQ(coef(Rfit.mtl)[-3],		cfcl, tol = 0.05, giveRE=TRUE)
 ## 40% outliers present
 assert.EQ(coef(Rf.out.MM.S.bisquare),	cfcl, tol = 0.1, giveRE=TRUE)
 assert.EQ(coef(Rf.out.MM.S.lqq),	cfcl, tol = 0.1, giveRE=TRUE)
@@ -164,7 +164,7 @@ assert.EQ(coef(Rf.Hlev.MM.lts.hampel),	cfcl, tol = .1, giveRE=TRUE)
 assert.EQ(coef(Rf.Hlev.tau.bisquare),	cfcl, tol = .2, giveRE=TRUE)
 assert.EQ(coef(Rf.Hlev.tau.optimal),	cfcl, tol = .2, giveRE=TRUE)
 assert.EQ(coef(Rf.Hlev.CM)[-3],		cfcl, tol = .2, giveRE=TRUE)
-assert.EQ(coef(Rf.Hlev.mtl)[-3],	cfcl, tol = .4, giveRE=TRUE)
+assert.EQ(coef(Rf.Hlev.mtl)[-3],	cfcl, tol = .2, giveRE=TRUE)
 
 mods <- sapply(ls.str(patt="^Rf"), get, simplify=FALSE)
 prblm <- mods[!sapply(mods, `[[`, "status") != "converged"]
