@@ -1,9 +1,10 @@
 nlrob <-
     function (formula, data, start, weights = NULL, na.action = na.fail,
-              method = "M",# <-- more to come
+              method = c("M", "MM", "tau", "CM", "mtl"),
 	      psi = .Mwgt.psi1("huber", cc=1.345),
               test.vec = c("resid", "coef", "w"),
-	      maxit = 20, acc = 1e-06, algorithm = "default",
+	      maxit = 20, tol = if(method=="M") 1e-06 else 1e-7, acc,
+              algorithm = "default",
               doCov = FALSE,
 	      control = nls.control(), trace = FALSE)
 {
@@ -20,14 +21,46 @@ nlrob <-
     formula <- as.formula(formula)
     if (length(formula) != 3)
 	stop("'formula' should be a formula of the type 'y  ~ f(x, alpha)'")
-    test.vec <- match.arg(test.vec)
     varNames <- all.vars(formula)
     dataName <- substitute(data)
     data <- as.data.frame(data)
-
     ## FIXME:  nls() allows  a missing 'start';	 we don't :
     if (length(pnames <- names(start)) != length(start))
 	stop("'start' must be fully named (list or numeric vector)")
+    ## Had 'acc'; now use 'tol' which is more universal; 'acc' should work for a while
+    if(!missing(acc) && is.numeric(acc)) {
+        if(!missing(tol)) stop("specifying both 'acc' and 'tol' is invalid")
+        tol <- acc
+        message("The argument 'acc' has been renamed to 'tol'; do adapt your code.")
+    }
+    method <- match.arg(method)
+    if(method != "M") {
+      if(!is.null(weights))
+          stop("specifying 'weights' is not yet supported for method ", method)
+      if((is.numeric(start) && any(is.finite(start))) ||
+         ## or start is list
+         any(sapply(start, is.finite)))
+          warning("Starting values will not be used (just the 'names()') for method ",
+                  method)
+         
+      switch(method,
+             "MM" = {
+                 return(nlrob.MM (formula, data, pnames, tol=tol, ............))
+             },
+             "tau" = {
+                 return(nlrob.tau(formula, data, pnames, tol=tol, ............))
+             },
+             "CM"	 = {
+                 return(nlrob.CM (formula, data, pnames, tol=tol, ............))
+             },
+             "mtl" = {
+                 return(nlrob.mtl(formula, data, pnames, tol=tol, ............))
+             })
+    }
+
+    ## else: The original  "M" method .. the only one based on 'nls' :
+
+    test.vec <- match.arg(test.vec)
     if (!((is.list(start) && all(sapply(start, is.numeric))) ||
 	  (is.vector(start) && is.numeric(start)))
 	|| any(is.na(match(pnames, varNames))))
@@ -91,7 +124,7 @@ nlrob <-
             resid <- residuals(out)
 	    convi <- irls.delta(previous, get(test.vec))
 	}
-	converged <- convi <= acc
+	converged <- convi <= tol
 	if (converged)
 	    break
     }

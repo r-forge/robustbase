@@ -3,11 +3,11 @@
 
 ## (2) argument names:
 ## 5 matches for "@param .*tuning" in buffer  nlregrob.R
-##      29:##' @param tuning.chi.scale \
-##      30:##' @param tuning.chi.M     /  nlrob.MM
-##     208:##' @param tuning.chi.scale \
-##     209:##' @param tuning.chi.tau   /  nlrob.tau
-##     356:##' @param tuning.chi          nlrob.CM
+##      27:##' @param tuning.chi.scale \
+##      28:##' @param tuning.chi.M     /  nlrob.MM
+##     217:##' @param tuning.chi.scale \
+##     218:##' @param tuning.chi.tau   /  nlrob.tau
+##     364:##' @param tuning.chi          nlrob.CM
 
 
 ##' Compute an MM-estimator for nonlinear (constrained) regression.
@@ -20,7 +20,7 @@
 ##' @param pnames
 ##' @param lower
 ##' @param upper
-##' @param tolerance
+##' @param tol
 ##' @param f0
 ##' @param estim
 ##' @param psi
@@ -41,7 +41,7 @@
 ##'           optim.control = list(trace = 1), trace = TRUE )
 ##' @author Eduardo L. T. Conceicao
 nlrob.MM <- function(formula, data, pnames, lower, upper,
-                     tolerance = 1e-7, f0 = NULL,
+                     tol = 1e-7, f0 = NULL,
                      init = c("S", "lts"),
                      psi = c("bisquare", "lqq", "optimal", "hampel"),
                      tuning.chi.scale = NULL, tuning.chi.M = NULL,
@@ -166,7 +166,7 @@ nlrob.MM <- function(formula, data, pnames, lower, upper,
     switch(init, lts = h <- (nobs + npar + 1)%/%2)
 
     initial <- JDEoptim(lower, upper, objective.initial,
-                        tol = tolerance, fnscale = f0, ...)
+                        tol = tol, fnscale = f0, ...)
     names(initial$par) <- pnames
     res <- y - eval( formula[[3L]], c(data, initial$par) )
 
@@ -211,7 +211,7 @@ nlrob.MM <- function(formula, data, pnames, lower, upper,
 ##' @param pnames
 ##' @param lower
 ##' @param upper
-##' @param tolerance
+##' @param tol
 ##' @param f0
 ##' @param psi
 ##' @param tuning.chi.scale
@@ -231,7 +231,7 @@ nlrob.MM <- function(formula, data, pnames, lower, upper,
 ##'
 ##' @author Eduardo L. T. Conceicao
 nlrob.tau <- function(formula, data, pnames, lower, upper,
-                      tolerance = 1e-7, f0 = NULL,
+                      tol = 1e-7, f0 = NULL,
                       psi = c("bisquare", "optimal"),
                       tuning.chi.scale = NULL, tuning.chi.tau = NULL, ...)
 {
@@ -327,7 +327,7 @@ nlrob.tau <- function(formula, data, pnames, lower, upper,
                optimal = 1/c1 * 1/3),
         if (nobs %% 2) 2/rho.inv(2/(nobs+2)) else 1/rho.inv(1/(nobs+1)))
     optRes <-
-        JDEoptim(lower, upper, objective, tol = tolerance, fnscale = f0, ...)
+        JDEoptim(lower, upper, objective, tol = tol, fnscale = f0, ...)
     coef <- optRes$par
     names(coef) <- pnames
     iter <- optRes$iter
@@ -358,7 +358,7 @@ nlrob.tau <- function(formula, data, pnames, lower, upper,
 ##' @param pnames
 ##' @param lower
 ##' @param upper
-##' @param tolerance
+##' @param tol
 ##' @param f0
 ##' @param psi
 ##' @param tuning.chi
@@ -377,7 +377,7 @@ nlrob.tau <- function(formula, data, pnames, lower, upper,
 ##'            trace = TRUE )
 ##' @author Eduardo L. T. Conceicao
 nlrob.CM <- function(formula, data, pnames, lower, upper,
-		     tolerance = 1e-7, f0 = NULL,
+		     tol = 1e-7, f0 = NULL,
 		     psi = c("bisquare", "lqq", "welsh", "optimal", "hampel", "ggw"),
 		     tuning.chi = NULL, ...)
 {
@@ -451,7 +451,7 @@ nlrob.CM <- function(formula, data, pnames, lower, upper,
     stopifnot(is.numeric(f0), f0 > 0)
 
     optRes <- JDEoptim(lower, upper, objective, con,
-                       tol = tolerance, fnscale = f0, ...)
+                       tol = tol, fnscale = f0, ...)
     coef <- optRes$par
     names(coef) <- pnames
     iter <- optRes$iter
@@ -483,7 +483,7 @@ nlrob.CM <- function(formula, data, pnames, lower, upper,
 ##' @param lower
 ##' @param upper
 ##' @param cutoff
-##' @param tolerance
+##' @param tol
 ##' @param f0
 ##' @param ... optional arguments for optimization, e.g., \code{trace = TRUE}, passed to \code{\link{JDEoptim}(.)}.
 ##' @return
@@ -509,7 +509,7 @@ nlrob.CM <- function(formula, data, pnames, lower, upper,
 ##' @author Eduardo L. T. Conceicao
 nlrob.mtl <- function(formula, data, pnames, lower, upper,
                       cutoff = 2.5,
-                      tolerance = 1e-7, f0 = NULL, ...)
+                      tol = 1e-7, f0 = NULL, ...)
 {
     trim <- function(t) {
         t <- sort.int(t)
@@ -579,7 +579,7 @@ nlrob.mtl <- function(formula, data, pnames, lower, upper,
     hlow <- (nobs + npar + 1)%/%2
 
     optRes <-
-        JDEoptim(lower, upper, objective, tol = tolerance, fnscale = f0, ...)
+        JDEoptim(lower, upper, objective, tol = tol, fnscale = f0, ...)
     coef <- optRes$par
     names(coef) <- pnames
     crit <- optRes$value
