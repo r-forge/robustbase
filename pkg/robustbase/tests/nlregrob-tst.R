@@ -52,7 +52,7 @@ showProc.time()
 Rfit.MM.S.bisquare <-
     nlrob.MM( y ~ Expo(x, a, b), data = d.exp30, pnames = c("a", "b"),
               lower = c(-10, -2), upper = c(10, 2),
-              NP = NP, tol =1e-7, add_to_init_pop = true_params )
+              NP = NP, tol = 1e-7, add_to_init_pop = true_params )
 Rfit.MM.S.lqq        <- update(Rfit.MM.S.bisquare, psi = "lqq")
 Rfit.MM.S.optimal    <- update(Rfit.MM.S.bisquare, psi = "optimal")
 Rfit.MM.S.hampel     <- update(Rfit.MM.S.bisquare, psi = "hampel")
@@ -76,7 +76,7 @@ S.time(Rfit.CM <- nlrob.CM( y ~ Expo(x, a, b), data = d.exp30,
 S.time(Rfit.mtl <- nlrob.mtl( y ~ Expo(x, a, b), data = d.exp30,
                               pnames = c("a", "b", "sigma"),
                               lower = c(-10, -2, 0), upper = c(10, 2, 3),
-                              NP = NP, tol =1e-7,
+                              NP = NP, tol = 1e-7,
                               add_to_init_pop = true_params_sigma ))
 showProc.time()
 
