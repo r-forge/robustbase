@@ -52,7 +52,7 @@ showProc.time()
 Rfit.MM.S.bisquare <-
     nlrob.MM( y ~ Expo(x, a, b), data = d.exp30, pnames = c("a", "b"),
               lower = c(-10, -2), upper = c(10, 2),
-              NP = NP, add_to_init_pop = true_params )
+              NP = NP, tol =1e-7, add_to_init_pop = true_params )
 Rfit.MM.S.lqq        <- update(Rfit.MM.S.bisquare, psi = "lqq")
 Rfit.MM.S.optimal    <- update(Rfit.MM.S.bisquare, psi = "optimal")
 Rfit.MM.S.hampel     <- update(Rfit.MM.S.bisquare, psi = "hampel")
@@ -76,7 +76,8 @@ S.time(Rfit.CM <- nlrob.CM( y ~ Expo(x, a, b), data = d.exp30,
 S.time(Rfit.mtl <- nlrob.mtl( y ~ Expo(x, a, b), data = d.exp30,
                               pnames = c("a", "b", "sigma"),
                               lower = c(-10, -2, 0), upper = c(10, 2, 3),
-                              NP = NP, add_to_init_pop = true_params_sigma ))
+                              NP = NP, tol =1e-7,
+                              add_to_init_pop = true_params_sigma ))
 showProc.time()
 
 ## 40% outliers present {use different data name: seen in print(<fitted model>)
@@ -138,7 +139,7 @@ assert.EQ(coef(Rfit.MM.lts.hampel),	cfcl, tol = 0.01, giveRE=TRUE)
 assert.EQ(coef(Rfit.tau.bisquare),	cfcl, tol = 0.02, giveRE=TRUE)# 0.009873
 assert.EQ(coef(Rfit.tau.optimal),	cfcl, tol = 0.01, giveRE=TRUE)
 assert.EQ(coef(Rfit.CM)[-3],		cfcl, tol = 0.01, giveRE=TRUE)
-assert.EQ(coef(Rfit.mtl)[-3],		cfcl, tol = 0.05, giveRE=TRUE)
+assert.EQ(coef(Rfit.mtl)[-3],		cfcl, tol = 0.02, giveRE=TRUE)
 ## 40% outliers present
 assert.EQ(coef(Rf.out.MM.S.bisquare),	cfcl, tol = 0.1, giveRE=TRUE)
 assert.EQ(coef(Rf.out.MM.S.lqq),	cfcl, tol = 0.1, giveRE=TRUE)
