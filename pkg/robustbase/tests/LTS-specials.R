@@ -2,6 +2,18 @@
 
 library(robustbase)
 
+## Platform - and other such info -- so we find it in old saved outputs
+.libPaths()
+SysI <- Sys.info()
+structure(Sys.info()[c(4,5,1:3)], class="simple.list")
+sessionInfo()
+c(robustbase = packageDescription("robustbase")$Built)
+if(SysI[["sysname"]] == "Linux" && require("sfsmisc")) local({
+    nn <- names(.Sc <- sfsmisc::Sys.cpuinfo())
+    nn <- names(.Sc <- .Sc[nn != "flags"])
+    print(.Sc[grep("\\.[0-9]$", nn, invert=TRUE)])
+})
+
 ### 1) p = 1 ----------------------------------------------------
 set.seed(1)
 x <- c(rnorm(50),100, 1e10)
