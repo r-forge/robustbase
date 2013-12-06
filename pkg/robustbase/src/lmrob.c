@@ -800,7 +800,7 @@ double wgt_huber(double x, const double c[])
     return (fabs(x) >= c[0]) ? c[0]/fabs(x) : 1.;
 }
 
-//--- Biweight = Bisqaure = Tukey's Biweight ...
+//--- Biweight = Bisquare = Tukey's Biweight ...
 //--- --------------------------------------
 
 double rho_biwgt(double x, const double c[])
