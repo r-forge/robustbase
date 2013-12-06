@@ -4,7 +4,7 @@
 ## (2) argument names:
 ## 5 matches for "@param .*tuning" in buffer  nlregrob.R
 ##      27:##' @param tuning.chi.scale \
-##      28:##' @param tuning.chi.M     /  nlrob.MM
+##      28:##' @param tuning.psi.M     /  nlrob.MM
 ##     217:##' @param tuning.chi.scale \
 ##     218:##' @param tuning.chi.tau   /  nlrob.tau
 ##     364:##' @param tuning.chi          nlrob.CM
@@ -21,11 +21,11 @@
 ##' @param lower
 ##' @param upper
 ##' @param tol
-##' @param f0
-##' @param estim
+##' @param fnscale
+##' @param init
 ##' @param psi
 ##' @param tuning.chi.scale
-##' @param tuning.chi.M
+##' @param tuning.psi.M
 ##' @param optim.control
 ##' @param ... optional arguments for optimization, e.g., \code{trace = TRUE}, passed to \code{\link{JDEoptim}(.)}.
 ##' @return
@@ -40,56 +40,49 @@
 ##'           lower = 0, upper = 3,
 ##'           optim.control = list(trace = 1), trace = TRUE )
 ##' @author Eduardo L. T. Conceicao
-nlrob.MM <- function(formula, data, pnames, lower, upper,
-                     tol = 1e-6, f0 = NULL,
-                     init = c("S", "lts"),
-                     psi = c("bisquare", "lqq", "optimal", "hampel"),
-                     tuning.chi.scale = NULL, tuning.chi.M = NULL,
-                     optim.control = list(), ...)
+nlrob.MM <-
+    function(formula, data, pnames, lower, upper, tol = 1e-6,
+             init = c("S", "lts"),
+             psi = c("bisquare", "lqq", "optimal", "hampel"),
+             ctrl = nlrob.control("MM", psi=psi, init=init, fnscale=NULL,
+                 tuning.chi.scale = .psi.conv.cc(psi, .Mchi.tuning.defaults[[psi]]),
+                 tuning.psi.M     = .psi.conv.cc(psi, .Mpsi.tuning.defaults[[psi]]),
+                 optim.control = list(), jOptimArgs = list(...)),
+             ...)
 {
-    init <- match.arg(init)
-    psi <- match.arg(psi)
-    if (is.null(tuning.chi.scale))
-        tuning.chi.scale <- switch(psi, bisquare = 1.56,
-                                   lqq = c(0.402, 0.268, 1.5),
-                                   optimal = 0.405,
-                                   hampel = c(1.5, 3.5, 8)*0.212)
-    if (is.null(tuning.chi.M))
-        tuning.chi.M <- switch(psi, bisquare = 4.68, lqq = c(1.473, 0.982, 1.5),
-                               optimal = 1.060, hampel = c(1.5, 3.5, 8)*0.9014)
-
-    c1 <- tuning.chi.scale
-    c2 <- tuning.chi.M
+    if(missing(ctrl)) {
+        init <- match.arg(init)
+        psi <- match.arg(psi)
+        force(ctrl) # 
+    } else {
+        init <- ctrl$ init
+        psi  <- ctrl$ psi
+    }
+    c1 <- ctrl$tuning.chi.scale
+    c2 <- ctrl$tuning.psi.M
 
     ## Preliminary psi-specific checks / computations:
     switch(psi,
-           "bisquare" = {
-               if(!require("PolynomF"))
-		   stop(gettextf(
-		"You must install package 'PolynomF' before you can use %s",
-		"nlrob.MM(*, psi=bisquare)"), domain=NA)
-           },
-           "lqq" = { # lqqMax = rho(Inf), used in rho.inv() *and* ..
+           "lqq" = { # lqqMax = rho(Inf), used in rho.inv() *and* 'constant':
                c12 <- c1[1]+c1[2]
                lqqMax <- (c1[1]*c1[3] - 2*c12)/(1-c1[3]) + c12})
 
     rho1 <- function(t) Mchi(t, c1, psi)
     rho2 <- function(t) Mchi(t, c2, psi)
 
-    rho.inv <- switch(psi, bisquare = function(y) {
-        x <- polynom()
-        p <- 3*x^2 - 3*x^4 + x^6
-        t <- solve(p, y)
-        t <- Re( t[Im(t) == 0] )
-        unique( t[t >= 0] ) * c1
-    }, lqq = function(y) {
+    rho.inv <- switch(psi, "bisquare" = function(y) {
+        ## Find  x := u^2  which solves cubic eq. 3*x - 3*x^2 + x^3 = y
+        ##      <==> (x-1)^3 + 1 = y  <==> (1-x)^3 = 1-y  <==> x = 1 - (1-y)^(1/3)
+        ##      (where we assume 0 <= y <= 1, i.e, y-1 < 0)
+        c1 * sqrt(1 - (1 - y)^(1/3))
+    }, "lqq" = function(y) {
         uniroot( function(x) rho1(x) - y, lower = 0, upper = lqqMax )$root
-    }, optimal = function(y) {
+    }, "optimal" = function(y) {
         ## Salibian-Barrera, Matias, Willems, Gert, and Zamar, Ruben (2008).
         ## The fast-tau estimator for regression.
         ## Journal of Computational and Graphical Statistics 17, 659-682.
         sqrt(y/1.38) * c1 * 3
-    }, hampel = function(y) {
+    }, "hampel" = function(y) {
         C <- MrhoInf(c1, psi)
         a <- c1[1]; b <- c1[2]; r <- c1[3]
         if (y <= a/C)
@@ -97,7 +90,7 @@ nlrob.MM <- function(formula, data, pnames, lower, upper,
         else if (y <= (2*b - a)/C)
             0.5*a + C/a*y
         else r + sqrt( r^2 - ( (r - b)*(2*C/a*y + (b - a)) - b*r ) )
-    })
+    }, stop(gettextf("Psi function '%s' not supported yet", psi)))
 
     M_scale <- function(sigma, u) sum( rho1(u/sigma) )/nobs - 0.5
 
@@ -121,7 +114,8 @@ nlrob.MM <- function(formula, data, pnames, lower, upper,
                                     upper = constant[2L] * med_abs_res,
                                     u = res )$root
                    sigma
-               })
+	       }, stop(gettextf("Initialization 'init = \"%s\"' not supported (yet)",
+				init)))
 
     objective.M <- function(par, sigma) {
         names(par) <- pnames
@@ -154,9 +148,10 @@ nlrob.MM <- function(formula, data, pnames, lower, upper,
     y <- eval(formula[[2L]], data)
     nobs <- length(y)
     stopifnot(nobs >= npar)
-    if (is.null(f0))
-        f0 <- sum(scale(y, scale = FALSE)^2)
-    stopifnot(is.numeric(f0), f0 > 0)
+    if (is.null(fnscale <- ctrl$ fnscale))
+        fnscale <- sum((y - mean(y))^2)
+    ctrl$fnscale <- NULL # remove it there
+    stopifnot(is.numeric(fnscale), fnscale > 0)
     constant <- c(
         switch(psi, bisquare = 1/c1,
                lqq = 1/lqqMax,
@@ -165,8 +160,8 @@ nlrob.MM <- function(formula, data, pnames, lower, upper,
         if(nobs %% 2) 2/rho.inv(2/(nobs+2)) else 1/rho.inv(1/(nobs+1)))
     switch(init, lts = h <- (nobs + npar + 1)%/%2)
 
-    initial <- JDEoptim(lower, upper, objective.initial,
-                        tol = tol, fnscale = f0, ...)
+    initial <- do.call(JDEoptim, c(list(lower, upper, objective.initial,
+					tol=tol, fnscale=fnscale), ctrl$jOptimArgs))
     names(initial$par) <- pnames
     res <- y - eval( formula[[3L]], c(data, initial$par) )
 
@@ -176,10 +171,10 @@ nlrob.MM <- function(formula, data, pnames, lower, upper,
                       upper = constant[2L] * med_abs_res,
                       u = res )$root
 
-    con <- list(fnscale = initial$value, parscale = initial$par)
-    M <- optim( initial$par, objective.M, sigma = sigma,
-                method = "L-BFGS-B", lower = lower, upper = upper,
-                control = c(con, optim.control) )
+    M <- optim(initial$par, objective.M, sigma = sigma,
+               method = "L-BFGS-B", lower = lower, upper = upper,
+               control = c(list(fnscale = initial$value, parscale = initial$par),
+                           ctrl$optim.control) )
     coef <- M$par
     names(coef) <- pnames
     status <-
@@ -196,7 +191,7 @@ nlrob.MM <- function(formula, data, pnames, lower, upper,
                    crit = M$value,
                    initial = initial,
                    Scale = sigma,
-                   status = status, counts = M$counts, data = dataName),
+                   status = status, counts = M$counts, data = dataName, ctrl=ctrl),
               class = "nlrob")
 } ## nlrob.MM
 
@@ -212,7 +207,7 @@ nlrob.MM <- function(formula, data, pnames, lower, upper,
 ##' @param lower
 ##' @param upper
 ##' @param tol
-##' @param f0
+##' @param fnscale
 ##' @param psi
 ##' @param tuning.chi.scale
 ##' @param tuning.chi.tau
@@ -230,31 +225,33 @@ nlrob.MM <- function(formula, data, pnames, lower, upper,
 ##'            lower = 0, upper = 3,  trace = TRUE )
 ##'
 ##' @author Eduardo L. T. Conceicao
-nlrob.tau <- function(formula, data, pnames, lower, upper,
-                      tol = 1e-6, f0 = NULL,
-                      psi = c("bisquare", "optimal"),
-                      tuning.chi.scale = NULL, tuning.chi.tau = NULL, ...)
+nlrob.tau <- function(formula, data, pnames, lower, upper, tol = 1e-6,
+		      psi = c("bisquare", "optimal"),
+		      ctrl = nlrob.control("tau", psi=psi, fnscale=NULL,
+			  tuning.chi.scale = NULL, tuning.chi.tau = NULL,
+			  jOptimArgs = list(...)),
+		      ...)
 {
-    psi <- match.arg(psi)
-    if (is.null(tuning.chi.scale))
-        tuning.chi.scale <- switch(psi, bisquare = list(b = 0.20, cc = 1.55),
-                                   optimal = list(b = 0.5, cc = 0.405))
-    if (is.null(tuning.chi.tau))
-        tuning.chi.tau <- switch(psi, bisquare = list(b = 0.46, cc = 6.04),
-                                 optimal = list(b = 0.128, cc = 1.060))
+    if(missing(ctrl)) {
+	psi <- match.arg(psi)
+	force(ctrl) # 
+    } else {
+	psi  <- ctrl$ psi
+    }
+    if(is.null(.chi.s <- ctrl$tuning.chi.scale))
+	.chi.s <- switch(psi, bisquare = list(b = 0.20, cc = 1.55),
+			 optimal = list(b = 0.5, cc = 0.405))
+    if(is.null(.chi.t <- ctrl$tuning.chi.tau))
+	.chi.t <- switch(psi, bisquare = list(b = 0.46, cc = 6.04),
+			 optimal = list(b = 0.128, cc = 1.060))
 
-    b1 <- tuning.chi.scale$b
-    c1 <- tuning.chi.scale$cc
-    b2 <- tuning.chi.tau$b
-    c2 <- tuning.chi.tau$cc
+    b1 <- .chi.s$b
+    c1 <- .chi.s$cc
+    b2 <- .chi.t$b
+    c2 <- .chi.t$cc
 
     ## Preliminary psi-specific checks / computations:
     switch(psi, "bisquare" = {
-	if(!require("PolynomF"))
-	    stop(gettextf(
-		"You must install package 'PolynomF' before you can use %s",
-		"nlrob.tau(*, psi=bisquare)"), domain=NA)
-
 	b1 <- b1/MrhoInf(c1, psi)
 	b2 <- b2/MrhoInf(c2, psi)
     })
@@ -262,13 +259,9 @@ nlrob.tau <- function(formula, data, pnames, lower, upper,
     rho1 <- function(t) Mchi(t, c1, psi)
     rho2 <- function(t) Mchi(t, c2, psi)
 
-    rho.inv <- switch(psi, bisquare = function(y) {
-        x <- polynom()
-        p <- 3*x^2 - 3*x^4 + x^6
-        t <- solve(p, y)
-        t <- Re( t[Im(t) == 0] )
-        unique( t[t >= 0] ) * c1
-    }, optimal = function(y) {
+    rho.inv <- switch(psi, "bisquare" = function(y) {
+	c1 * sqrt(1 - (1 - y)^(1/3))
+    }, "optimal" = function(y) {
         ## Salibian-Barrera, Matias, Willems, Gert, and Zamar, Ruben (2008).
         ## The fast-tau estimator for regression.
         ## Journal of Computational and Graphical Statistics 17, 659-682.
@@ -318,16 +311,18 @@ nlrob.tau <- function(formula, data, pnames, lower, upper,
     y <- eval(formula[[2L]], data)
     nobs <- length(y)
     stopifnot(nobs >= npar)
-    if (is.null(f0))
-        f0 <- mean(scale(y, scale = FALSE)^2)
-    stopifnot(is.numeric(f0), f0 > 0)
+    if (is.null(fnscale <- ctrl$ fnscale))
+        fnscale <- mean((y - mean(y))^2)
+    ctrl$fnscale <- NULL # remove it there
+    stopifnot(is.numeric(fnscale), fnscale > 0)
     constant <- c(
         switch(psi,
                bisquare = 1/c1,
                optimal = 1/c1 * 1/3),
         if (nobs %% 2) 2/rho.inv(2/(nobs+2)) else 1/rho.inv(1/(nobs+1)))
-    optRes <-
-        JDEoptim(lower, upper, objective, tol = tol, fnscale = f0, ...)
+
+    optRes <- do.call(JDEoptim, c(list(lower, upper, objective, tol=tol, fnscale=fnscale),
+				  ctrl$jOptimArgs))
     coef <- optRes$par
     names(coef) <- pnames
     iter <- optRes$iter
@@ -343,7 +338,7 @@ nlrob.tau <- function(formula, data, pnames, lower, upper,
                    residuals = y - fit,
                    crit = optRes$value,
                    Scale = sqrt(optRes$value),
-                   status = status, iter = iter, data = dataName),
+                   status = status, iter = iter, data = dataName, ctrl=ctrl),
               class = "nlrob")
 } ## nlrob.tau
 
@@ -359,7 +354,7 @@ nlrob.tau <- function(formula, data, pnames, lower, upper,
 ##' @param lower
 ##' @param upper
 ##' @param tol
-##' @param f0
+##' @param fnscale
 ##' @param psi
 ##' @param tuning.chi
 ##' @param ... optional arguments for optimization, e.g., \code{trace = TRUE}, passed to \code{\link{JDEoptim}(.)}.
@@ -376,19 +371,24 @@ nlrob.tau <- function(formula, data, pnames, lower, upper,
 ##'            lower = 0, upper = c(3, 3, 3, 0.1),
 ##'            trace = TRUE )
 ##' @author Eduardo L. T. Conceicao
-nlrob.CM <- function(formula, data, pnames, lower, upper,
-		     tol = 1e-6, f0 = NULL,
+nlrob.CM <- function(formula, data, pnames, lower, upper, tol = 1e-6,
 		     psi = c("bisquare", "lqq", "welsh", "optimal", "hampel", "ggw"),
-		     tuning.chi = NULL, ...)
+                     ctrl = nlrob.control("CM", psi=psi, fnscale=NULL,
+                         tuning.chi = NULL, jOptimArgs = list(...)),
+                     ...)
 {
-    psi <- match.arg(psi)
-    if (is.null(tuning.chi))
-        tuning.chi <- switch(psi, bisquare = list(b = 0.5, cc = 1, c = 4.835),
-                             stop("unable to find constants for psi function"))
-
-    b <- tuning.chi$b
-    cc <- tuning.chi$cc
-    c <- tuning.chi$c
+    if(missing(ctrl)) {
+        psi <- match.arg(psi)
+        force(ctrl) # 
+    } else {
+        psi  <- ctrl$ psi
+    }
+    if (is.null(t.chi <- ctrl$tuning.chi))
+	t.chi <- switch(psi, bisquare = list(b = 0.5, cc = 1, c = 4.835),
+			stop("unable to find constants for psi function"))
+    b  <- t.chi$b
+    cc <- t.chi$cc
+    c  <- t.chi$c
 
     rho <- function(t) Mchi(t, cc, psi)
     M_scale <- function(sigma, u) sum( rho(u/sigma) )/nobs - b
@@ -416,7 +416,6 @@ nlrob.CM <- function(formula, data, pnames, lower, upper,
         con <- NULL
     }
 
-
     formula <- as.formula(formula)
     dataName <- substitute(data)
     varNames <- all.vars(formula)
@@ -446,12 +445,14 @@ nlrob.CM <- function(formula, data, pnames, lower, upper,
     y <- eval(formula[[2L]], as.list(data))
     nobs <- length(y)
     stopifnot(nobs >= npar)
-    if (is.null(f0))
-        f0 <- mean(scale(y, scale = FALSE)^2)
-    stopifnot(is.numeric(f0), f0 > 0)
+    if (is.null(fnscale <- ctrl$ fnscale))
+        fnscale <- mean((y - mean(y))^2)
+    ctrl$fnscale <- NULL # remove it there
+    stopifnot(is.numeric(fnscale), fnscale > 0)
 
-    optRes <- JDEoptim(lower, upper, objective, con,
-                       tol = tol, fnscale = f0, ...)
+    optRes <- do.call(JDEoptim, c(list(lower, upper, objective, constr=con,
+				       tol=tol, fnscale=fnscale),
+				  ctrl$jOptimArgs))
     coef <- optRes$par
     names(coef) <- pnames
     iter <- optRes$iter
@@ -466,7 +467,7 @@ nlrob.CM <- function(formula, data, pnames, lower, upper,
                    fitted.values = fit,
                    residuals = y - fit,
                    crit = optRes$value,
-                   status = status, iter = iter, data = dataName),
+                   status = status, iter = iter, data = dataName, ctrl=ctrl),
               class = "nlrob")
 } ## nlrob.CM
 
@@ -482,9 +483,9 @@ nlrob.CM <- function(formula, data, pnames, lower, upper,
 ##' @param pnames
 ##' @param lower
 ##' @param upper
-##' @param cutoff
 ##' @param tol
-##' @param f0
+##' @param fnscale
+##' @param cutoff
 ##' @param ... optional arguments for optimization, e.g., \code{trace = TRUE}, passed to \code{\link{JDEoptim}(.)}.
 ##' @return
 ##' @references
@@ -507,17 +508,16 @@ nlrob.CM <- function(formula, data, pnames, lower, upper,
 ##'            lower = 0, upper = c(3, 3, 3, 0.1),
 ##'            trace = TRUE )
 ##' @author Eduardo L. T. Conceicao
-nlrob.mtl <- function(formula, data, pnames, lower, upper,
-                      cutoff = 2.5,
-                      tol = 1e-6, f0 = NULL, ...)
+nlrob.mtl <- function(formula, data, pnames, lower, upper, tol = 1e-6,
+                      ctrl = nlrob.control("mtl", cutoff = 2.5, jOptimArgs = list(...)),
+                      ...)
 {
+    cutoff <- ctrl[["cutoff"]]
     trim <- function(t) {
         t <- sort.int(t)
         i <- which(t >= cutoff)
-        if (length(i) > 0) {
-            h <- floor(min( (i - 1)/(2*pnorm(t[i]) - 1) ))
-            h <- max(h, hlow)
-        } else h <- nobs
+        h <- if (length(i) > 0)
+            max(hlow, floor(min( (i - 1)/(2*pnorm(t[i]) - 1) ))) else nobs
         list(h = h, t = t)
     }
 
@@ -526,7 +526,7 @@ nlrob.mtl <- function(formula, data, pnames, lower, upper,
         objective <- function(par) {
             names(par) <- pnames
             fit <- eval( formula[[3L]], c(as.list(data), par) )
-            sigma <- par["sigma"]
+            sigma <- par[["sigma"]]
             tp <- trim( abs( (y - fit)/sigma ) )
             h <- tp$h
             h*(constant + 2*log(sigma)) + sum(tp$t[1L:h]^2)
@@ -542,7 +542,6 @@ nlrob.mtl <- function(formula, data, pnames, lower, upper,
             h*(constant + 2*log(sigma)) + sum(tp$t[1L:h]^2)
         }
     }
-
 
     formula <- as.formula(formula)
     dataName <- substitute(data)
@@ -573,13 +572,14 @@ nlrob.mtl <- function(formula, data, pnames, lower, upper,
     y <- eval(formula[[2L]], as.list(data))
     nobs <- length(y)
     stopifnot(nobs >= npar)
-    if (is.null(f0))
-        f0 <- sum(scale(y, scale = FALSE)^2)
-    stopifnot(is.numeric(f0), f0 > 0)
+    if (is.null(fnscale <- ctrl$ fnscale))
+        fnscale <- sum((y - mean(y))^2)
+    ctrl$fnscale <- NULL # remove it there
+    stopifnot(is.numeric(fnscale), fnscale > 0)
     hlow <- (nobs + npar + 1)%/%2
 
-    optRes <-
-        JDEoptim(lower, upper, objective, tol = tol, fnscale = f0, ...)
+    optRes <- do.call(JDEoptim, c(list(lower, upper, objective, tol=tol, fnscale=fnscale),
+				  ctrl$jOptimArgs))
     coef <- optRes$par
     names(coef) <- pnames
     crit <- optRes$value
@@ -593,7 +593,7 @@ nlrob.mtl <- function(formula, data, pnames, lower, upper,
     quan <-
         trim( resid/(if ("sigma" %in% pnames) coef["sigma"] else mad(resid)) )$h
 
-    structure(list(call = match.call(), formula=formula, nobs=nobs,
+    structure(list(call = match.call(), formula=formula, nobs=nobs, method="mtl",
                    coefficients = coef,
                    fitted.values = fit,
                    residuals = resid,
@@ -602,3 +602,53 @@ nlrob.mtl <- function(formula, data, pnames, lower, upper,
                    status = status, iter = iter, data = dataName),
               class = "nlrob")
 } ## nlrob.mtl
+
+nlrob.control <- function(method,
+                          psi = c("bisquare", "lqq", "welsh", "optimal", "hampel", "ggw"),
+                          init = c("S", "lts"),
+                          jOptimArgs  = list(),
+                          ...)
+{
+  psi <- match.arg(psi)
+  init <- match.arg(init)
+  dots <- list(...)
+  argNms <- names(dots)
+  ##' argument or default -> return list of length 1
+  a. <- function(nm,def) {
+    L <- list( if(nm %in% argNms) dots[[nm]] else def )
+    names(L) <- nm
+    L
+  }
+  switch(method,
+         "M" = {
+             list(method = method) # not yet used
+         },
+         "MM" = {
+             c(list(method = method, init = init, psi = psi),
+               a.("fnscale", NULL),
+               a.("tuning.chi.scale", .psi.conv.cc(psi, .Mchi.tuning.defaults[[psi]])),
+               a.("tuning.psi.M",     .psi.conv.cc(psi, .Mpsi.tuning.defaults[[psi]])),
+               a.("optim.control", list()),
+               list(jOptimArgs = jOptimArgs))
+         },
+         "tau" = {
+             c(list(method = method, psi = psi),
+               a.("fnscale", NULL),
+               a.("tuning.chi.scale", NULL),
+               a.("tuning.chi.tau", NULL),
+               list(jOptimArgs = jOptimArgs))
+         },
+         "CM" = {
+             c(list(method = method, psi = psi),
+               a.("fnscale", NULL),
+               a.("tuning.chi", NULL),
+               list(jOptimArgs = jOptimArgs))
+         },
+         "mtl" = {
+             c(list(method = method),
+               a.("fnscale", NULL),
+               a.("cutoff", 2.5),
+               list(jOptimArgs = jOptimArgs))
+         },
+         stop("Method ", method, "not correctly supported yet"))
+}
