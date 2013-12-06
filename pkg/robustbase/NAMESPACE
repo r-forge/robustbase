@@ -1,6 +1,8 @@
-
 useDynLib(robustbase, .registration=TRUE)
 
+if(FALSE) {##MM
+    stopifnot(require(codetoolsBioC), require(robustbase))
+    findExternalDeps("robustbase") }
 importFrom("graphics", plot)# < more ?
 importFrom("stats", alias, anova, case.names, coef, confint, cov,
            dummy.coef, family, fitted, fivenum,
@@ -21,6 +23,7 @@ importFrom("utils", globalVariables)
 ## we also currently use MASS::cov.rob(); but probably only temporarily
 importFrom("methods", new, setClass, setMethod)
 
+importFrom("JDEoptim", JDEoptim)
 
 ## Functions defined in this package
 export(Sn, Qn, Qn.old,
@@ -46,7 +49,7 @@ export(Sn, Qn, Qn.old,
        tukeyChi, tukeyPsi1, # TODO deprecate: see ./TODO
        Mpsi, Mchi, Mwgt, MrhoInf, .Mpsi, .Mchi, .Mwgt, .MrhoInf,
        .Mwgt.psi1,
-       .Mchi.tuning.default, .Mpsi.tuning.default,
+       .Mchi.tuning.default, .Mpsi.tuning.default, .regularize.Mpsi,
        .Mchi.tuning.defaults,.Mpsi.tuning.defaults,
 
        lmrob, lmrob.fit,
@@ -61,11 +64,11 @@ export(Sn, Qn, Qn.old,
        adjOutlyingness,
 
        glmrob,
-       nlrob
-       , JDEoptim
+       nlrob, nlrob.control
        , glmrobMqle.control, glmrobBY.control, glmrobMT.control
        , BYlogreg ## R/BYlogreg.R FIXME: add to glmrob() and "deprecate"
        ## , glmrobMT ## R/MTestimador2.R
+       , sigma
        )
 
 
@@ -130,6 +133,8 @@ S3method(summary, lts)
 S3method(summary, mcd)
 S3method(summary, nlrob)
 
+S3method(sigma, lmrob)
+S3method(sigma, nlrob)
 S3method(vcov, glmrob)
 S3method(vcov, lmrob)
 S3method(vcov, nlrob)

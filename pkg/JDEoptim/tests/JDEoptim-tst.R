@@ -1,10 +1,10 @@
-require("robustbase")
+require("JDEoptim")
 
 c.time <- function(...) cat('Time elapsed: ', ..., '\n')
 S.time <- function(expr) c.time(system.time(expr))
-source(system.file("xtraR/opt-test-funs.R", package = "robustbase"))
+source(system.file("xtraR/opt-test-funs.R", package = "JDEoptim"))
 ## sf1(), swf() + RND, HEND, and alkylation list of $obj and $con  testing functions
-(doExtras <- robustbase:::doExtras())
+(doExtras <- JDEoptim:::doExtras())
 
 set.seed(2345)
 S.time(sf1. <- JDEoptim(c(-100, -100), c(100, 100), sf1, tol = 1e-7,

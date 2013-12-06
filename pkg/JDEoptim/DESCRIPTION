@@ -1,0 +1,11 @@
+Package: JDEoptim
+Version: 1.0-0
+Date: 2013-12-02
+Title: j-Differential Evolution Optimization
+Author: Eduardo L. T. Conceicao and Martin Maechler [ctb]
+Maintainer: Eduardo L. T. Conceicao <econceicao@kanguru.pt>
+Description: An implementation of the jDE variant of the Differential Evolution
+  stochastic algorithm for global optimization of nonlinear programming problems.
+Enhances: robustbase
+License: GPL (>= 2)
+ByteCompile: yes
