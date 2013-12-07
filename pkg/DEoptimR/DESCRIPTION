@@ -1,7 +1,7 @@
-Package: JDEoptim
+Package: DEoptimR
 Version: 1.0-0
-Date: 2013-12-02
-Title: j-Differential Evolution Optimization
+Date: 2013-12-07
+Title: Differential Evolution Optimization in pure R
 Author: Eduardo L. T. Conceicao and Martin Maechler [ctb]
 Maintainer: Eduardo L. T. Conceicao <econceicao@kanguru.pt>
 Description: An implementation of the jDE variant of the Differential Evolution

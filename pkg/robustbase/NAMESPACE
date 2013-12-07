@@ -23,7 +23,7 @@ importFrom("utils", globalVariables)
 ## we also currently use MASS::cov.rob(); but probably only temporarily
 importFrom("methods", new, setClass, setMethod)
 
-importFrom("JDEoptim", JDEoptim)
+importFrom("DEoptimR", JDEoptim)
 
 ## Functions defined in this package
 export(Sn, Qn, Qn.old,
