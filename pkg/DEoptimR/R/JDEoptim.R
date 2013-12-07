@@ -148,69 +148,69 @@ JDEoptim <-
         })
     }
 
-    if (!is.null(constr)) {
-        which.best <- function(x) {
-            ind <- TAVpop <= mu
-            if (all(ind))
-                which.min(x)
-            else if (any(ind))
-                which(ind)[which.min(x[ind])]
-            else which.min(TAVpop)
-        }
-    } else which.best <- function(x) which.min(x)
-
+    which.best <-
+        if (!is.null(constr))
+            function(x) {
+                ind <- TAVpop <= mu
+                if (all(ind))
+                    which.min(x)
+                else if (any(ind))
+                    which(ind)[which.min(x[ind])]
+                else which.min(TAVpop)
+            }
+        else which.min
 
     # Check input parameters
     FUN <- match.arg(FUN)
     d <- length(lower)
     if (length(upper) != d)
         stop("'lower' must have same length as 'upper'")
-    stopifnot(is.numeric(lower), is.numeric(upper), lower <= upper)
-    stopifnot(length(fnscale) == 1, is.numeric(fnscale), fnscale > 0)
-    stopifnot(is.function(fn))
+    stopifnot(is.numeric(lower), is.numeric(upper),
+	      is.finite(lower), is.finite(upper), lower <= upper,
+	      length(fnscale) == 1, is.finite(fnscale), fnscale > 0,
+	      is.function(fn))
     if (!is.null(constr)) {
         stopifnot(is.function(constr))
         stopifnot(length(meq) == 1, meq == as.integer(meq), meq >= 0)
         if (length(eps) == 1)
-            eps <- rep(eps, meq)
-        if (length(eps) != meq)
+            eps <- rep_len(eps, meq)
+        else if (length(eps) != meq)
             stop("eps must be either of length meq, or length 1")
     }
-    stopifnot(length(NP) == 1, NP == as.integer(NP))
-    stopifnot(length(Fl) == 1, is.numeric(Fl),
-              length(Fu) == 1, is.numeric(Fu),
-              Fl <= Fu)
-    stopifnot(length(tau1) == 1, is.numeric(tau1), tau1 >= 0, tau1 <= 1)
-    stopifnot(length(tau2) == 1, is.numeric(tau2), tau2 >= 0, tau2 <= 1)
-    stopifnot(length(tau3) == 1, is.numeric(tau3), tau3 >= 0, tau3 <= 1)
+    stopifnot(length(NP) == 1, NP == as.integer(NP),
+	      length(Fl) == 1, is.numeric(Fl),
+	      length(Fu) == 1, is.numeric(Fu),
+	      Fl <= Fu)
+    stopifnot(length(tau1) == 1, is.numeric(tau1), 0 <= tau1, tau1 <= 1,
+	      length(tau2) == 1, is.numeric(tau2), 0 <= tau2, tau2 <= 1,
+	      length(tau3) == 1, is.numeric(tau3), 0 <= tau3, tau3 <= 1)
     if (!is.null(jitter_factor))
         stopifnot(length(jitter_factor) == 1, is.numeric(jitter_factor))
-    stopifnot(length(tol) == 1, is.numeric(tol))
-    stopifnot(length(maxiter) == 1, maxiter == as.integer(maxiter))
-    stopifnot(length(triter) == 1, triter == as.integer(triter))
-    if (!is.null(add_to_init_pop)) {
-        stopifnot(NROW(add_to_init_pop) == d)
-        stopifnot(is.numeric(add_to_init_pop),
+    stopifnot(length(tol) == 1, is.numeric(tol),
+              length(maxiter) == 1, maxiter == as.integer(maxiter),
+              length(triter) == 1, triter == as.integer(triter))
+    if (!is.null(add_to_init_pop))
+        stopifnot(NROW(add_to_init_pop) == d,
+                  is.numeric(add_to_init_pop),
                   add_to_init_pop >= lower,
                   add_to_init_pop <= upper)
-    }
 
     # Set default values
-    defaultopt.jitter <- if (is.null(jitter_factor)) FALSE else TRUE
+    defaultopt.jitter <- !is.null(jitter_factor) # TRUE else FALSE
 
     # Initialization:
     fn1 <- function(par) fn(par, ...)
 
-    if (!is.null(constr)) {
-        if (meq > 0) {
-            equalIndex <- 1:meq
-            constr1 <- function(par) {
-                h <- constr(par, ...)
-                h[equalIndex] <- abs(h[equalIndex]) - eps
-                h
-            }
-        } else constr1 <- function(par) constr(par, ...)
-    }
+    if (!is.null(constr))
+        constr1 <-
+            if (meq > 0) {
+                eqI <- 1:meq
+                function(par) {
+                    h <- constr(par, ...)
+                    h[eqI] <- abs(h[eqI]) - eps
+                    h
+                }
+            } else function(par) constr(par, ...)
 
     # Zielinski, Karin, and Laur, Rainer (2008).
     # Stopping criteria for differential evolution in
@@ -269,9 +269,7 @@ JDEoptim <-
                 else runif(1, Fl, Fu)
             } else F[, i]
             # CRi update
-            CRtrial <- if (runif(1) <= tau2)
-                runif(1)
-            else CR[i]
+            CRtrial <- if (runif(1) <= tau2) runif(1) else CR[i]
             # pFi update
             if (runif(1) <= tau3)
                 pF[i] <- runif(1)

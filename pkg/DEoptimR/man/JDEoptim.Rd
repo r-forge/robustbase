@@ -19,7 +19,9 @@ JDEoptim(lower, upper, fn,
 }
 \arguments{
   \item{lower, upper}{numeric vectors of \emph{lower} or \emph{upper}
-    bounds, respectively, for the parameters to be optimized over.}
+    bounds, respectively, for the parameters to be optimized over.  Must
+    be finite (\code{\link{is.finite}}) as they bound the hyper rectangle
+    of the initial random population.}
   \item{fn}{(nonlinear) objective \code{\link{function}} to be
     \emph{minimized}.  It takes as first argument the vector of
     parameters over which minimization is to take place.  It must return
