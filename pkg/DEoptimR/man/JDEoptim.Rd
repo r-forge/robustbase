@@ -78,6 +78,8 @@ JDEoptim(lower, upper, fn,
 
   Constraint handling is done using the approach described in Zhang and Rangaiah (2012).
 
+  DE is easily extended to deal with \emph{mixed integer nonlinear programming} problems using a small variation of the technique presented by Lampinen and Zelinka (1999). Integer values are obtained by means of the \code{floor()} function for the evaluation of the objective function. This is because DE itself works with continuous variables. Additionally, each upper bound of the integer variables should be added by \code{1}.
+
   The algorithm is stopped if
   \deqn{\frac{\mathrm{FUN}\{[\mathrm{fn}(x_1),\ldots,\mathrm{fn}(x_\mathrm{npop})]\} - \mathrm{fn}(x_\mathrm{best})}{\mathrm{fnscale}} \le \mathrm{tol}}{%
     ( FUN{ [fn(x[1]),\ldots,fn(x[npop])] } - fn(x[best]) )/fnscale <= tol,}
@@ -113,6 +115,12 @@ where the \dQuote{best} individual \eqn{x_\mathrm{best}}{x[best]} is the \emph{f
   Self-adapting control parameters in differential evolution: a
   comparative study on numerical benchmark problems.
   \emph{IEEE Transactions on Evolutionary Computation} \bold{10}, 646--657.
+
+  Lampinen, J. and Zelinka, I. (1999).
+  Mechanical engineering design optimization by differential evolution;
+  in Corne, D., Dorigo, M. and Glover, F., Eds.,
+  \emph{New Ideas in Optimization}.
+  McGraw-Hill, pp. 127--146.
 
   Price, K. V., Storn, R. M. and Lampinen, J. A. (2005)
   \emph{Differential Evolution: A practical approach to global optimization}.
@@ -215,7 +223,7 @@ JDEoptim(c(0, 0, 100), c(34, 17, 300),
 #     by differential evolution.
 #     In: David Corne, Marco Dorigo and Fred Glover (Editors),
 #     New Ideas in Optimization, McGraw-Hill, pp 127-146
-pressure_vessel <-
+pressure_vessel_A <-
     list(obj = function(x) {
              x1 <- x[1]; x2 <- x[2]; x3 <- x[3]; x4 <- x[4]
              0.6224*x1*x3*x4 + 1.7781*x2*x3^2 +
@@ -230,6 +238,44 @@ pressure_vessel <-
 
 JDEoptim(c( 1.1,  0.6,   0.0,   0.0),
          c(12.5, 12.5, 240.0, 240.0),
-         fn = pressure_vessel$obj, constr = pressure_vessel$con,
+         fn = pressure_vessel_A$obj,
+         constr = pressure_vessel_A$con,
+         tol = 1e-7, trace = TRUE, triter = 50)
+
+# Mixed integer nonlinear programming
+
+#   Designing a pressure vessel
+#   Case B: solved according to the original problem statements
+#           steel plate available in thicknesses multiple
+#           of 0.0625 inch
+#
+#   wall thickness of the
+#   shell 1.1 [18*0.0625] <= x1 <= 12.5 [200*0.0625]
+#   heads 0.6 [10*0.0625] <= x2 <= 12.5 [200*0.0625]
+#         0.0 <= x3 <= 240.0, 0.0 <= x4 <= 240.0
+#   The global optimum is (x1, x2, x3, x4; f) =
+#   (1.125 [18*0.0625], 0.625 [10*0.0625],
+#    58.29016, 43.69266; 7197.729).
+pressure_vessel_B <-
+    list(obj = function(x) {
+             x1 <- floor(x[1])*0.0625
+             x2 <- floor(x[2])*0.0625
+             x3 <- x[3]; x4 <- x[4]
+             0.6224*x1*x3*x4 + 1.7781*x2*x3^2 +
+             3.1611*x1^2*x4 + 19.84*x1^2*x3
+         },
+         con = function(x) {
+             x1 <- floor(x[1])*0.0625
+             x2 <- floor(x[2])*0.0625
+             x3 <- x[3]; x4 <- x[4]
+             c(0.0193*x3 - x1,
+               0.00954*x3 - x2,
+               750.0*1728.0 - pi*x3^2*x4 - 4/3*pi*x3^3)
+         })
+
+JDEoptim(c( 18,    10,     0.0,   0.0),
+         c(200+1, 200+1, 240.0, 240.0),
+         fn = pressure_vessel_B$obj,
+         constr = pressure_vessel_B$con,
          tol = 1e-7, trace = TRUE, triter = 50)
 }
