@@ -5,8 +5,7 @@
 
 *** TODO nlrob(*, method = "...") should call methods "tau", "CM", "MTL", "MM"
     by Eduardo Conceicao
-
-**** TODO: shouldn't we rename jde() to jdeopt() or even jdeoptim(), jDEoptim(), or JDEoptim()
+**** DONE shouldn't we rename jde() to jdeopt() or even jdeoptim(), jDEoptim(), or JDEoptim()
 R users already know optim() etc.. so the name seems more logical for them.
 
 * Short Term
@@ -15,22 +14,18 @@ R users already know optim() etc.. so the name seems more logical for them.
     --> more tests in ./tests/glmrob-1.R
     --> glm.fit() instead of glm()
     --> vcov() instead of just std.err. {is already there}
-
 *** glmrob(*, weights.on.x = "robCov")  uses  MASS::cov.rob(),
    i.e. "MVE" and Andreas had a comment that "mcd" is worse.
    "covMcd" has been available for a while; now via robXweights() in ./R/glmrobMqle.R
    HOWEVER: Need something better when 'X' has (binary!) factors!
    "hat" +- works, but needs more work
-
 *** We now allow  weights.on.x  to be an arbitrary general  wts(X, intercept)
    function _or_ a list containing a  robMcd()-like function.
    Definitely need *testing* this situation!
-
 *** glmrob(<Gamma>):  anova() has  three variants: "V1", "Eva1", "Andreas1"
     --> ./R/glmrobMqle-DQD.R
     - gives warning every time {-> easy to fix}
     -  Default is "V1" is that a good idea?
-
 
 *** glmrob() needs a bit more tests in ./tests/
             [also consider those from man/glmrob.Rd]

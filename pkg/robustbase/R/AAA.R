@@ -109,3 +109,5 @@ doExtras <- function() {
     interactive() || nzchar(Sys.getenv("R_robustbase_check_extra")) ||
         identical("true", unname(Sys.getenv("R_PKG_CHECKING_doExtras")))
 }
+
+sigma <- function(object, ...) UseMethod("sigma")

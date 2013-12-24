@@ -900,6 +900,7 @@ lmrob.leverages <- function(x, w = rep(1, NROW(x)), wqr = qr(sqrt(w) * x))
     if(!is.numeric(cc))
         stop("tuning constant 'cc' is not numeric")
 
+    ## "FIXME": For (ggw, lqq) this is much related to  .psi.const() below
     switch(tolower(psi),
            'ggw' = {
                ## Input: 4 parameters, (minimal slope, b, efficiency, breakdown point)
@@ -1059,6 +1060,9 @@ lmrob.bp <- function(psi, cc, ...)
     else c(cc[2]*c., c., 1-cc[1])
 }
 
+##' For ("ggw", "lqq"), if  cc is not one of the predefined ones,
+##'
+##' compute the tuning constants numerically, from the given specs (eff / bp):
 .psi.const <- function(cc, psi)
 {
     switch(psi,

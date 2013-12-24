@@ -549,6 +549,7 @@ vcov.lmrob <- function (object, cov=object$control$cov, ...) {
   }
 }
 
+sigma.lmrob <- function(object, ...) object$scale
 
 weights.lmrob <- function(object, type = c("prior", "robustness"), ...) {
     type <- match.arg(type)

@@ -1,12 +1,13 @@
 nlrob <-
     function (formula, data, start, weights = NULL, na.action = na.fail,
-              method = c("M", "MM", "tau", "CM", "mtl"),
+	      lower = -Inf, upper = Inf,
+	      method = c("M", "MM", "tau", "CM", "mtl"),
 	      psi = .Mwgt.psi1("huber", cc=1.345),
-              test.vec = c("resid", "coef", "w"),
-	      maxit = 20, tol = if(method=="M") 1e-06 else 1e-7, acc,
-              algorithm = "default",
-              doCov = FALSE,
-	      control = nls.control(), trace = FALSE)
+	      test.vec = c("resid", "coef", "w"),
+	      maxit = 20, tol = 1e-06, acc,
+	      algorithm = "default", doCov = FALSE,
+	      control = if(method == "M") nls.control() else nlrob.control(method, ...),
+              trace = FALSE, ...)
 {
     ## Purpose:
     ##	Robust fitting of nonlinear regression models. The fitting is
@@ -42,20 +43,24 @@ nlrob <-
          any(sapply(start, is.finite)))
           warning("Starting values will not be used (just the 'names()') for method ",
                   method)
-         
+      force(control)
       switch(method,
-             "MM" = {
-                 return(nlrob.MM (formula, data, pnames, tol=tol, ............))
-             },
-             "tau" = {
-                 return(nlrob.tau(formula, data, pnames, tol=tol, ............))
-             },
-             "CM"	 = {
-                 return(nlrob.CM (formula, data, pnames, tol=tol, ............))
-             },
-             "mtl" = {
-                 return(nlrob.mtl(formula, data, pnames, tol=tol, ............))
-             })
+	     "MM" = {
+		 return(nlrob.MM (formula, data, pnames, lower=lower,upper=upper,
+				  tol=tol, ctrl= control))
+	     },
+	     "tau" = {
+		 return(nlrob.tau(formula, data, pnames, lower=lower,upper=upper,
+				  tol=tol, ctrl= control))
+	     },
+	     "CM"	 = {
+		 return(nlrob.CM (formula, data, pnames, lower=lower,upper=upper,
+				  tol=tol, ctrl= control))
+	     },
+	     "mtl" = {
+		 return(nlrob.mtl(formula, data, pnames, lower=lower,upper=upper,
+				  tol=tol, ctrl= control))
+	     })
     }
 
     ## else: The original  "M" method .. the only one based on 'nls' :
@@ -113,10 +118,19 @@ nlrob <-
 		w <- w * weights
 	    data$._nlrob.w <- w ## use a variable name the user "will not" use
 	    ._nlrob.w <- NULL # FIXME workaround for codetools
+            ## Case distinction against "wrong warning" as long as
+            ## we don't require R > 3.0.2:
+	    if(identical(lower, -Inf) && identical(upper, Inf))
 	    out <- nls(formula, data = data, start = start,
-                       algorithm = algorithm, trace = trace,
-                       weights = ._nlrob.w,
-                       na.action = na.action, control = control)
+		       algorithm = algorithm, trace = trace,
+		       weights = ._nlrob.w,
+		       na.action = na.action, control = control)
+	    else
+	    out <- nls(formula, data = data, start = start,
+		       algorithm = algorithm, trace = trace,
+		       lower=lower, upper=upper,
+		       weights = ._nlrob.w,
+		       na.action = na.action, control = control)
 
 	    ## same sequence as in start! Ok for test.vec:
 	    coef <- coefficients(out)
@@ -176,6 +190,9 @@ nlrob <-
 
 ## The 'nls' method is *not* correct
 formula.nlrob <- function(x, ...) x$formula
+
+sigma.nlrob <- function(object, ...)
+    if(!is.null(s <- object$Scale)) s else object$coefficients[["sigma"]]
 
 fitted.nlrob <- function (object, ...)
 {

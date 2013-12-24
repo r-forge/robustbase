@@ -12,11 +12,13 @@
 }
 \usage{
 nlrob(formula, data, start, weights = NULL, na.action = na.fail,
-      method = "M",% <-- more to come
+      lower = -Inf, upper = Inf,
+      method = c("M", "MM", "tau", "CM", "mtl"),
       psi = .Mwgt.psi1("huber", cc=1.345),
       test.vec = c("resid", "coef", "w"), maxit = 20,
-      acc = 1e-06, algorithm = "default", doCov = FALSE,
-      control = nls.control(), trace = FALSE)
+      tol = 1e-06, acc, algorithm = "default", doCov = FALSE,
+      control = if(method == "M") nls.control() else nlrob.control(method, ...),
+      trace = FALSE, ...)
 
 \method{fitted}{nlrob}(object, ...)
 \method{residuals}{nlrob}(object, type = , ...)% FIXME: more 'type's + DOCU
@@ -56,13 +58,20 @@ nlrob(formula, data, start, weights = NULL, na.action = na.fail,
     here since the residuals length is different from
     \code{nrow(data) == length(w)}.
   }
+  \item{lower, upper}{vectors of lower and upper bounds, replicated to
+    be as long as \code{start}.  If unspecified, all parameters are
+    assumed to be unconstrained.  For the default \code{method = "M"},
+    bounds can only be used with the \code{"port"} algorithm.  They are
+    ignored, with a warning, in cases they have no effect.}
   \item{method}{a character string specifying which method to use.  The
     default is \code{"M"}, for historical and back-compatibility
     reasons.
     \describe{
       \item{"M"}{Computes an M-estimator, using \code{\link{nls}(*,
 	  weights=*)} iteratively (hence, IRLS) where the weights compuvia IRLS and }
-      \item{"MM"}{}%% FIXME
+      \item{"MM"}{Computes an MM-estimator, starting from \code{init},
+	either "S" or "lts".}% more: FIXME
+      \item{"tau"}{}
       \item{"CM"}{}
       \item{"mtl"}{}
     }
@@ -85,7 +94,8 @@ nlrob(formula, data, start, weights = NULL, na.action = na.fail,
     of \code{"resid"} (the default), for coefficients with
     \code{"coef"}, and for weights with \code{"w"}.}
   \item{maxit}{maximum number of iterations in the robust loop.}
-  \item{acc}{convergence tolerance for the robust fit.}
+  \item{tol}{non-negative convergence tolerance for the robust fit.}
+  \item{acc}{previous name for \code{tol}, now deprecated.}
   \item{algorithm}{character string specifying the algorithm to use for
     \code{\link{nls}}, see there. The default algorithm is a
     Gauss-Newton algorithm.}
@@ -94,9 +104,15 @@ nlrob(formula, data, start, weights = NULL, na.action = na.fail,
     already.  This used to be hard-wired to \code{TRUE}; however, the
     default has been set to \code{FALSE}, as \code{\link{vcov}(obj)} and
     \code{\link{summary}(obj)} can easily compute it when needed.}
-  \item{control}{an optional list of control settings for \code{\link{nls}}.
-    See \code{\link{nls.control}} for the names of the settable control
-    values and their effect.}
+  \item{control}{an optional list of control settings.
+    \describe{
+      \item{for \code{method = "M"}:}{settings for \code{\link{nls}()}.
+	See \code{\link{nls.control}} for the names of the settable control
+	values and their effect.}
+      \item{for all \code{method}s but \code{"M"}:}{a list, typically
+	resulting from \code{\link{nlrob.control}(method, *)}.}
+    }
+  }
   \item{trace}{logical value indicating if a \dQuote{trace} of
     the \code{nls} iteration progress should be printed.  Default is
     \code{FALSE}. \cr
@@ -109,7 +125,8 @@ nlrob(formula, data, start, weights = NULL, na.action = na.fail,
 
   \item{object}{an \R object of class \code{"nlrob"}, typically
     resulting from \code{nlrob(..)}.}
-  \item{\dots}{potentially optional arguments passed to the extractor methods.}
+  \item{\dots}{for \code{nlrob}:
+    for other functions: potentially optional arguments passed to the extractor methods.}
   \item{type}{a string specifying the \emph{type} of residuals desired.
     Currently, \code{"response"} and \code{"working"} are supported.
     %% FIXME: 1. document these (here)  2. write and support more types
@@ -117,12 +134,19 @@ nlrob(formula, data, start, weights = NULL, na.action = na.fail,
   \item{newdata}{a data frame (or list) with the same names as the
     original \code{data}, see e.g., \code{\link{predict.nls}}.}
 }
-% \details{
+\details{
+  For \code{method = "M"}, iterated reweighted least squares
+  (\dQuote{IRLS} or \dQuote{IWLS}) is used, calling \code{\link{nls}(*,
+    weights= .)} where \code{weights} \eqn{w_i} are proportional to
+  \eqn{\psi(r_i/ \hat{\sigma})}{psi(r_i/ sig.)}.
 
-% }
+  All other methods minimize differently, and work \bold{without}
+  \code{\link{nls}}.  See \link{nlrob.algorithms} for details.
+}
 \value{
-  \code{nlrob()} returns an object of S3 class \code{"nlrob"}, also
-  inheriting from class \code{"nls"}, (see \code{\link{nls}}).
+  \code{nlrob()} returns an object of S3 class \code{"nlrob"},
+  for \code{method = "M"} also inheriting from class \code{"nls"}, (see
+  \code{\link{nls}}).
 
   It is a list with several components; they are not documented yet,
   as some of them will probably change.
