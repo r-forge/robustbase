@@ -10,40 +10,10 @@
 ##     364:##' @param tuning.chi          nlrob.CM
 
 
-##' Compute an MM-estimator for nonlinear (constrained) regression.
-##'
-##' Copyright 2013, Eduardo L. T. Conceicao
-##' Available under the GPL (>= 2)
-##' @title MM-estimator for Nonlinear Regression
-##' @param formula
-##' @param data
-##' @param pnames
-##' @param lower
-##' @param upper
-##' @param tol
-##' @param fnscale
-##' @param init
-##' @param psi
-##' @param tuning.chi.scale
-##' @param tuning.psi.M
-##' @param optim.control
-##' @param ... optional arguments for optimization, e.g., \code{trace = TRUE}, passed to \code{\link{JDEoptim}(.)}.
-##' @return
-##' @references
-##' Yohai, V.J. (1987)
-##' High breakdown-point and high efficiency robust estimates for regression.
-##' \emph{The Annals of Statistics} \bold{15}, 642--656.
-##' @examples
-##' nlrob.MM( density ~ Asym/(1 + exp(( xmid -log(conc) )/scal )),
-##'           data = DNase[DNase$Run == 1, ],
-##'           pnames = c("Asym", "xmid", "scal"),
-##'           lower = 0, upper = 3,
-##'           optim.control = list(trace = 1), trace = TRUE )
-##' @author Eduardo L. T. Conceicao
 nlrob.MM <-
     function(formula, data, pnames, lower, upper, tol = 1e-6,
-             init = c("S", "lts"),
-             psi = c("bisquare", "lqq", "optimal", "hampel"),
+	     psi = c("bisquare", "lqq", "optimal", "hampel"),
+	     init = c("S", "lts"),
              ctrl = nlrob.control("MM", psi=psi, init=init, fnscale=NULL,
                  tuning.chi.scale = .psi.conv.cc(psi, .Mchi.tuning.defaults[[psi]]),
                  tuning.psi.M     = .psi.conv.cc(psi, .Mpsi.tuning.defaults[[psi]]),
@@ -53,7 +23,7 @@ nlrob.MM <-
     if(missing(ctrl)) {
         init <- match.arg(init)
         psi <- match.arg(psi)
-        force(ctrl) # 
+        force(ctrl) #
     } else {
         init <- ctrl$ init
         psi  <- ctrl$ psi
@@ -196,35 +166,6 @@ nlrob.MM <-
 } ## nlrob.MM
 
 
-##' Compute an Tau-estimator for nonlinear (constrained) regression.
-##'
-##' Copyright 2013, Eduardo L. T. Conceicao
-##' Available under the GPL (>= 2)
-##' @title Tau-estimator for Nonlinear (Constrained) Regression
-##' @param formula
-##' @param data
-##' @param pnames
-##' @param lower
-##' @param upper
-##' @param tol
-##' @param fnscale
-##' @param psi
-##' @param tuning.chi.scale
-##' @param tuning.chi.tau
-##' @param ... optional arguments for optimization, e.g., \code{trace = TRUE}, passed to \code{\link{JDEoptim}(.)}.
-##' @return
-##' @references
-##' Yohai, V.J., and Zamar, R.H. (1988).
-##' High breakdown-point estimates of regression by means of the minimization
-##' of an efficient scale.
-##' \emph{Journal of the American Statistical Association} \bold{83}, 406--413.
-##' @examples
-##' nlrob.tau( density ~ Asym/(1 + exp(( xmid -log(conc) )/scal )),
-##'            data = DNase[DNase$Run == 1, ],
-##'            pnames = c("Asym", "xmid", "scal"),
-##'            lower = 0, upper = 3,  trace = TRUE )
-##'
-##' @author Eduardo L. T. Conceicao
 nlrob.tau <- function(formula, data, pnames, lower, upper, tol = 1e-6,
 		      psi = c("bisquare", "optimal"),
 		      ctrl = nlrob.control("tau", psi=psi, fnscale=NULL,
@@ -234,7 +175,7 @@ nlrob.tau <- function(formula, data, pnames, lower, upper, tol = 1e-6,
 {
     if(missing(ctrl)) {
 	psi <- match.arg(psi)
-	force(ctrl) # 
+	force(ctrl) #
     } else {
 	psi  <- ctrl$ psi
     }
@@ -343,34 +284,6 @@ nlrob.tau <- function(formula, data, pnames, lower, upper, tol = 1e-6,
 } ## nlrob.tau
 
 
-##' CM-estimator for (constrained) nonlinear regression
-##'
-##' Copyright 2013, Eduardo L. T. Conceicao
-##' Available under the GPL (>= 2)
-##' @title CM-estimator of Nonlinear Regression
-##' @param formula
-##' @param data
-##' @param pnames
-##' @param lower
-##' @param upper
-##' @param tol
-##' @param fnscale
-##' @param psi
-##' @param tuning.chi
-##' @param ... optional arguments for optimization, e.g., \code{trace = TRUE}, passed to \code{\link{JDEoptim}(.)}.
-##' @return
-##' @references
-##'   Mendes, B.V.M., and Tyler, D.E. (1996)
-##'   Constrained M-estimation for regression.
-##'   In: \emph{Robust Statistics, Data Analysis and Computer Intensive Methods},
-##'   Lecture Notes in Statistics 109, Springer, New York, 299--320.
-##' @examples
-##'  nlrob.CM( density ~ Asym/(1 + exp(( xmid -log(conc) )/scal )),
-##'            data = DNase[DNase$Run == 1, ],
-##'            pnames = c("Asym", "xmid", "scal", "sigma"),
-##'            lower = 0, upper = c(3, 3, 3, 0.1),
-##'            trace = TRUE )
-##' @author Eduardo L. T. Conceicao
 nlrob.CM <- function(formula, data, pnames, lower, upper, tol = 1e-6,
 		     psi = c("bisquare", "lqq", "welsh", "optimal", "hampel", "ggw"),
                      ctrl = nlrob.control("CM", psi=psi, fnscale=NULL,
@@ -379,7 +292,7 @@ nlrob.CM <- function(formula, data, pnames, lower, upper, tol = 1e-6,
 {
     if(missing(ctrl)) {
         psi <- match.arg(psi)
-        force(ctrl) # 
+        force(ctrl) #
     } else {
         psi  <- ctrl$ psi
     }
@@ -472,42 +385,6 @@ nlrob.CM <- function(formula, data, pnames, lower, upper, tol = 1e-6,
 } ## nlrob.CM
 
 
-##' Compute a  Maximum Trimmed Likelihood (MTL) estimator for nonlinear
-##' (constrained) regression.
-##'
-##' Copyright 2013, Eduardo L. T. Conceicao
-##' Available under the GPL (>= 2)
-##' @title Maximum Trimmed Likelihood (MTL) Estimator for Nonlinear Regression
-##' @param formula
-##' @param data
-##' @param pnames
-##' @param lower
-##' @param upper
-##' @param tol
-##' @param fnscale
-##' @param cutoff
-##' @param ... optional arguments for optimization, e.g., \code{trace = TRUE}, passed to \code{\link{JDEoptim}(.)}.
-##' @return
-##' @references
-##' Hadi, Ali S., and Luceno, Alberto (1997).
-##'    Maximum trimmed likelihood estimators: a unified approach,
-##'    examples, and algorithms.
-##'    Computational Statistics & Data Analysis 25, 251-272.
-##'
-##' Gervini, Daniel, and Yohai, Victor J. (2002).
-##'    A class of robust and fully efficient regression estimators.
-##'    The Annals of Statistics 30, 583-616.
-##' @source
-##' Maronna, Ricardo A., Martin, R. Douglas, and Yohai, Victor J. (2006).
-##' \emph{Robust Statistics: Theory and Methods}
-##' Wiley, Chichester, p. 133.
-##' @examples
-##' nlrob.mtl( density ~ Asym/(1 + exp(( xmid -log(conc) )/scal )),
-##'            data = DNase[DNase$Run == 1, ],
-##'            pnames = c("Asym", "xmid", "scal", "sigma"),
-##'            lower = 0, upper = c(3, 3, 3, 0.1),
-##'            trace = TRUE )
-##' @author Eduardo L. T. Conceicao
 nlrob.mtl <- function(formula, data, pnames, lower, upper, tol = 1e-6,
                       ctrl = nlrob.control("mtl", cutoff = 2.5, jOptimArgs = list(...)),
                       ...)
@@ -599,7 +476,7 @@ nlrob.mtl <- function(formula, data, pnames, lower, upper, tol = 1e-6,
                    residuals = resid,
                    crit = crit,
                    quan = quan,
-                   status = status, iter = iter, data = dataName),
+                   status = status, iter = iter, data = dataName, ctrl = ctrl),
               class = "nlrob")
 } ## nlrob.mtl
 
