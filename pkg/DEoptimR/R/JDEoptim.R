@@ -1,9 +1,9 @@
 ##' Nonlinear Constrained Optimization via Differential Evolution
-##' 
+##'
 ##' An implementation of the jDE variant of the Differential Evolution
 ##' stochastic algorithm for global optimization of nonlinear programming
 ##' problems.
-##' 
+##'
 ##' The setting of the \emph{control parameters} of standard Differential
 ##' Evolution (DE) is crucial for the algorithm's performance. Unfortunately,
 ##' when the generally recommended values for these parameters (see,
@@ -12,23 +12,23 @@
 ##' proposed in Brest \emph{et al.} (2006) employs a simple self-adaptive
 ##' scheme to perform the automatic setting of control parameters scale factor
 ##' \code{F} and crossover rate \code{CR}.
-##' 
+##'
 ##' This implementation differs from the original description, most notably in
 ##' the use of the \emph{DE/rand/1/either-or} mutation strategy (Price \emph{et
 ##' al.}, 2005), combination of \emph{jitter with dither} (Storn 2008), and its
 ##' use of only a \emph{single population} (Babu and Angira 2006) instead of
 ##' separate current and child populations as in classical DE.
-##' 
+##'
 ##' Constraint handling is done using the approach described in Zhang and
 ##' Rangaiah (2012).
-##' 
+##'
 ##' DE is easily extended to deal with \emph{mixed integer nonlinear
 ##' programming} problems using a small variation of the technique presented by
 ##' Lampinen and Zelinka (1999). Integer values are obtained by means of the
 ##' \code{floor()} function for the evaluation of the objective function. This
 ##' is because DE itself works with continuous variables. Additionally, each
 ##' upper bound of the integer variables should be added by \code{1}.
-##' 
+##'
 ##' The algorithm is stopped if
 ##' \deqn{\frac{\mathrm{FUN}\{[\mathrm{fn}(x_1),\ldots,\mathrm{fn}(x_\mathrm{npop})]\}
 ##' - \mathrm{fn}(x_\mathrm{best})}{\mathrm{fnscale}} \le \mathrm{tol}}{% (
@@ -39,7 +39,7 @@
 ##' is \code{NP+NCOL(add_to_init_pop)}.  This is a variant of the \emph{Diff}
 ##' criterion studied by Zielinski and Laur (2008), which was found to yield
 ##' the best results.
-##' 
+##'
 ##' @param lower,upper numeric vectors of \emph{lower} or \emph{upper} bounds,
 ##' respectively, for the parameters to be optimized over.  Must be finite
 ##' (\code{\link{is.finite}}) as they bound the hyper rectangle of the initial
@@ -113,17 +113,17 @@
 ##' \code{constr()} if that is not \code{NULL}.
 ##' @return A list with the following components: \item{par}{The best set of
 ##' parameters found.}
-##' 
+##'
 ##' \item{value}{The value of \code{fn} corresponding to \code{par}.}
-##' 
+##'
 ##' \item{iter}{Number of iterations taken by the algorithm.}
-##' 
+##'
 ##' \item{convergence}{An integer code. \code{0} indicates successful
 ##' completion. \code{1} indicates that the iteration limit \code{maxiter} has
 ##' been reached.} and if \code{details = TRUE}: \item{poppar}{Matrix of
 ##' dimension \code{(length(lower), npop)}, with columns corresponding to the
 ##' parameter vectors remaining in the population.}
-##' 
+##'
 ##' \item{popcost}{The values of \code{fn} associated with \code{poppar},
 ##' vector of length \code{npop}.}
 ##' @note It is possible to perform a warm start, \emph{i.e.}, starting from
@@ -136,44 +136,44 @@
 ##' @references Babu, B. V. and Angira, R. (2006) Modified differential
 ##' evolution (MDE) for optimization of non-linear chemical processes.
 ##' \emph{Computers and Chemical Engineering} \bold{30}, 989--1002.
-##' 
+##'
 ##' Brest, J., Greiner, S., Boskovic, B., Mernik, M. and Zumer, V. (2006)
 ##' Self-adapting control parameters in differential evolution: a comparative
 ##' study on numerical benchmark problems.  \emph{IEEE Transactions on
 ##' Evolutionary Computation} \bold{10}, 646--657.
-##' 
+##'
 ##' Lampinen, J. and Zelinka, I. (1999).  Mechanical engineering design
 ##' optimization by differential evolution; in Corne, D., Dorigo, M. and
 ##' Glover, F., Eds., \emph{New Ideas in Optimization}.  McGraw-Hill, pp.
 ##' 127--146.
-##' 
+##'
 ##' Price, K. V., Storn, R. M. and Lampinen, J. A. (2005) \emph{Differential
 ##' Evolution: A practical approach to global optimization}.  Springer, Berlin,
 ##' pp. 117--118.
-##' 
+##'
 ##' Storn, R. (2008) Differential evolution research --- trends and open
 ##' questions; in Chakraborty, U. K., Ed., \emph{Advances in differential
 ##' evolution}.  SCI 143, Springer-Verlag, Berlin, pp. 11--12.
-##' 
+##'
 ##' Storn, R. and Price, K. (1997) Differential evolution - a simple and
 ##' efficient heuristic for global optimization over continuous spaces.
 ##' \emph{Journal of Global Optimization} \bold{11}, 341--359.
-##' 
+##'
 ##' Zhang, H. and Rangaiah, G. P. (2012) An efficient constraint handling
 ##' method with integrated differential evolution for numerical and engineering
 ##' optimization.  \emph{Computers and Chemical Engineering} \bold{37}, 74--88.
-##' 
+##'
 ##' Zielinski, K. and Laur, R. (2008) Stopping criteria for differential
 ##' evolution in constrained single-objective optimization; in Chakraborty, U.
 ##' K., Ed., \emph{Advances in differential evolution}.  SCI 143,
 ##' Springer-Verlag, Berlin, pp. 111--138.
 ##' @examples
-##' 
+##'
 ##' # Use a preset seed so test values are reproducible.
 ##' set.seed(1234)
-##' 
+##'
 ##' # Bound-constrained optimization
-##' 
+##'
 ##' #   Griewank function
 ##' #
 ##' #   -600 <= xi <= 600, i = {1, 2, ..., n}
@@ -191,12 +191,12 @@
 ##' griewank <- function(x) {
 ##'     1 + crossprod(x)/4000 - prod( cos(x/sqrt(seq_along(x))) )
 ##' }
-##' 
+##'
 ##' JDEoptim(rep(-600, 10), rep(600, 10), griewank,
 ##'          tol = 1e-7, trace = TRUE, triter = 50)
-##' 
+##'
 ##' # Nonlinear constrained optimization
-##' 
+##'
 ##' #   0 <= x1 <= 34, 0 <= x2 <= 17, 100 <= x3 <= 300
 ##' #   The global optimum is
 ##' #   (x1, x2, x3; f) = (0, 16.666667, 100; 189.311627).
@@ -216,11 +216,11 @@
 ##'              c(600*x1 - 50*x3 - x1*x3 + 5000,
 ##'                600*x[2] + 50*x3 - 15000)
 ##'          })
-##' 
+##'
 ##' JDEoptim(c(0, 0, 100), c(34, 17, 300),
 ##'          fn = fcn$obj, constr = fcn$con, meq = fcn$eq,
 ##'          tol = 1e-7, trace = TRUE, triter = 50)
-##' 
+##'
 ##' #   Designing a pressure vessel
 ##' #   Case A: all variables are treated as continuous
 ##' #
@@ -248,15 +248,15 @@
 ##'                0.00954*x3 - x2,
 ##'                750.0*1728.0 - pi*x3^2*x4 - 4/3*pi*x3^3)
 ##'          })
-##' 
+##'
 ##' JDEoptim(c( 1.1,  0.6,   0.0,   0.0),
 ##'          c(12.5, 12.5, 240.0, 240.0),
 ##'          fn = pressure_vessel_A$obj,
 ##'          constr = pressure_vessel_A$con,
 ##'          tol = 1e-7, trace = TRUE, triter = 50)
-##' 
+##'
 ##' # Mixed integer nonlinear programming
-##' 
+##'
 ##' #   Designing a pressure vessel
 ##' #   Case B: solved according to the original problem statements
 ##' #           steel plate available in thicknesses multiple
@@ -285,13 +285,13 @@
 ##'                0.00954*x3 - x2,
 ##'                750.0*1728.0 - pi*x3^2*x4 - 4/3*pi*x3^3)
 ##'          })
-##' 
+##'
 ##' JDEoptim(c( 18,    10,     0.0,   0.0),
 ##'          c(200+1, 200+1, 240.0, 240.0),
 ##'          fn = pressure_vessel_B$obj,
 ##'          constr = pressure_vessel_B$con,
 ##'          tol = 1e-7, trace = TRUE, triter = 50)
-##' 
+##'
 JDEoptim <-
     function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
              NP = 10*d, Fl = 0.1, Fu = 1, tau1 = 0.1, tau2 = 0.1, tau3 = 0.1,
@@ -429,9 +429,6 @@ JDEoptim <-
                   add_to_init_pop >= lower,
                   add_to_init_pop <= upper)
 
-    # Set default values
-    defaultopt.jitter <- !is.null(jitter_factor) # TRUE else FALSE
-
     # Initialization:
     fn1 <- function(par) fn(par, ...)
 
@@ -446,6 +443,8 @@ JDEoptim <-
                 }
             } else function(par) constr(par, ...)
 
+    use.jitter <- !is.null(jitter_factor) # TRUE else FALSE
+
     # Zielinski, Karin, and Laur, Rainer (2008).
     # Stopping criteria for differential evolution in
     # constrained single-objective optimization.
@@ -458,7 +457,7 @@ JDEoptim <-
         NP <- ncol(pop)
     }
     stopifnot(NP >= 4)
-    F <- if (defaultopt.jitter)
+    F <- if (use.jitter)
         (1 + jitter_factor*runif(d, -0.5, 0.5)) %o% runif(NP, Fl, Fu)
     else matrix(runif(NP, Fl, Fu), nrow = 1)
     CR <- runif(NP)
@@ -498,7 +497,7 @@ JDEoptim <-
             # In: U. K. Chakraborty (Ed.), Advances in Differential Evolution,
             # SCI 143, Springer-Verlag, pp 11-12
             Ftrial <- if (runif(1) <= tau1) {
-                if (defaultopt.jitter)
+                if (use.jitter)
                     runif(1, Fl, Fu) * (1 + jitter_factor*runif(d, -0.5, 0.5))
                 else runif(1, Fl, Fu)
             } else F[, i]
