@@ -349,14 +349,14 @@ JDEoptim <-
             htrial <- constr1(trial)
             TAVtrial <- sum( pmax(htrial, 0) )
             if (TAVtrial > mu) {
-                if (TAVtrial <= TAVpop[i]) {
-                    pop[, i] <- trial
-                    hpop[, i] <- htrial
-                    F[, i] <- Ftrial
-                    CR[i] <- CRtrial
+                if (TAVtrial <= TAVpop[i]) { # trial and target are both
+                    pop[, i] <- trial        # unfeasible, the one with smaller
+                    hpop[, i] <- htrial      # constraint violation is chosen
+                    F[, i] <- Ftrial         # or trial vector when both are
+                    CR[i] <- CRtrial         # solutions of equal quality
                     TAVpop[i] <- TAVtrial
                 }
-            } else if (TAVpop[i] > mu) {
+            } else if (TAVpop[i] > mu) { # trial is feasible and target is not
                 pop[, i] <- trial
                 fpop[i] <- fn1(trial)
                 hpop[, i] <- htrial
@@ -365,11 +365,11 @@ JDEoptim <-
                 TAVpop[i] <- TAVtrial
                 FF <- sum(TAVpop <= mu)/NP
                 mu <- mu*(1 - FF/NP)
-            } else {
-                ftrial <- fn1(trial) # Evaluate trial with your function
-                if (ftrial <= fpop[i]) {
-                    pop[, i] <- trial
-                    fpop[i] <- ftrial
+            } else {                     # between two feasible solutions, the
+                ftrial <- fn1(trial)     # one with better objective function
+                if (ftrial <= fpop[i]) { # value is chosen
+                    pop[, i] <- trial    # or trial vector when both are
+                    fpop[i] <- ftrial    # solutions of equal quality
                     hpop[, i] <- htrial
                     F[, i] <- Ftrial
                     CR[i] <- CRtrial
@@ -443,7 +443,7 @@ JDEoptim <-
                 }
             } else function(par) constr(par, ...)
 
-    use.jitter <- !is.null(jitter_factor) # TRUE else FALSE
+    use.jitter <- !is.null(jitter_factor)
 
     # Zielinski, Karin, and Laur, Rainer (2008).
     # Stopping criteria for differential evolution in
