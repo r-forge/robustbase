@@ -354,6 +354,7 @@ JDEoptim <-
                     hpop[, i] <- htrial      # constraint violation is chosen
                     F[, i] <- Ftrial         # or trial vector when both are
                     CR[i] <- CRtrial         # solutions of equal quality
+                    pF[i] <- pFtrial
                     TAVpop[i] <- TAVtrial
                 }
             } else if (TAVpop[i] > mu) { # trial is feasible and target is not
@@ -362,6 +363,7 @@ JDEoptim <-
                 hpop[, i] <- htrial
                 F[, i] <- Ftrial
                 CR[i] <- CRtrial
+                pF[i] <- pFtrial
                 TAVpop[i] <- TAVtrial
                 FF <- sum(TAVpop <= mu)/NP
                 mu <- mu*(1 - FF/NP)
@@ -373,6 +375,7 @@ JDEoptim <-
                     hpop[, i] <- htrial
                     F[, i] <- Ftrial
                     CR[i] <- CRtrial
+                    pF[i] <- pFtrial
                     TAVpop[i] <- TAVtrial
                     FF <- sum(TAVpop <= mu)/NP
                     mu <- mu*(1 - FF/NP)
@@ -490,6 +493,11 @@ JDEoptim <-
         iteration <- iteration + 1
 
         for (i in popIndex) { # Start loop through population
+            # Equalize the mean lifetime of all vectors
+            # Price, KV, Storn, RM, and Lampinen, JA (2005)
+            # Differential Evolution. Springer, p 284
+            i <- ((iteration + i) %% NP) + 1
+
             # Fi update
             # Combine jitter with dither
             # Storn, Rainer (2008).
@@ -504,8 +512,9 @@ JDEoptim <-
             # CRi update
             CRtrial <- if (runif(1) <= tau2) runif(1) else CR[i]
             # pFi update
-            if (runif(1) <= tau3)
-                pF[i] <- runif(1)
+            pFtrial <- if (runif(1) <= tau3)
+                runif(1)
+            else pF[i]
 
             # DE/rand/1/either-or/bin
             X.i <- pop[, i]

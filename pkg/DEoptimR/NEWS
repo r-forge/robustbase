@@ -4,4 +4,4 @@ NEW FEATURES
 
   - First release of DEoptimR: implementation of a variant of the jDE algorithm.
 
-  - Constraint handling based on biasing feasible over unfeasible solutions by a parameter-less variant of the epsilon constrained method.
+  - Constraint handling based on biasing feasible over unfeasible solutions by a parameter-less variant of the epsilon-constrained method.
