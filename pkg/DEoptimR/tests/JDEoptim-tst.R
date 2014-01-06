@@ -11,7 +11,8 @@ S.time(sf1. <- JDEoptim(c(-100, -100), c(100, 100), sf1, tol = 1e-7,
                         add_to_init_pop = c(0, 0)))
 S.time(swf. <- JDEoptim(rep(-500, 10), rep(500, 10), swf, tol = 1e-7,
                         add_to_init_pop = rep(420.97, 10)))
-S.time(RND. <- JDEoptim(c(1e-5, 1e-5), c(16, 16), RND$obj, RND$con, tol = 1e-7,
+S.time(RND. <- JDEoptim(c(1e-5, 1e-5), c(16, 16), RND$obj, RND$con,
+                        NP = 30, tol = 1e-7,
                         add_to_init_pop = c(3.036504, 5.096052)))
 S.time(HEND. <-
        JDEoptim(c(  100,  1000,  1000 ,  10,   10),

@@ -322,7 +322,7 @@ JDEoptim <-
         if (all(ignore))                  # ensure that trial gets at least
             ignore[sample(d, 1)] <- FALSE # one mutant parameter
         # Source for trial is the base vector plus weighted differential
-        trial <- if (runif(1) <= pF[i])
+        trial <- if (runif(1) <= pFtrial)
             X.base + Ftrial*(X.r1 - X.r2)
         else X.base + 0.5*(Ftrial + 1)*(X.r1 + X.r2 - 2*X.base)
         # or trial parameter comes from target vector X.i itself.
