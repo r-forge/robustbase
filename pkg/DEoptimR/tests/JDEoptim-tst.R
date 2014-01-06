@@ -31,10 +31,10 @@ bare.p.v <- function(r) unlist(unname(r[c("par", "value")]))
 stopifnot(
     all.equal( bare.p.v(sf1.), c(0, 0, 0), tolerance = 1e-4 ),
     all.equal( bare.p.v(swf.), c(rep(420.97, 10), -418.9829*10), tol = 1e-5 ),
-    all.equal( bare.p.v(RND.), c(3.036504, 5.096052, -0.388812), tol = 1e-3 ),
+    all.equal( bare.p.v(RND.), c(3.036504, 5.096052, -0.388812), tol = 1e-2 ),
     all.equal( bare.p.v(HEND.),
                c(579.19, 1360.13, 5109.92, 182.01, 295.60, 7049.25),
-               tolerance = 2e-3 ),
+               tolerance = 1e-2 ),
     if(doExtras)
     all.equal( bare.p.v(alkylation.),
               c(1698.256922, 54.274463, 3031.357313, 90.190233,
