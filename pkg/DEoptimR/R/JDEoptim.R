@@ -338,6 +338,7 @@ JDEoptim <-
                 fpop[i] <- ftrial
                 F[, i] <- Ftrial
                 CR[i] <- CRtrial
+                pF[i] <- pFtrial
             }
         })
     } else {
