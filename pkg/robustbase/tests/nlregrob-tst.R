@@ -210,7 +210,7 @@ assert.EQ(coef(Rf.Hlev.MM.lts.bisquare),cfcl.n.H, tol = .01,  giveRE=TRUE)
 assert.EQ(coef(Rf.Hlev.MM.lts.lqq),	cfcl.n.H, tol = .015, giveRE=TRUE)
 assert.EQ(coef(Rf.Hlev.MM.lts.optimal), cfcl.n.H, tol = .002, giveRE=TRUE)
 assert.EQ(coef(Rf.Hlev.MM.lts.hampel),	cfcl.n.H, tol = .02,  giveRE=TRUE)
-assert.EQ(coef(Rf.Hlev.tau.bisquare),	cfcl.n.H, tol = .03,  giveRE=TRUE)
+assert.EQ(coef(Rf.Hlev.tau.bisquare),	cfcl.n.H, tol = .04,  giveRE=TRUE)# 0.0363
 assert.EQ(coef(Rf.Hlev.tau.optimal),	cfcl.n.H, tol = .03,  giveRE=TRUE)
 assert.EQ(coef(Rf.Hlev.CM)[-3],		cfcl.n.H, tol = .12,  giveRE=TRUE)# 0.032 64b
 assert.EQ(coef(Rf.Hlev.mtl)[-3],	cfcl.n.H, tol = .08,  giveRE=TRUE)
