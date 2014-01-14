@@ -308,7 +308,8 @@ JDEoptim <-
     handle.bounds <- function(x, u) {
     # Check feasibility of bounds and enforce parameters limits
     # by a deterministic variant of bounce-back resetting
-    # Price, KV, Storn, RM, and Lampinen, JA (2005) Differential Evolution.
+    # Price, KV, Storn, RM, and Lampinen, JA (2005)
+    # Differential Evolution: A Practical Approach to Global Optimization.
     # Springer, p 206
         bad <- x > upper
         x[bad] <- 0.5*(upper[bad] + u[bad])
@@ -328,61 +329,6 @@ JDEoptim <-
         # or trial parameter comes from target vector X.i itself.
         trial[ignore] <- X.i[ignore]
         trial
-    }
-
-    child <- if (is.null(constr)) {
-        expression({
-            ftrial <- fn1(trial) # Evaluate trial with your function
-            if (ftrial <= fpop[i]) {
-                pop[, i] <- trial
-                fpop[i] <- ftrial
-                F[, i] <- Ftrial
-                CR[i] <- CRtrial
-                pF[i] <- pFtrial
-            }
-        })
-    } else {
-        # Zhang, Haibo, and Rangaiah, G. P. (2012).
-        # An efficient constraint handling method with integrated differential
-        # evolution for numerical and engineering optimization.
-        # Computers and Chemical Engineering 37, 74-88.
-        expression({
-            htrial <- constr1(trial)
-            TAVtrial <- sum( pmax(htrial, 0) )
-            if (TAVtrial > mu) {
-                if (TAVtrial <= TAVpop[i]) { # trial and target are both
-                    pop[, i] <- trial        # unfeasible, the one with smaller
-                    hpop[, i] <- htrial      # constraint violation is chosen
-                    F[, i] <- Ftrial         # or trial vector when both are
-                    CR[i] <- CRtrial         # solutions of equal quality
-                    pF[i] <- pFtrial
-                    TAVpop[i] <- TAVtrial
-                }
-            } else if (TAVpop[i] > mu) { # trial is feasible and target is not
-                pop[, i] <- trial
-                fpop[i] <- fn1(trial)
-                hpop[, i] <- htrial
-                F[, i] <- Ftrial
-                CR[i] <- CRtrial
-                pF[i] <- pFtrial
-                TAVpop[i] <- TAVtrial
-                FF <- sum(TAVpop <= mu)/NP
-                mu <- mu*(1 - FF/NP)
-            } else {                     # between two feasible solutions, the
-                ftrial <- fn1(trial)     # one with better objective function
-                if (ftrial <= fpop[i]) { # value is chosen
-                    pop[, i] <- trial    # or trial vector when both are
-                    fpop[i] <- ftrial    # solutions of equal quality
-                    hpop[, i] <- htrial
-                    F[, i] <- Ftrial
-                    CR[i] <- CRtrial
-                    pF[i] <- pFtrial
-                    TAVpop[i] <- TAVtrial
-                    FF <- sum(TAVpop <= mu)/NP
-                    mu <- mu*(1 - FF/NP)
-                }
-            }
-        })
     }
 
     which.best <-
@@ -434,6 +380,98 @@ JDEoptim <-
                   add_to_init_pop <= upper)
 
     # Initialization:
+    child <- if (is.null(constr)) {
+        expression({
+            ftrial <- fn1(trial) # Evaluate trial with your function
+            if (ftrial <= fpop[i]) {
+                pop[, i] <- trial
+                fpop[i] <- ftrial
+                F[, i] <- Ftrial
+                CR[i] <- CRtrial
+                pF[i] <- pFtrial
+            }
+        })
+    } else if (meq > 0) { # equality constraints are present
+                          # alongside the inequalities
+        # Zhang, Haibo, and Rangaiah, G. P. (2012).
+        # An efficient constraint handling method with integrated differential
+        # evolution for numerical and engineering optimization.
+        # Computers and Chemical Engineering 37, 74-88.
+        expression({
+            htrial <- constr1(trial)
+            TAVtrial <- sum( pmax(htrial, 0) )
+            if (TAVtrial > mu) {
+                if (TAVtrial <= TAVpop[i]) { # trial and target are both
+                    pop[, i] <- trial        # unfeasible, the one with smaller
+                    hpop[, i] <- htrial      # constraint violation is chosen
+                    F[, i] <- Ftrial         # or trial vector when both are
+                    CR[i] <- CRtrial         # solutions of equal quality
+                    pF[i] <- pFtrial
+                    TAVpop[i] <- TAVtrial
+                }
+            } else if (TAVpop[i] > mu) { # trial is feasible and target is not
+                pop[, i] <- trial
+                fpop[i] <- fn1(trial)
+                hpop[, i] <- htrial
+                F[, i] <- Ftrial
+                CR[i] <- CRtrial
+                pF[i] <- pFtrial
+                TAVpop[i] <- TAVtrial
+            } else {                     # between two feasible solutions, the
+                ftrial <- fn1(trial)     # one with better objective function
+                if (ftrial <= fpop[i]) { # value is chosen
+                    pop[, i] <- trial    # or trial vector when both are
+                    fpop[i] <- ftrial    # solutions of equal quality
+                    hpop[, i] <- htrial
+                    F[, i] <- Ftrial
+                    CR[i] <- CRtrial
+                    pF[i] <- pFtrial
+                    TAVpop[i] <- TAVtrial
+                    FF <- sum(TAVpop <= mu)/NP
+                    mu <- mu*(1 - FF/NP)
+                }
+            }
+        })
+    } else {              # only inequality constraints are present
+        expression({
+            htrial <- constr1(trial)
+            TAVtrial <- sum( pmax(htrial, 0) )
+            if (TAVtrial > mu) {
+                if (TAVtrial <= TAVpop[i]) { # trial and target both unfeasible
+                    pop[, i] <- trial
+                    hpop[, i] <- htrial
+                    F[, i] <- Ftrial
+                    CR[i] <- CRtrial
+                    pF[i] <- pFtrial
+                    TAVpop[i] <- TAVtrial
+                }
+            } else if (TAVpop[i] > mu) { # trial is feasible and target is not
+                pop[, i] <- trial
+                fpop[i] <- fn1(trial)
+                hpop[, i] <- htrial
+                F[, i] <- Ftrial
+                CR[i] <- CRtrial
+                pF[i] <- pFtrial
+                TAVpop[i] <- TAVtrial
+                FF <- sum(TAVpop <= mu)/NP
+                mu <- mu*(1 - FF/NP)
+            } else {                     # two feasible solutions
+                ftrial <- fn1(trial)
+                if (ftrial <= fpop[i]) {
+                    pop[, i] <- trial
+                    fpop[i] <- ftrial
+                    hpop[, i] <- htrial
+                    F[, i] <- Ftrial
+                    CR[i] <- CRtrial
+                    pF[i] <- pFtrial
+                    TAVpop[i] <- TAVtrial
+                    FF <- sum(TAVpop <= mu)/NP
+                    mu <- mu*(1 - FF/NP)
+                }
+            }
+        })
+    }
+
     fn1 <- function(par) fn(par, ...)
 
     if (!is.null(constr))
@@ -496,7 +534,8 @@ JDEoptim <-
         for (i in popIndex) { # Start loop through population
             # Equalize the mean lifetime of all vectors
             # Price, KV, Storn, RM, and Lampinen, JA (2005)
-            # Differential Evolution. Springer, p 284
+            # Differential Evolution: A Practical Approach to
+            # Global Optimization. Springer, p 284
             i <- ((iteration + i) %% NP) + 1
 
             # Fi update
