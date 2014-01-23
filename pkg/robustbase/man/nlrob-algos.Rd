@@ -55,10 +55,11 @@ nlrob.mtl(formula, data, pnames, lower, upper,
     variable names from \code{data} and parameter names from \code{pnames}.}
   \item{data}{data to be used, a \code{\link{data.frame}}}
   \item{pnames}{a \code{\link{character}} vector of parameter names
-    (used in \code{formula} above).}
+    (used in \code{formula} above).  \bold{Deprecated}}
   \item{lower, upper}{bounds aka \dQuote{box constraints} for all the
-    parameters.}
-
+    parameters, in the case "CM" and "mtl" these must include the error
+    standard deviation as \code{"sigma"}, see \code{\link{nlrob}()}
+    about its \code{\link{names}}, etc.}
   \item{tol}{numerical convergence tolerance.}
   \item{psi, init}{see \code{\link{nlrob.control}}.}
   \item{ctrl}{a \code{\link{list}}, typically the result of a call to
@@ -139,11 +140,14 @@ fMM <- robustbase:::nlrob.MM(form, data = DNase1,
            ctrl = nlrob.control("MM", optim.control = list(trace = 1),
                                 optArgs = list(trace = TRUE)))
 
-## the same
+## The same via nlrob() {recommended; same random seed to necessarily give the same}:
+set.seed(47)
 gMM  <- nlrob(form, data = DNase1, method = "MM",
               lower = setNames(c(0,0,0), pnms), upper = 3, trace = TRUE)
 gMM
-
+## and they are the same {apart from 'call' and 'ctrl'}:
+ni <- is.na(match(names(gMM), c("call","ctrl")))
+stopifnot(all.equal(fMM[ni], gMM[ni]))
 \dontshow{
 if(doExtras <- robustbase:::doExtras()) {
  gtau <- nlrob(form, data = DNase1, method = "tau",
@@ -155,8 +159,10 @@ if(doExtras <- robustbase:::doExtras()) {
 	       lower = setNames(c(0,0,0,0), psNms), upper = 3, trace = TRUE)
  gmtl <- nlrob(form, data = DNase1, method = "mtl",
 	       lower = setNames(c(0,0,0,0), psNms), upper = 3, trace = TRUE)
-}
-}%dont..
+ stopifnot(identical(sapply(list(gMM, gCM, gmtl), estimethod),
+                     c("MM", "CM", "mtl")))
+}% doExtras
+}% dontshow
 }
 \keyword{robust}
 \keyword{regression}

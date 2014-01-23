@@ -1,15 +1,20 @@
 				-*- org -*- C-c C-o follows link[MM: grep-r -e '\(FIXME\|TODO\)']
 * Before next release
 ** TODO nlrob()
+*** TODO summary(nlrob(*)) fails for new methods; better error message or *work*
 *** TODO residuals( nlrob(), type = "...") should provide types "as in the litterature"
 
-*** TODO nlrob(*, method = "...") should call methods "tau", "CM", "MTL", "MM"
+*** DONE nlrob(*, method = "...") should call methods "tau", "CM", "MTL", "MM"
     by Eduardo Conceicao
 **** DONE shouldn't we rename jde() to jdeopt() or even jdeoptim(), jDEoptim(), or JDEoptim()
 R users already know optim() etc.. so the name seems more logical for them.
 
-** estimethod(): also for lmrob() and glmrob() models
+** TODO estimethod(): also for lmrob() and glmrob() models
 * Short Term
+** TODO nlrob(*):
+*** TODO nlrob(*, method=.) -- try at least *one* other optimizer than JDEoptim(), 
+ since we provide already provide most of the needed "hooks".
+*** TODO nlrob(*, method="M"): try to allow a "fixed initial sigma" (--> inference for "MM")
 ** glmrob
 *** BYlogreg()  [ R/BYlogreg.R ]
     --> more tests in ./tests/glmrob-1.R

@@ -51,7 +51,13 @@ nlrob(formula, data, start, lower, upper,
 
     For all other methods, currently these bounds \emph{must} be
     specified as finite values, and one of them must have
-    \code{\link{names}} matching the parameter names in \code{formula}.}
+    \code{\link{names}} matching the parameter names in \code{formula}.
+
+    For methods \code{"CM"} and \code{"mtl"}, the bounds must
+    \emph{additionally} have an entry named \code{"sigma"} as that is
+    determined simultaneously in the same optimization, and hence its
+    \code{lower} bound must not be negative.
+  }
   \item{weights}{an optional vector of weights to be used in the fitting
     process (for intrinsic weights, not the weights \code{w} used in the
     iterative (robust) fit). I.e.,
@@ -168,6 +174,9 @@ nlrob(formula, data, start, lower, upper,
   \code{\link{vcov}()}, the latter for the variance-covariance matrix of
   the estimated parameters, as returned by \code{coef()}, i.e., not
   including the variance of the errors.
+  For \code{nlrob()} results, \code{\link{estimethod}()} returns the
+  \dQuote{estimation method}, which coincides with the \code{method}
+  argument used.
 
   \code{residuals(.)}, by default \code{type = "response"}, returns
   the residuals \eqn{e_i}, defined above as
@@ -263,6 +272,20 @@ lines(h.x, h.p,  col="blue")
 lines(h.x, h.rp, col="magenta")
 legend("topleft", c("classical nls()", "robust nlrob()"),
        lwd = 1, col= c("blue", "magenta"), inset = 0.05)
+
+## See  ?nlrob.algorithms for examples 
+\dontrun{
+DNase1 <- DNase[DNase$Run == 1,]
+form <- density ~ Asym/(1 + exp(( xmid -log(conc) )/scal ))
+gMM  <- nlrob(form, data = DNase1, method = "MM",
+              lower = c(Asym = 0, xmid = 0, scal = 0),
+              upper = 3, trace = TRUE)
+
+## "CM" (and "tau") additional need bounds for "sigma" :
+gCM  <- nlrob(form, data = DNase1, method = "CM",
+              lower = c(Asym = 0, xmid = 0, scal = 0, sigma = 0),
+              upper = c(3,3,3, sigma = 0.8))
+}%not run
 }
 \keyword{robust}
 \keyword{regression}

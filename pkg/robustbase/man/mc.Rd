@@ -28,7 +28,7 @@ mc(x, \dots)
     sufficient.}
   \item{trace.lev}{integer specifying how much diagnostic output the
     algorithm (in C) should produce.  No output by default, most output
-    for \code{trace_lev = 3}.}
+    for \code{trace.lev = 5}.}
   \item{full.result}{logical indicating if the full return values (from
     C) should be return, as a list \code{attr(*, "mcComp")}.}
   \item{\dots}{potentially further arguments passed to other methods.}
