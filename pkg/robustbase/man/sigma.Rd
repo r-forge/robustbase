@@ -18,7 +18,10 @@
 }
 \details{
   This is a (S3) generic function (as e.g., in package \pkg{lme4}).
-  Currently, we provide methods for \code{\link{lmrob}} and
-  \code{\link{nlrob}}.
+  Currently, we provide methods for \code{\link{lmrob}},
+  \code{\link{nlrob}}, and \code{\link{nls}}.
+
+  The \pkg{lme4} package provides methods for its own models.
 }
+\keyword{models}
 

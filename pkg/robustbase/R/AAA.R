@@ -101,7 +101,7 @@ dummy.coef.lm <- function(object, use.na=FALSE, ...)
     class(res) <- "dummy_coef"
     res
 }
-   
+
 }# if R <= 3.1.0
 
 ## Not exported, and only used because CRAN checks must be faster
@@ -111,3 +111,8 @@ doExtras <- function() {
 }
 
 sigma <- function(object, ...) UseMethod("sigma")
+
+## For completeness, and when comparing with nlrob() results:
+sigma.nls <- function(object, ...)
+    ## sqrt (  sum( R_i ^ 2) / (n - p) ) :
+    sqrt( deviance(object) / (nobs(object) - length(coef(object))) )

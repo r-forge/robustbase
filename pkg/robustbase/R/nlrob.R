@@ -1,12 +1,13 @@
 nlrob <-
-    function (formula, data, start, weights = NULL, na.action = na.fail,
-	      lower = -Inf, upper = Inf,
+    function (formula, data, start, lower, upper,
+              weights = NULL, na.action = na.fail,
 	      method = c("M", "MM", "tau", "CM", "mtl"),
 	      psi = .Mwgt.psi1("huber", cc=1.345),
 	      test.vec = c("resid", "coef", "w"),
 	      maxit = 20, tol = 1e-06, acc,
 	      algorithm = "default", doCov = FALSE,
-	      control = if(method == "M") nls.control() else nlrob.control(method, ...),
+	      control = if(method == "M") nls.control() else
+			nlrob.control(method, optArgs = list(trace=trace), ...),
               trace = FALSE, ...)
 {
     ## Purpose:
@@ -16,18 +17,12 @@ nlrob <-
     ##
     ## --> see the help file,  ?nlrob  (or ../man/nlrob.Rd in the source)
     ## -------------------------------------------------------------------------
-
+    
     ##- some checks
     call <- match.call() # << and more as in nls()
     formula <- as.formula(formula)
     if (length(formula) != 3)
 	stop("'formula' should be a formula of the type 'y  ~ f(x, alpha)'")
-    varNames <- all.vars(formula)
-    dataName <- substitute(data)
-    data <- as.data.frame(data)
-    ## FIXME:  nls() allows  a missing 'start';	 we don't :
-    if (length(pnames <- names(start)) != length(start))
-	stop("'start' must be fully named (list or numeric vector)")
     ## Had 'acc'; now use 'tol' which is more universal; 'acc' should work for a while
     if(!missing(acc) && is.numeric(acc)) {
         if(!missing(tol)) stop("specifying both 'acc' and 'tol' is invalid")
@@ -35,47 +30,61 @@ nlrob <-
         message("The argument 'acc' has been renamed to 'tol'; do adapt your code.")
     }
     method <- match.arg(method)
-    if(method != "M") {
+    dataName <- substitute(data)
+    dataCl <- attr(attr(call, "terms"), "dataClasses")
+    
+    if(method != "M") { 
       if(!is.null(weights))
           stop("specifying 'weights' is not yet supported for method ", method)
-      if((is.numeric(start) && any(is.finite(start))) ||
-         ## or start is list
-         any(sapply(start, is.finite)))
-          warning("Starting values will not be used (just the 'names()') for method ",
-                  method)
+      if(!missing(start))
+	  warning("Starting values will not be used for method ", method)
       force(control)
+      fixAns <- function(mod) {
+          mod$call <- call # the nlrob() one, not nlrob.<foo>()
+          mod$data <- dataName
+          mod$dataClasses <- dataCl
+          mod
+      }
       switch(method,
 	     "MM" = {
-		 return(nlrob.MM (formula, data, pnames, lower=lower,upper=upper,
-				  tol=tol, ctrl= control))
+		 return(fixAns(nlrob.MM (formula, data, lower=lower, upper=upper,
+					 tol=tol, ctrl= control)))
 	     },
 	     "tau" = {
-		 return(nlrob.tau(formula, data, pnames, lower=lower,upper=upper,
-				  tol=tol, ctrl= control))
+		 return(fixAns(nlrob.tau(formula, data, lower=lower, upper=upper,
+					 tol=tol, ctrl= control)))
 	     },
 	     "CM"	 = {
-		 return(nlrob.CM (formula, data, pnames, lower=lower,upper=upper,
-				  tol=tol, ctrl= control))
+		 return(fixAns(nlrob.CM (formula, data, lower=lower, upper=upper,
+					 tol=tol, ctrl= control)))
 	     },
 	     "mtl" = {
-		 return(nlrob.mtl(formula, data, pnames, lower=lower,upper=upper,
-				  tol=tol, ctrl= control))
+		 return(fixAns(nlrob.mtl(formula, data, lower=lower, upper=upper,
+					 tol=tol, ctrl= control)))
 	     })
     }
 
-    ## else: The original  "M" method .. the only one based on 'nls' :
-
+    ## else: method == "M", original method, the only one based on 'nls' :
+    varNames <- all.vars(formula)
+    obsNames <- rownames(data <- as.data.frame(data))
+    data <- as.list(data)# to be used as such
     test.vec <- match.arg(test.vec)
+    if(missing(lower)) lower <- -Inf
+    if(missing(upper)) upper <- +Inf
+    ## FIXME:  nls() allows  a missing 'start'; we don't :
+    if(length(pnames <- names(start)) != length(start))
+        stop("'start' must be fully named (list or numeric vector)")
     if (!((is.list(start) && all(sapply(start, is.numeric))) ||
-	  (is.vector(start) && is.numeric(start)))
-	|| any(is.na(match(pnames, varNames))))
-	stop("'start' must be a list or numeric vector named with parameters in 'formula'")
+	  (is.vector(start) && is.numeric(start))))
+	stop("'start' must be a named list or numeric vector")
+    if(any(is.na(match(pnames, varNames))))
+	stop("parameter names must appear in 'formula'")
     nm <- "._nlrob.w"
     if (nm %in% c(varNames, pnames, names(data)))
 	stop(gettextf("Do not use '%s' as a variable name or as a parameter name",
 		      nm), domain=NA)
     if (!is.null(weights)) {
-	if (length(weights) != nrow(data))
+	if (length(weights) != nobs)
 	    stop("'length(weights)' must equal the number of observations")
 	if (any(weights < 0) || any(is.na(weights)))
 	    stop("'weights' must be nonnegative and not contain NAs")
@@ -89,18 +98,18 @@ nlrob <-
 
     ##- initialize testvec  and update formula with robust weights
     coef <- start
-    fit <- eval(formula[[3]], c(as.list(data), start))
-    y <- eval(formula[[2]], as.list(data))
+    fit <- eval(formula[[3]], c(data, start))
+    y <- eval(formula[[2]], data)
     nobs <- length(y)
     resid <- y - fit
-    w <- rep.int(1, nrow(data))
+    w <- rep.int(1, nobs)
     if (!is.null(weights))
 	w <- w * weights
     ##- robust loop (IWLS)
     converged <- FALSE
     status <- "converged"
     method.exit <- FALSE
-    for (iiter in 1:maxit) {
+    for (iiter in seq_len(maxit)) {
 	if (trace)
 	    cat("robust iteration", iiter, "\n")
 	previous <- get(test.vec)
@@ -117,7 +126,7 @@ nlrob <-
 	    if (!is.null(weights))
 		w <- w * weights
 	    data$._nlrob.w <- w ## use a variable name the user "will not" use
-	    ._nlrob.w <- NULL # FIXME workaround for codetools
+	    ._nlrob.w <- NULL # workaround for codetools "bug"
             ## Case distinction against "wrong warning" as long as
             ## we don't require R > 3.0.2:
 	    if(identical(lower, -Inf) && identical(upper, Inf))
@@ -163,8 +172,8 @@ nlrob <-
     }
 
     ## returned object:	 ==  out$m$fitted()  [FIXME?]
-    fit <- eval(formula[[3]], c(as.list(data), coef))
-    names(fit) <- rownames(data)
+    fit <- eval(formula[[3]], c(data, coef))
+    names(fit) <- obsNames
     structure(class = c("nlrob", "nls"),
 	      list(m = out$m, call = call, formula = formula,
 		   new.formula = formula, nobs = nobs,
@@ -173,8 +182,8 @@ nlrob <-
 		   fitted.values = fit, residuals = y - fit,
 		   Scale = Scale, w = w, rweights = rw,
 		   cov=asCov, status = status, iter=iiter,
-		   psi = psi, data = dataName,
-		   dataClasses = attr(attr(call, "terms"), "dataClasses")))
+		   psi = psi, data = dataName, dataClasses = dataCl,
+		   control = control))
 }
 
 .vcov.m <- function(m, nms.coef, psi, Scale, resid, res.sc = resid/Scale) {
@@ -193,6 +202,10 @@ formula.nlrob <- function(x, ...) x$formula
 
 sigma.nlrob <- function(object, ...)
     if(!is.null(s <- object$Scale)) s else object$coefficients[["sigma"]]
+
+estimethod <- function(object, ...) UseMethod("estimethod")
+estimethod.nlrob <- function(object, ...)
+    if(is.list(object$m) && inherits(object, "nls")) "M" else object$ctrl$method
 
 fitted.nlrob <- function (object, ...)
 {

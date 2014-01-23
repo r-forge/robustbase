@@ -8,6 +8,7 @@
 **** DONE shouldn't we rename jde() to jdeopt() or even jdeoptim(), jDEoptim(), or JDEoptim()
 R users already know optim() etc.. so the name seems more logical for them.
 
+** estimethod(): also for lmrob() and glmrob() models
 * Short Term
 ** glmrob
 *** BYlogreg()  [ R/BYlogreg.R ]

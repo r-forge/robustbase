@@ -68,7 +68,7 @@ export(Sn, Qn, Qn.old,
        , glmrobMqle.control, glmrobBY.control, glmrobMT.control
        , BYlogreg ## R/BYlogreg.R FIXME: add to glmrob() and "deprecate"
        ## , glmrobMT ## R/MTestimador2.R
-       , sigma
+       , sigma, estimethod
        )
 
 
@@ -91,6 +91,7 @@ S3method(alias, lmrob)
 S3method(case.names, lmrob)
 S3method(confint, lmrob)
 S3method(dummy.coef, lmrob)
+S3method(estimethod, nlrob)
 S3method(family, lmrob)
 S3method(kappa, lmrob)
 S3method(labels, lmrob)
@@ -135,6 +136,7 @@ S3method(summary, nlrob)
 
 S3method(sigma, lmrob)
 S3method(sigma, nlrob)
+S3method(sigma, nls)
 S3method(vcov, glmrob)
 S3method(vcov, lmrob)
 S3method(vcov, nlrob)

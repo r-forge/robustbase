@@ -18,6 +18,9 @@
   }
 }
 \usage{
+## You can *not* call the  nlrob(*, method = <M>) like this
+## ------- ===== ------------------------------------------
+
 nlrob.MM(formula, data, pnames, lower, upper,
 	 tol = 1e-06,
 	 psi = c("bisquare", "lqq", "optimal", "hampel"),
@@ -25,26 +28,26 @@ nlrob.MM(formula, data, pnames, lower, upper,
 	 ctrl = nlrob.control("MM", psi = psi, init = init, fnscale = NULL,
 		       tuning.chi.scale = .psi.conv.cc(psi, .Mchi.tuning.defaults[[psi]]),
 		       tuning.psi.M     = .psi.conv.cc(psi, .Mpsi.tuning.defaults[[psi]]),
-		       optim.control = list(), jOptimArgs = list(...)),
+		       optim.control = list(), optArgs = list(...)),
 	 ...)
 
 nlrob.tau(formula, data, pnames, lower, upper,
 	  tol = 1e-06, psi = c("bisquare", "optimal"),
 	  ctrl = nlrob.control("tau", psi = psi, fnscale = NULL,
 			tuning.chi.scale = NULL, tuning.chi.tau = NULL,
-			jOptimArgs = list(...)),
+			optArgs = list(...)),
 	  ...)
 
 nlrob.CM(formula, data, pnames, lower, upper,
 	 tol = 1e-06,
 	 psi = c("bisquare", "lqq", "welsh", "optimal", "hampel", "ggw"),
 	 ctrl = nlrob.control("CM", psi = psi, fnscale = NULL,
-                        tuning.chi = NULL, jOptimArgs = list(...)),
+                        tuning.chi = NULL, optArgs = list(...)),
 	 ...)
 
 nlrob.mtl(formula, data, pnames, lower, upper,
 	  tol = 1e-06,
-	  ctrl = nlrob.control("mtl", cutoff = 2.5, jOptimArgs = list(...)),
+	  ctrl = nlrob.control("mtl", cutoff = 2.5, optArgs = list(...)),
 	  ...)
 }
 \arguments{
@@ -63,10 +66,10 @@ nlrob.mtl(formula, data, pnames, lower, upper,
 
   \item{tuning.psi.M}{..}% FIXME
   \item{optim.control}{..}% FIXME
-  \item{jOptimArgs}{a \code{\link{list}} of optional arguments for
+  \item{optArgs}{a \code{\link{list}} of optional arguments for
     optimization, e.g., \code{trace = TRUE}, passed to to the optimizer,
     which currently must be \code{\link{JDEoptim}(.)}.}
-  \item{...}{alternative way to pass the \code{jOptimArgs} above.}
+  \item{...}{alternative way to pass the \code{optArgs} above.}
 }
 \value{
   an \R object of \code{\link{class}} \code{"nlrob.<meth>"}, basically a
@@ -78,7 +81,8 @@ nlrob.mtl(formula, data, pnames, lower, upper,
   the GPL (>= 2)
 }
 \author{
-  Eduardo L. T. Conceicao; tweaks by Martin Maechler.
+  Eduardo L. T. Conceicao; compatibility (to \code{\link{nlrob}})
+  tweaks and generalizations, by Martin Maechler.
 }
 \source{
   For \code{"MTL"}:
@@ -105,6 +109,10 @@ nlrob.mtl(formula, data, pnames, lower, upper,
       Constrained M-estimation for regression.
       In: \emph{Robust Statistics, Data Analysis and Computer Intensive
 	Methods}, Lecture Notes in Statistics 109, Springer, New York, 299--320.
+      %% not yet -- e.g. tuning constants for Welsh:
+      %% Edlund, O. and Ekblom, H. (2005)
+      %% Computing the constrained M-estimates for regression.
+      %% Computational Statistics Data Analysis \bold{49}(1): 19--32.
     }
     \item{"MTL":}{
       Hadi, Ali S., and Luceno, Alberto (1997).
@@ -120,35 +128,36 @@ nlrob.mtl(formula, data, pnames, lower, upper,
   }%describe
 }
 \examples{%% for more, --> ../tests/nlregrob-tst.R
-fMM <- robustbase:::nlrob.MM( density ~ Asym/(1 + exp(( xmid -log(conc) )/scal )),
-          data = DNase[DNase$Run == 1, ], pnames = c("Asym", "xmid", "scal"),
-          lower = 0, upper = 3,
-          ## call to nlrob.control to pass 'optim.control':
-          ctrl = nlrob.control("MM", optim.control = list(trace = 1)),
-                               jOptimArgs = list(trace = TRUE))
+DNase1 <- DNase[DNase$Run == 1,]
+form <- density ~ Asym/(1 + exp(( xmid -log(conc) )/scal ))
+pnms <- c("Asym", "xmid", "scal")
+set.seed(47) # as these by default use randomized optimization:
 
-ftau <- robustbase:::nlrob.tau( density ~ Asym/(1 + exp(( xmid -log(conc) )/scal )),
-           data = DNase[DNase$Run == 1, ], pnames = c("Asym", "xmid", "scal"),
-           lower = 0, upper = 3,  trace = TRUE )
+fMM <- robustbase:::nlrob.MM(form, data = DNase1,
+           lower = setNames(c(0,0,0), pnms), upper = 3,
+           ## call to nlrob.control to pass 'optim.control':
+           ctrl = nlrob.control("MM", optim.control = list(trace = 1),
+                                optArgs = list(trace = TRUE)))
 
-fCM <- robustbase:::nlrob.CM( density ~ Asym/(1 + exp(( xmid -log(conc) )/scal )),
-           data = DNase[DNase$Run == 1, ], pnames = c("Asym", "xmid", "scal", "sigma"),
-           lower = 0, upper = c(3, 3, 3, 0.1), trace = TRUE )
+## the same
+gMM  <- nlrob(form, data = DNase1, method = "MM",
+              lower = setNames(c(0,0,0), pnms), upper = 3, trace = TRUE)
+gMM
 
-fmtl <- robustbase:::nlrob.mtl( density ~ Asym/(1 + exp(( xmid -log(conc) )/scal )),
-           data = DNase[DNase$Run == 1, ], pnames = c("Asym", "xmid", "scal", "sigma"),
-           lower = 0, upper = c(3, 3, 3, 0.1), trace = TRUE )
+\dontshow{
+if(doExtras <- robustbase:::doExtras()) {
+ gtau <- nlrob(form, data = DNase1, method = "tau",
+	       lower = setNames(c(0,0,0), pnms), upper = 3, trace = TRUE)
 
-mods <- list(MM=fMM, tau=ftau, CM=fCM, MTL=fmtl)
-(sts <- sapply(mods, `[[`, "status"))
-stopifnot(sts == "converged")
-
-sapply(mods, `[[`, "data") # currently 'language' %% FIXME
-
-sapply(mods, `[[`, "coefficients")
-
-## Compare with "traditional"  M-estimate:
-fM <- nlrob(formula(fMM), data=eval(fMM$data), start = coef(fMM),
-            psi = .Mwgt.psi1("bisquare"))
-rbind(M=coef(fM), MM=coef(fMM)) # "similar" ..
+ ## these two have "sigma" also as parameter :
+ psNms <- c(pnms, "sigma")
+ gCM  <- nlrob(form, data = DNase1, method = "CM",
+	       lower = setNames(c(0,0,0,0), psNms), upper = 3, trace = TRUE)
+ gmtl <- nlrob(form, data = DNase1, method = "mtl",
+	       lower = setNames(c(0,0,0,0), psNms), upper = 3, trace = TRUE)
 }
+}%dont..
+}
+\keyword{robust}
+\keyword{regression}
+\keyword{nonlinear}

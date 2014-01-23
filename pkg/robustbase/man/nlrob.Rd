@@ -11,13 +11,14 @@
   squares (called \dQuote{IRLS} or also \dQuote{IWLS}).
 }
 \usage{
-nlrob(formula, data, start, weights = NULL, na.action = na.fail,
-      lower = -Inf, upper = Inf,
+nlrob(formula, data, start, lower, upper,
+      weights = NULL, na.action = na.fail,
       method = c("M", "MM", "tau", "CM", "mtl"),
       psi = .Mwgt.psi1("huber", cc=1.345),
       test.vec = c("resid", "coef", "w"), maxit = 20,
       tol = 1e-06, acc, algorithm = "default", doCov = FALSE,
-      control = if(method == "M") nls.control() else nlrob.control(method, ...),
+      control = if(method == "M") nls.control() else
+		nlrob.control(method, optArgs = list(trace=trace), ...),
       trace = FALSE, ...)
 
 \method{fitted}{nlrob}(object, ...)
@@ -38,7 +39,19 @@ nlrob(formula, data, start, weights = NULL, na.action = na.fail,
     in the model.  If not found in \code{data}, the variables are taken
     from \code{environment(formula)}, typically the environment from
     which \code{nlrob} is called.}
-  \item{start}{a named numeric vector of starting parameters estimates.}
+  \item{start}{a named numeric vector of starting parameters estimates,
+    only for \code{method = "M"}.}
+  \item{lower, upper}{numeric vectors of lower and upper bounds; if
+    needed, will be replicated to be as long as the longest of \code{start},
+    \code{lower} or \code{upper}.  For (the default) \code{method = "M"},
+    if the bounds are unspecified all parameters are assumed to be
+    unconstrained; also, for method \code{"M"}, bounds can only be used 
+    with the \code{"port"} algorithm.  They are ignored, with a warning,
+    in cases they have no effect.
+
+    For all other methods, currently these bounds \emph{must} be
+    specified as finite values, and one of them must have
+    \code{\link{names}} matching the parameter names in \code{formula}.}
   \item{weights}{an optional vector of weights to be used in the fitting
     process (for intrinsic weights, not the weights \code{w} used in the
     iterative (robust) fit). I.e.,
@@ -58,11 +71,6 @@ nlrob(formula, data, start, weights = NULL, na.action = na.fail,
     here since the residuals length is different from
     \code{nrow(data) == length(w)}.
   }
-  \item{lower, upper}{vectors of lower and upper bounds, replicated to
-    be as long as \code{start}.  If unspecified, all parameters are
-    assumed to be unconstrained.  For the default \code{method = "M"},
-    bounds can only be used with the \code{"port"} algorithm.  They are
-    ignored, with a warning, in cases they have no effect.}
   \item{method}{a character string specifying which method to use.  The
     default is \code{"M"}, for historical and back-compatibility
     reasons.
@@ -87,7 +95,7 @@ nlrob(formula, data, start, weights = NULL, na.action = na.fail,
     default.
 
     Note that this has been a deliberately non-backcompatible change
-    for robustbase version 0.90-0 (summer 2013).
+    for robustbase version 0.90-0 (summer 2013 -- early 2014).
   }
   \item{test.vec}{character string specifying the convergence
     criterion. The relative change is tested for residuals with a value
@@ -97,8 +105,8 @@ nlrob(formula, data, start, weights = NULL, na.action = na.fail,
   \item{tol}{non-negative convergence tolerance for the robust fit.}
   \item{acc}{previous name for \code{tol}, now deprecated.}
   \item{algorithm}{character string specifying the algorithm to use for
-    \code{\link{nls}}, see there. The default algorithm is a
-    Gauss-Newton algorithm.}
+    \code{\link{nls}}, see there, only when \code{method = "M"}.  The
+    default algorithm is a Gauss-Newton algorithm.}
   \item{doCov}{a logical specifying if \code{nlrob()} should compute the
     asymptotic variance-covariance matrix (see \code{\link{vcov}})
     already.  This used to be hard-wired to \code{TRUE}; however, the
@@ -125,8 +133,11 @@ nlrob(formula, data, start, weights = NULL, na.action = na.fail,
 
   \item{object}{an \R object of class \code{"nlrob"}, typically
     resulting from \code{nlrob(..)}.}
-  \item{\dots}{for \code{nlrob}:
-    for other functions: potentially optional arguments passed to the extractor methods.}
+  \item{\dots}{for \code{nlrob}: only when \code{method} is \emph{not} \code{"M"},
+    optional arguments for \code{\link{nlrob.control}};
+    \cr
+    for other functions: potentially optional arguments passed to the
+    extractor methods.}
   \item{type}{a string specifying the \emph{type} of residuals desired.
     Currently, \code{"response"} and \code{"working"} are supported.
     %% FIXME: 1. document these (here)  2. write and support more types
@@ -150,15 +161,13 @@ nlrob(formula, data, start, weights = NULL, na.action = na.fail,
 
   It is a list with several components; they are not documented yet,
   as some of them will probably change.
-  %% E.g. 'cov' = vcov() is currently computed in any case,
-  %% which is not quite desirable.
   Instead, rather use \dQuote{accessor} methods, where possible:
   There are methods (at least) for the generic accessor functions
   \code{\link{summary}()}, \code{\link{coefficients}()} (aka \code{coef()})
-  \code{fitted.values()}, \code{residuals()}, and \code{\link{vcov}()},
-  the latter for the variance-covariance matrix of the estimated
-  parameters, as returned by \code{coef()}, i.e., not including the
-  variance of the errors.
+  \code{fitted.values()}, \code{residuals()}, \code{\link{sigma}()} and
+  \code{\link{vcov}()}, the latter for the variance-covariance matrix of
+  the estimated parameters, as returned by \code{coef()}, i.e., not
+  including the variance of the errors.
 
   \code{residuals(.)}, by default \code{type = "response"}, returns
   the residuals \eqn{e_i}, defined above as
@@ -174,8 +183,10 @@ nlrob(formula, data, start, weights = NULL, na.action = na.fail,
   \code{\link{nls}}()), in July 1994 for S-plus.\cr
   Christian Sangiorgio did the update to \R and corrected some errors,
   from June 2002 to January 2005, and Andreas contributed slight changes
-  and the first methods in August 2005.\cr
-  Help page, testing, more cleanup, methods: Martin Maechler.
+  and the first methods in August 2005.
+
+  Since then, the help page, testing, more cleanup, new methods: Martin
+  Maechler.
 }
 \note{
   This function (with the only method \code{"M"}) used to be named

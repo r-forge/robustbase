@@ -9,6 +9,59 @@
 ##     218:##' @param tuning.chi.tau   /  nlrob.tau
 ##     364:##' @param tuning.chi          nlrob.CM
 
+## concept (and original version) from lme4/R/lmer.R
+getOptfun <- function(optimizer, needArgs = c("fn","par","lower","control"))
+{
+    if (((is.character(optimizer) && optimizer=="optimx") ||
+         deparse(substitute(optimizer))=="optimx") &&
+        !("package:optimx") %in% search())
+        stop(shQuote("optimx")," package must be loaded in order to ",
+             "use ",shQuote('optimizer="optimx"'))
+    optfun <- if (is.character(optimizer))
+	tryCatch(get(optimizer), error=function(e) NULL) else optimizer
+    if (is.null(optfun))
+        stop("couldn't find optimizer function ",optimizer )
+    if (!is.function(optfun)) stop("non-function specified as optimizer")
+    if (any(is.na(match(needArgs, names(formals(optfun))))))
+	stop("optimizer function must use (at least) formal parameters ",
+	     paste(sQuote(needArgs), collapse=", "))
+    optfun
+}
+
+##' Utility for all nlrob.<meth>():  Find how and where to get parameter
+##' names from, also check lower, upper, and replicate if needed.
+##' 
+##' @param lower possibly unnamed numeric vector
+##' @param upper as \code{lower}; both will be replicated to
+##'    \code{length(pnames)} if that is specified and longer.   
+##' @param pnames DEPRECATED possibly missing character vector
+##' @param var.nms character vector of which 'pnames' must be a subset of.
+##' @param envir \code{\link{environment}: the function possibly assigns
+##'    "lower", "upper" in the environment \code{envir}.
+.fixupArgs <- function(lower, upper, pnames, var.nms, envir) {
+    if(missing(pnames)) {
+        if(is.null(pnames <- names(lower))) pnames <- names(upper)
+        if(is.null(pnames))
+            stop("Either specify 'pnames' or provide 'upper' or 'lower' with names()")
+    } else if (!is.character(pnames))
+        stop("'pnames' must be a character vector")
+    else
+        warning("specifying 'pnames' is deprecated; rather 'lower' or 'upper' should have names()")
+    if(any(is.na(match(pnames, var.nms))))
+        stop("parameter names must appear in 'formula'")
+    npar <- length(pnames)
+    if (npar > 1 && length(lower) == 1)
+        envir$lower <- rep.int(lower, npar)
+    else if (length(lower) != npar)
+        stop(gettextf("lower must be either of length %d, or length 1", npar))
+    if (npar > 1 && length(upper) == 1)
+        envir$upper <- rep.int(upper, npar)
+    else if (length(upper) != npar)
+        stop(gettextf("upper must be either of length %d, or length 1", npar))
+    stopifnot(is.numeric(lower), is.numeric(upper), lower <= upper)
+    pnames
+}
+
 
 nlrob.MM <-
     function(formula, data, pnames, lower, upper, tol = 1e-6,
@@ -17,12 +70,13 @@ nlrob.MM <-
              ctrl = nlrob.control("MM", psi=psi, init=init, fnscale=NULL,
                  tuning.chi.scale = .psi.conv.cc(psi, .Mchi.tuning.defaults[[psi]]),
                  tuning.psi.M     = .psi.conv.cc(psi, .Mpsi.tuning.defaults[[psi]]),
-                 optim.control = list(), jOptimArgs = list(...)),
+                 optim.control = list(), optArgs = list(...)),
              ...)
 {
+    ctrl.exp <- substitute(ctrl)
     if(missing(ctrl)) {
         init <- match.arg(init)
-        psi <- match.arg(psi)
+        psi  <- match.arg(psi)
         force(ctrl) #
     } else {
         init <- ctrl$ init
@@ -30,6 +84,14 @@ nlrob.MM <-
     }
     c1 <- ctrl$tuning.chi.scale
     c2 <- ctrl$tuning.psi.M
+    if(is.character(ctrl$optimizer)) {
+### TODO
+    } else if(is.function(ctrl$optimizer)) {
+### TODO
+    } else
+	stop(gettextf("'%s' must be character string or function, but is \"%s\"",
+		      "ctrl$optimizer", class(ctrl$optimizer)), domain=NA)
+
 
     ## Preliminary psi-specific checks / computations:
     switch(psi,
@@ -67,30 +129,26 @@ nlrob.MM <-
     objective.initial <-
         switch(init,
                "lts" = function(par) { ## 'h' is defined "global"ly
-                   names(par) <- pnames
-                   fit <- eval( formula[[3L]], c(data, par) )
-                   sum(sort.int( (y - fit)^2, partial = h )[1:h])
+                   y.hat <- eval( formula[[3L]], c(data, setNames(par, pnames)) )
+                   sum(sort.int( (y - y.hat)^2, partial = h )[1:h])
                },
                "S" = function(par) {
-                   names(par) <- pnames
-                   fit <- eval( formula[[3L]], c(data, par) )
-                   res <- y - fit
+                   y.hat <- eval( formula[[3L]], c(data, setNames(par, pnames)) )
+                   res <- y - y.hat
                    ## Rousseeuw, Peter J., and Leroy, Annick M. (1987).
                    ## Robust Regression & Outlier Detection.
                    ## John Wiley & Sons, New York, p. 137.
                    med_abs_res <- median(abs(res))
-                   sigma <- uniroot( M_scale,
-                                    lower = constant[1L] * med_abs_res,
-                                    upper = constant[2L] * med_abs_res,
-                                    u = res )$root
-                   sigma
+                   uniroot(M_scale,
+                           lower = constant[1L] * med_abs_res,
+                           upper = constant[2L] * med_abs_res,
+                           u = res )$ root ## == 'sigma'
 	       }, stop(gettextf("Initialization 'init = \"%s\"' not supported (yet)",
 				init)))
 
     objective.M <- function(par, sigma) {
-        names(par) <- pnames
-        fit <- eval( formula[[3L]], c(data, par) )
-        sum(rho2( (y - fit)/sigma ))
+        y.hat <- eval( formula[[3L]], c(data, setNames(par, pnames)) )
+        sum(rho2( (y - y.hat)/sigma ))
     }
 
     formula <- as.formula(formula)
@@ -103,18 +161,8 @@ nlrob.MM <-
         formula[[2L]] <- 0
     }
 
-    if (!is.character(pnames) || any(is.na(match(pnames, varNames))))
-        stop("'pnames' must be a character vector named with parameters in 'formula'")
-    npar <- length(pnames)
-    if (length(lower) == 1)
-        lower <- rep(lower, npar)
-    if (length(lower) != npar)
-        stop(gettextf("lower must be either of length %d, or length 1", npar))
-    if (length(upper) == 1)
-        upper <- rep(upper, npar)
-    if (length(upper) != npar)
-        stop(gettextf("upper must be either of length %d, or length 1", npar))
-    stopifnot(is.numeric(lower), is.numeric(upper), lower <= upper)
+    npar <- length(pnames <- .fixupArgs(lower, upper, pnames, varNames, environment()))
+    ##			      ^^^^^^^^^ -> maybe changing (lower, upper)
     y <- eval(formula[[2L]], data)
     nobs <- length(y)
     stopifnot(nobs >= npar)
@@ -131,7 +179,7 @@ nlrob.MM <-
     switch(init, lts = h <- (nobs + npar + 1)%/%2)
 
     initial <- do.call(JDEoptim, c(list(lower, upper, objective.initial,
-					tol=tol, fnscale=fnscale), ctrl$jOptimArgs))
+					tol=tol, fnscale=fnscale), ctrl$optArgs))
     names(initial$par) <- pnames
     res <- y - eval( formula[[3L]], c(data, initial$par) )
 
@@ -145,8 +193,7 @@ nlrob.MM <-
                method = "L-BFGS-B", lower = lower, upper = upper,
                control = c(list(fnscale = initial$value, parscale = initial$par),
                            ctrl$optim.control) )
-    coef <- M$par
-    names(coef) <- pnames
+    coef <- setNames(M$par, pnames)
     status <-
 	if (M$convergence == 0) "converged"
 	else if (M$convergence == 1)
@@ -170,7 +217,7 @@ nlrob.tau <- function(formula, data, pnames, lower, upper, tol = 1e-6,
 		      psi = c("bisquare", "optimal"),
 		      ctrl = nlrob.control("tau", psi=psi, fnscale=NULL,
 			  tuning.chi.scale = NULL, tuning.chi.tau = NULL,
-			  jOptimArgs = list(...)),
+			  optArgs = list(...)),
 		      ...)
 {
     if(missing(ctrl)) {
@@ -213,8 +260,7 @@ nlrob.tau <- function(formula, data, pnames, lower, upper, tol = 1e-6,
     tau_scale2 <- function(u, sigma) sigma^2 * 1/b2*sum( rho2(u/sigma) )/nobs
 
     objective <- function(par) {
-        names(par) <- pnames
-        fit <- eval( formula[[3L]], c(data, par) )
+        fit <- eval( formula[[3L]], c(data, setNames(par, pnames)) )
         res <- y - fit
         ## Rousseeuw, Peter J., and Leroy, Annick M. (1987).
         ## Robust Regression & Outlier Detection.
@@ -237,18 +283,8 @@ nlrob.tau <- function(formula, data, pnames, lower, upper, tol = 1e-6,
         formula[[2L]] <- 0
     }
 
-    if (!is.character(pnames) || any(is.na(match(pnames, varNames))))
-        stop("'pnames' must be a character vector named with parameters in 'formula'")
-    npar <- length(pnames)
-    if (length(lower) == 1)
-        lower <- rep(lower, npar)
-    if (length(lower) != npar)
-        stop(gettextf("lower must be either of length %d, or length 1", npar))
-    if (length(upper) == 1)
-        upper <- rep(upper, npar)
-    if (length(upper) != npar)
-        stop(gettextf("upper must be either of length %d, or length 1", npar))
-    stopifnot(is.numeric(lower), is.numeric(upper), lower <= upper)
+    npar <- length(pnames <- .fixupArgs(lower, upper, pnames, varNames, environment()))
+    ##			      ^^^^^^^^^ -> maybe changing (lower, upper)
     y <- eval(formula[[2L]], data)
     nobs <- length(y)
     stopifnot(nobs >= npar)
@@ -263,14 +299,13 @@ nlrob.tau <- function(formula, data, pnames, lower, upper, tol = 1e-6,
         if (nobs %% 2) 2/rho.inv(2/(nobs+2)) else 1/rho.inv(1/(nobs+1)))
 
     optRes <- do.call(JDEoptim, c(list(lower, upper, objective, tol=tol, fnscale=fnscale),
-				  ctrl$jOptimArgs))
-    coef <- optRes$par
-    names(coef) <- pnames
+				  ctrl$optArgs))
     iter <- optRes$iter
     status <-
         if (optRes$convergence == 0)
             "converged"
         else paste("failed to converge in", iter, "steps")
+    coef <- setNames(optRes$par, pnames)
     fit <- eval( formula[[3L]], c(data, coef) )
     names(fit) <- obsNames
     structure(list(call = match.call(), formula=formula, nobs=nobs,
@@ -287,7 +322,7 @@ nlrob.tau <- function(formula, data, pnames, lower, upper, tol = 1e-6,
 nlrob.CM <- function(formula, data, pnames, lower, upper, tol = 1e-6,
 		     psi = c("bisquare", "lqq", "welsh", "optimal", "hampel", "ggw"),
                      ctrl = nlrob.control("CM", psi=psi, fnscale=NULL,
-                         tuning.chi = NULL, jOptimArgs = list(...)),
+                         tuning.chi = NULL, optArgs = list(...)),
                      ...)
 {
     if(missing(ctrl)) {
@@ -299,63 +334,53 @@ nlrob.CM <- function(formula, data, pnames, lower, upper, tol = 1e-6,
     if (is.null(t.chi <- ctrl$tuning.chi))
 	t.chi <- switch(psi, bisquare = list(b = 0.5, cc = 1, c = 4.835),
 			stop("unable to find constants for psi function"))
-    b  <- t.chi$b
-    cc <- t.chi$cc
-    c  <- t.chi$c
+    ## FIXME:
+    b  <- t.chi$b  ## b = epsilon (in paper) = fraction of outlier ~= breakdown
+    cc <- t.chi$cc ## cc = k; make
+    c  <- t.chi$c  ## c = the factor in objective   c*rho(.) - log(sigma)
 
     rho <- function(t) Mchi(t, cc, psi)
     M_scale <- function(sigma, u) sum( rho(u/sigma) )/nobs - b
 
-    if ("sigma" %in% pnames) {
-        objective <- function(par) {
-            names(par) <- pnames
-            fit <- eval( formula[[3L]], c(as.list(data), par) )
-            sigma <- par["sigma"]
-            c * sum(rho( (y - fit)/sigma ))/nobs + log(sigma)
-        }
-        con <- function(par) {
-            names(par) <- pnames
-            fit <- eval( formula[[3L]], c(as.list(data), par) )
-            M_scale(par["sigma"], y - fit)
-        }
-    } else {
-        objective <- function(par) {
-            names(par) <- pnames
-            fit <- eval( formula[[3L]], c(as.list(data), par) )
-            resid <- y - fit
-            sigma <- mad(resid)
-            c * sum(rho( resid/sigma ))/nobs + log(sigma)
-        }
-        con <- NULL
-    }
-
     formula <- as.formula(formula)
     dataName <- substitute(data)
     varNames <- all.vars(formula)
-    data <- as.data.frame(data)
-    if (length(formula) == 2L) {
+    obsNames <- rownames(data <- as.data.frame(data))
+    data <- as.list(data)# to be used as such
+    if (length(formula) == 2L) { ## as nls
         formula[[3L]] <- formula[[2L]]
         formula[[2L]] <- 0
     }
 
-    if (!is.character(pnames) || any(is.na(match(pnames[!(pnames == "sigma")], varNames))))
-        stop("'pnames' must be a character vector named with parameters in 'formula'")
-    npar <- length(pnames)
-    if (length(lower) == 1)
-        lower <- rep(lower, npar)
-    if (length(lower) != npar)
-        stop(gettextf("lower must be either of length %d, or length 1", npar))
-    if (length(upper) == 1)
-        upper <- rep(upper, npar)
-    if (length(upper) != npar)
-        stop(gettextf("upper must be either of length %d, or length 1", npar))
-    stopifnot(is.numeric(lower), is.numeric(upper), lower <= upper)
+    npar <- length(pnames <- .fixupArgs(lower,upper,pnames, c(varNames,"sigma"),environment()))
+    ##                        ^^^^^^^^^ -> maybe changing (lower, upper)
     if ("sigma" %in% pnames) {
-        if ("sigma" %in% varNames || "sigma" %in% names(data))
-            stop("Do not use 'sigma' as a variable name or as a parameter name in 'formula'")
-        stopifnot(lower[pnames == "sigma"] >= 0)
+	if ("sigma" %in% varNames || "sigma" %in% names(data))
+	    stop("As \"sigma\" is in 'pnames', do not use it as variable or parameter name in 'formula'")
+	stopifnot(lower[pnames == "sigma"] >= 0)
+
+	objective <- function(par) {
+	    par <- setNames(par, pnames)
+	    fit <- eval( formula[[3L]], c(data, par) )
+	    sigma <- par[["sigma"]]
+	    c * sum(rho( (y - fit)/sigma ))/nobs + log(sigma)
+	}
+	con <- function(par) {
+	    par <- setNames(par, pnames)
+	    fit <- eval( formula[[3L]], c(data, par) )
+	    M_scale(par[["sigma"]], y - fit)
+	}
+    } else { ## hmm, this case *really* is not CM properly 
+	objective <- function(par) {
+	    fit <- eval( formula[[3L]], c(data, setNames(par, pnames)) )
+	    resid <- y - fit
+	    sigma <- mad(resid)
+	    c * sum(rho( resid/sigma ))/nobs + log(sigma)
+	}
+	con <- NULL
     }
-    y <- eval(formula[[2L]], as.list(data))
+
+    y <- eval(formula[[2L]], data)
     nobs <- length(y)
     stopifnot(nobs >= npar)
     if (is.null(fnscale <- ctrl$ fnscale))
@@ -365,16 +390,14 @@ nlrob.CM <- function(formula, data, pnames, lower, upper, tol = 1e-6,
 
     optRes <- do.call(JDEoptim, c(list(lower, upper, objective, constr=con,
 				       tol=tol, fnscale=fnscale),
-				  ctrl$jOptimArgs))
-    coef <- optRes$par
-    names(coef) <- pnames
+				  ctrl$optArgs))
     iter <- optRes$iter
     status <- if (optRes$convergence == 0)
         "converged"
     else paste("failed to converge in", iter, "steps")
-    fit <- eval( formula[[3L]], c(as.list(data), coef) )
-    names(fit) <- rownames(data)
-
+    coef <- setNames(optRes$par, pnames)
+    fit <- eval( formula[[3L]], c(data, coef) )
+    names(fit) <- obsNames
     structure(list(call = match.call(), formula=formula, nobs=nobs,
                    coefficients = coef,
                    fitted.values = fit,
@@ -386,11 +409,11 @@ nlrob.CM <- function(formula, data, pnames, lower, upper, tol = 1e-6,
 
 
 nlrob.mtl <- function(formula, data, pnames, lower, upper, tol = 1e-6,
-                      ctrl = nlrob.control("mtl", cutoff = 2.5, jOptimArgs = list(...)),
+                      ctrl = nlrob.control("mtl", cutoff = 2.5, optArgs = list(...)),
                       ...)
 {
-    cutoff <- ctrl[["cutoff"]]
-    trim <- function(t) {
+    stopifnot(is.numeric(cutoff <- ctrl[["cutoff"]]), length(cutoff) >= 1)
+    trim <- function(t) { # t = residuals Res, or  Res / sigma
         t <- sort.int(t)
         i <- which(t >= cutoff)
         h <- if (length(i) > 0)
@@ -398,55 +421,43 @@ nlrob.mtl <- function(formula, data, pnames, lower, upper, tol = 1e-6,
         list(h = h, t = t)
     }
 
-    constant <- log(2*pi)
-    if ("sigma" %in% pnames) {
-        objective <- function(par) {
-            names(par) <- pnames
-            fit <- eval( formula[[3L]], c(as.list(data), par) )
-            sigma <- par[["sigma"]]
-            tp <- trim( abs( (y - fit)/sigma ) )
-            h <- tp$h
-            h*(constant + 2*log(sigma)) + sum(tp$t[1L:h]^2)
-        }
-    } else {
-        objective <- function(par) {
-            names(par) <- pnames
-            fit <- eval( formula[[3L]], c(as.list(data), par) )
-            resid <- y - fit
-            sigma <- mad(resid)
-            tp <- trim( abs(resid/sigma) )
-            h <- tp$h
-            h*(constant + 2*log(sigma)) + sum(tp$t[1L:h]^2)
-        }
-    }
-
     formula <- as.formula(formula)
     dataName <- substitute(data)
     varNames <- all.vars(formula)
-    data <- as.data.frame(data)
-    if (length(formula) == 2L) {
+    obsNames <- rownames(data <- as.data.frame(data))
+    data <- as.list(data)# to be used as such
+    if (length(formula) == 2L) { ## as nls
         formula[[3L]] <- formula[[2L]]
         formula[[2L]] <- 0
     }
 
-    if (!is.character(pnames) || any(is.na(match(pnames[!(pnames == "sigma")], varNames))))
-        stop("'pnames' must be a character vector named with parameters in 'formula'")
-    npar <- length(pnames)
-    if (length(lower) == 1)
-        lower <- rep(lower, npar)
-    if (length(lower) != npar)
-        stop(gettextf("lower must be either of length %d, or length 1", npar))
-    if (length(upper) == 1)
-        upper <- rep(upper, npar)
-    if (length(upper) != npar)
-        stop(gettextf("upper must be either of length %d, or length 1", npar))
-    stopifnot(is.numeric(lower), is.numeric(upper), lower <= upper)
+    npar <- length(pnames <- .fixupArgs(lower,upper,pnames, c(varNames,"sigma"),environment()))
+    ##                        ^^^^^^^^^ -> maybe changing (lower, upper)
+    constant <- log(2*pi)
     if ("sigma" %in% pnames) {
-        if ("sigma" %in% varNames || "sigma" %in% names(data))
-            stop("Do not use 'sigma' as a variable name or as a parameter name in 'formula'")
-        stopifnot(lower[pnames == "sigma"] >= 0)
+	if ("sigma" %in% varNames || "sigma" %in% names(data))
+	    stop("As \"sigma\" is in 'pnames', do not use it as variable or parameter name in 'formula'")
+	stopifnot(lower[pnames == "sigma"] >= 0)
+	objective <- function(par) {
+	    par <- setNames(par, pnames)
+	    fit <- eval( formula[[3L]], c(data, par) )
+	    sigma <- par[["sigma"]]
+	    tp <- trim( abs( (y - fit)/sigma ) )
+	    h <- tp$h
+	    h*(constant + 2*log(sigma)) + sum(tp$t[1L:h]^2)
+	}
+    } else { ## hmm... this is not really MTL 
+	objective <- function(par) {
+	    fit <- eval( formula[[3L]], c(data, setNames(par, pnames)) )
+	    resid <- y - fit
+	    sigma <- mad(resid)
+	    tp <- trim( abs(resid/sigma) )
+	    h <- tp$h
+	    h*(constant + 2*log(sigma)) + sum(tp$t[1L:h]^2)
+	}
     }
-    y <- eval(formula[[2L]], as.list(data))
+
+    y <- eval(formula[[2L]], data)
     nobs <- length(y)
     stopifnot(nobs >= npar)
     if (is.null(fnscale <- ctrl$ fnscale))
@@ -456,21 +467,20 @@ nlrob.mtl <- function(formula, data, pnames, lower, upper, tol = 1e-6,
     hlow <- (nobs + npar + 1)%/%2
 
     optRes <- do.call(JDEoptim, c(list(lower, upper, objective, tol=tol, fnscale=fnscale),
-				  ctrl$jOptimArgs))
-    coef <- optRes$par
-    names(coef) <- pnames
+				  ctrl$optArgs))
+    coef <- setNames(optRes$par, pnames)
     crit <- optRes$value
     iter <- optRes$iter
     status <- if (optRes$convergence == 0)
         "converged"
     else paste("failed to converge in", iter, "steps")
-    fit <- eval( formula[[3L]], c(as.list(data), coef) )
-    names(fit) <- rownames(data)
+    fit <- eval( formula[[3L]], c(data, coef) )
+    names(fit) <- obsNames
     resid <- y - fit
     quan <-
         trim( resid/(if ("sigma" %in% pnames) coef["sigma"] else mad(resid)) )$h
 
-    structure(list(call = match.call(), formula=formula, nobs=nobs, method="mtl",
+    structure(list(call = match.call(), formula=formula, nobs=nobs,
                    coefficients = coef,
                    fitted.values = fit,
                    residuals = resid,
@@ -483,7 +493,7 @@ nlrob.mtl <- function(formula, data, pnames, lower, upper, tol = 1e-6,
 nlrob.control <- function(method,
                           psi = c("bisquare", "lqq", "welsh", "optimal", "hampel", "ggw"),
                           init = c("S", "lts"),
-                          jOptimArgs  = list(),
+                          optimizer = "JDEoptim", optArgs  = list(),
                           ...)
 {
   psi <- match.arg(psi)
@@ -506,26 +516,26 @@ nlrob.control <- function(method,
                a.("tuning.chi.scale", .psi.conv.cc(psi, .Mchi.tuning.defaults[[psi]])),
                a.("tuning.psi.M",     .psi.conv.cc(psi, .Mpsi.tuning.defaults[[psi]])),
                a.("optim.control", list()),
-               list(jOptimArgs = jOptimArgs))
+               list(optimizer = optimizer, optArgs = optArgs))
          },
          "tau" = {
              c(list(method = method, psi = psi),
                a.("fnscale", NULL),
                a.("tuning.chi.scale", NULL),
                a.("tuning.chi.tau", NULL),
-               list(jOptimArgs = jOptimArgs))
+               list(optimizer = optimizer, optArgs = optArgs))
          },
          "CM" = {
              c(list(method = method, psi = psi),
                a.("fnscale", NULL),
                a.("tuning.chi", NULL),
-               list(jOptimArgs = jOptimArgs))
+               list(optimizer = optimizer, optArgs = optArgs))
          },
          "mtl" = {
              c(list(method = method),
                a.("fnscale", NULL),
                a.("cutoff", 2.5),
-               list(jOptimArgs = jOptimArgs))
+               list(optimizer = optimizer, optArgs = optArgs))
          },
          stop("Method ", method, "not correctly supported yet"))
 }
