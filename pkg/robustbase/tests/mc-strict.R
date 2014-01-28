@@ -121,7 +121,7 @@ for (i in 1:10) {
 ## "large n" (this did overflow sum_p, sum_q  earlier ==> had inf.loop):
 set.seed(3); x <- rnorm(2e5)
 mx <- mc(x, trace.lev=3)
-stopifnot(abs(mx - -0.000772315846101988) < 1e-18)
+stopifnot(print(abs(mx - -0.000772315846101988)) < 1e-16)# 3.252e-19, 64b Linux
 
 ### Some platform info :
 local({ nms <- names(Si <- Sys.info())
