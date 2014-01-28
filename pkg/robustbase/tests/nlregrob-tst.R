@@ -321,7 +321,7 @@ fM <- nlrob(formula(fMM), data=eval(fMM$data), start = coef(fMM),
             psi = .Mwgt.psi1("bisquare"), trace = TRUE)
 rbind(M=coef(fM), MM=coef(fMM)) # "similar" ... well, no: the sigma's get much different
 ## stopifnot(%%____FIXME___
-all.equal(coef(fM), coef(fMM), tol = 1e-4)
+all.equal(coef(fM), coef(fMM), tolerance = 1e-4)
 ## ) # had 3.26e-5
 ## FIXME:  nlrob( "M")  should allow to keep specify an initial sigma *and* keep that fixed
 showProc.time()

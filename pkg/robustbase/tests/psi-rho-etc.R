@@ -2,7 +2,7 @@ require(robustbase)
 ## see also ./lmrob-psifns.R <<<<<<<<
 source(system.file("xtraR/plot-psiFun.R", package = "robustbase", mustWork=TRUE))
 
-EQ <- function(x,y) all.equal(x,y, tol = 1e-13)
+EQ <- function(x,y) all.equal(x,y, tolerance = 1e-13)
 
 ## Demonstrate that  one of  tukeyChi() / tukeyPsi1() is superfluous
 x <- seq(-4,4, length=201)
@@ -81,7 +81,7 @@ c2 <- curve(x * psiH.38@wgt(x), add=TRUE, n=512, col=adjustcolor("blue", .5), lw
 title("psi_Hampel_(1.5, 3, 8)  :  psi(x) =  x * wgt(x)")
 axis(1, at=kk, expression(k[1], k[2], k[3]), pos=0)
 axis(2, at=kk[1], quote(k[1]), pos=0, las=1)
-stopifnot(all.equal(c1,c2, tol= 1e-15))
+stopifnot(all.equal(c1,c2, tolerance= 1e-15))
 
 r1 <- curve(psiH.38@rho(x), -10, 10, col=2,
             main = quote(rho(x) == integral(phi(t) * dt, 0, x)))
@@ -93,7 +93,7 @@ rhoH.38.int <- function(x) integrate(function(u) psiH.38@psi(u), 0, x, rel.tol=1
 r2 <- curve(sapply(x, rhoH.38.int), add = TRUE,
             lwd=4, col=adjustcolor("red", 1/4))
 ## numerical integration == "formula" :
-stopifnot(all.equal(r1,r2, tol=1e-10))
+stopifnot(all.equal(r1,r2, tolerance=1e-10))
 
 curve(psiH.38@Dpsi(x), -10, 10, n=512, col=2,
       main = quote(psi*minute(x)))
@@ -108,11 +108,11 @@ F1psH.38 <- splinefun(xx, Dps.x <- psiH.38@Dpsi(xx))
 curve(FpsiH.38(x, deriv=1), -10,10, n=512)
 curve(F1psH.38, add=TRUE, col=4, n=512)
 stopifnot(all.equal(FpsiH.38(xx, deriv=1), Dps.x,
-                    tol = 0.02))# not better because of discontinuities
+                    tolerance = 0.02))# not better because of discontinuities
 
 curve(FrhoH.38(x, deriv=1), -10,10, n=512)
 curve(FpsiH.38, add=TRUE, col=4, n=512)
-stopifnot(all.equal(FrhoH.38(xx, deriv=1), psi.x, tol = 1e-4))
+stopifnot(all.equal(FrhoH.38(xx, deriv=1), psi.x, tolerance = 1e-4))
 
 E.norm <- function(FUN, tol=1e-12, ...) {
     integrate(function(x) FUN(x) * dnorm(x), -Inf, Inf,
@@ -145,7 +145,7 @@ bp.P <- function(psiF, k, ...) {
 ## Print & Check the result of  aeff.P() or bp.P()
 chkP <- function(rp, tol = 1e-9) {
     print(rp)
-    ae <- all.equal(rp[[1]], rp[[2]], tol=tol)
+    ae <- all.equal(rp[[1]], rp[[2]], tolerance=tol)
     if(isTRUE(ae)) invisible(rp) else stop(ae)
 }
 

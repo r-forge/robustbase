@@ -199,8 +199,8 @@ nlrob(formula, data, start, lower, upper,
 }
 \note{
   This function (with the only method \code{"M"}) used to be named
-  \code{\link[sfsmisc]{rnls}} and has been in package \pkg{sfsmisc} in
-  the past, but been dropped there.
+  \code{rnls} and has been in package \pkg{sfsmisc} in the past, but
+  been dropped there.
 }
 \seealso{ \code{\link{nls}}, \code{\link[MASS]{rlm}}.
 }

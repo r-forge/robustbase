@@ -38,9 +38,9 @@ chkPsiDeriv <- function(m.psi, tol = 1e-4) {
               is.numeric(dx  <- diff(x <- m.psi[,"x"])))
     if(length(tol) < 2) tol[2] <- 10*tol[1]
     xn0 <- abs(x) > 1e-5
-    c(all.equal(mids(psi), diff(m.psi[,"rho"])/dx, tol=tol[1]), # rho'  == psi
-      all.equal(mids(m.psi[,"Dpsi"]), diff(psi)/dx, tol=tol[2]),# psi'  == psip
-      all.equal(m.psi[xn0,"wgt"], (psi/x)[xn0], tol= tol[1]/10))# psi/x == wgt
+    c(all.equal(mids(psi), diff(m.psi[,"rho"])/dx, tolerance=tol[1]), # rho'  == psi
+      all.equal(mids(m.psi[,"Dpsi"]), diff(psi)/dx, tolerance=tol[2]),# psi'  == psip
+      all.equal(m.psi[xn0,"wgt"], (psi/x)[xn0], tolerance= tol[1]/10))# psi/x == wgt
 }
 
 ##' This version "starts from scratch" instead of from p.psiFun() result:
@@ -97,11 +97,11 @@ chkPsi.. <- function(x, psi, par, tol = 1e-4, doD2, quiet=FALSE)
     if(length(tol) < 4) tol[4] <-  8*tol[2]
     i <- 5:length(x) # leaving away the first 4 (+-Inf, NA..)
     xn0 <- is.finite(x) & abs(x) > 1e-5
-    c("rho' = psi" = all.equal(mids(psix[i]), diff(rho [i])/dx, tol=tol[1]),
-      "psi' = psip"= all.equal(mids(Dpsi[i]), diff(psix[i])/dx, tol=tol[2]),
-      "psi/x= wgt" = all.equal(  wgt[xn0],       (psix/x)[xn0], tol=tol[3]),
+    c("rho' = psi" = all.equal(mids(psix[i]), diff(rho [i])/dx, tolerance=tol[1]),
+      "psi' = psip"= all.equal(mids(Dpsi[i]), diff(psix[i])/dx, tolerance=tol[2]),
+      "psi/x= wgt" = all.equal(  wgt[xn0],       (psix/x)[xn0], tolerance=tol[3]),
       "psi''=D2psi"= if(doD2)
-		     all.equal(mids(D2psi[i]), diff(Dpsi[i])/dx,tol=tol[4])
+		     all.equal(mids(D2psi[i]), diff(Dpsi[i])/dx,tolerance=tol[4])
       else NA)
 }
 

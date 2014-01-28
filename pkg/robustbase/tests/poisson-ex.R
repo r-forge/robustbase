@@ -96,7 +96,7 @@ assert.EQ(m1$initial,
 c(-0.851594294907422, -0.0107066895370536, -0.226958540075445, 0.0355906625338308,
   0.048010654640958, 0.0847493155436896, 0.0133604488401352, -0.024115201062159,
   0.0270535337324518, 0.146022135657894, -0.00751380783260833, -0.417638086169033)
-          , tol = 1e-13, check.attr=FALSE, giveRE=TRUE)
+          , tol = 1e-13, check.attributes=FALSE, giveRE=TRUE)
 
 ## MM: I'm shocked how much this changes after every tweak ...
 
@@ -116,9 +116,9 @@ c(-0.83723213945, 0.0085385261915, -0.16697112315, 0.040985126003,
   0.11488937188, 0.091283185006, -0.025627390293, -0.66995658693)
 )
 ## just FYI: difference 32-bit vs 64-bit:
-assert.EQ(beta1[[1]], beta1[[2]], tol = 0.002, check.attr=FALSE, giveRE=TRUE)
+assert.EQ(beta1[[1]], beta1[[2]], tol = 0.002, check.attributes=FALSE, giveRE=TRUE)
 
-assert.EQ(coef(m1), beta1[[arch]], tol = 1e-10, check.attr=FALSE, giveRE=TRUE)
+assert.EQ(coef(m1), beta1[[arch]], tol = 1e-10, check.attributes=FALSE, giveRE=TRUE)
 
 ## The same, with another seed:
 set.seed(64)
@@ -135,7 +135,7 @@ assert.EQ(m2$initial, ## so this is *not* platform (32bit/64bit) dependent:
 c(-1.204304813829, 0.02776038445201, -0.3680174045842, 0.04325746912892,
   0.03895315289169, 0.04537145479989, 0.02847987541025, 0.07073207523212,
   0.355491639539, 0.1822955449528, 0.1323720331562, -0.3419939094877)
-          , tol = 1e-12, check.attr=FALSE, giveRE=TRUE)
+          , tol = 1e-12, check.attributes=FALSE, giveRE=TRUE)
 
 dput(signif(unname(coef(m2)), 11)) ## -->
 beta2 <- list(i686 =
@@ -148,9 +148,9 @@ c(-0.83687097624, 0.0085341676033, -0.1674299545, 0.040968820903,
   0.11426134017, 0.091317308575, -0.025373078819, -0.66957444238)
 )
 ## just FYI: difference 32-bit vs 64-bit:
-assert.EQ(beta2[[1]], beta2[[2]], tol = 0.001, check.attr=FALSE, giveRE=TRUE)
+assert.EQ(beta2[[1]], beta2[[2]], tol = 0.001, check.attributes=FALSE, giveRE=TRUE)
 
-assert.EQ(coef(m2), beta2[[arch]], tol = 1e-10, check.attr=FALSE, giveRE=TRUE)
+assert.EQ(coef(m2), beta2[[arch]], tol = 1e-10, check.attributes=FALSE, giveRE=TRUE)
 ## slight changes of algorithm often change the above by ~ 4e-4 !!!
 
 ###---- Model Selection -----

@@ -147,8 +147,8 @@ str(r)
 ##       c(ini = 1.30833281965018, est = 1.29369680430627)
 r.64b <- c(ini = 1.30833281965018, est = 1.29369680452016)
 stopifnot(r$converged)
-assert.EQ(r$initial,      r.64b[["ini"]], check.attr=FALSE, tol = 1e-13)# rel.diff: 3.394.e-16
-assert.EQ(r$coefficients, r.64b[["est"]], check.attr=FALSE, tol = 1e-09)# as long we use different optim())
+assert.EQ(r$initial,      r.64b[["ini"]], check.attributes=FALSE, tol = 1e-13)# rel.diff: 3.394.e-16
+assert.EQ(r$coefficients, r.64b[["est"]], check.attributes=FALSE, tol = 1e-09)# as long we use different optim())
 
 
 ## now, as the algorithm has a random start:
@@ -163,8 +163,8 @@ est <- sapply(LL, `[[`, "coefficients")
 stopifnot(diff(range(ini)) == 0,
           diff(range(est)) == 0)
 ## probably too accurate ... but ok, for now
-assert.EQ(est[1], r.64b[["est"]], check.attr=FALSE, tol = 1e-10)# Winbuilder needed ~ 2e-11
-assert.EQ(ini[1], r.64b[["ini"]], check.attr=FALSE, tol = 1e-10)
+assert.EQ(est[1], r.64b[["est"]], check.attributes=FALSE, tol = 1e-10)# Winbuilder needed ~ 2e-11
+assert.EQ(ini[1], r.64b[["ini"]], check.attributes=FALSE, tol = 1e-10)
 
 ccvv <- sapply(LL, `[[`, "cov")
 stopifnot(ccvv[1] == ccvv)

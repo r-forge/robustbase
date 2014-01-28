@@ -15,7 +15,7 @@ summary(fm1)
 rm1 <- nlrob(formula(fm1), data = DNase1, trace = TRUE,
 	     start = list(Asym = 3, xmid = 0, scal = 1))
 (sm1 <- summary(rm1))
-stopifnot(all.equal(Y, fitted(fm1) + residuals(fm1), check.attr=FALSE),
+stopifnot(all.equal(Y, fitted(fm1) + residuals(fm1), check.attributes=FALSE),
 	  ## fitted(<nls>) has "label" attribute
 	  identical3(c(fitted(fm1)), predict(fm1), predict(fm1, newdata=DNase1)),
 	  ## robust fit :
@@ -74,8 +74,8 @@ nlr3. <- update(nlr3, algorithm= "port")
 summary(nlr2.)
 summary(nlr3.)
 i. <- -c(2, 15) # <- drop 'call' and 'iter' components
-stopifnot(all.equal(nlr2[i.], nlr2.[i.], tol = 2e-5),
-          all.equal(nlr3[i.], nlr3.[i.], tol = 1e-4),
+stopifnot(all.equal(nlr2[i.], nlr2.[i.], tolerance = 2e-5),
+          all.equal(nlr3[i.], nlr3.[i.], tolerance = 1e-4),
           ## The redescending psi() give some exact 0 weights :
 	  identical(which(abs(nlr2$rweights) < 1e-9), c(1L, 10 :12)),
 	  identical(which(abs(nlr3$rweights) < 1e-9), c(1L, 10L,12L))

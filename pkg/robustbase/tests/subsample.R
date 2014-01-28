@@ -67,8 +67,8 @@ s2 <- tstSubsample(X / max(abs(X)), y / max(abs(X)))
 s3 <- tstSubsample(X * 2^-50, y * 2^-50)
 ## all components *BUT*  x, y, lu, Dr, Dc, rowequ, colequ :
 nm <- names(s1); nm <- nm[is.na(match(nm, c("x","y","lu", "Dr", "Dc", "rowequ", "colequ")))]
-stopifnot(all.equal(s1[nm], s2[nm], tol=1e-10),
-	  all.equal(s1[nm], s3[nm], tol=1e-10))
+stopifnot(all.equal(s1[nm], s2[nm], tolerance=1e-10),
+	  all.equal(s1[nm], s3[nm], tolerance=1e-10))
 showProc.time()
 
 set.seed(10)

@@ -24,8 +24,8 @@ summary(r1)
 i1 <- 15:17; ii <- (1:20)[-i1]
 UN <- function(lis) lapply(lis, unname)
 dimnames(r1.$X)[1] <- dimnames(r1$X)[1]
-stopifnot(all.equal(   r1[ii],     r1.[ii],  tol= 1e-15),
-          all.equal(UN(r1[i1]), UN(r1.[i1]), tol= 1e-15))
+stopifnot(all.equal(   r1[ii],     r1.[ii],  tolerance= 1e-15),
+          all.equal(UN(r1[i1]), UN(r1.[i1]), tolerance= 1e-15))
 
 ## intercept=FALSE, p > 1 -- coefficients were switched once
 n <- 100; theta <- c(x=10, x2=40)
@@ -33,7 +33,7 @@ set.seed(7)
 X <- cbind(x = rt(n, 4), x2 = rnorm(n))
 dat <- data.frame(X, y = X %*% theta  + rt(n, df=3)/10)
 summary(M <- ltsReg(y ~ . -1, data = dat))
-stopifnot(all.equal(coef(M), theta, tol = 1e-3))
+stopifnot(all.equal(coef(M), theta, tolerance = 1e-3))
 
 ## with alpha = 1
 (r1.1 <- ltsReg(x ~ 1, alpha = 1))

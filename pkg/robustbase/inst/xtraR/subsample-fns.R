@@ -149,7 +149,7 @@ tstSubsample <- function(x, y=rnorm(n), compareMatrix = TRUE,
 
     LU. <- LU.gaxpy(t(x), tol=lu.tol, verbose=lu.verbose)
     ##	   --------
-    if (!isTRUE(all.equal(LU.$p, pivot, tol=0))) {
+    if (!isTRUE(all.equal(LU.$p, pivot, tolerance=0))) {
 	cat("LU.gaxpy() and Rsubsample() have different pivots:\n")
 	print(LU.$p)
 	print(pivot)

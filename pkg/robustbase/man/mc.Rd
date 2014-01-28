@@ -72,7 +72,7 @@ mc(cushny) # 0.125
 
 stopifnot(mc(c(-20, -5, -2:2, 5, 20)) == 0,
           mc(x1, doReflect=FALSE) ==  -mc(-x1, doReflect=FALSE),
-          all.equal(mc(x1, doReflect=FALSE), -1/3, tol = 1e-12))
+          all.equal(mc(x1, doReflect=FALSE), -1/3, tolerance = 1e-12))
 }
 \keyword{robust}
 \keyword{univar}

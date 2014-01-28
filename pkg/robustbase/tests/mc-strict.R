@@ -7,7 +7,7 @@
 library(robustbase)
 source(system.file("xtraR/mcnaive.R", package = "robustbase"))# mcNaive()
 
-allEQ <- function(x,y) all.equal(x,y, tol = 1e-12)
+allEQ <- function(x,y) all.equal(x,y, tolerance = 1e-12)
 ##
 c.time <- function(...) cat('Time elapsed: ', ..., '\n')
 S.time <- function(expr) c.time(system.time(expr))
@@ -48,7 +48,7 @@ for(n in 3:50) {
 	mc1 <- mc(x)
 	mc2 <- mcNaive(x, method = "simple")
 	mc3 <- mcNaive(x, method = "h.use" )
-	stopifnot(all.equal(mc1, mc3, tol = 1e-10),# 1e-12 not quite ok
+	stopifnot(all.equal(mc1, mc3, tolerance = 1e-10),# 1e-12 not quite ok
 		  mc2 == mc3)
 	cat(".")
     }

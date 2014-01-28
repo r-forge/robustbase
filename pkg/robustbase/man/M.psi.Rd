@@ -102,7 +102,7 @@ psHa <- hampelPsi@psi(x)
 % FIXME: interesting as long as hampelPsi does not use Mpsi(... "hampel") !
 ## using Mpsi():
 Mp.Ha <- Mpsi(x, cc = ccHa, psi = "hampel")
-stopifnot(all.equal(Mp.Ha, psHa, tol = 1e-15))
+stopifnot(all.equal(Mp.Ha, psHa, tolerance = 1e-15))
 
 psi.huber <- .Mwgt.psi1("huber")
 stopifnot(identical(psi.huber, .Mwgt.psi1("huber", 1.345),
