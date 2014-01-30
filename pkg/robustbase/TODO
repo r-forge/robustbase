@@ -2,8 +2,7 @@
 * Before next release
 ** TODO nlrob()
 *** TODO summary(nlrob(*)) fails for new methods; better error message or *work*
-*** TODO residuals( nlrob(), type = "...") should provide types "as in the litterature"
-
+*** TODO residuals( nlrob(), type = "...") should provide types "as in the literature"
 *** DONE nlrob(*, method = "...") should call methods "tau", "CM", "MTL", "MM"
     by Eduardo Conceicao
 **** DONE shouldn't we rename jde() to jdeopt() or even jdeoptim(), jDEoptim(), or JDEoptim()
@@ -13,7 +12,7 @@ R users already know optim() etc.. so the name seems more logical for them.
 * Short Term
 ** TODO nlrob(*):
 *** TODO nlrob(*, method=.) -- try at least *one* other optimizer than JDEoptim(), 
- since we provide already provide most of the needed "hooks".
+ since we provide already most of the needed "hooks".
 *** TODO nlrob(*, method="M"): try to allow a "fixed initial sigma" (--> inference for "MM")
 ** glmrob
 *** BYlogreg()  [ R/BYlogreg.R ]
@@ -142,13 +141,11 @@ R users already know optim() etc.. so the name seems more logical for them.
 ** Generalizing  'wgt.himedian':  We'd want a C API on which R builds.
     There are pure R implementations:
      - 'weighted.median()' in limma
-    	  and I have generalized it ---> inst/ex-funs.R
+    	  and I have generalized it ---> file:inst/xtraR/ex-funs.R
      - more general code (different 'tie' strategies; weighted *quantile*s)
-       in /u/maechler/R/MM/STATISTICS/robust/weighted-median.R
+       in file:/u/maechler/R/MM/STATISTICS/robust/weighted-median.R
      - The 'Hmisc' package has wtd.quantile()
 ** Miscellaneous
-*** Add data sets from the MMY-book -- mostly done {do we have *all* ?}
-
 *** Alternative version of covOGK() for correlation-only
    using's Huber's correlation formula which ensures [-1,1] range
    --> ~/R/MM/Pkg-ex/robustbase/robcorgroesser1.R
@@ -167,3 +164,20 @@ R users already know optim() etc.. so the name seems more logical for them.
          the sample size  n   and will be too large for small n (??)
    --> should ask Mia and maybe Guy Brys
 
+*** Add data sets from the MMY-book -- mostly done {do we have *all* ?}
+
+*** Data Sets --- Valentin Todorov has several of Rousseeuw's in the 'rrov' package
+    (and promised me "the rest" when needed)
+   Don't like the *.x, *.y  sub datasets: They shouldn't be needed when use a *formula*
+   In his lts tests, he uses these "data sets from the literature":
+   (Note that 'stackloss' is already in "datasets") :
+    heart.x,heart.y,	   data(heart)
+    stars.x,stars.y,	   data(stars)
+    phosphor.x,phosphor.y, data(phosphor)
+    stack.x,stack.loss,	   data(stackloss)
+    coleman.x,coleman.y,   data(coleman)
+    salinity.x,salinity.y, data(salinity)
+    aircraft.x,aircraft.y, data(aircraft)
+    delivery.x,delivery.y, data(delivery)
+    wood.x,wood.y,	   data(wood)
+    hbk.x,hbk.y,	   data(hbk)
