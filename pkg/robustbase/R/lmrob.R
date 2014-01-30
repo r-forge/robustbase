@@ -502,7 +502,7 @@ summary.lmrob <- function(object, correlation = FALSE, symbolic.cor = FALSE, ...
 	est <- object$coefficients[object$qr$pivot[p1]]
 	tval <- est/se
 	ans <- object[c("call", "terms", "residuals", "scale", "rweights",
-			"converged", "iter", "control", "weights")]
+			"converged", "iter", "control")]
 	if (!is.null(ans$weights))
 	    ans$residuals <- ans$residuals * sqrt(object$weights)
 	## 'df' vector, modeled after summary.lm() : ans$df <- c(p, rdf, NCOL(Qr$qr))
@@ -558,8 +558,7 @@ summary.lmrob <- function(object, correlation = FALSE, symbolic.cor = FALSE, ...
     } else { ## p = 0: "null model"
 	ans <- object
 	ans$df <- c(0L, df, length(aliased))
-	ans$coefficients <- matrix(NA, 0L, 4L)
-	dimnames(ans$coefficients) <- list(NULL, cf.nms)
+	ans$coefficients <- matrix(NA, 0L, 4L, dimnames = list(NULL, cf.nms))
         ans$r.squared <- ans$adj.r.squared <- 0
 	ans$cov.unscaled <- object$cov
     }
