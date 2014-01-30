@@ -61,7 +61,7 @@ R users already know optim() etc.. so the name seems more logical for them.
     some are "sync"ed now, some not yet::
 *** TODO 1) have the nice S4 class psi_func  + psiFunc() and .defDwgt() functions
     in file:R/psi-rho-funs.R  with further explorations, ideas in 
-    file:/experi-psi-rho-funs.R
+    file:misc/experi-psi-rho-funs.R
 **** TODO print/show of such psi_func should show more; at least the psi function
 **** TODO str.psi_func() should be a bit nicer than the current default str()
 **** TODO nlrob(): also allow psi to be a 'psiFunc':

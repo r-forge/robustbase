@@ -4,7 +4,7 @@
 ## Follow a similar idea as  nlsModel() {in "stats"} which returns
 ##  a list of functions sharing a common {non-small!} environment
 
-## NOTA BENE:  Experiments etc are currently in ../experi-psi-rho-funs.R
+## NOTA BENE:  Experiments etc are currently in ../misc/experi-psi-rho-funs.R
 ## ---------   (FIXME: move those to ../tests/psi-rho-etc.R and the vignette
 ## ../inst/doc/psi_functions.Rnw  (and see ../inst/xtraR/plot-psiFun.R)
 

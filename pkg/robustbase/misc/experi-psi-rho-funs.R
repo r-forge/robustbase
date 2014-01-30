@@ -1,7 +1,7 @@
 #### These are experiments, using the definitions in
 #### ==================
-#### ./R/psi-rho-funs.R  <<<<<<<< see there
-#### ==================
+#### ../R/psi-rho-funs.R  <<<<<<<< see there
+#### ===================
 
 
 ## NB:  "Recycle" code in
