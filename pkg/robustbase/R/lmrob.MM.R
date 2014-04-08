@@ -258,30 +258,34 @@ lmrob.fit <- function(x, y, control, init=NULL) {
 globalVariables("r", add=TRUE) ## below and in other lmrob.E() expressions
 
 .vcov.w <- function(obj, x=obj$x, scale=obj$scale, cov.hubercorr=ctrl$cov.hubercorr,
-             cov.dfcorr=ctrl$cov.dfcorr, cov.resid=ctrl$cov.resid,
-             cov.corrfact=ctrl$cov.corrfact,
-             cov.xwx=ctrl$cov.xwx)
+                    cov.dfcorr=ctrl$cov.dfcorr, cov.resid=ctrl$cov.resid,
+                    cov.corrfact=ctrl$cov.corrfact,
+                    cov.xwx=ctrl$cov.xwx)
 {
     ## set defaults
     ctrl <- obj$control
     if (is.null(cov.hubercorr)) cov.hubercorr <- !grepl('D', ctrl$method)
     else if (!is.logical(cov.hubercorr))
-        stop(':.vcov.w: cov.hubercorr has to be logical')
+        stop(':.vcov.w: cov.hubercorr must be logical (or NULL)')
+    val.corrf <- c('tau', 'empirical', 'asympt', 'hybrid', 'tauold')
     if (is.null(cov.corrfact)) {
         cov.corrfact <- if (cov.hubercorr) 'empirical' else 'tau'
-    } else if (!cov.corrfact %in% c('tau', 'empirical', 'asympt', 'hybrid', 'tauold'))
-	stop(":.vcov.w: cov.corrfact is not in 'tau', 'empirical', 'asympt', 'hybrid', 'tauold'")
-       if (is.null(cov.dfcorr)) {
+    } else if(length(cov.corrfact) != 1 || is.na(match(cov.corrfact, val.corrf)))
+	stop(":.vcov.w: cov.corrfact must be one of ",
+             paste(dQuote(val.corrf), collapse=", "))
+    if (is.null(cov.dfcorr)) {
         cov.dfcorr <- if (cov.hubercorr | cov.corrfact %in% c('tau', 'hybrid')) 1 else -1
-    } else if (!is.numeric(cov.dfcorr) || !cov.dfcorr %in% -1:3)
+    } else if (!is.numeric(cov.dfcorr) || is.na(match(cov.dfcorr, -1:3)))
         stop(':.vcov.w: cov.dfcorr has to be one of -1:3')
 
- if (is.null(cov.resid)) cov.resid <- 'final'
-    else if (!cov.resid %in% c('final','initial', 'trick'))
-	stop(":.vcov.w: cov.corrfact is not in 'final','initial', 'trick'")
+    val.cov.res <- c('final', 'initial', 'trick')
+    if (is.null(cov.resid)) cov.resid <- 'final'
+    else if (length(cov.resid) != 1 || is.na(match(cov.resid, val.cov.res)))
+	stop(":.vcov.w: cov.resid must be one of ",
+             paste(dQuote(val.cov.res), collapse=", "))
     if (is.null(cov.xwx)) cov.xwx <- TRUE
     else if (!is.logical(cov.xwx))
-	stop(':.vcov.w: cov.xwx has to be logical')
+	stop(':.vcov.w: cov.xwx must be logical (or NULL)')
     if (is.null(x))  x <- model.matrix(obj)
     ## set psi and c.psi
     if (cov.resid == 'initial') {
@@ -390,7 +394,7 @@ globalVariables("r", add=TRUE) ## below and in other lmrob.E() expressions
         if (cov.dfcorr == 2) varcorr ## cov.dfcorr == 2
         else if (cov.dfcorr == 3) mean(w)^2 / (1 - p / sum(w)) ## cov.dfcorr == 3
         else mean(w) * varcorr ## cov.dfcorr == 1
-    } else if (cov.dfcorr < 0) mean(w) ## cov.dfcorr == -1 
+    } else if (cov.dfcorr < 0) mean(w) ## cov.dfcorr == -1
     else 1 ## cov.dfcorr == 0
 
     ## scale^2 * a/b2 * Huber's correction * Cinv
