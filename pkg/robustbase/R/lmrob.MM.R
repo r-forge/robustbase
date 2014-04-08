@@ -267,16 +267,16 @@ globalVariables("r", add=TRUE) ## below and in other lmrob.E() expressions
     if (is.null(cov.hubercorr)) cov.hubercorr <- !grepl('D', ctrl$method)
     else if (!is.logical(cov.hubercorr))
         stop(':.vcov.w: cov.hubercorr has to be logical')
-    if (is.null(cov.dfcorr)) {
-        cov.dfcorr <- if (cov.hubercorr) 1 else -1
+    if (is.null(cov.corrfact)) {
+        cov.corrfact <- if (cov.hubercorr) 'empirical' else 'tau'
+    } else if (!cov.corrfact %in% c('tau', 'empirical', 'asympt', 'hybrid', 'tauold'))
+	stop(":.vcov.w: cov.corrfact is not in 'tau', 'empirical', 'asympt', 'hybrid', 'tauold'")
+       if (is.null(cov.dfcorr)) {
+        cov.dfcorr <- if (cov.hubercorr | cov.corrfact %in% c('tau', 'hybrid')) 1 else -1
     } else if (!is.numeric(cov.dfcorr) || !cov.dfcorr %in% -1:3)
         stop(':.vcov.w: cov.dfcorr has to be one of -1:3')
 
-    if (is.null(cov.corrfact)) {
-        cov.corrfact <- if (cov.hubercorr) 'empirical' else 'tau'
-    } else if (!cov.corrfact %in% c('tau', 'empirical', 'asympt', 'hybrid'))
-	stop(":.vcov.w: cov.corrfact is not in 'tau', 'empirical', 'asympt', 'hybrid'")
-    if (is.null(cov.resid)) cov.resid <- 'final'
+ if (is.null(cov.resid)) cov.resid <- 'final'
     else if (!cov.resid %in% c('final','initial', 'trick'))
 	stop(":.vcov.w: cov.corrfact is not in 'final','initial', 'trick'")
     if (is.null(cov.xwx)) cov.xwx <- TRUE
@@ -350,10 +350,10 @@ globalVariables("r", add=TRUE) ## below and in other lmrob.E() expressions
 	    obj$init$resid / obj$init$scale
 	} else obj$resid / scale
 
-        tau <- if (cov.corrfact %in% c('tau', 'hybrid')) { ## added hybrid here
+        tau <- if (cov.corrfact %in% c('tau', 'hybrid', 'tauold')) { ## added hybrid here
             if (!is.null(obj$tau)) obj$tau
             else if (!is.null(obj$init$tau)) obj$init$tau
-            else stop("(tau / hybrid): tau not found in 'obj'") } else rep(1,n)
+            else stop("(tau / hybrid / tauold): tau not found in 'obj'") } else rep(1,n)
 	rstand <- rstand / tau
         r.psi   <- Mpsi(rstand, c.psi, psi)
         r.psipr <- Mpsi(rstand, c.psi, psi, deriv = 1)
@@ -383,8 +383,7 @@ globalVariables("r", add=TRUE) ## below and in other lmrob.E() expressions
                        stop(':.vcov.w: unsupported psi function'))
             else lmrob.E(r*psi(r), ctrl)^2 ## more accurate than psi'(r)
         }
-        corrfact <- mean(r.psi^2)/mpp2 * hcorr
-        ## FIXME: this does not reduce to 1 for large tuning constants
+        corrfact <- mean({ if (cov.corrfact == 'tauold') 1 else tau^2 } * r.psi^2)/mpp2 * hcorr
     }
     ## simple sample size correction
     sscorr <- if (cov.dfcorr > 0) {

@@ -19,7 +19,7 @@ summary(lmrob(Y ~ . - 1, coleman, model=FALSE, x=FALSE, y=FALSE,
 ## FIXME: SE column of coefficients does not match (.vcov.w)
 ##        because corrfact does not reduce to 1.
 test <- function(formula, data,
-                 items=c(## "coefficients", "residuals", "df", "scale",
+                 items=c("coefficients", "residuals", "df", "scale",
                          "r.squared", "adj.r.squared"),
                  tolerance = 1e-4, ...) {
     ## FIXME: also include weights
@@ -42,8 +42,8 @@ test <- function(formula, data,
     ret
 }
 
-test(Y ~ 0, coleman, c(## "residuals", "df", "coefficients",
+test(Y ~ 0, coleman, c("residuals", "df", "coefficients",
                        "r.squared", "adj.r.squared"))
-test(Y ~ 1, coleman)
-test(Y ~ ., coleman)
-test(Y ~ . - 1, coleman)
+test(Y ~ 1, coleman, tolerance = 1e-3)
+test(Y ~ ., coleman, tolerance = 1e-3)
+test(Y ~ . - 1, coleman, tolerance = 1e-3)
