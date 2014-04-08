@@ -135,6 +135,12 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
       covariance matrix estimate used is based on the asymptotic
       normality of the estimated coefficients (\code{cov=".vcov.w"}) as
       described in Koller and Stahel (2011).
+
+      As of robustbase version 0.91-0 (April 2004), the computation of
+      robust standard errors for \code{method="SMDM"} has been changed.
+      The old behaviour can be restored by setting the control parameter
+      \code{cov.corrfact = "tauold"}.
+
     }
     \item{R-squared, coefficient of determination:}{
       The R-squared value reported by \code{\link{summary.lmrob}} is the 

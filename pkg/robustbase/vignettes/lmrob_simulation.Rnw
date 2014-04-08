@@ -349,9 +349,12 @@ The SMD and SMDM methods of \T{lmrob} use the following defaults.
 where $\tau_i$ is the rescaling factor used for the D-scale estimate (see
 \citet{KS2011}).
 
-\noindent\textbf{Remark: } The factor $\tau^2$ in \eqref{eq:gammatau} was added in
-\texttt{robustbase} version \texttt{0.91} to ensure that the equation
-reduces to $1$ in the classical case ($\psi(x) = x$).
+\noindent\textbf{Remark: } Equation \eqref{eq:gammatau} is a corrected
+version of $\gamma$. It was changed in \texttt{robustbase} version
+\texttt{0.91} (April 2004) to ensure that the equation reduces to $1$ in
+the classical case ($\psi(x) = x$). If the former (incorrect) version is
+needed for compatibility reasons, it can be obtained by adding the argument
+\texttt{cov.corrfact = "tauold"}.
 
 \begin{equation*}
   \bld{\widehat V}_{\bld X} =
