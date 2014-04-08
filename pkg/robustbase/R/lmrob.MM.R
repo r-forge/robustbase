@@ -1094,23 +1094,20 @@ lmrob.bp <- function(psi, cc, ...)
 }
 
 Mpsi <- function(x, cc, psi, deriv=0) {
-    r <- .Call(R_psifun, x, .psi.conv.cc(psi, cc), .psi2ipsi(psi), deriv)
-    dim(r) <- dim(x)
-    r
+    x[] <- .Call(R_psifun, x, .psi.conv.cc(psi, cc), .psi2ipsi(psi), deriv)
+    x
 }
 .Mpsi <- function(x, ccc, ipsi, deriv=0) .Call(R_psifun, x, ccc, ipsi, deriv)
 
 Mchi <- function(x, cc, psi, deriv=0) {
-    r <- .Call(R_chifun, x, .psi.conv.cc(psi, cc), .psi2ipsi(psi), deriv)
-    dim(r) <- dim(x)
-    r
+    x[] <- .Call(R_chifun, x, .psi.conv.cc(psi, cc), .psi2ipsi(psi), deriv)
+    x
 }
 .Mchi <- function(x, ccc, ipsi, deriv=0) .Call(R_chifun, x, ccc, ipsi, deriv)
 
 Mwgt <- function(x, cc, psi) {
-    r <- .Call(R_wgtfun, x, .psi.conv.cc(psi, cc), .psi2ipsi(psi))
-    dim(r) <- dim(x)
-    r
+    x[] <- .Call(R_wgtfun, x, .psi.conv.cc(psi, cc), .psi2ipsi(psi))
+    x
 }
 .Mwgt <- function(x, ccc, ipsi) .Call(R_wgtfun, x, ccc, ipsi)
 
