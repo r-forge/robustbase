@@ -28,6 +28,7 @@
 \SweaveOpts{prefix.string=plot, eps = FALSE, pdf = TRUE, strip.white=true}
 \SweaveOpts{width=6, height=4}
 
+\usepackage[noae]{Sweave}
 \begin{document}
 \setkeys{Gin}{width=\textwidth}
 \setlength{\abovecaptionskip}{-5pt}
