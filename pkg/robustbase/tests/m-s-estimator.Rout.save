@@ -1,7 +1,7 @@
 
-R version 3.0.1 (2013-05-16) -- "Good Sport"
-Copyright (C) 2013 The R Foundation for Statistical Computing
-Platform: x86_64-apple-darwin10.8.0 (64-bit)
+R version 3.1.0 RC (2014-04-05 r65385) -- "Spring Dance"
+Copyright (C) 2014 The R Foundation for Statistical Computing
+Platform: x86_64-unknown-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -86,7 +86,7 @@ Loading required package: robustbase
 +     res[[i]] <- unlist(within(tmp, b1 <- drop(t1 + b1 - T2 %*% b2)))
 + })
 > cat('Time elapsed in subsampling: ', time,'\n')
-Time elapsed in subsampling:  0.375 0.002 0.377 0 0 
+Time elapsed in subsampling:  0.424 0.001 0.426 0 0 
 > ## show a summary of the results
 > summary(res1 <- do.call(rbind, res))
       b11               b12              b13                b14       
@@ -131,7 +131,7 @@ Time elapsed in subsampling:  0.375 0.002 0.377 0 0
 + 				    ri[1:4], ri[5:7], ri[8]))
 + })
 > cat('Time elapsed in descent proc: ', time,'\n')
-Time elapsed in descent proc:  0.065 0 0.065 0 0 
+Time elapsed in descent proc:  0.077 0 0.077 0 0 
 > 
 > ## show a summary of the results
 > res4 <- do.call(rbind, res3)
@@ -251,6 +251,7 @@ X3             0.61106    0.35153   1.738  0.08932 .
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 Robust residual standard error: 30.82 
+Multiple R-squared:  0.5695,	Adjusted R-squared:  0.5095 
 Convergence in 19 IRWLS iterations
 
 Robustness weights: 
@@ -381,4 +382,4 @@ In lmrob.M.S(x, y, control, mf) :
 > 
 > proc.time()
    user  system elapsed 
-  1.158   0.036   1.189 
+  0.965   0.023   1.073 
