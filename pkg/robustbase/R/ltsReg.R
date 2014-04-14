@@ -191,11 +191,11 @@ ltsReg.default <- function (x, y, intercept = TRUE,
     storage.mode(y) <- "double"
     storage.mode(x) <- "double"
     if (!oneD) {
-	constantcolom <- function(x) {
+	is.const <- function(x) {
 	    c1 <- range(x)
 	    c1[1] == c1[2]
 	}
-	if (sum(apply(x, 2, constantcolom)) > 0)
+	if (any(apply(x, 2, is.const)))
 	    stop("There is at least one constant column. Remove it and set intercept=TRUE")
     }
 
@@ -824,21 +824,20 @@ LTScnp2.rew <- function(p, intercept = intercept, n, alpha)
     weights <- aw2 <- aw <- residu <- yy <-
 	nmahad <- ndist <- am <- am2 <- slutn <- double(n)
 
-    .Fortran(rfltsreg,
+    .Fortran(rfltsreg, ## -> ../src/rfltsreg.f
 	     xy = xy,
 	     n,
-	     p,
-	     h.alph,
-	     nsamp,
+	     p, 
+	     h.alph, # = nhalff
+	     nsamp,  # = krep
 
-	     inbest = rep.int(10000L, h.alph),
+	     inbest = integer(h.alph),
 	     objfct = 0.,# double
 
 	     intercept = as.integer(intercept),
 	     intadjust = as.integer(adjust),
 	     nvad = as.integer(p1),
 	     datt = matrix(0., ncol = p1, nrow = n),
-	     integer(1),## << 'seed' no longer used -- FIXME
 	     weights,
 	     temp,
 	     index1,
