@@ -142,11 +142,6 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
       \code{cov.corrfact = "tauold"}.
 
     }
-    \item{R-squared, coefficient of determination:}{
-      The R-squared value reported by \code{\link{summary.lmrob}} is the
-      consistency corrected robust coefficient of determination by
-      Renaud and Victoria-Feser (2010).
-    }
   }%end {describe}
 }
 \value{
@@ -204,10 +199,6 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   Robust regression with both continuous and categorical predictors.
   \emph{Journal of Statistical Planning and Inference} \bold{89}, 197--214.
 
-  Renaud, O. and Victoria-Feser, M.-P. (2010).
-  A robust coefficient of determination for regression,
-  \emph{Journal of Statistical Planning and Inference} \bold{140}, 1852-1862.
-
   Rousseeuw, P.J. and Yohai, V.J. (1984)
   Robust regression by means of S-estimators,
   In \emph{Robust and Nonlinear Time Series},
@@ -230,7 +221,9 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   for the algorithms \code{\link{lmrob.S}}, \code{\link{lmrob.M.S}} and
   \code{\link{lmrob.fit}};
   and for methods,
-  \code{\link{predict.lmrob}}, \code{\link{summary.lmrob}},
+  \code{\link{summary.lmrob}}, for the extra \dQuote{statistics},
+  notably \eqn{R^2} (\dQuote{R squared});
+  \code{\link{predict.lmrob}},
   \code{\link{print.lmrob}}, \code{\link{plot.lmrob}}, and
   \code{\link{weights.lmrob}}.
 }
