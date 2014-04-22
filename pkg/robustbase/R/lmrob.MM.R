@@ -533,10 +533,10 @@ lmrob..M..fit <- function (x=obj$x, y=obj$y, beta.initial=obj$coef,
               ss =  .convSs(control$subsampling)
               )[c("coefficients",  "scale", "residuals", "loss", "converged", "iter")]
     ## FIXME?: Should rather warn *here* in case of non-convergence
+    ret$fitted.values <- drop(x %*% ret$coefficients)
     names(ret$coefficients) <- colnames(x)
     names(ret$residuals) <- rownames(x)
     ret$rweights <- lmrob.rweights(ret$residuals, scale, control$tuning.psi, control$psi)
-    ret$fitted.values <- drop(x %*% ret$coefficients)
     if (!grepl('M$', control$method)) {
         ## update control$method if it's not there already
         control$method <- paste0(control$method, 'M')
@@ -644,21 +644,21 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev, mf = NULL)
 	stop("C function R_lmrob_S() exited prematurely")
     if (scale == 0)
 	warning("S-estimated scale == 0:  Probably exact fit; check your data")
-    class(b) <- 'lmrob.S'
     ## FIXME: get 'res'iduals from C
 
-    names(b$coefficients) <- colnames(x)
-    b$fitted.values <- x %*% b$coef
+    b$fitted.values <- x %*% b$coefficients
     b$residuals <- drop(y - b$fitted.values)
+    names(b$coefficients) <- colnames(x)
     names(b$residuals) <- rownames(x)
     ## robustness weights
-    b$rweights <- lmrob.rweights(b$residuals, b$scale, control$tuning.chi, control$psi)
+    b$rweights <- lmrob.rweights(b$residuals, scale, control$tuning.chi, control$psi)
     ## set method argument in control
     control$method <- 'S'
     b$control <- control
     ## add call if called from toplevel
     if (identical(parent.frame(), .GlobalEnv))
         b$call <- match.call()
+    class(b) <- 'lmrob.S'
     b
 }
 
@@ -860,7 +860,7 @@ lmrob.tau.fast.coefs <- function(cc, psi) {
     ## calculate taus
     taus <- lmrob.tau(list(),,ctrl,h=levs,fast=FALSE)
     ## calculate asymptotic approximation of taus
-    ta <- lmrob.E(psi(r)^2, ctrl, use.integrate = TRUE)
+    ta <- lmrob.E(psi(r)^2,  ctrl, use.integrate = TRUE)
     tb <- lmrob.E(psi(r, 1), ctrl, use.integrate = TRUE)
     tfact <- 2 - ta/tb^2
     taus.0 <- sqrt(1 - tfact * levs)
@@ -879,7 +879,7 @@ lmrob.leverages <- function(x, w = rep(1, NROW(x)), wqr = qr(sqrt(w) * x))
     if (missing(wqr) && !is.matrix(x)) x <- as.matrix(x)
     ## Faster, than computing the whole hat matrix, and then diag(.) :
     ## == diag(lmrob.hatmatrix(x, w, ...))
-    rowSums(qr.Q(wqr)^2)
+    pmin(1, rowSums(qr.Q(wqr)^2))
 }
 
 ##' psi |--> ipsi \in \{0,1,...6} : integer codes used in C
@@ -1129,11 +1129,13 @@ MrhoInf <- function(cc, psi) {
 .MrhoInf <- function(ccc, ipsi) .Call(R_rho_inf, ccc, ipsi)
 
 
-lmrob.rweights <- function(resid, scale, cc, psi) {
+lmrob.rweights <- function(resid, scale, cc, psi, eps = 16 * .Machine$double.eps) {
     if (scale == 0) { ## exact fit
-        return(as.numeric(abs(resid) < .Machine$double.eps))
-    }
-    Mwgt(resid / scale, cc, psi)
+	m <- max(ar <- abs(resid))
+	if(m == 0) numeric(seq_len(ar)) else
+	as.numeric(ar < eps * m)# 1 iff res ~= 0
+    } else
+	Mwgt(resid / scale, cc, psi)
 }
 
 ## even simpler than residuals.default():
