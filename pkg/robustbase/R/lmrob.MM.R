@@ -753,7 +753,7 @@ lmrob.tau <- function(obj, x=obj$x, control = obj$control, h, fast = TRUE)
 	h <- if (is.null(obj$qr))
 	    lmrob.leverages(x, obj$rweights)
 	else
-	    lmrob.leverages(x, obj$rweights, wqr = obj$qr)
+	    lmrob.leverages(wqr = obj$qr)
 
     ## speed up: use approximation if possible
     if (fast && !control$method %in% c('S', 'SD')) {
@@ -797,17 +797,19 @@ lmrob.tau <- function(obj, x=obj$x, control = obj$control, h, fast = TRUE)
     kappa <- if(is.null(obj$kappa)) lmrob.kappa(obj, control) else obj$kappa
     ## local variables
     n <- length(h)
-    ## set psi and c.psi
+    ## set psi and cpsi
     psi <- control$psi
     if (is.null(psi)) stop('parameter psi is not defined')
-    c.psi <- if (control$method %in% c('S', 'SD'))
+    cpsi <- if (control$method %in% c('S', 'SD'))
         control$tuning.chi else control$tuning.psi
-    if (!is.numeric(c.psi)) stop('parameter tuning.psi is not numeric')
+    cpsi <- .psi.conv.cc(psi, cpsi)# has its test
+    ipsi <- .psi2ipsi(psi)
 
     ## constant for stderr of u_{-i} part and other constants
-    inta <- function(r) Mpsi(r, c.psi, psi)^2 * dnorm(r)
-    intb <- function(r) Mpsi(r, c.psi, psi, deriv = 1) * dnorm(r)
-    intc <- function(r) Mpsi(r, c.psi, psi) * r * dnorm(r) ## changed from psi/e to psi*e
+    inta <- function(r) .Mpsi(r, cpsi, ipsi)^2          * dnorm(r)
+    intb <- function(r) .Mpsi(r, cpsi, ipsi, deriv = 1) * dnorm(r)
+    intc <- function(r) .Mpsi(r, cpsi, ipsi) * r        * dnorm(r)
+                                        # changed from psi/e to psi*e
     ta <- integrate(inta, -Inf,Inf)$value
     tb <- integrate(intb, -Inf,Inf)$value
     tE <- integrate(intc, -Inf,Inf)$value
@@ -831,8 +833,8 @@ lmrob.tau <- function(obj, x=obj$x, control = obj$control, h, fast = TRUE)
         tc2 <- hu[i]/tb
         ## function to be integrated
         fun <- function(w, v, sigma.i) {
-            t <- (v-tc2*Mpsi(v,c.psi,psi)+w*s)/sigma.i
-	    psi.t <- Mpsi(t, c.psi, psi)
+	    t <- (v - tc2*.Mpsi(v, cpsi, ipsi) + w*s)/sigma.i
+	    psi.t <- .Mpsi(t, cpsi, ipsi)
 	    (psi.t*t - kappa*psi.t/t) * dnorm(v)*dnorm(w)
         }
         ## integrate over w
@@ -858,7 +860,7 @@ lmrob.tau.fast.coefs <- function(cc, psi) {
     ctrl <- lmrob.control(tuning.psi = cc, psi = psi)
     levs <- seq(0, 0.8, length.out = 80)
     ## calculate taus
-    taus <- lmrob.tau(list(),,ctrl,h=levs,fast=FALSE)
+    taus <- lmrob.tau(list(), control=ctrl, h=levs, fast=FALSE)
     ## calculate asymptotic approximation of taus
     ta <- lmrob.E(psi(r)^2,  ctrl, use.integrate = TRUE)
     tb <- lmrob.E(psi(r, 1), ctrl, use.integrate = TRUE)
@@ -877,7 +879,7 @@ lmrob.hatmatrix <- function(x, w = rep(1, NROW(x)), wqr = qr(sqrt(w) * x))
 lmrob.leverages <- function(x, w = rep(1, NROW(x)), wqr = qr(sqrt(w) * x))
 {
     if (missing(wqr) && !is.matrix(x)) x <- as.matrix(x)
-    ## Faster, than computing the whole hat matrix, and then diag(.) :
+    ## Faster than computing the whole hat matrix, and then diag(.) :
     ## == diag(lmrob.hatmatrix(x, w, ...))
     pmin(1, rowSums(qr.Q(wqr)^2))
 }
