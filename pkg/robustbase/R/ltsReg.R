@@ -367,8 +367,10 @@ ltsReg.default <- function (x, y, intercept = TRUE,
 	    z <- .fastlts(x, y, h, nsamp, intercept, adjust, trace=as.integer(trace))
 
 	    ## vt:: lm.fit.qr == lm.fit(...,method=qr,...)
-	    ##	cf <- lm.fit.qr(x[z$inbest, , drop = FALSE], y[z$inbest])$coef
 	    cf <- lm.fit(x[z$inbest, , drop = FALSE], y[z$inbest])$coef
+	    if(any(ic <- is.na(cf)))
+		stop(gettextf("NA coefficient (at %s) from \"best\" subset",
+			      paste(which(ic), collapse =",")))
 	    ans$best <- sort(z$inbest)
 	    fitted <- x %*% cf
 	    resid <- y - fitted
@@ -380,7 +382,7 @@ ltsReg.default <- function (x, y, intercept = TRUE,
 	    correct <- if(use.correction)
 		LTScnp2(p, intercept = intercept, n, alpha) else 1
 	    raw.cnp2[2] <- correct
-	    s0 <- sqrt((1/h) * sum(sort(resid^2, partial = h)[1:h]))
+	    s0 <- sqrt(mean(sort(resid^2, partial = h)[1:h]))
 	    sh0 <- s0
 	    qn.q <- qnorm((h + n)/ (2 * n))
 	    s0 <- s0 / sqrt(1 - (2 * n)/(h / qn.q) * dnorm(qn.q)) * correct
@@ -827,7 +829,7 @@ LTScnp2.rew <- function(p, intercept = intercept, n, alpha)
     .Fortran(rfltsreg, ## -> ../src/rfltsreg.f
 	     xy = xy,
 	     n,
-	     p, 
+	     p,
 	     h.alph, # = nhalff
 	     nsamp,  # = krep
 
