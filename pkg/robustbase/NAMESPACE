@@ -98,10 +98,12 @@ S3method(kappa, lmrob)
 S3method(labels, lmrob)
 S3method(model.matrix, lmrob)
 S3method(nobs, lmrob)
+S3method(nobs, lmrob.S, nobs.lmrob)# use the same as "lmrob"
 S3method(residuals, lmrob)
 S3method(variable.names, lmrob)
 S3method(weights, glmrob)
 S3method(weights, lmrob)
+S3method(weights, lmrob.S, weights.lmrob)# use the same as "lmrob"
 S3method(weights, nlrob, weights.lmrob)# use the same as "lmrob"
 
 S3method(formula, nlrob)

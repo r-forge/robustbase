@@ -486,6 +486,9 @@ qr.lmrob <- function (x, ...) {
 
 residuals.lmrob <- function(object, ...) residuals.lm(object, ...)
 
+## even simpler than residuals.default():
+residuals.lmrob.S <- function(obj) obj$residuals
+
 summary.lmrob <- function(object, correlation = FALSE, symbolic.cor = FALSE, ...)
 {
     if (is.null(object$terms))
