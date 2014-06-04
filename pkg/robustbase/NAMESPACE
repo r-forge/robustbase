@@ -58,6 +58,7 @@ export(Sn, Qn, Qn.old,
        lmrob.S, lmrob.lar, lmrob.M.S,
        lmrob.control,
        splitFrame,
+       outlierStats,
 
        mc, # Mia Hubers's medcouple
        adjbox,

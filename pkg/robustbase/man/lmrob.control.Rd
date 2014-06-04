@@ -24,7 +24,11 @@ lmrob.control(setting, seed = NULL, nResample = 500,
               mts = 1000, subsampling = c("nonsingular", "simple"),
               compute.rd = FALSE, method = "MM", psi = "bisquare",
               numpoints = 10, cov = NULL,
-              split.type = c("f", "fi", "fii"), fast.s.large.n = 2000, ...)
+              split.type = c("f", "fi", "fii"), fast.s.large.n = 2000, 
+	      eps.outlier = function(nobs) 0.1 / nobs,
+              compute.outlier.stats = method,
+              warn.limit.reject = 0.5,
+              warn.limit.meanrw = 0.5, ...)
 
 .Mchi.tuning.defaults
 .Mchi.tuning.default(psi)
@@ -115,6 +119,22 @@ lmrob.control(setting, seed = NULL, nResample = 500,
   \item{fast.s.large.n}{minimum number of observations required to
     switch from ordinary \dQuote{fast S} algorithm to an efficient
     \dQuote{large n} strategy.}
+  \item{eps.outlier}{limit on the robustness weight below which an observation
+    is considered to be an outlier. 
+    Either a numeric(1) or a function that takes the number of observations as
+    an argument. Used in \code{\link{summary.lmrob}} and 
+    \code{\link{outlierStats}}.}
+  \item{compute.outlier.stats}{Vector of strings, valid to be used as
+    \code{method} arguments. Used to specify for which
+    estimators outlier statistics (and warnings) should be produced. 
+    Set to empty string if none are required.}
+  \item{warn.limit.reject}{limit of ratio
+    \eqn{\#\mbox{rejected} / \#\mbox{obs in level}}{# rejected / # obs in level} 
+    above (\eqn{\geq}{>=}) which a warning is produced. 
+    Set to \code{NULL} to disable warning.}
+  \item{warn.limit.meanrw}{limit of the mean robustness per factor level
+    below which (\eqn{\leq}{<=}) a warning is produced. 
+    Set to \code{NULL} to disable warning.}
   \item{...}{further arguments to be added as \code{\link{list}}
     components to the result, e.g., those to be used in \code{.vcov.w()}.}
 }
@@ -133,9 +153,9 @@ lmrob.control(setting, seed = NULL, nResample = 500,
   respectively.
 }
 \details{The option \code{setting="KS2011"} alters the default
-  arguments.  They are changed to \code{method = 'SMDM', psi = 'lqq',
-    max.it = 500, k.max = 2000, cov = '.vcov.w'}.  The defaults of all
-  the remaining arguments are not changed.
+  arguments.  They are changed to \code{method = 'SMDM'}, \code{psi = 'lqq'},
+  \code{max.it = 500}, \code{k.max = 2000}, \code{cov = '.vcov.w'}.
+  The defaults of all the remaining arguments are not changed.
 
   The option \code{setting="KS2014"} builds upon \code{setting="KS2011"}. 
   More arguments are changed to \code{best.r.s = 20, k.fast.s = 2,

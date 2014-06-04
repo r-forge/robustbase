@@ -75,11 +75,16 @@ lmrob <-
 		ok <- w != 0
 		nok <- !ok
 		w <- w[ok]
-		x0 <- x[!ok, , drop = FALSE]
-		x <- x[ok,  , drop = FALSE]
+		x0 <- x[nok, , drop = FALSE]
+		x  <- x[ ok, , drop = FALSE]
 		n <- nrow(x)
-		y0 <- if (ny > 1L) y[!ok, , drop = FALSE] else y[!ok]
+		y0 <- if (ny > 1L) y[nok, , drop = FALSE] else y[nok]
 		y  <- if (ny > 1L) y[ ok, , drop = FALSE] else y[ok]
+                ## add this information to model.frame as well
+                ## need it in outlierStats.R
+                ## ?? could also add this to na.action, then
+                ##    naresid() would pad these as well.
+                attr(mf, "zero.weights") <- which(nok)
 	    }
 	    wts <- sqrt(w)
 	    save.y <- y
@@ -117,7 +122,7 @@ lmrob <-
 		if (is.character(init)) {
 		    init <- switch(init,
 				   "M-S" = lmrob.M.S(x, y, control, mf),
-				   "S"   = lmrob.S  (x, y, control),
+				   "S"   = lmrob.S  (x, y, control, mf=mf),
 				   stop('init must be "S", "M-S", function or list'))
 		    if(ini == "M-S") { ## "M-S" sometimes reverts to "S":
 			ini <- init$control$method
@@ -147,7 +152,7 @@ lmrob <-
 		if (class(init)[1] != "lmrob.S" && control$cov == '.vcov.avar1')
 		    control$cov <- ".vcov.w"
 	    }
-	    z <- lmrob.fit(x, y, control, init=init) #-> ./lmrob.MM.R
+	    z <- lmrob.fit(x, y, control, init=init, mf = mf) #-> ./lmrob.MM.R
             if(is.character(ini) && !grepl(paste0("^", ini), control$method))
                 control$method <- paste0(ini, control$method)
 	    if (singular.fit) {
@@ -419,7 +424,9 @@ print.summary.lmrob <-
 	if (!is.null(rw <- x$rweights)) {
 	    if (any(zero.w <- x$weights == 0))
 		rw <- rw[!zero.w]
-	    summarizeRobWeights(rw, digits = digits, ...)
+            eps.outlier <- if (is.function(control$eps.outlier))
+                control$eps.outlier(nobs(x)) else control$eps.outlier
+	    summarizeRobWeights(rw, digits = digits, eps = eps.outlier, ...)
 	}
 
     } else cat("\nNo Coefficients\n")
@@ -567,6 +574,8 @@ summary.lmrob <- function(object, correlation = FALSE, symbolic.cor = FALSE, ...
     }
     ans$aliased <- aliased # used in print method
     ans$sigma <- sigma # 'sigma': in summary.lm() & 'fit.models' pkg
+    if (is.function(ans$control$eps.outlier))
+        ans$control$eps.outlier <- ans$control$eps.outlier(nobs(object))
     class(ans) <- "summary.lmrob"
     ans
 }

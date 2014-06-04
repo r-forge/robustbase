@@ -73,6 +73,10 @@ lmrob.control <-
 	     numpoints = 10, cov = NULL,
 	     split.type = c("f", "fi", "fii"),
 	     fast.s.large.n = 2000,
+             eps.outlier = function(nobs) 0.1 / nobs,
+             compute.outlier.stats = method,
+             warn.limit.reject = 0.5,
+             warn.limit.meanrw = 0.5,
              ...)
 {
     p.ok <- missing(psi) # if(p.ok) psi does not need regularization
@@ -112,7 +116,8 @@ lmrob.control <-
     else if(compute.const)
 	tuning.psi <- .psi.const(tuning.psi, psi)
 
-    c(list(seed = as.integer(seed), nResample=nResample, psi=psi,
+    c(list(setting = if (missing(setting)) NULL else setting,
+           seed = as.integer(seed), nResample=nResample, psi=psi,
            tuning.chi=tuning.chi, bb=bb, tuning.psi=tuning.psi,
            max.it=max.it, groups=groups, n.group=n.group,
            best.r.s=best.r.s, k.fast.s=k.fast.s,
@@ -121,7 +126,10 @@ lmrob.control <-
            subsampling=subsampling,
            compute.rd=compute.rd, method=method, numpoints=numpoints,
            cov=cov, split.type = match.arg(split.type),
-           fast.s.large.n=fast.s.large.n),
+           fast.s.large.n=fast.s.large.n, eps.outlier = eps.outlier,
+           compute.outlier.stats = sub("^MM$", "SM", compute.outlier.stats),
+           warn.limit.reject = warn.limit.reject,
+           warn.limit.meanrw = warn.limit.meanrw),
       list(...))
 }
 
@@ -179,7 +187,7 @@ lmrob.fit.MM <- function(x, y, control) ## deprecated
     lmrob.fit(x, y, control)
 }## lmrob.MM.fit()
 
-lmrob.fit <- function(x, y, control, init=NULL) {
+lmrob.fit <- function(x, y, control, init=NULL, mf=NULL) {
     if(!is.matrix(x)) x <- as.matrix(x)
     ## old notation: MM -> SM
     if (control$method == "MM") control$method <- "SM"
@@ -192,7 +200,7 @@ lmrob.fit <- function(x, y, control, init=NULL) {
 			     M1), domain = NA)
             substr(control$method,1,1) <- 'S'
         }
-        init <- lmrob.S(x,y,control=control)
+        init <- lmrob.S(x, y, control = control, mf = mf)
         'S'
     } else {
 	stopifnot(is.list(init))
@@ -219,9 +227,9 @@ lmrob.fit <- function(x, y, control, init=NULL) {
             est <- paste0(est, step)
             init <- switch(step,
                            ## D(AS)-Step
-                           D = lmrob..D..fit(init, x),
+                           D = lmrob..D..fit(init, x, mf = mf),
                            ## M-Step
-                           M = lmrob..M..fit(x = x, y = y, obj=init),
+                           M = lmrob..M..fit(x = x, y = y, obj = init, mf = mf),
                            stop('only M and D are steps supported after "init" computation'))
             ## break if an estimator did not converge
             if (!init$converged) {
@@ -505,7 +513,10 @@ globalVariables("r", add=TRUE) ## below and in other lmrob.E() expressions
 }## end{.vcov.avar1}
 
 lmrob..M..fit <- function (x=obj$x, y=obj$y, beta.initial=obj$coef,
-                           scale=obj$scale, control=obj$control, obj)
+                           scale=obj$scale, control=obj$control, obj,
+                           mf = obj$model
+                           ##   ^^^^^^^^^ not model.frame(obj) to avoid errors.
+                           )
 {
     c.psi <- .psi.conv.cc(control$psi, control$tuning.psi)
     ipsi <- .psi2ipsi(control$psi)
@@ -558,7 +569,7 @@ lmrob..M..fit <- function (x=obj$x, y=obj$y, beta.initial=obj$coef,
             ret$init <-
                 obj[names(obj)[na.omit(match(
                     c("coefficients","scale", "residuals", "loss", "converged",
-                      "iter", "rweights", "fitted.values", "control",
+                      "iter", "rweights", "fitted.values", "control", "ostats",
                       "init.S", "init", "kappa", "tau"), names(obj)))]]
             class(ret$init) <- 'lmrob'
             ret <- c(ret,
@@ -582,6 +593,8 @@ lmrob..M..fit <- function (x=obj$x, y=obj$y, beta.initial=obj$coef,
         if (!is.null(obj$assign)) ret$assign <- obj$assign
     }
     class(ret) <- "lmrob"
+    if (control$method %in% control$compute.outlier.stats & !missing(obj))
+        ret$ostats <- outlierStats(ret, control, mf = mf)
     ret
 }
 
@@ -664,10 +677,13 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev, mf = NULL)
     if (identical(parent.frame(), .GlobalEnv))
         b$call <- match.call()
     class(b) <- 'lmrob.S'
+    if ("S" %in% control$compute.outlier.stats)
+        b$ostats <- outlierStats(b, control, mf=mf)
     b
 }
 
-lmrob..D..fit <- function(obj, x=obj$x, control = obj$control)
+lmrob..D..fit <- function(obj, x=obj$x, control = obj$control,
+                          mf = obj$model)
 {
     if (is.null(control)) stop('lmrob..D..fit: control is missing')
     if (!obj$converged)
@@ -684,7 +700,7 @@ lmrob..D..fit <- function(obj, x=obj$x, control = obj$control)
     if (!is.numeric(c.psi)) stop('lmrob..D..fit: parameter tuning.psi is not numeric')
 
     obj$init <- obj[names(obj)[na.omit(match(
-        c("coefficients","scale", "residuals", "loss", "converged", "iter",
+        c("coefficients","scale", "residuals", "loss", "converged", "iter", "ostats",
 	  "rweights", "fitted.values", "control", "init.S", "init"), names(obj)))]]
     obj$init.S <- NULL
 
@@ -734,6 +750,8 @@ lmrob..D..fit <- function(obj, x=obj$x, control = obj$control)
             get(control$cov, mode='function') else control$cov
         obj$cov <- lf.cov(obj, x)
     }
+    if (control$method %in% control$compute.outlier.stats)
+        obj$ostats <- outlierStats(obj, control, mf = mf)
 
     obj
 }
@@ -1145,9 +1163,6 @@ lmrob.rweights <- function(resid, scale, cc, psi, eps = 16 * .Machine$double.eps
 	Mwgt(resid / scale, cc, psi)
 }
 
-## even simpler than residuals.default():
-residuals.lmrob.S <- function(obj) obj$residuals
-
 lmrob.E <- function(expr, control, dfun = dnorm, use.integrate = FALSE, obj, ...)
 {
     expr <- substitute(expr)
@@ -1223,3 +1238,102 @@ ghq <- function(n = 1, modify = TRUE) {
            "simple"= 0L,
            "nonsingular"= 1L,
            stop("unknown setting for parameter ss"))
+
+globalVariables(c("Freq"), add=TRUE)
+
+outlierStats <- function(object,
+                         control = object$control,
+                         epsw = control$eps.outlier,
+                         warn.limit.reject = control$warn.limit.reject,
+                         warn.limit.meanrw = control$warn.limit.meanrw,
+                         mf = object$model
+                         ##   ^^^^^^^^^^^^ not model.frame() to avoid errors
+                         ) {
+    ## look at all the factors in the model and count
+    ## for each level how many observations were rejected.
+    ## Issue a warning if there is any level where more than
+    ## warn.limit.reject observations were rejected or
+    ## the mean robustness weights was <= warn.limit.meanrw
+
+    rw <- object$rweights
+    ##    ^^^^^^^^^^^^^^^ not weights(..., type="robustness") as we
+    ##                    don't want naresid() padding here.
+    if (is.function(epsw)) epsw <- epsw(nobs(object))
+    if (!is.numeric(epsw) | length(epsw) != 1)
+        stop("'epsw' needs to be numeric(1) or a functon of nobs(object) with a numeric(1) return value.")
+    rj <- abs(rw) < epsw
+    ## Overall statistics
+    report <- list(Overall = data.frame(Overall = "Overall",
+                   Freq = nobs(object), Freq.rejected = sum(rj),
+                   Freq.ratio = sum(rj) / nobs(object),
+                   Mean.RobWeight = mean(rw)))
+    ## look for factors in the model
+    if (is.null(mf)) {
+        warning("Cannot do outlier statistics if argument 'mf' is missing")
+        return(report)
+    }
+    tm <- terms(mf)
+    cv <- attr(tm, "dataClasses") %in% c("factor", "ordered")
+    ## FIXME: add a test for dummy variables?
+    ## Revert to simple outlier statistics as in summary()
+    ## if there are no factors in the model:
+    if (!any(cv)) {
+        return(report)
+    }
+    ## get names
+    cvars <- as.list(cv <- names(attr(tm, "dataClasses"))[cv])
+    ## get also interactions between factors
+    fa <- attr(tm, "factors")
+    for (int in which(colSums(fa[cv,, drop=FALSE]) > 1)) {
+        cvars <- c(cvars, list(names(which(fa[cv, int] == 1))))
+    }
+    
+    warn <- character(0)
+    for (cvar in unique(cvars)) {
+        var <- if (length(cvar) == 1) mf[[cvar]] else {
+            do.call(interaction, c(mf[cvar], list(drop=TRUE)))
+        }
+        ## drop zero weight observations
+        if (!is.null(attr(mf, "zero.weights")))
+            var <- var[-attr(mf, "zero.weights")]
+        ## tabulate levels including all observations
+        tl1 <- as.data.frame(table(var))
+        colnames(tl1)[1] <- cn <- paste(cvar, collapse=":")
+        ## tabulate levels including excluding observations
+        ## with robustness weight 0
+        tl2 <- as.data.frame(table(var[rj]))
+        colnames(tl2) <- c(cn, "Freq.rejected")
+        ## merge all together
+        tl <- merge(tl1, tl2, all.x = TRUE)
+        tl <- subset(tl, Freq > 0)
+        tl$Freq.ratio <- with(tl, Freq.rejected / Freq)
+        ## compute average robustness weight per level
+        tl3 <- aggregate(rw ~ var, data.frame(rw=rw, var=var), mean)
+        colnames(tl3) <- c(cn, "Mean.RobWeight")
+        ## and merge this as well
+        tl <- merge(tl, tl3)
+        report[[cn]] <- tl
+        st <- FALSE
+        lbr <- rep.int(FALSE, nrow(tl))
+        if (!is.null(warn.limit.reject))
+            st <- any(lbr <- tl$Freq.ratio >= warn.limit.reject)
+        if (!is.null(warn.limit.meanrw))
+            st <- st | any(lbr <- lbr | tl$Mean.RobWeight <= warn.limit.meanrw)
+        if (st)
+            warn <- c(warn,
+                      paste("'", cn, "' (", if (sum(lbr) > 1) "levels" else "level", " ",
+                            paste0("'", tl[lbr, cn], "'"), ")", collapse=", ", sep=""))
+    }
+
+    if (length(warn) > 0) {
+        attr(report, "warning") <- warn
+        warning("Detected possible local breakdown of ", control$method, "-estimate in ",
+                if (length(warn) > 1) paste(length(warn), "factors") else "factor",
+                " ", paste(warn, collapse=", "), ".",
+                if ("KS2014" %in% control$setting) "" else
+                "\nUse lmrob argument 'setting=\"KS2014\"' to avoid this problem."
+                )
+    }
+
+    return(report)
+}
