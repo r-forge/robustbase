@@ -224,7 +224,7 @@ lmrob <-
     z$terms <- mt
     z$assign <- assign
     if(control$compute.rd && !is.null(x))
-	z$MD <- robMD(x, attr(mt, "intercept"))
+	z$MD <- robMD(x, attr(mt, "intercept"), wqr=z$qr)
     if (model)
 	z$model <- mf
     if (ret.x)
@@ -252,10 +252,18 @@ chk.s <- function(...) {
 
 ##' Robust Mahalanobis Distances
 ##' internal function, used in lmrob() and plot.lmrob()
-robMD <- function(x, intercept, ...) {
+robMD <- function(x, intercept, wqr, ...) {
     if(intercept == 1) x <- x[, -1, drop=FALSE]
     if(ncol(x) >= 1) {
-	rob <- covMcd(x, ...)
+	rob <- tryCatch(covMcd(x, ...),
+                        warning = function(w) structure("covMcd failed with a warning",
+                        class="try-error", condition = w),
+                        error = function(e) structure("covMcd failed with an error",
+                        class="try-error", condition = e))
+        if (is(rob, "try-error")) {
+            warning("Failed to compute robust Mahalanobis distances, reverting to robust leverages.")
+            return(lmrob.leverages(wqr = wqr))
+        }
 	sqrt( mahalanobis(x, rob$center, rob$cov) )
     }
 }

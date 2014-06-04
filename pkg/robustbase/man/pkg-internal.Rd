@@ -36,7 +36,7 @@ glmrobMqleDiffQuasiDevPois(mu, mu0, y, ni, w.x, phi, tcc)
 %% psi.hampel(u, a = 2, b = 4, c = 8, deriv = 0, rho = FALSE)
 %% psi.huber(u, k = 1.345, deriv = 0, rho = FALSE)
 
-robMD(x, intercept, ...)
+robMD(x, intercept, wqr, ...)
 }
 
 \author{Andreas Ruckstuhl and Martin Maechler}

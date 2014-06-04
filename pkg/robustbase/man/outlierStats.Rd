@@ -96,6 +96,9 @@
   ## do as suggested:
   fit2 <- lmrob(y ~ grp1*grp2, data, setting = "KS2014")
 
+  ## the plot function should work for such models as well
+  plot(fit1)
+
   \dontrun{
     ## access statistics:
     fit1$ostats ## SMDM
