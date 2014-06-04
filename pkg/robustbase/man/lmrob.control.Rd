@@ -33,8 +33,9 @@ lmrob.control(setting, seed = NULL, nResample = 500,
 }
 \arguments{
   \item{setting}{a string specifying alternative default values.  Leave
-    empty for the defaults or use \code{"KS2011"} for the defaults
-    suggested by Koller and Stahel (2011).  See \emph{Details}.}
+    empty for the defaults or use \code{"KS2011"} or \code{"KS2014"} 
+    for the defaults suggested by Koller and Stahel (2011, 2014).  
+    See \emph{Details}.}
   \item{seed}{\code{NULL} or an integer vector compatible with
     \code{\link{.Random.seed}}: the seed to be used for random
     re-sampling used in obtaining candidates for the initial
@@ -136,6 +137,11 @@ lmrob.control(setting, seed = NULL, nResample = 500,
     max.it = 500, k.max = 2000, cov = '.vcov.w'}.  The defaults of all
   the remaining arguments are not changed.
 
+  The option \code{setting="KS2014"} builds upon \code{setting="KS2011"}. 
+  More arguments are changed to \code{best.r.s = 20, k.fast.s = 2,
+  nResample = 1000}. This setting should produce more stable estimates for
+  for designs with factors.
+
   By default, and in \code{.Mpsi.tuning.default()} and \code{.Mchi.tuning.default()},
   \code{tuning.chi} and \code{tuning.psi} are set to
   yield an MM-estimate with break-down point \eqn{0.5} and efficiency of
@@ -189,6 +195,10 @@ lmrob.control(setting, seed = NULL, nResample = 500,
   Koller, M. and Stahel, W.A. (2011)
   Sharpening Wald-type inference in robust regression for small samples.
   \emph{Computational Statistics & Data Analysis} \bold{55}(8), 2504--2515.
+
+  Koller, M. and Stahel, W.A. (2014)
+  Nonsingular subsampling for regression S~estimators with categorical
+  predictors. Under review.
 }
 \author{ Matias Salibian-Barrera, Martin Maechler and Manuel Koller}
 \seealso{ \code{\link{lmrob}}, also for references and examples.

@@ -77,12 +77,17 @@ lmrob.control <-
 {
     p.ok <- missing(psi) # if(p.ok) psi does not need regularization
     if (!missing(setting)) {
-        if (setting == 'KS2011') {
+        if (setting %in% c('KS2011', 'KS2014')) {
             if (missing(method)) method <- 'SMDM'
 	    psi <- if(p.ok) 'lqq' else .regularize.Mpsi(psi) ; p.ok <- TRUE
             if (missing(max.it)) max.it <- 500
             if (missing(k.max)) k.max <- 2000
             if (missing(cov) || is.null(cov)) cov <- '.vcov.w'
+            if (setting == 'KS2014') {
+                if (missing(best.r.s)) best.r.s <- 20
+                if (missing(k.fast.s)) k.fast.s <- 2
+                if (missing(nResample)) nResample <- 1000
+            }
         } else {
             warning("Unknown setting '", setting, "'. Using defaults.")
         }
