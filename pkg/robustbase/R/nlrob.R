@@ -1,3 +1,12 @@
+## Directly use nls()-internals, i.e., its 'm', to get a next 'start' (coef-like list):
+## (In principle useful also outside robustbase)
+.nls.get.start <- function(nls.m) {
+    ## stopifnot(is.list(nls.m), is.function(gg <- nls.m$getPars),
+    ##           is.environment(em <- environment(gg)))
+    stopifnot(is.list(nls.m), is.environment(em <- environment(nls.m$getPars)))
+    mget(names(em$ind), em$env)
+}
+
 nlrob <-
     function (formula, data, start, lower, upper,
               weights = NULL, na.action = na.fail,
@@ -97,15 +106,16 @@ nlrob <-
 					  max(1e-20, sum(old^2, na.rm = TRUE)))
 
     ##- initialize testvec  and update formula with robust weights
-    coef <- start
     fit <- eval(formula[[3]], c(data, start))
     y <- eval(formula[[2]], data)
     nobs <- length(y)
+    coef <- unlist(start)
     resid <- y - fit
     w <- rep.int(1, nobs)
     if (!is.null(weights))
 	w <- w * weights
-    ##- robust loop (IWLS)
+
+    ## Robust loop -- IWLS / IRLS iterations
     converged <- FALSE
     status <- "converged"
     method.exit <- FALSE
@@ -129,28 +139,31 @@ nlrob <-
 	    ._nlrob.w <- NULL # workaround for codetools "bug"
             ## Case distinction against "wrong warning" as long as
             ## we don't require R > 3.0.2:
-	    if(identical(lower, -Inf) && identical(upper, Inf))
-	    out <- nls(formula, data = data, start = start,
-		       algorithm = algorithm, trace = trace,
-		       weights = ._nlrob.w,
-		       na.action = na.action, control = control)
-	    else
-	    out <- nls(formula, data = data, start = start,
-		       algorithm = algorithm, trace = trace,
-		       lower=lower, upper=upper,
-		       weights = ._nlrob.w,
-		       na.action = na.action, control = control)
+            out <-
+                if(identical(lower, -Inf) && identical(upper, Inf))
+                    nls(formula, data = data, start = start,
+                        algorithm = algorithm, trace = trace,
+                        weights = ._nlrob.w,
+                        na.action = na.action, control = control)
+                else
+                    nls(formula, data = data, start = start,
+                        algorithm = algorithm, trace = trace,
+                        lower=lower, upper=upper,
+                        weights = ._nlrob.w,
+                        na.action = na.action, control = control)
 
+            coef <- unlist(start <- .nls.get.start(out$m))
 	    ## same sequence as in start! Ok for test.vec:
-	    coef <- coefficients(out)
-	    start <- coef
             resid <- residuals(out)
 	    convi <- irls.delta(previous, get(test.vec))
 	}
 	converged <- convi <= tol
 	if (converged)
 	    break
-    }
+	else if (trace)
+	    cat(sprintf(" --> irls.delta(previous, %s) = %g -- *not* converged\n",
+                        test.vec, convi))
+    }## for( iiter ...)
 
     if(!converged || method.exit) {
 	warning(status <- paste("failed to converge in", maxit, "steps"))
@@ -173,17 +186,16 @@ nlrob <-
     }
 
     ## returned object:	 ==  out$m$fitted()  [FIXME?]
-    fit <- eval(formula[[3]], c(data, coef))
-    names(fit) <- obsNames
+    fit <- setNames(eval(formula[[3]], c(data, start)), obsNames)
     structure(class = c("nlrob", "nls"),
 	      list(m = out$m, call = call, formula = formula,
 		   new.formula = formula, nobs = nobs,
 		   coefficients = coef,
 		   working.residuals = as.vector(resid),
 		   fitted.values = fit, residuals = y - fit,
-		   Scale = Scale, w = w, rweights = rw,
-		   cov=asCov, status = status, iter=iiter,
-		   psi = psi, data = dataName, dataClasses = dataCl,
+		   Scale=Scale, w=w, rweights = rw,
+		   cov = asCov, test.vec=test.vec, status=status, iter=iiter,
+		   psi=psi, data = dataName, dataClasses = dataCl,
 		   control = control))
 }
 
@@ -226,7 +238,10 @@ predict.nlrob <- function (object, newdata, ...)
 	return(as.vector(fitted(object)))
     if (!is.null(cl <- object$dataClasses))
 	.checkMFClasses(cl, newdata)
-    eval(formula(object)[[3]], c(as.list(newdata), coef(object)))
+    if(estimethod(object) == "M") # also for start = list(..)
+	object$m$predict(newdata)
+    else
+	eval(formula(object)[[3]], c(as.list(newdata), coef(object)))
 }
 
 
