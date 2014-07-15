@@ -45,7 +45,7 @@ nlrob(formula, data, start, lower, upper,
     needed, will be replicated to be as long as the longest of \code{start},
     \code{lower} or \code{upper}.  For (the default) \code{method = "M"},
     if the bounds are unspecified all parameters are assumed to be
-    unconstrained; also, for method \code{"M"}, bounds can only be used 
+    unconstrained; also, for method \code{"M"}, bounds can only be used
     with the \code{"port"} algorithm.  They are ignored, with a warning,
     in cases they have no effect.
 
@@ -69,8 +69,8 @@ nlrob(formula, data, start, lower, upper,
     contain \code{NA}s.  The default action is for the procedure to
     fail.  If NAs are present, use \code{na.exclude} to have residuals with
     \code{length == nrow(data) == length(w)}, where \code{w} are the
-    weights used in the iterative robust loop.  This is better if the explanatory
-    variables in
+    weights used in the iterative robust loop.  This is better if the
+    explanatory variables in
     \code{formula} are time series (and so the NA location is important).
     For this reason, \code{na.omit}, which leads to omission of cases
     with missing values on any required variable, is not suitable
@@ -79,18 +79,24 @@ nlrob(formula, data, start, lower, upper,
   }
   \item{method}{a character string specifying which method to use.  The
     default is \code{"M"}, for historical and back-compatibility
-    reasons.
+    reasons.  For the other methods, primarily see
+    \code{\link{nlrob.algorithms}}. % nlrob-algos.Rd
+
     \describe{
       \item{"M"}{Computes an M-estimator, using \code{\link{nls}(*,
-	  weights=*)} iteratively (hence, IRLS) where the weights compuvia IRLS and }
+	  weights=*)} iteratively (hence, IRLS) with weights equal to
+	\eqn{\psi(r_i) / r_i}, where \eqn{r_i} is the i-the residual
+	from the previous fit.}
       \item{"MM"}{Computes an MM-estimator, starting from \code{init},
 	either "S" or "lts".}% more: FIXME
-      \item{"tau"}{}
-      \item{"CM"}{}
-      \item{"mtl"}{}
+      \item{"tau"}{Computes a Tau-estimator.}
+      \item{"CM"}{Computes a \dQuote{Constrained M} (=: CM) estimator.}
+      \item{"mtl"}{Compute as \dQuote{Maximum Trimmed Likelihood} (=: MTL)
+	estimator.}
     }
     Note that all methods but \code{"M"} are \dQuote{random}, hence
-    typically to be preceded by \code{\link{set.seed}()} in usage.
+    typically to be preceded by \code{\link{set.seed}()} in usage, see
+    also \code{\link{nlrob.algorithms}}. % nlrob-algos.Rd
   }
   \item{psi}{a function (possibly by name) of the form \code{g(x, 'tuning
       constant(s)', deriv)} that for \code{deriv=0} returns
@@ -158,7 +164,8 @@ nlrob(formula, data, start, lower, upper,
   \eqn{\psi(r_i/ \hat{\sigma})}{psi(r_i/ sig.)}.
 
   All other methods minimize differently, and work \bold{without}
-  \code{\link{nls}}.  See \link{nlrob.algorithms} for details.
+  \code{\link{nls}}.  See \link{nlrob.algorithms} % -> nlrob-algos.Rd
+  for details.
 }
 \value{
   \code{nlrob()} returns an object of S3 class \code{"nlrob"},
@@ -273,7 +280,7 @@ lines(h.x, h.rp, col="magenta")
 legend("topleft", c("classical nls()", "robust nlrob()"),
        lwd = 1, col= c("blue", "magenta"), inset = 0.05)
 
-## See  ?nlrob.algorithms for examples 
+## See  ?nlrob.algorithms for examples
 \dontrun{
 DNase1 <- DNase[DNase$Run == 1,]
 form <- density ~ Asym/(1 + exp(( xmid -log(conc) )/scal ))
@@ -281,7 +288,7 @@ gMM  <- nlrob(form, data = DNase1, method = "MM",
               lower = c(Asym = 0, xmid = 0, scal = 0),
               upper = 3, trace = TRUE)
 
-## "CM" (and "tau") additional need bounds for "sigma" :
+## "CM" (and "mtl") additionally need bounds for "sigma" :
 gCM  <- nlrob(form, data = DNase1, method = "CM",
               lower = c(Asym = 0, xmid = 0, scal = 0, sigma = 0),
               upper = c(3,3,3, sigma = 0.8))
