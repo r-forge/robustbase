@@ -37,6 +37,7 @@ c
       implicit none
       integer kmini, nmini, k1,k2,k3,km10,nmaxi,maxmini
       integer i_trace
+      integer i_aux(4) ! just for printing when i_trace > 0
 c
 ccc   parameter (nvmax=115)
 ccc   parameter (nmax=57000)
@@ -81,7 +82,7 @@ cc
       integer krep, matz,iseed, seed, tottimes,step
       integer intercept,intadjust
       integer pnsel, replow
-      integer i,ii,iii, j,jj,jjj, jndex, k,kk,kkk, lll, m,mm, nn
+      integer i,ii,iii, j,jj,jjj, jndex, k,kk, lll, m,mm, nn
       integer jmin,jmax, jerd,jnc, jreg, kstep,kount
 c unused      integer jdefaul, jbreak
       integer minigr
@@ -256,7 +257,7 @@ cc
         if(ngroup.gt.kmini) ngroup=kmini
         nrep=int(dble(krep)/ngroup)
         minigr=mini(1)+mini(2)+mini(3)+mini(4)+mini(5)
-cccc  CALL INTPR('>>> RFLTSREG ... minigr=',-1,iseed,1)
+        if(i_trace .ge. 2) call intpr(' rftls.... minigr=',-1,minigr,1)
         call rfrdraw(subdat,n,minigr,mini,ngroup,kmini)
       else
 c          krep == 0  or   n <=  2*nmini-1  ( = 599 by default)
@@ -338,7 +339,8 @@ CDDD  CALL INTPR('>>> Start initialization ... nrep=',-1,nrep,1)
       do 47,j=1,nvm11
  47     hvec(j)=0.D0
 
-CDDD  CALL INTPR('>>> Initialization ready',-1,0,0)
+      if(i_trace .ge. 2)
+     +    call intpr(' rftls.... initialization ready',-1,0,1)
  9000 continue
 
       if(nvad.eq.1) then
@@ -373,13 +375,7 @@ c---- - - - - - - - - Outermost loop - - - - - - - - - - - - - - - - - - -
 c----
  5555 object=10.D25
 
-      if(i_trace .ge. 2) then
-         call intpr('Main loop - number of trials nrep: ',-1,nrep,1)
-      endif
-
-      if(.not. part .or. final) then
-         nn=n
-      endif
+      if(.not. part .or. final)             nn=n
       if(part .and. fine .and. .not. final) nn=minigr
 
       if(fine.or.(.not.part.and.final)) then
@@ -413,14 +409,19 @@ c----
             kstep=1
           endif
 
-          if (n.gt.5000) then
-            nrep=1
-          endif
+          if (n .gt. 5000) nrep=1
         else
-          nhalf=int(minigr*percen)
+          nhalf= int(minigr*percen)
         endif
       endif
 
+      if(i_trace .ge. 2) then
+         i_aux(1) = nrep
+         i_aux(2) = kstep
+         i_aux(3) = nhalf
+         call intpr('Main (number of trials nrep, kstep, nhalf):',
+     +        -1, i_aux, 3)
+      endif
       do 81 i=1,nsel-1
          index1(i)=i
  81   continue
@@ -443,34 +444,34 @@ cc
 
 CDDD  CALL INTPR('>>> MAIN LOOP BY GROUPS: NGROUP= ',-1,ngroup,1)
 
-      do 1111 ii=1,ngroup
-CDDD  CALL INTPR('>>> LOOPING BY GROUPS...II: ',-1,ii,1)
-
+      do 1111 ii = 1,ngroup
+         if(i_trace .ge. 3)
+     +        call intpr(' rftls.... looping by group ii=',-1,ii,1)
         if(.not.fine) kount=0
         if(part .and. .not. fine) nn=mini(ii)
-        do 101 i=1,nn
+        do i=1,nn
           index2(i)=i
- 101    continue
+        end do
 
         if(part .and. .not. fine) then
           jndex=0
-          do 103 j=1,minigr
+          do j=1,minigr
             if(subdat(2,j).eq.ii) then
               jndex=jndex+1
               subndex(jndex)=subdat(1,j)
             endif
- 103      continue
-          do 105 j=1,mini(ii)
-            do 107 k=1,nvad
-              dath(j,k)=dat(subndex(j),k)
- 107        continue
- 105      continue
-        endif
-cc
-CDDD  CALL INTPR('>>> MAIN LOOP: NREP=',-1,nrep,1)
-        do 1000 i=1,nrep
-CDDD  CALL INTPR('>>> LOOPING...I: ',-1,i,1)
+          end do
 
+          do j=1,mini(ii)
+            do k=1,nvad
+              dath(j,k)=dat(subndex(j),k)
+            end do
+          end do
+        endif
+
+        do 1000 i=1,nrep
+          if(i_trace .ge. 4)
+     +          call intpr(' rftls.... for(i = 1,nrep): i=',-1,i,1)
           pnsel=nsel
           tottimes=tottimes+1
           fckwi=0.D0
@@ -506,56 +507,55 @@ c 9550     continue
           if((.not.part.and..not.final).or.(.not.fine.and.part)) then
             if(nvar.gt.1) then
               call rfequat(c,nvmax,nvmax1,hvec,nvm11,nvar,1,nerr)
-              if(nerr.ge.0) goto 126
-              jerd=jerd+1
-              if(.not.all.and.i.gt.2) goto 132
-              goto 1000
+              if(nerr.lt.0) then
+                 jerd=jerd+1
+                 if(.not.all .and. i.gt.2) goto 132
+                 goto 1000
+              endif
             else
               if(c(1,1).ne.0.D0) c(1,1)=c(1,2)/c(1,1)
             endif
 
- 126        continue
-
-            do 136 jnc=1,nvar
- 136          a(jnc)=c(jnc,1)
+            do jnc=1,nvar
+               a(jnc)=c(jnc,1)
+            end do
           endif
 
           if (final) then
             if(mstock(i,1).ne.1000000.D0) then
-              do 125 jj=1,nvar
+              do jj=1,nvar
                 a(jj)=mstock(i,jj)
- 125          continue
+              end do
             else
               goto 1111
             endif
           endif
           if (fine.and..not.final) then
             if(m1stock((ii-1)*10+i,1).ne.1000000.D0) then
-              do 131 jj=1,nvar
+              do jj=1,nvar
                 a(jj)=m1stock((ii-1)*10+i,jj)
- 131          continue
+              end do
             else
               goto 1111
             endif
           endif
 
-c     151
-          do 152 jnc=1,nn
+          do jnc=1,nn
             residu(jnc)=0.D0
-            do 153 j=1,nvar
+            do j=1,nvar
               if(part.and..not.final) then
                 residu(jnc)=residu(jnc)+a(j)*dath(jnc,j)
               else
                 residu(jnc)=residu(jnc)+a(j)*dat(jnc,j)
               endif
- 153        continue
+            end do
             if(part.and..not.final) then
               residu(jnc)=dath(jnc,nvad)-residu(jnc)
             else
               residu(jnc)=dat(jnc,nvad)-residu(jnc)
             endif
             aw(jnc)=residu(jnc)
- 152      continue
+          end do
 
           more1=.false.
           more2=.false.
@@ -587,11 +587,13 @@ CDDD  CALL INTPR('>>> INTERCEPT ADJUSTMENT 1',-1,i,1)
                 call rfmcduni(aw,nn,nhalf,slutn,bstd,am,am2,
      *               factor,nn-nhalf+1)
                 a(nvar)=a(nvar)+slutn(1)
-                do 169 jnc=1,nn
- 169              residu(jnc)=residu(jnc)-slutn(1)
+                do jnc=1,nn
+                   residu(jnc)=residu(jnc)-slutn(1)
+                end do
               else
- 555            do 178 jj=0,nhalf-1+nmore
- 178              aw2(jj+1)=aw(jnc-nmore2+jj)
+ 555            do jj=0,nhalf-1+nmore
+                   aw2(jj+1)=aw(jnc-nmore2+jj)
+                end do
                 nlen=nmore+1
                 call rfmcduni(aw2,nhalf+nmore,nhalf,slutn,
      *               bstd,am,am2,factor,nlen)
@@ -622,53 +624,54 @@ CDDD  CALL INTPR('>>> INTERCEPT ADJUSTMENT 1',-1,i,1)
                   endif
                 endif
                 a(nvar)=a(nvar)+slutn(1)
-                do 170 jnc=1,nn
- 170              residu(jnc)=residu(jnc)-slutn(1)
+                do jnc=1,nn
+                   residu(jnc)=residu(jnc)-slutn(1)
+                end do
               endif
             endif
           endif
 
-          do 156 jnc=1,nn
- 156        residu(jnc)=abs(residu(jnc))
+          do jnc=1,nn
+             residu(jnc)=abs(residu(jnc))
+          end do
           dist2=rffindq(residu,nn,nhalf,index2)
 c     9555
-          do 400 step=1,kstep
+          do step=1,kstep
             tottimes=tottimes+1
-            do 155, j=1,nhalf
+            do j=1,nhalf
               temp(j)=index2(j)
- 155        continue
+            end do
             call rfishsort(temp,nhalf)
-            do 157 j=1,nhalf
+            do j=1,nhalf
               if(.not.part.or.final) then
-                do 158 mm=1,nvad
+                do mm=1,nvad
                   datt(j,mm)=dat(temp(j),mm)
- 158            continue
+                end do
               else
-                do 159 mm=1,nvad
+                do mm=1,nvad
                   datt(j,mm)=dath(temp(j),mm)
- 159            continue
+                end do
               endif
- 157        continue
+            end do
             call rflsreg(nvmax1, nvmax,nvar,n,a,datt, weights, da, h,
      *           fckw,hvec,nvm11,jmiss,nvad,nn)
 
-c           171
-            do 172 jnc=1,nn
+            do jnc=1,nn
               residu(jnc)=0.D0
-              do 173 j=1,nvar
+              do j=1,nvar
                 if(part.and..not.final) then
                   residu(jnc)=residu(jnc)+a(j)*dath(jnc,j)
                 else
                   residu(jnc)=residu(jnc)+a(j)*dat(jnc,j)
                 endif
- 173          continue
+              end do
               if(part.and..not.final) then
                 residu(jnc)=dath(jnc,nvad)-residu(jnc)
               else
                 residu(jnc)=dat(jnc,nvad)-residu(jnc)
               endif
               aw(jnc)=residu(jnc)
- 172        continue
+            end do
 
             more1=.false.
             more2=.false.
@@ -684,18 +687,18 @@ CDDD  CALL INTPR('>>> INTERCEPT ADJUSTMENT 2',-1,step,1)
                 call rfmcduni(aw,nn,nhalf,slutn,bstd,am,am2,
      *               factor,nn-nhalf+1)
                 a(nvar)=a(nvar)+slutn(1)
-                do 179 jnc=1,nn
+                do jnc=1,nn
                   residu(jnc)=residu(jnc)-slutn(1)
- 179            continue
+                end do
               else if(intercept.eq.1) then
                 call rfshsort(aw,nn)
-                do 185 jj=1,nn
+                do jj=1,nn
                   am2(jj)=abs(aw(jj))
- 185            continue
+                end do
                 dist2=rffindq(am2,nn,nhalf,index1)
-                do 180, jj=1,nhalf
+                do jj=1,nhalf
                   aw2(jj)=aw(index1(jj))
- 180            continue
+                end do
                 dist2=rffindq(aw2,nhalf,1,index2)
                 jnc=index1(index2(1))
                 if(jnc+nmore-nmore2+nhalf-1.gt.nn.or.jnc-nmore2.lt.1)
@@ -703,13 +706,15 @@ CDDD  CALL INTPR('>>> INTERCEPT ADJUSTMENT 2',-1,step,1)
                   call rfmcduni(aw,nn,nhalf,slutn,bstd,am,am2,
      *                 factor,nn-nhalf+1)
                   a(nvar)=a(nvar)+slutn(1)
-                  do 168 jnc=1,nn
+                  do jnc=1,nn
                     residu(jnc)=residu(jnc)-slutn(1)
- 168              continue
+                  end do
                 else
- 666              do 181 jj=0,nhalf-1+nmore
+c---              repeat { ....
+ 666              continue
+                  do jj=0,nhalf-1+nmore
                     aw2(jj+1)=aw(jnc-nmore2+jj)
- 181              continue
+                  end do
                   nlen=nmore+1
                   call rfmcduni(aw2,nhalf+nmore,nhalf,slutn,bstd,
      *                 am,am2,factor,nlen)
@@ -738,30 +743,34 @@ CDDD  CALL INTPR('>>> INTERCEPT ADJUSTMENT 2',-1,step,1)
                       if(jnc+nmore-nmore2+nhalf-1.le.nn) goto 666
                     endif
                   endif
+c                 } (end repeat)
+
+c                 update a[nvar]
                   a(nvar)=a(nvar)+slutn(1)
-                  do 182 jnc=1,nn
+                  do jnc=1,nn
                     residu(jnc)=residu(jnc)-slutn(1)
- 182              continue
+                  end do
                 endif
               endif
             endif
 
-            do 177 jnc=1,nn
+            do jnc=1,nn
               residu(jnc)=abs(residu(jnc))
- 177        continue
+            end do
             dist2=rffindq(residu,nn,nhalf,index2)
             fckw=0.D0
-            do 176 jnc=1,nhalf
+            do jnc=1,nhalf
               fckw=fckw+residu(jnc)**2
- 176        continue
+            end do
 
-            if(step.ge.2 .and. fckw.eq.fckw1) then
-              goto 5000
-            endif
+            if(step.ge.2 .and. fckw.eq.fckw1) exit ! break {step loop}
             fckw1=fckwi
             fckwi=fckw
-            if(((i.eq.1.and.step.eq.1.and..not.fine)
-     *           .or.fckw.lt.object).and.(final)) then
+            if(final .and. ((i.eq.1.and.step.eq.1 .and. .not.fine)
+     *           .or.fckw.lt.object)) then
+              if(i_trace .ge. 3) then
+                 call dblepr('Setting objfct= ', -1, fckw,1)
+              endif
               object=fckw
               objfct=fckw
               do jjj=1,nhalf
@@ -770,10 +779,10 @@ CDDD  CALL INTPR('>>> INTERCEPT ADJUSTMENT 2',-1,step,1)
               call rfcovcopy(a,bmeans,nvar,1)
             endif
 
- 400      continue
+          end do ! step in 1..kstep
 
-cc
- 5000     if(.not. final) then
+c 5000
+          if(.not. final) then
             if(part .and. .not. fine) then
               iii=ii
             else
@@ -788,68 +797,73 @@ cc		   best solutions need to be stored.
               lll=2
             endif
 
-            do 201, j=lll,10
+            do j = lll,10
               if (fckw .le. mcdndex(j,2,iii)) then
                 if(fckw.ne.mcdndex(j,2,iii)) then
                   if(.not.fine.and.part) goto 203
                   goto 205
                 else
-                  do 207 kkk=j,10
-                    if(fckw.eq.mcdndex(kkk,2,iii)) then
-                      do 209, jjj=1,nvar
+                  do k=j,10
+                    if(fckw.eq.mcdndex(k,2,iii)) then
+                      do jjj=1,nvar
                         if(part.and..not.fine) then
                           if(a(jjj).ne.m1stock((iii-1)*10+
-     *                         kkk,jjj)) then
+     *                         k,jjj)) then
                             goto 203
                           endif
                         else
-                          if(a(jjj).ne.mstock(kkk,jjj)) then
-                            goto 205
-                          endif
+                          if(a(jjj).ne.mstock(k,jjj)) goto 205
                         endif
- 209                  continue
+                      end do
                     endif
- 207              continue
+                  end do
                 endif
-                goto 1000
-c___            .... ----
- 203            do 221,k=10,j+1,-1
-                  do 225 kk=1,nvar
+                exit ! j-loop
+c               ----
+
+cvvv            using m1stock[,]
+ 203            do k=10,j+1,-1
+                  do kk=1,nvar
                     m1stock((iii-1)*10+k,kk)=
      *                   m1stock((iii-1)*10+k-1,kk)
- 225              continue
-
+                  end do
                   mcdndex(k,1,iii)=mcdndex(k-1,1,iii)
                   mcdndex(k,2,iii)=mcdndex(k-1,2,iii)
- 221            continue
-                do 227 kk=1,nvar
+                end do
+                do kk=1,nvar
                   m1stock((iii-1)*10+j,kk)=a(kk)
- 227            continue
+                end do
                 mcdndex(j,1,iii)=i
                 mcdndex(j,2,iii)=fckw
-                goto 1000
-c___            .... ----
- 205            do 231,k=10,j+1,-1
-                  do 235 kk=1,nvar
+                exit ! j-loop
+c               ----
+
+cvvv            using mstock[,]
+ 205            do k=10,j+1,-1
+                  do kk=1,nvar
                     mstock(k,kk)= mstock(k-1,kk)
- 235              continue
+                  end do
                   mcdndex(k,1,iii)=mcdndex(k-1,1,iii)
                   mcdndex(k,2,iii)=mcdndex(k-1,2,iii)
- 231            continue
-                do 237 kk=1,nvar
+                end do
+                do kk=1,nvar
                   mstock(j,kk)=a(kk)
- 237            continue
+                end do
                 mcdndex(j,1,iii)=i
                 mcdndex(j,2,iii)=fckw
-                goto 1000
+                exit ! j-loop
+c               ----
               endif
- 201        continue
-
+            end do ! j-loop
           endif
 
  1000   continue
+c.....           end for( i = 1..nrep )
+
 
  1111 continue
+c---- -------- end for( ii = 1..ngroup )
+
 cc
       if(part .and. .not. fine) then
         fine=.true.
@@ -865,9 +879,7 @@ cc
 C     ------ == PutRNGstate() in C
       return
       end
-ccccc end {rfltsreg}
-ccccc
-
+ccccc end {rfltsreg} ===================================================
 
       subroutine rfstatis(x,xmed,xmad,aw2,intercept,nvad,nvmax1,
      *     nmax,n,nstop,MADeps,weights,y,nvar,index2)
