@@ -1,5 +1,7 @@
 				-*- org -*- C-c C-o follows link[MM: grep-r -e '\(FIXME\|TODO\)']
 * Before next release
+** TODO adjOutlyingness(): change defaults for clower & cupper (E-mail from ..).
+  But there is more ?? -- E-mail not answered ??
 ** TODO nlrob()
 *** TODO summary(nlrob(*)) fails for new methods; better error message or *work*
 *** TODO residuals( nlrob(), type = "...") should provide types "as in the literature"
@@ -11,9 +13,29 @@ R users already know optim() etc.. so the name seems more logical for them.
 ** TODO estimethod(): also for lmrob() and glmrob() models
 * Short Term
 ** TODO nlrob(*):
-*** TODO nlrob(*, method=.) -- try at least *one* other optimizer than JDEoptim(), 
+*** TODO nlrob(*, method=.) -- try at least *one* other optimizer than JDEoptim(),
  since we provide already most of the needed "hooks".
 *** TODO nlrob(*, method="M"): try to allow a "fixed initial sigma" (--> inference for "MM")
+*** TODO for the "vector parameter" biomass example in tests/nlrob-tst.R:  method = "MM"
+    As we do want the formula to work ==> we *must* allow 'lower' & 'upper' as list()s
+    in R/nlregrob.R, have   14 matches for "eval *( *formula\[\[3L?"
+    ((and *org* shows the `[[3L].]` (no ".") as underscored 3L)) :
+       123:                   y.hat <- eval( formula[[3L]], c(data, setNames(par, pnames)) )
+       127:                   y.hat <- eval( formula[[3L]], c(data, setNames(par, pnames)) )
+       141:        y.hat <- eval( formula[[3L]], c(data, setNames(par, pnames)) )
+       175:    res <- y - eval( formula[[3L]], c(data, initial$par) )
+       193:    fit <- eval( formula[[3L]], c(data, coef) )
+       254:        fit <- eval( formula[[3L]], c(data, setNames(par, pnames)) )
+       300:    fit <- eval( formula[[3L]], c(data, coef) )
+       355:	    fit <- eval( formula[[3L]], c(data, par) )
+       361:	    fit <- eval( formula[[3L]], c(data, par) )
+       366:	    fit <- eval( formula[[3L]], c(data, setNames(par, pnames)) )
+       390:    fit <- eval( formula[[3L]], c(data, coef) )
+       434:	    fit <- eval( formula[[3L]], c(data, par) )
+       442:	    fit <- eval( formula[[3L]], c(data, setNames(par, pnames)) )
+       468:    fit <- eval( formula[[3L]], c(data, coef) )
+    the same as in R/nlrob.R where we had  eval(.., c(data, coef)) but now eval(.., c(data, start))
+** TODO simulate() : implement for "nlrob" {and lmrob() ? and ..}
 ** glmrob
 *** BYlogreg()  [ R/BYlogreg.R ]
     --> more tests in ./tests/glmrob-1.R
@@ -60,10 +82,10 @@ R users already know optim() etc.. so the name seems more logical for them.
    file:~/R/MM/STATISTICS/robust/1d-scale.R , 1d-scale-sim.R, etc --- unfinished!!
 
 ** TODO Psi/Rho/Chi/Wgt Functions
-    We have quite a few "partial" collections of rho/psi functions; 
+    We have quite a few "partial" collections of rho/psi functions;
     some are "sync"ed now, some not yet::
 *** TODO 1) have the nice S4 class psi_func  + psiFunc() and .defDwgt() functions
-    in file:R/psi-rho-funs.R  with further explorations, ideas in 
+    in file:R/psi-rho-funs.R  with further explorations, ideas in
     file:misc/experi-psi-rho-funs.R
 **** TODO print/show of such psi_func should show more; at least the psi function
 **** TODO str.psi_func() should be a bit nicer than the current default str()
@@ -74,9 +96,9 @@ R users already know optim() etc.. so the name seems more logical for them.
 *** DONE 3) psi.*(....,  rho = FALSE/TRUE)   functions from Andreas
        ([[file:.R/psi-funs-AR.R]]) replaced by using the new  psi_func  objects
 **** DONE nlrob() changed: uses psi = .Mwgt.psi1("huber", cc=1.345) as default
-*** TODO 4) have (C-based) functions Mpsi(), Mchi(), Mwgt(), etc, used from lmrob(), 
+*** TODO 4) have (C-based) functions Mpsi(), Mchi(), Mwgt(), etc, used from lmrob(),
        in ./R/lmrob.MM.R
-**** DONE now exported and documented in man/M.psi.Rd 
+**** DONE now exported and documented in man/M.psi.Rd
      Further files, illustrating features, differences, etc:
 	 ./vignettes/psi_functions.Rnw -- with quite a few FIXME
 	  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -88,13 +110,13 @@ R users already know optim() etc.. so the name seems more logical for them.
 **** TODO provide  '1)'-i.e. psi_func  versions of them
 **** TODO Mpsi(*, "GGW") etc :  have no (??) easy way to directly specify (a,b,c) tuning pars
 **** TODO *New* Mwgt(*,  deriv=1) would correspond to Dwgt in psiFunc() which Manuel needs
-    
+
 * Mid Term
 ** TODO New  lmrob() "M-S" etc features:
 *** Function names with "." (which are exported) are frowned upon
       e.g.  lmrob.split()
 *** checking .vcov.avar1() and its "posdefify" options ??
-*** TODO lmrob.mar() [file:inst/doc/estimating.functions.R]: Maronna & Yohai (2010) should 
+*** TODO lmrob.mar() [file:inst/doc/estimating.functions.R]: Maronna & Yohai (2010) should
          ~~~~~~~~~~  become part of robustbase, maybe under a better name,
     e.g. via lmrob( ... control ..) or directly.
     It is much used in the simulations of Koller & Stahel (2011)

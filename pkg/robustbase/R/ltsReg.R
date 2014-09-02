@@ -292,7 +292,7 @@ ltsReg.default <- function (x, y, intercept = TRUE,
 
 	## VT:: 26.12.2004
 	## Reorder the coefficients so that the intercept is at the beginning ..
-	getCoef <- ## simple wrapper (because of above "intercept last")
+	getCoef <- ## simple wrapper (because of above "intercept must be")
 	    if(p > 1 && intercept)
 		 function(cf) cf[c(p, 1:(p - 1))]
 	    else function(cf) cf
@@ -360,12 +360,12 @@ ltsReg.default <- function (x, y, intercept = TRUE,
 	    if (rk < p)
 		stop("x is singular")
 	    ## else :
-	    piv <- 1:p
 
 	    h <- h.alpha.n(alpha, n, rk)
 
 	    z <- .fastlts(x, y, h, nsamp, intercept, adjust, trace=as.integer(trace))
-
+	    if(z$objfct < 0)
+		stop("no valid subsample found in LTS - set 'nsamp' or rather use lmrob.S()")
 	    ## vt:: lm.fit.qr == lm.fit(...,method=qr,...)
 	    cf <- lm.fit(x[z$inbest, , drop = FALSE], y[z$inbest])$coef
 	    if(any(ic <- is.na(cf)))
@@ -374,6 +374,7 @@ ltsReg.default <- function (x, y, intercept = TRUE,
 	    ans$best <- sort(z$inbest)
 	    fitted <- x %*% cf
 	    resid <- y - fitted
+	    piv <- 1:p
 	    coefs[piv] <- cf ## FIXME? why construct 'coefs' so complicatedly?	use 'cf' !
 
 	    ans$raw.coefficients <- getCoef(coefs)
@@ -777,9 +778,7 @@ LTScnp2.rew <- function(p, intercept = intercept, n, alpha)
 
     ##	 vt::03.02.2006 - added options "best" and "exact" for nsamp
     if(!missing(nsamp)) {
-##
-##	VT::16.11.2010 - I wonder where did this come from!
-##	if(!is.numeric(nsamp) || nsamp <= 0) {
+	if(trace) cat("non-missing nsamp = ", nsamp, "\n")
 	if(is.numeric(nsamp) && nsamp <= 0) {
 	    warning("Invalid number of trials nsamp=",nsamp,"! Using default.\n")
 	    nsamp <- -1
@@ -834,7 +833,7 @@ LTScnp2.rew <- function(p, intercept = intercept, n, alpha)
 	     nsamp,  # = krep
 
 	     inbest = integer(h.alph),
-	     objfct = 0.,# double
+	     objfct = -1.,# double, if remains at -1 : have *nothing* found
 
 	     intercept = as.integer(intercept),
 	     intadjust = as.integer(adjust),

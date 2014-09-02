@@ -21,7 +21,9 @@ adjOutlyingness(x, ndir = 250, clower = 3, cupper = 4,
   %%% MM: How can I modify it to the  *NON*-adjusted case ?
   \item{alpha.cutoff}{number in (0,1) specifying the quantiles
     \eqn{(\alpha, 1-\alpha)} which determine the \dQuote{outlier}
-    cutoff.}
+    cutoff.  The default, using quartiles, corresponds to the definition
+    of the medcouple (\code{\link{mc}}), but there is no stringent
+    reason for using the same alpha for the outlier cutoff.}
   \item{coef}{positive number specifying the factor with which the
     interquartile range (\code{\link{IQR}}) is multiplied to determine
     \sQuote{boxplot hinges}-like upper and lower bounds.}
@@ -61,7 +63,7 @@ adjOutlyingness(x, ndir = 250, clower = 3, cupper = 4,
   \emph{Journal of Chemometrics}, \bold{19}, 1--12.
 
   For the up-to-date reference, please consult
-  \url{http://wis.kuleuven.be/stat/robust.html}
+  \url{http://wis.kuleuven.be/stat/robust}
 }
 \author{Guy Brys; help page and improvements by Martin Maechler}
 \seealso{the adjusted boxplot, \code{\link{adjbox}} and the medcouple,
@@ -70,14 +72,14 @@ adjOutlyingness(x, ndir = 250, clower = 3, cupper = 4,
 \examples{
 ## An Example with bad condition number and "border case" outliers
 
-if(FALSE) {## Not yet ok, because of bug in adjOutl
+## used to fail (till when??), because of bug in adjOutl
   dim(longley)
   set.seed(1) ## result is random %% and there's a bug - FIXME! -- try set.seed(3)
   ao1 <- adjOutlyingness(longley)
   ## which are not outlying ?
   table(ao1$nonOut)  ## all of them
   stopifnot(all(ao1$nonOut))
-}
+
 
 ## An Example with outliers :
 

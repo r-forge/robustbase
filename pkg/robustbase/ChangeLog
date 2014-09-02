@@ -1,6 +1,20 @@
+2014-06-30  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/rllarsbi.f (rlLARSbi): got rid of warnings -- and many GOTOs
+
+2014-06-11  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.92-0
+	* R/nlrob.R (.nls.get.start, nlrob): now works with indexed vector parameters
+	  -- FIXME: at ETH have testing code + example data -- unfinished!-- -- on nb-mm3 not
+
+2014-04-30  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.91-1, released to CRAN
+
 2014-04-24  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version, Date): 0.91-0, to be released
+	* DESCRIPTION (Version, Date): 0.91-0, released to CRAN
 
 2014-01-30  Martin Maechler  <maechler@stat.math.ethz.ch>
 

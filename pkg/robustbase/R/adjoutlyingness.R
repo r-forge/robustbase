@@ -9,10 +9,16 @@
 ### ftp://ftp.win.ua.ac.be/pub/software/agoras/newfiles/mc.tar.gz
 ### and that contains  mcrsoft/adjoutlyingness.R
 
+##_NEW_ (2014): moved from Antwerpen to Leuwen,
+## ===> http://wis.kuleuven.be/stat/robust/software
+##      has several links to 'robustbase', and S-plus code
+## http://wis.kuleuven.be/stat/robust/Programs/adjusted-boxplot/adjusted-boxplot.ssc
+## (copy in ../misc/Adjusted-boxplot.ssc
+
 ## MM [ FIXME ]:
 ## -----------
 
-## 1)   Use  *transposed*  B[] and A[] matrices   -- done
+## 1)   Use  *transposed*  B[] and A[] (now called 'E') matrices   -- DONE
 
 ## 2)   use  IQR() instead of   quantile(., .75) - quantile(., .25)
 
@@ -77,7 +83,7 @@ adjOutlyingness <- function(x, ndir=250, clower=3, cupper=4,
     med <- apply(Y, MARGIN = 2, median)
     Y <- Y - rep(med, each=n)
     ## MM: mc() could be made faster if we could tell it that med(..) = 0
-    tmc <- apply(Y, MARGIN = 2, mc)
+    tmc <- apply(Y, MARGIN = 2, mc) ## original Antwerpen *wrongly*: tmc <- mc(Y)
     ##                          ==
     Q3 <-  apply(Y, MARGIN = 2, quantile, 0.75)
     Q1 <-  apply(Y, MARGIN = 2, quantile, 0.25)
@@ -121,3 +127,4 @@ adjOutlyingness <- function(x, ndir=250, clower=3, cupper=4,
 	 MCadjout = mcadjout, Qalph.adjout = Qadj, cutoff = cutoff,
 	 nonOut = (adjout <= cutoff))
 }
+
