@@ -78,7 +78,6 @@ export(Sn, Qn, Qn.old,
 S3method(ltsReg, default)
 S3method(ltsReg, formula)
 
-S3method(mc, default)
 S3method(adjbox, default)
 S3method(adjbox, formula)
 
