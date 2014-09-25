@@ -3,5 +3,5 @@ importFrom(stats, "prcomp")
 export(Qrot, rbwheel,
        mvBACON, BACON, # but not ".lmBACON"
        covNNC, cov.nnve,# <- the latter being deprecated
-       L1median, optimMethods, nlminbMethods)
+       L1median, optimMethods, nlminbMethods, rlas)
 
