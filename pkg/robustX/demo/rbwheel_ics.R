@@ -8,6 +8,11 @@ rbw.ics <- function(n, p, frac = 1/p,
     ## ----------------------------------------------------------------------
     ## Author: Martin Maechler, Date: 13 Jun 2009, 20:00
 
+    require(lattice)   # splom()
+    require(robustbase)# covMcd()
+    require(MASS)      # cov.trob()
+    require(ICS)       # tM()
+
     call <- match.call()
     call[[1]] <- as.name("rbwheel")
     Lab <- paste("X <-", deparse(call, width.cutoff= 200))
@@ -39,12 +44,7 @@ print.rbwIcs4plot <- function(x, ...) {
     invisible(x)
 }
 
-
-library(lattice)
-
 if(require("ICS")) {
-  stopifnot(require("MASS"))
-
   print(rr <- rbw.ics(200, p=4))
 
   cat("Now you can experiment yourself!   E.g.,\n",
@@ -53,6 +53,7 @@ if(require("ICS")) {
       "     rbw.ics(100, p=10)\n",
       "etc ..\n", sep="\n")
 } else {
-    cat("You really should install the  'ICS'  package for this demo",
+    cat(
+   "You really should install the 'ICS' and 'robustbase' packages for this demo",
         "see  ?install.packages\n", sep="\n")
 }

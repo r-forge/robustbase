@@ -70,11 +70,6 @@ mvBACON(x, collect = 4, m = min(collect * p, n * 0.5), alpha = 0.95,
   Ueli Oetliker, Swiss Federal Statistical Office, for S-plus 5.1.
   Port to \R, testing etc, by Martin Maechler
 }
-% \note{
-% }
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
 \seealso{
   \code{\link[robustbase]{covMcd}} for a high-breakdown (but more computer
   intensive) method;
@@ -82,6 +77,7 @@ mvBACON(x, collect = 4, m = min(collect * p, n * 0.5), alpha = 0.95,
   \emph{regression}.
 }
 \examples{
+ require(robustbase) # for example data and covMcd():
 ## simple 2D example :
  plot(starsCYG, main = "starsCYG  data  (n=47)")
  B.st <- mvBACON(starsCYG)

@@ -15,7 +15,7 @@
  \tabular{ll}{
   Package: \tab robustX\cr
   Date: \tab 2008-12-17, was the first, R-forge only  \cr
-  Version: \tab 1.0-0\cr
+  Version: \tab 1.2-0\cr
   Depends: \tab robustbase\cr
   License: \tab GPL (>= 2)\cr
  }
@@ -37,7 +37,6 @@ Werner Stahel, Martin Maechler and potentially others
 Maintainer: Martin Maechler
 }
 % \references{
-% ~~ Literature or other references for background information ~~
 % }
 \seealso{
   Package \pkg{robustbase} which it complements and on which it depends;

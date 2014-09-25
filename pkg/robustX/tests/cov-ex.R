@@ -1,4 +1,5 @@
 library(robustX)
+library(robustbase)
 
 covNN.1 <- robustX:::covNNC1  ## the original definition (2003)
 
@@ -43,7 +44,7 @@ X <- rbwheel(n, 7, spherize=TRUE)
 lattice::splom(X, cex=.1)
 system.time(cNX1 <- covNN.1(X))# 0.82
 system.time(cNX  <- covNNC (X))# 0.66
-system.time(cM  <- covMcd (X))# 0.151 - !
+system.time(cM   <- covMcd (X))# 0.151 - !
 
 try( # testing
     chk.NN.new.old(cNX, cNX1, tol=0)

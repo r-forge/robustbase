@@ -1,0 +1,48 @@
+From: Rolf Turner <r.turner@auckland.ac.nz>
+To: Martin Maechler <maechler@stat.math.ethz.ch>
+CC: Mohan Radhakrishnan <radhakrishnan.mohan@gmail.com>, <R-help@r-project.org>
+Subject: Re: [R] Median of streaming data
+Date: Thu, 25 Sep 2014 11:44:38 +1200
+
+On 24/09/14 20:16, Martin Maechler wrote:
+
+<SNIP>
+
+> 1) has your proposal ever been provided in R?
+>     I'd be happy to add it to the robustX
+>     (http://cran.ch.r-project.org/web/packages/robustX) or even
+>     robustbase (http://cran.ch.r-project.org/web/packages/robustbase) package.
+
+<SNIP>
+
+I have coded up the algorithm from the Cameron and Turner paper.  Dunno
+if it gives exactly the same results as my (Splus?) code from lo these
+many years ago (the code that is lost in the mists of time), but it
+*seems* to work.
+
+It is not designed to work with actual "streaming" data --- I don't know
+how to do that.  It takes a complete data vector as input.  Someone who
+knows about streaming data should be able to adapt it pretty easily.
+Said he, the proverbial optimist.
+
+The function code and a help file are attached.  These files have had
+their names changed to end in ".txt" so that they will get through the
+mailing list processor without being stripped.  With a bit of luck.
+
+If they *don't* get through, anyone who is interested should contact me
+and I will send them to you "privately".
+
+cheers,
+
+Rolf
+
+--
+Rolf Turner
+Technical Editor ANZJS
+
+-----
+
+[Saved to /u/maechler/R/Pkgs/robustX/R/rlas.R on lynne]
+[Saved to /u/maechler/R/Pkgs/robustX/man/rlas.Rd on lynne]
+
+

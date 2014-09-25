@@ -60,10 +60,11 @@ covNNC(X, k = min(12, n - 1), pnoise = 0.05, emconv = 0.001,
   function) in CRAN package \pkg{covRobust} (2003), which was archived
   in 2012.
 
-  %% Original version, unexported, robustX:::covNNC1() --> ../R/covNNC-orig.R
   Martin Maechler allowed \code{ncol(X) == 1},
   sped up the original code, by reducing the amount of scaling;
   further, the accuracy was increased (using internal \code{q.dDk()}).
+  The original version is available, unexported as
+  \code{robustX:::covNNC1}.% --> ../R/covNNC-orig.R
 }
 \seealso{
   \code{\link[MASS]{cov.mcd}} from package \CRANpkg{MASS};
@@ -83,7 +84,7 @@ covNNC(X, k = min(12, n - 1), pnoise = 0.05, emconv = 0.001,
 data(iris)
 covNNC(iris[-5])
 
-data(hbk)
+data(hbk, package="robustbase")
 hbk.x <- data.matrix(hbk[, 1:3])
 covNNC(hbk.x)
 }
