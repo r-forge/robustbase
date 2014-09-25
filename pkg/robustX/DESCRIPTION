@@ -8,7 +8,8 @@ Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 Description: eXperimental, eXtraneous, or eXtraordinary Functionality for
   Robust Statistics.  In other words, methods which are not yet well
   established, often related to methods in package 'robustbase'.
-Suggests: robustbase, MASS, lattice
+Imports: robustbase
+Suggests: MASS, lattice
 Enhances: ICS
 License: GPL (>= 2)
 Encoding: UTF-8
