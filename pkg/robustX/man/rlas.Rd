@@ -63,6 +63,9 @@ rlas(y, b = 0.2, mfn = function(n) 0.1 * n^(-0.25),
   Holst, U. (1987).
   Recursive estimators of location.
   \emph{Commun. Statist. --- Theory Meth.} \bold{16} (8) 2201--2226.
+
+%% MM: More recent litterature -- all from computer science --
+%% --> ~/R/MM/STATISTICS/robust/approx-median-large
 }
 \author{
  \email{r.turner@auckland.ac.nz}
