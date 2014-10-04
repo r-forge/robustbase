@@ -33,7 +33,7 @@ if(start.from.true) { # population size = NP (random) + 1 (true parameters)
     init_p <- init_p_sigma <- NULL
 }
 
-if(!dev.interactive())  pdf("nlregrob-tst.pdf")
+if(!dev.interactive(orNone=TRUE))  pdf("nlregrob-tst.pdf")
 
 ## Stromberg, Arnold J. (1993).
 ## Computation of high breakdown nonlinear regression parameters.
@@ -100,7 +100,7 @@ showProc.time()
 
 ## 40% outliers present {use different data name: seen in print(<fitted model>)
 d.exp40out <- within(d.exp30, y[15:27] <- y[15:27] + 100)
-Cfit.40out  <- update(Cfit, data = d.exp40out, 
+Cfit.40out  <- update(Cfit, data = d.exp40out,
                       control = nls.control(tol = Cfit$control$tol))
 Cfit.no.out <- update(Cfit.40out, subset = -(15:27))
 

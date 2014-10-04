@@ -135,7 +135,7 @@ nlFH2 <- update(nlFH, psi = .Mwgt.psi1("Hampel", c(2,4,8)))
 
 data(biomassTill)## see also smaller example in ../man/biomassTill.Rd
 
-if(!dev.interactive())  pdf("nlrob-biomT.pdf")
+if(!dev.interactive(orNone=TRUE))  pdf("nlrob-biomT.pdf")
 
 require(lattice)
 xyplot(Biomass ~ DVS | Tillage, data = biomassTill)
