@@ -24,17 +24,34 @@ UN <- function(L) lapply(L, unname)
 
 chk.NN.new.old <- function(cNew, cNold, tol = 2e-15, tol.1 = 20*tol) {
     stopifnot(is.list(cNold$innc), length(n.i <- names(cNold$innc)) == 4)
+    cat("classification accordance matrix:\n")
+    print(table(new = cNew $classification,
+                old = cNold$classification))
     report.stopifnot.all.eq(UN(cNew [1:4]),
                             UN(cNold[1:4]), tol=tol.1)
     report.stopifnot.all.eq(cNew $innc[n.i],
                             cNold$innc[n.i], tol=tol)
 }
 
+summ.NN <- function(cNN, digits = 3) {
+    cbind(class = cNN$classification,
+          pprob = round(cNN$postprob, digits),
+          incc.p= round(cNN$innc$postprob, digits))
+}
+
+cbind(summ.NN(cN), summ.NN(cN1))
+
+
 try( # testing
     chk.NN.new.old(cN, cN1, tol=0)
 )
-if(R.version$arch == "x86_64")# very badly fails on 32-bit Windows (why ???)
-    chk.NN.new.old(cN, cN1)
+## need extended precision (typically 64-bit):
+doCheck <- (.Machine$sizeof.longdouble >= 16)
+cat("doCheck:", doCheck,"\n")
+
+if(doCheck) chk.NN.new.old(cN, cN1)
+
+
 
 ## for n = 500, you *do* see it
 n <- 500
@@ -49,7 +66,7 @@ system.time(cM   <- covMcd (X))# 0.151 - !
 try( # testing
     chk.NN.new.old(cNX, cNX1, tol=0)
 )
-if(R.version$arch == "x86_64")# very badly fails on 32-bit Windows (why ???)
+if(doCheck)
     chk.NN.new.old(cNX, cNX1)
 
 kappa(cM $cov)# 1990.8..
@@ -81,5 +98,5 @@ BACON(X1)$cov
 ## [1,]  3.5
 
 
-if(FALSE) ## FIXME:
+if(FALSE) ## FIXME (in robustbase!)
     covOGK(X1)$cov
