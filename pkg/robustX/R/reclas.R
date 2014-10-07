@@ -1,9 +1,9 @@
-rlas <- function(y, b=0.2, mfn = function(n) 0.1*n^(-0.25),
-                 nstart=30, m0 = median(y0),
-                 scon=NULL, updateScale = is.null(scon))
+reclas <- function(y, b=0.2, mfn = function(n) 0.1*n^(-0.25),
+                   nstart=30, m0 = median(y0),
+                   scon=NULL, updateScale = is.null(scon))
 {
     ## Initialize:
-    y0    <- y[1:nstart]
+    y0 <- y[1:nstart]
     force(updateScale)
     alpha <- m0
     s <- if(is.numeric(scon) && length(scon) == 1 && scon > 0) scon
@@ -38,10 +38,10 @@ rlas <- function(y, b=0.2, mfn = function(n) 0.1*n^(-0.25),
     }
     structure(list(locn=locn, scale=scale, updateScale=updateScale,
                    nstart=nstart, call = match.call()), # <- so methods can "display" the call
-              class = "rlas")
+              class = "reclas")
 }
 
-plot.rlas <-
+plot.reclas <-
     function(x, M = tail(x$locn, 1), ylim = NULL,
              s.y = tail(x$scale, 1), se = TRUE, col.se = adjustcolor("skyblue4", 3/4),
              ylab = "locn", main = deparse(x$call)[1], ...)

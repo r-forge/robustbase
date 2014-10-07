@@ -1,19 +1,20 @@
-\name{rlas}
+\name{reclas}
 \title{Recursive Robust Median-like Location and Scale}
-\alias{rlas}
-\alias{plot.rlas}
+\alias{reclas}
+\alias{plot.reclas}
 \description{
-  Calculate a recursive estimate of location, asymptotically
-  equivalent to the median, and a recursive estimate of scale
-  equal to the \bold{MEAN} absolute deviation.
+ Calculate an estimate of location, asymptotically
+  equivalent to the median, and an estimate of scale
+  equal to the \bold{MEAN} absolute deviation.  Both
+  done recursively.
 }
-\usage{%-- ../R/rlas.R
-rlas(y, b = 0.2, mfn = function(n) 0.1 * n^(-0.25),
+\usage{%-- ../R/reclas.R
+reclas(y, b = 0.2, mfn = function(n) 0.1 * n^(-0.25),
      nstart = 30, m0 = median(y0),
      scon=NULL, updateScale = is.null(scon))
 
 %% FIXME -- add these "surprising arguments":
-%% \S3method{plot}{rlas}(x, M = tail(x$locn, 1), ylim = NULL,
+%% \S3method{plot}{reclas}(x, M = tail(x$locn, 1), ylim = NULL,
 %%      s.y = tail(x$scale, 1), se = TRUE, col.se = adjustcolor("skyblue4", 3/4),
 %%      ylab = "locn", main = deparse(x$call)[1], ...)
 }
@@ -25,8 +26,9 @@ rlas(y, b = 0.2, mfn = function(n) 0.1 * n^(-0.25),
   \item{mfn}{a \code{\link{function}} of the index of the data which
     must be positive and and tend to 0 as the index tends to infinity.
     The default function is that used by Holst, 1987.}
-  \item{nstart}{number of starting values: The algorithm is initialized from
-    from the first \code{nstart} values of \code{y}.}
+  \item{nstart}{number of starting values: Starting values for the
+    algorithm are formed from the first \code{nstart} values of
+    \code{y}.  The default value is that used in Cameron and Turner, 1993.}
   \item{m0}{value for the initial approximate median; by default, the
     \code{\link{median}} of the first \code{nstart} observations.}
   \item{scon}{value for the scale parameter \code{s}, a
@@ -42,7 +44,7 @@ rlas(y, b = 0.2, mfn = function(n) 0.1 * n^(-0.25),
     equivalent to the algorithm of Holst.}
 }
 \value{
-  An S3 \dQuote{object} of \code{\link{class}} \code{"rlas"}; simply a
+  An S3 \dQuote{object} of \code{\link{class}} \code{"reclas"}; simply a
   list with entries
   \item{locn}{the successive recursive estimates of location.  The
     first \code{nstart - 1} of these are \code{NA}.}
@@ -52,7 +54,7 @@ rlas(y, b = 0.2, mfn = function(n) 0.1 * n^(-0.25),
   \item{updateScale}{the same as the function argument.}
   \item{call}{the function call, i.e., \code{\link{match.call}}.}
 
-  There is a \code{\link{plot}} method for \code{"rlas"}, see the
+  There is a \code{\link{plot}} method for \code{"reclas"}, see the
   examples.
 }
 \references{
@@ -77,14 +79,14 @@ rlas(y, b = 0.2, mfn = function(n) 0.1 * n^(-0.25),
 \examples{
 set.seed(42)
 y <- rt(10000, df = 1.5) # not quite Gaussian ...
-z1 <- rlas(y)
-z3 <- rlas(y, scon= 1  ) # correct fixed scale
-z4 <- rlas(y, scon= 100) # wrong fixed scale
-z2 <- rlas(y, # a more robust initial scale:
+z1 <- reclas(y)
+z3 <- reclas(y, scon= 1  ) # correct fixed scale
+z4 <- reclas(y, scon= 100) # wrong fixed scale
+z2 <- reclas(y, # a more robust initial scale:
            scon = function(y0, m0) robustbase::Qn(y0 - m0),
            updateScale = TRUE) # still updated
 
-## Visualizing -- using the plot() method for "rlas":
+## Visualizing -- using the plot() method for "reclas":
 M <- median(y) ; yl <- c(-1,1)* 0.5
 OP <- par(mfrow=c(2,2), mar=.1+c(3,3,1,1), mgp=c(1.5, .6, 0))
  plot(z1, M=M, ylim=yl)

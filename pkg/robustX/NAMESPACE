@@ -4,6 +4,6 @@ importFrom(robustbase, "Qn", "scaleTau2")
 export(Qrot, rbwheel,
        mvBACON, BACON, # but not ".lmBACON"
        covNNC, cov.nnve,# <- the latter being deprecated
-       L1median, optimMethods, nlminbMethods, rlas)
+       L1median, optimMethods, nlminbMethods, reclas)
 
-S3method(plot, rlas)
+S3method(plot, reclas)
