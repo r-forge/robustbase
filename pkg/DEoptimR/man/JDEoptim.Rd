@@ -105,7 +105,7 @@ where the \dQuote{best} individual \eqn{x_\mathrm{best}}{x[best]} is the \emph{f
   It is possible to perform a warm start, \emph{i.e.}, starting from the previous run and resume optimization, using \code{NP = 0} and the component \code{poppar} for the \code{add_to_init_pop} argument.
 }
 \author{
-  Eduardo L. T. Conceicao \email{econceicao@kanguru.pt}
+  Eduardo L. T. Conceicao \email{mail@eduardoconceicao.org}
 }
 \references{
   Babu, B. V. and Angira, R. (2006)
