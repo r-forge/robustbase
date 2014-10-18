@@ -100,11 +100,12 @@ Note that $\rho(\infty) = \rho(x_r) \equiv \rho(x) \ \forall \abs{x} >= x_r$.
 $\tilde\rho$ is a $\rho$-function as defined in
 \citet{MarRMY06} and has been called $\chi$ function in other contexts. For
 example, in package \pkg{robustbase}, \code{Mchi(x, *)} computes
-$\tilde\rho(x)$, whereas \code{Mpsi(x, *, deriv=-1)} computes $\rho(x)$,
+$\tilde\rho(x)$, whereas \code{Mpsi(x, *, deriv=-1)} (``(-1)-st
+derivative'' is the primitive or antiderivative)) computes $\rho(x)$,
 both according to the above definitions.
 
 Martin: The above/below is \textbf{not} true : \texttt{"Welsh"} does \emph{not} have a finite
-rejection point, but \empH{does} have bounded $\rho$, and hence well defined
+rejection point, but \emph{does} have bounded $\rho$, and hence well defined
 $\rho(\infty)$, and we \emph{can} use it in \texttt{lmrob()}.
 \\ $\to$ sent E-mail Oct.~18, 2014 to Manuel and Werner, proposing to
 change the definition of ``redescending''.
@@ -189,7 +190,7 @@ For the MM-estimators and their generalizations available via
 the $\psi$-functions are all redescending, i.e., with finite ``rejection point''
 $x_r = \sup\{t; \psi(t) > 0\} < \infty$.
 From \texttt{lmrob}, the psi functions are available via
-\texttt{lmrob.control},
+\texttt{lmrob.control}, or more directly, \texttt{.Mpsi.tuning.defaults},
 <<lmrob-psi, echo=TRUE,fig=FALSE>>=
 names(.Mpsi.tuning.defaults)
 @ %$
