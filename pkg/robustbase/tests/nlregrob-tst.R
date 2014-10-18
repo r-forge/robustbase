@@ -286,9 +286,12 @@ fMM <- robustbase:::nlrob.MM(form, data = DNase1,
 showProc.time()
 
 ## for comparisons, later:
-all.eq.mod <- function(m1, m2, excl = c("call", "ctrl"), ...) {
-    stopifnot(names(m1) == names(m2))
-    ni <- is.na(match(names(m1), excl))## <<- all but those with names in 'excl'
+all.eq.mod <- function(m1, m2, sub=FALSE, excl = c("call", "ctrl"), ...) {
+    nm1 <- names(m1)
+    stopifnot(if(sub) nm1 %in% names(m2) else nm1 == names(m2))
+    ni <- if(sub)
+	      nm1[is.na(match(nm1, c("call","ctrl")))]
+	  else is.na(match(names(m1), excl))## <<- all but those with names in 'excl'
     all.equal(m1[ni], m2[ni], ...)
 }
 if(doExtras) {## the same, with 'pnames' and unnamed 'lower':
@@ -345,5 +348,5 @@ showProc.time()
 (mod2 <- list(MM=gMM, tau=gtau, CM=gCM, MTL=gmtl))
 
 if(doExtras) {
-    stopifnot(mapply(all.eq.mod, mods, mod2))
+    stopifnot(mapply(all.eq.mod, mods, mod2, sub=TRUE))
 }

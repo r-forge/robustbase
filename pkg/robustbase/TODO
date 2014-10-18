@@ -1,17 +1,18 @@
 				-*- org -*- C-c C-o follows link[MM: grep-r -e '\(FIXME\|TODO\)']
 * Before next release
-** TODO adjOutlyingness(): change defaults for clower & cupper (E-mail from ..).
-  But there is more ?? -- E-mail not answered ??
+** DONE adjOutlyingness():
+*** DONE change defaults for clower & cupper (E-mail from P.Segaert).
+*** DONE But there is more: +/- swap ==> results not back compatible
 ** TODO nlrob()
 *** TODO summary(nlrob(*)) fails for new methods; better error message or *work*
+**** TODO for "MM" we are close to done; ideally want '$ rweights' (robustness weights) for all meth
 *** TODO residuals( nlrob(), type = "...") should provide types "as in the literature"
 *** DONE nlrob(*, method = "...") should call methods "tau", "CM", "MTL", "MM"
     by Eduardo Conceicao
 **** DONE shouldn't we rename jde() to jdeopt() or even jdeoptim(), jDEoptim(), or JDEoptim()
 R users already know optim() etc.. so the name seems more logical for them.
-
-** TODO estimethod(): also for lmrob() and glmrob() models
 * Short Term
+** TODO estimethod(): also for lmrob() and glmrob() models
 ** TODO nlrob(*):
 *** TODO nlrob(*, method=.) -- try at least *one* other optimizer than JDEoptim(),
  since we provide already most of the needed "hooks".
@@ -35,6 +36,8 @@ R users already know optim() etc.. so the name seems more logical for them.
        442:	    fit <- eval( formula[[3L]], c(data, setNames(par, pnames)) )
        468:    fit <- eval( formula[[3L]], c(data, coef) )
     the same as in R/nlrob.R where we had  eval(.., c(data, coef)) but now eval(.., c(data, start))
+*** TODO confint.nlrob(), ideally based on (TODO) profile.nlrob(); but at first,
+ rather follow confint.lmer() from lme4
 ** TODO simulate() : implement for "nlrob" {and lmrob() ? and ..}
 ** glmrob
 *** BYlogreg()  [ R/BYlogreg.R ]
@@ -98,6 +101,10 @@ R users already know optim() etc.. so the name seems more logical for them.
 **** DONE nlrob() changed: uses psi = .Mwgt.psi1("huber", cc=1.345) as default
 *** TODO 4) have (C-based) functions Mpsi(), Mchi(), Mwgt(), etc, used from lmrob(),
        in ./R/lmrob.MM.R
+**** TODO provide Mpsi(psi = "t") etc; tuning parameter: 'nu' => MLE-t_\nu psi and psi'
+**** TODO provide '1)'-i.e. psi_func  versions of the  Mpsi() etc
+**** TODO Mpsi(*, "GGW") etc :  have no (??) easy way to directly specify (a,b,c) tuning pars
+**** TODO *New* Mwgt(*,  deriv=1) would correspond to Dwgt in psiFunc() which Manuel needs
 **** DONE now exported and documented in man/M.psi.Rd
      Further files, illustrating features, differences, etc:
 	 ./vignettes/psi_functions.Rnw -- with quite a few FIXME
@@ -107,12 +114,9 @@ R users already know optim() etc.. so the name seems more logical for them.
 	 ./tests/lmrob-psifns.R 	   	plot and lmrob()-test them
 
 **** DONE Deprecate* the "2)", tukeyChi() etc, making them call the M.*fun():
-**** TODO provide  '1)'-i.e. psi_func  versions of them
-**** TODO Mpsi(*, "GGW") etc :  have no (??) easy way to directly specify (a,b,c) tuning pars
-**** TODO *New* Mwgt(*,  deriv=1) would correspond to Dwgt in psiFunc() which Manuel needs
 
 * Mid Term
-** TODO New  lmrob() "M-S" etc features:
+** TODO New  lmrob() features ("M-S" as option?):
 *** Function names with "." (which are exported) are frowned upon
       e.g.  lmrob.split()
 *** checking .vcov.avar1() and its "posdefify" options ??

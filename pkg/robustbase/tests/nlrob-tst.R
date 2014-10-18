@@ -97,7 +97,7 @@ plot(x,y); lines(x, f.x, col="tomato", lty = 2)
 dd <- data.frame(x,y)
 
 nlc1 <- nls(formula(nlr1), start = coef(nlr1), data=dd, trace=TRUE)
-nlR1 <- update(nlr1, data = dd)
+nlR1 <- update(nlr1, data = dd)# update the model with the new data
 summary(nlR1)
 lines(x, predict(nlc1), col=3)
 lines(x, predict(nlR1), col=4)

@@ -14,7 +14,7 @@
 nlrob(formula, data, start, lower, upper,
       weights = NULL, na.action = na.fail,
       method = c("M", "MM", "tau", "CM", "mtl"),
-      psi = .Mwgt.psi1("huber", cc=1.345),
+      psi = .Mwgt.psi1("huber", cc=1.345), scale = NULL,
       test.vec = c("resid", "coef", "w"), maxit = 20,
       tol = 1e-06, acc, algorithm = "default", doCov = FALSE,
       control = if(method == "M") nls.control() else
@@ -109,6 +109,9 @@ nlrob(formula, data, start, lower, upper,
     Note that this has been a deliberately non-backcompatible change
     for robustbase version 0.90-0 (summer 2013 -- early 2014).
   }
+  \item{scale}{when not \code{NULL} (default), a positive number
+    specifying a scale kept \emph{fixed} during the iterations (and
+    returned as \code{Scale} component).}
   \item{test.vec}{character string specifying the convergence
     criterion. The relative change is tested for residuals with a value
     of \code{"resid"} (the default), for coefficients with
@@ -261,7 +264,8 @@ Rm3DN2 <- nlrob(density ~  Asym/(1 + exp(( xmid - log(conc) )/scal ) ),
                 data = DN2, trace = TRUE,
                 start = list( Asym = 3, xmid = 0, scal = 1 ))
 Rm3DN2
-summary(Rm3DN2)
+summary(Rm3DN2) # -> robustness weight of obs. 10 ~= 0.037
+confint(Rm3DN2, method = "Wald")
 
 ## utility function sfsmisc::lseq() :
 lseq <- function (from, to, length)
