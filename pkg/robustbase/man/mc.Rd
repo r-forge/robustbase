@@ -10,7 +10,7 @@
 \usage{
 mc(x, na.rm = FALSE, doReflect = (length(x) <= 100),
    eps1 = .Machine$double.eps, eps2 = .Machine$double.xmin,
-   maxit = 100, trace.lev = 0, full.result = FALSE, \dots)
+   maxit = 100, trace.lev = 0, full.result = FALSE)
 }
 \arguments{
   \item{x}{a numeric vector}
@@ -50,7 +50,6 @@ mc(x, na.rm = FALSE, doReflect = (length(x) <= 100),
 
   Mia Hubert and E. Vandervieren (2006)
   An adjusted boxplot for skewed distributions.
-
 }
 \author{Guy Brys; modifications by Tobias Verbeke and bug fixes and
   extensions by Martin Maechler.

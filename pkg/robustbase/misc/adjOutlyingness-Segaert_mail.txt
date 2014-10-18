@@ -1,0 +1,46 @@
+From: Pieter Segaert <Pieter.Segaert@wis.kuleuven.be>
+To: "maechler@stat.math.ethz.ch" <maechler@stat.math.ethz.ch>
+CC: Mia Hubert <Mia.Hubert@wis.kuleuven.be>
+Subject: robustbase: adjOutlyingness
+Date: Wed, 30 Jul 2014 07:59:21 +0000
+
+
+Dear Dr. Maechler
+
+I contact you as the maintainer of the R-package robustbase. I'm a doctoral student of Mia Hubert and we believe there is a coding error in the function adjOutlyingness.
+
+To our understanding of the code implementation the default values for clower and cupper have been switched as compared to the definition in for example "Outlier detection for skewed data" (Journal of Chemometrics) by Mia Hubert and Stephan Van der Veeken.
+
+The default values for cupper should be three and the default value for clower should be 4 as we understand the code.
+
+Furthermore we believe the line
+    tup <- Q3 + coef * IQR * exp(cupper * tmc * (tmc >= 0) - clower * tmc * (tmc < 0))
+
+should read
+
+    tup <- Q3 + coef * IQR * exp(cupper * tmc * (tmc >= 0) + clower * tmc * (tmc < 0))
+
+instead, such that the argument of the exponential becomes 3 * medcouple when the medcouple is positive and  4 * the medcouple when the medcouple is negative as opposed to -4 * medcouple.
+
+In the same way, we believe the line
+
+    tlo <- Q1 - coef * IQR * exp(-clower * tmc * (tmc >= 0) + cupper * tmc * (tmc < 0))
+
+should read
+
+    tlo <- Q1 - coef * IQR * exp(-clower * tmc * (tmc >= 0) - cupper * tmc * (tmc < 0)).
+
+
+Best regards
+Pieter Segaert
+
+
+Pieter Segaert
+University of Leuven (KU Leuven)
+Dept. of Mathematics
+Section of Statistics
+Celestijnenlaan 200B - Office 02.35
+B - 3001 Leuven (Heverlee)
+
+Tel. +32 (0)16372337
+email: Pieter.Segaert@wis.kuleuven.be<mailto:Pieter.Segaert@wis.kuleuven.be>

@@ -1,3 +1,9 @@
+2014-10-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/adjoutlyingness.R (adjOutlyingness): reverse the defaults of
+	'clower' and 'cupper' and fix +/- swap; see new note in man/adjOutlyingness.Rd
+	* man/adjOutlyingness.Rd: the wrong defaults came from *.ssc file from Antwerpen
+
 2014-06-30  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* src/rllarsbi.f (rlLARSbi): got rid of warnings -- and many GOTOs

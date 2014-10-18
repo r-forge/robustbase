@@ -55,6 +55,7 @@ for(n in 3:50) {
 };  cat("\n")
 
 ###----  Strict tests of adjOutlyingness():
+###                      ================= changed after long-standing bug fix in Oct.2014
 
 set.seed(1);  S.time(a1.1 <- adjOutlyingness(longley))
 set.seed(11); S.time(a1.2 <- adjOutlyingness(longley))
@@ -76,30 +77,33 @@ dput(Rnk(a4$adjout),, {})
 
 stopifnot(which(!a2$nonOut) == 1:14,
 	  which(!a3$nonOut) == 1:14,
-	  if(isSun) TRUE else
-	  which(!a4$nonOut) == if(is32 && !isMac) c(1, 2, 41, 70) else c(12, 70),
+	  if(isSun && isMac && is32) TRUE else
+	  ## which(!a4$nonOut) == if(is32 && !isMac) c(1, 2, 41, 70) else c(12, 70),
+          which(!a4$nonOut) == c(9:19, 23:27,57, 59, 70, 77),
 	  ## 'longley', 'wood' have no outliers in the "adjOut" sense:
 	  ## FIXME: longley is platform dependent too
-	  if(isMac) TRUE else sum(a1.2$nonOut) >= 15,
-	  a5$nonOut, a6$nonOut,
+	  if(isMac) TRUE else sum(a1.2$nonOut) >= 15, # sum(.) = 16 [nb-mm3, Oct.2014]
+	  a5$nonOut,
+          a6$nonOut[-20],
 	  ## hbk (n = 75) :
-	  abs(Rnk(a3$adjout) -
-	     c(62, 64, 68, 71, 70,   65, 66, 63, 69, 67,   73, 75, 72, 74, 18,
-	       52, 44,	4, 12, 19,    6, 20, 15, 21, 59,   14, 22, 16, 45, 39,
-	       49, 33,	9, 54, 23,    2, 24, 50, 56, 10,   32, 40, 43, 39, 60,
-	       36, 61, 25, 13, 11,   48, 55, 47, 42, 17,   30, 51, 26,	7, 37,
-	       27, 58, 39, 28, 29,   34,  3, 53, 57,  5,    1,	8, 31, 35, 46)
-	      ) <= 3,
+	  abs(print(Rnk(a3$adjout)) -
+             c(62, 64, 68, 71, 70,   65, 66, 63, 69, 67,   73, 75, 72, 74, 25,
+               52, 44,  5, 11, 33,    6, 21, 29, 28, 59,    9, 12, 13, 37, 27,
+               43, 35, 22, 55, 14,    2, 26, 46, 54, 15,   23, 41, 40, 32, 60,
+               30, 61, 19, 16,  8,   39, 53, 51, 48, 20,   47, 50, 42,  7, 38,
+               17, 57, 45, 18, 24,   34,  3, 58, 56,  4,    1, 10, 31, 36, 49)
+	      ) <= 3
+         ,
 	  ## milk (n = 86) : -- Quite platform dependent!
       {
-	  r <- Rnk(a4$adjout)
-	  r64 <- ## the 64-bit (FC13 Linux) values:
-	      c(79, 83, 54, 57,	 9,   20, 27, 15, 59, 23,   74, 85, 80, 82, 84,
-		78, 77, 58, 75, 64,   30, 10, 36, 35, 72,   69, 70, 61, 46, 14,
-		41, 51,	 6, 16, 26,   42, 40, 29, 11, 49,   81, 63, 45, 76, 12,
-		13, 73, 66, 65, 60,   48, 62, 33,  5,  3,    1, 37, 22, 68, 17,
-		 4, 47, 38, 39, 31,   19,  7, 52, 34, 86,   24, 25, 43, 67, 71,
-		21, 53, 2, 28, 32,     8, 18, 55, 56, 44,   50)
+	  print(r <- Rnk(a4$adjout))
+	  r64 <- ## the 64-bit (ubuntu 14.04, nb-mm3) values:
+	      c(65, 66, 61, 56, 47,   51, 19, 37, 74, 67,   79, 86, 83, 84, 85,
+		82, 81, 73, 80, 55,   27,  3, 70, 68, 78,   76, 77, 53, 48,  8,
+		29, 33,	 6, 32, 28,   31, 36, 40, 22, 58,   64, 52, 39, 63, 44,
+		30, 57, 46, 43, 45,   25, 54, 12,  1,  9,    2, 71, 14, 75, 23,
+		 4, 10, 34, 35, 17,   24, 15, 20, 38, 72,   42, 13, 50, 60, 62,
+		26, 69, 18,  5, 21,    7, 49, 11, 41, 59,   16)
 	  ## for the biggest part (79 out of 86), the ranks are "close":
 	  table(d <- (r - r64)[-c(9, 24:27, 59, 71)]) # 32b Linux: 0 .. 6
 	  abs(d) <= 7
@@ -109,10 +113,10 @@ stopifnot(which(!a2$nonOut) == 1:14,
 ## check of adjOutlyingness *free* bug
 ## reported by Kaveh Vakili <Kaveh.Vakili@wis.kuleuven.be>
 set.seed(-37665251)
-X<-matrix(rnorm(100*5),100,5)
-Z<-matrix(rnorm(100*5,0,1/100),10,5)
-Z<-sweep(Z,2,c(5,rep(0,4)),FUN="+")
-X[91:100,]<-Z
+X <- matrix(rnorm(100*5),100,5)
+Z <- matrix(rnorm(100*5,0,1/100),10,5)
+Z <- sweep(Z, 2, c(5,rep(0,4)), FUN="+")
+X[91:100,] <- Z
 for (i in 1:10) {
     ## this would produce an error in the 6th iteration
     aa <- adjOutlyingness(x=X,ndir=250)
