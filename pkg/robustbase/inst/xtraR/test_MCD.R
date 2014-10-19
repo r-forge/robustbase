@@ -1,7 +1,10 @@
 #### Utility functions for testing covMCD()
 #### -------------------------------------- ../tests/tmcd.R
 
-repMCD <- function(x, nrep = 1, method = c("FASTMCD","MASS"))
+##
+##  VT::16.10.2014: added method="DETMCD" to test the deterministic MCD
+##
+repMCD <- function(x, nrep = 1, method = c("FASTMCD","MASS", "DETMCD"))
 {
     stopifnot(length(nrep) == 1, nrep >= 1)
     method <- match.arg(method)
@@ -10,11 +13,14 @@ repMCD <- function(x, nrep = 1, method = c("FASTMCD","MASS"))
 	    cov.rob <- MASS::cov.rob
 	for(i in 1:nrep) MASS::cov.mcd(x)
     }
-    else for(i in 1:nrep) covMcd(x)
+    else if(method =="DETMCD")
+        for(i in 1:nrep) covMcd(x, nsamp="deterministic")
+    else
+        for(i in 1:nrep) covMcd(x)
 }
 
 doMCDdata <- function(nrep = 1, time = nrep >= 3, short = time, full = !short,
-		   method = c("FASTMCD", "MASS"))
+		   method = c("FASTMCD", "MASS", "DETMCD"))
 {
     ##@bdescr
     ## Test the function covMcd() on the literature datasets:
@@ -47,6 +53,10 @@ doMCDdata <- function(nrep = 1, time = nrep >= 3, short = time, full = !short,
         if(method == "MASS") {
             mcd <- MASS::cov.mcd(x)
             quan <- as.integer(floor((n + p + 1)/2)) #default: floor((n+p+1)/2)
+        }
+        else if(method == "DETMCD") {
+            mcd <- covMcd(x, nsamp="deterministic") # trace = FALSE
+            quan <- as.integer(mcd$quan)
         }
         else {
             mcd <- covMcd(x) # trace = FALSE
