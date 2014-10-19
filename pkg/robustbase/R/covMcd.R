@@ -189,7 +189,13 @@ covMcd <- function(x,
         return(ans)
     } ## end {alpha=1} --
 
-    mcd <- .fastmcd(x, h, nsamp, nmini, trace=as.integer(trace))
+    ##   vt::16.10.2014 - added options "deterministic" for nsamp
+    if(!missing(nsamp) && nsamp == "deterministic")
+    {
+        mcd <-  .detmcd(x, h, hsets.init=NULL, scales=NULL, trace=as.integer(trace))
+        ans$method <- "Deterministic Minimum Covariance Determinant Estimator."
+    } else
+        mcd <- .fastmcd(x, h, nsamp, nmini, trace=as.integer(trace))
 
     ## Compute the consistency correction factor for the raw MCD
     ##  (see calfa in Croux and Haesbroeck)
@@ -796,4 +802,3 @@ if(FALSE) { ## For experimentation:
     ls.str( ee <- environment(MCDcnp2s$sim.0) )
     matplot(1:21, ee$m.0, type = "o", xlab = "p - p.min + 1")
 }
-
