@@ -1,8 +1,31 @@
-2014-10-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+2014-10-19  Valentin Todorov  <valentin.todorov@chello.at>
 
-	* R/adjoutlyingness.R (adjOutlyingness): reverse the defaults of
-	'clower' and 'cupper' and fix +/- swap; see new note in man/adjOutlyingness.Rd
-	* man/adjOutlyingness.Rd: the wrong defaults came from *.ssc file from Antwerpen
+	* DESCRIPTION (Version): 0.92-1
+    *
+	* R/covMcd.R, detmcd.R: added Deterministic MCD as an option to covMcd
+    *   (nsamp="deterministic"), function .detMcd()
+    *
+    * tests/tmcdd.R: new tests, for covMcd() with nsamp="deterministic"
+    *
+    * tests/tmcdd.Rout.save: new tests, for covMcd() with nsamp="deterministic"
+    *
+    * inst/xtraR/test_MCD.R: modified to test covMcd() with nsamp="deterministic"
+    *
+    * /NAMESPACE: export the functions getInitSubsets() and doScale() to be used 
+    *   in rrcov for the deterministic S- and MM-estimates
+    *
+    *   TODO: update the help file man/covMcd.RD
+    *   TODO: add an input parameter to covMcd: function to
+    *           calculate the scales in .detMcd()
+    *   TODO: Add a matrix with initial subsets (indices) as an
+    *       input parameter to covMcd() and an output object Hsubsets
+    *       in the "mcd" class
+    *   TODO: Export several functions used for detMCD to be used by 
+    *       rrcov, particularly: repmat, rankMM, classSVD, signflip
+    *       Add documentation for the exported functions
+    *
+    *   TODO: implement .detMcd() in C
+    *   
 
 2014-06-30  Martin Maechler  <maechler@stat.math.ethz.ch>
 

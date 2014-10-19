@@ -41,7 +41,8 @@ export(Sn, Qn, Qn.old,
        covPlot, ltsPlot,
        ## NO! ddplot, distplot, chi2qqplot
        rrcov.control,##  << RENAME --- FIXME
-
+       getInitSubsets,
+       doScale,
        huberM,
        covOGK, covGK, hard.rejection, scaleTau2,
        psiFunc, huberPsi, hampelPsi,
@@ -91,7 +92,6 @@ S3method(anova, glmrob)
 S3method(alias, lmrob)
 S3method(case.names, lmrob)
 S3method(confint, lmrob)
-S3method(confint, nlrob)
 S3method(dummy.coef, lmrob)
 S3method(estimethod, nlrob)
 S3method(family, lmrob)
