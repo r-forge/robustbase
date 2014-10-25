@@ -11,7 +11,7 @@
   Tuning parameters for \code{\link{lmrob}}, the MM-type regression
   estimator and the associated S-, M- and D-estimators.  Using
   \code{setting="KS2011"} sets the defaults as suggested by
-  Koller and Stahel (2011).
+  Koller and Stahel (2011) and analogously for \code{"KS2014"}.
 }
 \usage{
 lmrob.control(setting, seed = NULL, nResample = 500,
@@ -24,7 +24,7 @@ lmrob.control(setting, seed = NULL, nResample = 500,
               mts = 1000, subsampling = c("nonsingular", "simple"),
               compute.rd = FALSE, method = "MM", psi = "bisquare",
               numpoints = 10, cov = NULL,
-              split.type = c("f", "fi", "fii"), fast.s.large.n = 2000, 
+              split.type = c("f", "fi", "fii"), fast.s.large.n = 2000,
 	      eps.outlier = function(nobs) 0.1 / nobs,
               compute.outlier.stats = method,
               warn.limit.reject = 0.5,
@@ -37,8 +37,8 @@ lmrob.control(setting, seed = NULL, nResample = 500,
 }
 \arguments{
   \item{setting}{a string specifying alternative default values.  Leave
-    empty for the defaults or use \code{"KS2011"} or \code{"KS2014"} 
-    for the defaults suggested by Koller and Stahel (2011, 2014).  
+    empty for the defaults or use \code{"KS2011"} or \code{"KS2014"}
+    for the defaults suggested by Koller and Stahel (2011, 2014).
     See \emph{Details}.}
   \item{seed}{\code{NULL} or an integer vector compatible with
     \code{\link{.Random.seed}}: the seed to be used for random
@@ -102,9 +102,9 @@ lmrob.control(setting, seed = NULL, nResample = 500,
     time to finish, particularly for large data sets, and can lead to
     singularity problems when there are \code{\link{factor}} explanatory
     variables (with many levels, or levels with \dQuote{few}
-    observations). Hence, is \code{FALSE} by default.}
+    observations).  Hence, is \code{FALSE} by default.}
   \item{method}{string specifying the estimator-chain. \code{MM}
-    is interpreted as \code{SM}. See \emph{Details} of
+    is interpreted as \code{SM}.  See \emph{Details} of
     \code{\link{lmrob}} for a description of the possible values.}
   \item{psi}{string specifying the type \eqn{\psi}-function
     used.  See \emph{Details} of \code{\link{lmrob}}.  Defaults to
@@ -115,25 +115,25 @@ lmrob.control(setting, seed = NULL, nResample = 500,
     \code{if(method \%in\% c('SM', 'MM')) ".vcov.avar1" else ".vcov.w"}.
     See \emph{Details} of \code{\link{lmrob}}.}
   \item{split.type}{determines how categorical and continuous variables
-    are split. See \code{\link{splitFrame}}.}
+    are split.  See \code{\link{splitFrame}}.}
   \item{fast.s.large.n}{minimum number of observations required to
     switch from ordinary \dQuote{fast S} algorithm to an efficient
     \dQuote{large n} strategy.}
   \item{eps.outlier}{limit on the robustness weight below which an observation
-    is considered to be an outlier. 
+    is considered to be an outlier.
     Either a numeric(1) or a function that takes the number of observations as
-    an argument. Used in \code{\link{summary.lmrob}} and 
+    an argument.  Used in \code{\link{summary.lmrob}} and
     \code{\link{outlierStats}}.}
-  \item{compute.outlier.stats}{Vector of strings, valid to be used as
-    \code{method} arguments. Used to specify for which
-    estimators outlier statistics (and warnings) should be produced. 
-    Set to empty string if none are required.}
+  \item{compute.outlier.stats}{vector of \code{\link{character}}
+    strings, each valid to be used as \code{method} argument.  Used to
+    specify for which estimators outlier statistics (and warnings)
+    should be produced.  Set to empty string if none are required.}
   \item{warn.limit.reject}{limit of ratio
-    \eqn{\#\mbox{rejected} / \#\mbox{obs in level}}{# rejected / # obs in level} 
-    above (\eqn{\geq}{>=}) which a warning is produced. 
+    \eqn{\#\mbox{rejected} / \#\mbox{obs in level}}{# rejected / # obs in level}
+    above (\eqn{\geq}{>=}) which a warning is produced.
     Set to \code{NULL} to disable warning.}
   \item{warn.limit.meanrw}{limit of the mean robustness per factor level
-    below which (\eqn{\leq}{<=}) a warning is produced. 
+    below which (\eqn{\leq}{<=}) a warning is produced.
     Set to \code{NULL} to disable warning.}
   \item{...}{further arguments to be added as \code{\link{list}}
     components to the result, e.g., those to be used in \code{.vcov.w()}.}
@@ -157,15 +157,15 @@ lmrob.control(setting, seed = NULL, nResample = 500,
   \code{max.it = 500}, \code{k.max = 2000}, \code{cov = '.vcov.w'}.
   The defaults of all the remaining arguments are not changed.
 
-  The option \code{setting="KS2014"} builds upon \code{setting="KS2011"}. 
+  The option \code{setting="KS2014"} builds upon \code{setting="KS2011"}.
   More arguments are changed to \code{best.r.s = 20, k.fast.s = 2,
-  nResample = 1000}. This setting should produce more stable estimates for
+  nResample = 1000}.  This setting should produce more stable estimates
   for designs with factors.
 
   By default, and in \code{.Mpsi.tuning.default()} and \code{.Mchi.tuning.default()},
-  \code{tuning.chi} and \code{tuning.psi} are set to
-  yield an MM-estimate with break-down point \eqn{0.5} and efficiency of
-  95\% at the normal.
+  \code{tuning.chi} and \code{tuning.psi} are set to yield an
+  MM-estimate with break-down point \eqn{0.5} and efficiency of 95\% at
+  the normal.
 
   To get these defaults, e.g., \code{.Mpsi.tuning.default(psi)} is
   equivalent to but more efficient than the formerly widely used
@@ -173,16 +173,13 @@ lmrob.control(setting, seed = NULL, nResample = 500,
 
   These defaults are:
   \tabular{rll}{
-    \code{psi} \tab \code{tuning.chi} \tab \code{tuning.psi} \cr
-    \code{bisquare} \tab \code{1.54764} \tab \code{4.685061} \cr
-    \code{welsh} \tab \code{0.5773502} \tab \code{2.11} \cr
-    \code{ggw} \tab \code{c(-0.5, 1.5, NA, 0.5)} \tab
-    \code{c(-0.5, 1.5, 0.95, NA)} \cr
-    \code{lqq} \tab \code{c(-0.5, 1.5, NA, 0.5)} \tab
-    \code{c(-0.5, 1.5, 0.95, NA)} \cr
-    \code{optimal} \tab \code{0.4047} \tab \code{1.060158} \cr
-    \code{hampel} \tab \code{c(1.5, 3.5, 8)*0.2119163} \tab
-    \code{c(1.5, 3.5, 8)*0.9014}
+    \code{psi}     \tab \code{tuning.chi} \tab \code{tuning.psi} \cr
+    \code{bisquare}\tab \code{1.54764}    \tab \code{4.685061} \cr
+    \code{welsh}   \tab \code{0.5773502}  \tab \code{2.11} \cr
+    \code{ggw} 	   \tab \code{c(-0.5, 1.5, NA, 0.5)} \tab \code{c(-0.5, 1.5, 0.95, NA)} \cr
+    \code{lqq}     \tab \code{c(-0.5, 1.5, NA, 0.5)} \tab \code{c(-0.5, 1.5, 0.95, NA)} \cr
+    \code{optimal} \tab \code{0.4047}     \tab \code{1.060158} \cr
+    \code{hampel}  \tab \code{c(1.5, 3.5, 8)*0.2119163} \tab \code{c(1.5, 3.5, 8)*0.9014}
   }
   The values for the tuning constant for the \code{ggw} psi function are
   hard coded.  The constants vector has four elements: minimal slope, b
@@ -202,13 +199,13 @@ lmrob.control(setting, seed = NULL, nResample = 500,
   Alternative coefficients for an efficiency of 85\%
   at the normal are given in the table below.
   \tabular{rl}{
-    \code{psi} \tab \code{tuning.psi} \cr
-    \code{bisquare} \tab \code{3.443689} \cr
-    \code{welsh} \tab \code{1.456} \cr
-    \code{ggw}, \code{lqq} \tab \code{c(-0.5, 1.5, 0.85, NA)} \cr
-    \code{optimal} \tab \code{0.8684} \cr
-    \code{hampel} (-1/3) \tab \code{c(1.5, 3.5, 8)* 0.5704545} \cr
-    \code{hampel} (-1/2) \tab \code{c( 2,  4,  8) * 0.4769578}
+    \code{psi}		  \tab \code{tuning.psi} \cr
+    \code{bisquare}	  \tab \code{3.443689} \cr
+    \code{welsh}	  \tab \code{1.456} \cr
+    \code{ggw}, \code{lqq}\tab \code{c(-0.5, 1.5, 0.85, NA)} \cr
+    \code{optimal}        \tab \code{0.8684} \cr
+    \code{hampel} (-1/3)  \tab \code{c(1.5, 3.5, 8)* 0.5704545} \cr
+    \code{hampel} (-1/2)  \tab \code{c( 2,  4,  8) * 0.4769578}
   }
 }
 \references{

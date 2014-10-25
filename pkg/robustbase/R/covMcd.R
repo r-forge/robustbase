@@ -1,4 +1,4 @@
-#### This is originally from the R package
+### This is originally from the R package
 ####
 ####  rrcov : Scalable Robust Estimators with High Breakdown Point
 ####
@@ -38,6 +38,8 @@ covMcd <- function(x,
            alpha = control$ alpha,
            nsamp = control$ nsamp,
            nmini = control$ nmini,
+           scalefn=control$scalefn, maxcsteps=control$maxcsteps,
+           initHsets = NULL, save.hsets = FALSE, # full.h = save.hsets,
            seed  = control$ seed,
            tolSolve = control$ tolSolve, # had 1e-10 hardwired {now 1e-14 default}
            trace = control$ trace,
@@ -62,7 +64,7 @@ covMcd <- function(x,
 
     ##   vt::03.02.2006 - added options "best" and "exact" for nsamp
     ##   nsamp will be further analized in the wrapper .fastmcd()
-    if(!missing(nsamp) && is.numeric(nsamp) && nsamp <= 0)
+    if(is.numeric(nsamp) && nsamp <= 0)
         stop("Invalid number of trials nsamp = ",nsamp, "!")
 
     if(is.data.frame(x))
@@ -189,13 +191,13 @@ covMcd <- function(x,
         return(ans)
     } ## end {alpha=1} --
 
-    ##   vt::16.10.2014 - added options "deterministic" for nsamp
-    if(!missing(nsamp) && nsamp == "deterministic")
-    {
-        mcd <-  .detmcd(x, h, hsets.init=NULL, scales=NULL, trace=as.integer(trace))
-        ans$method <- "Deterministic Minimum Covariance Determinant Estimator."
+    mcd <- if(nsamp == "deterministic") {
+        ans$method <- paste("Deterministic", ans$method)
+	.detmcd (x, h, hsets.init = initHsets,
+                 save.hsets=save.hsets, # full.h=full.h,
+		 scalefn=scalefn, maxcsteps=maxcsteps, trace=as.integer(trace))
     } else
-        mcd <- .fastmcd(x, h, nsamp, nmini, trace=as.integer(trace))
+        .fastmcd(x, h, nsamp, nmini, trace=as.integer(trace))
 
     ## Compute the consistency correction factor for the raw MCD
     ##  (see calfa in Croux and Haesbroeck)
@@ -285,7 +287,7 @@ covMcd <- function(x,
 	    if(!(mcd$exactfit %in% c(1,2)))
 		stop("Unexpected 'exactfit' code ", mcd$exactfit, ". Please report!")
 	    ## new (2007-01) and *instead* of older long 'method' extension;
-	    ## the old message is still *printed* via singularityMsg()
+	    ## the old message is still *printed* via .MCDsingularityMsg()
 	    ##
 	    ## exactfit is now *passed* to result instead of coded into 'message':
 	    ans$singularity <-
@@ -317,7 +319,7 @@ covMcd <- function(x,
         ## the reweighted cov
         if(!sing.rewt && sum.w != n) {
 	    cdelta.rew <- .MCDcons(p, sum.w/n) ## VT::19.3.2007
-	    correct.rew <- if(use.correction).MCDcnp2.rew(p, n, alpha) else 1.
+	    correct.rew <- if(use.correction) .MCDcnp2.rew(p, n, alpha) else 1.
 	    cnp2 <- c(cdelta.rew, correct.rew)
 	    ans$cov <- cdelta.rew * correct.rew * ans$cov
         }
@@ -357,25 +359,26 @@ covMcd <- function(x,
     if(length(dimn[[1]]))
         names(ans$mcd.wt) <- dimn[[1]]
     ans$wt <- NULL
-    ans$X <- x
     if(length(dimn[[1]]))
-        dimnames(ans$X)[[1]] <- names(ans$mcd.wt)[ok]
+        dimnames(x)[[1]] <- names(ans$mcd.wt)[ok]
     else
-        dimnames(ans$X) <- list(seq(along = ok)[ok], NULL)
+        dimnames(x) <- list(seq(along = ok)[ok], NULL)
+    ans$X <- x
     if(trace)
         cat(ans$method, "\n")
     ans$raw.cnp2 <- raw.cnp2
     ans$cnp2 <- cnp2
+    if(nsamp == "deterministic")
+	ans <- c(ans, mcd[c("iBest","n.csteps", if(save.hsets) "initHsets")])
     class(ans) <- "mcd"
     ## warn if we have a singularity:
     if(is.list(ans$singularity))
-	warning(strwrap(singularityMsg(ans$singularity, ans$n.obs)))
+	warning(paste(strwrap(.MCDsingularityMsg(ans$singularity, ans$n.obs)), collapse="\n"),
+		domain=NA)
     ## return
     ans
 } ## {covMcd}
 
-singularityMsg <- # not exported, currently used by pkg rrcov
-## TODO(?): export
 .MCDsingularityMsg <- function(singList, n.obs)
 {
     stopifnot(is.list(singList))
@@ -443,7 +446,7 @@ print.mcd <- function(x, digits = max(3, getOption("digits") - 3), print.gap = 2
     }
     cat("-> Method: ", x$method, "\n")
     if(is.list(x$singularity))
-        cat(strwrap(singularityMsg(x$singularity, x$n.obs)), sep ="\n")
+        cat(strwrap(.MCDsingularityMsg(x$singularity, x$n.obs)), sep ="\n")
 
     ## VT::29.03.2007 - solve a conflict with fastmcd() in package robust -
     ##      also returning an object of class "mcd"
@@ -619,52 +622,45 @@ MCDcnp2.rew <- # <- *not* exported, but currently used in pkg rrcovNA
 
     ## vt::03.02.2006 - added options "best" and "exact" for nsamp
     ##
-    nLarge <- 100000 # <-- Nov.2009; was 5000
-    if(!missing(nsamp)) {
-        if(is.numeric(nsamp) && (nsamp < 0 || nsamp == 0 && p > 1)) {
-            warning("Invalid number of trials nsamp= ", nsamp,
-                    " ! Using default.\n")
+    nLarge <- 100000 # was 5000 before Nov.2009 -- keep forever now; user can say "exact"
+    if(is.numeric(nsamp) && (nsamp < 0 || nsamp == 0 && p > 1)) {
+        nsamp <- -1
+    } else if(nsamp == "exact" || nsamp == "best") {
+        if(n > 2*nmini-1) {
+            warning("Options 'best' and 'exact' not allowed for n greater than  2*nmini-1 =",
+                    2*nmini-1,".\nUsing default.\n")
             nsamp <- -1
-        } else if(nsamp == "exact" || nsamp == "best") {
-            myk <- p + 1 ## was 'p'; but p+1 ("nsel = nvar+1") is correct
-            if(n > 2*nmini-1) {
-                ## TODO: make 'nmini' user configurable; however that
-                ##      currently needs changes to the fortran source
-                ##  and re-compilation!
-                warning("Options 'best' and 'exact' not allowed for n greater than  2*nmini-1 =",
-                        2*nmini-1,".\nUsing default.\n")
-                nsamp <- -1
-            } else {
-                nall <- choose(n, myk)
-                msg <- paste("subsets of size", myk, "out of", n)
-                if(nall > nLarge && nsamp == "best") {
-                    nsamp <- nLarge
-                    warning("'nsamp = \"best\"' allows maximally ",
-                            format(nLarge, scientific=FALSE),
-                            " subsets;\ncomputing these ", msg,
-                            immediate. = TRUE)
-                } else {   ## "exact" or ("best"  &  nall < nLarge)
-                    nsamp <- 0 ## all subsamples -> special treatment in Fortran
-                    if(nall > nLarge) {
-                        msg <- paste("Computing all", nall, msg)
-                        if(nall > 10*nLarge)
-                            warning(msg, "\n This may take a",
-                                    if(nall/nLarge > 100) " very", " long time!\n",
-                                    immediate. = TRUE)
-                        else message(msg)
-                    }
+        } else {
+	    myk <- p + 1 ## was 'p'; but p+1 ("nsel = nvar+1") is correct
+            nall <- choose(n, myk)
+            msg <- paste("subsets of size", myk, "out of", n)
+            if(nall > nLarge && nsamp == "best") {
+                nsamp <- nLarge
+                warning("'nsamp = \"best\"' allows maximally ",
+                        format(nLarge, scientific=FALSE),
+                        " subsets;\ncomputing these ", msg,
+                        immediate. = TRUE)
+            } else {   ## "exact" or ("best"  &  nall < nLarge)
+                nsamp <- 0 ## all subsamples -> special treatment in Fortran
+                if(nall > nLarge) {
+                    msg <- paste("Computing all", nall, msg)
+                    if(nall > 10*nLarge)
+                        warning(msg, "\n This may take a",
+                                if(nall/nLarge > 100) " very", " long time!\n",
+                                immediate. = TRUE)
+                    else message(msg)
                 }
             }
         }
+    }
 
-        if(!is.numeric(nsamp) || nsamp == -1) { # still not defined
-            ## set it to the default :
-            defCtrl <- rrcov.control()
-            if(!is.numeric(nsamp))
-                warning("Invalid number of trials nsamp= ",nsamp,
-                        " ! Using default nsamp= ",defCtrl$nsamp,"\n")
-            nsamp <- defCtrl$nsamp      # take the default nsamp
-        }
+    if(!is.numeric(nsamp) || nsamp == -1) { # still not defined
+        ## set it to the default :
+        nsamp.def <- rrcov.control()$nsamp
+	warning(gettextf("Invalid number of trials nsamp=%s. Using default nsamp=%d.",
+			 format(nsamp), nsamp.def),
+		domain=NA)
+        nsamp <- nsamp.def
     }
 
     if(nsamp > (mx <- .Machine$integer.max)) {

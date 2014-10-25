@@ -1,5 +1,9 @@
 				-*- org -*- C-c C-o follows link[MM: grep-r -e '\(FIXME\|TODO\)']
+
 * Before next release
+** DONE covMcd(): allow 'hsets.ini' argument to covMcd(), and *return* them (optionally) as 'Hsubsets'
+** DONE export rankMM, classSVD, .signflip [MM: repmat should not be needed]
+** DONE 'scalefn' argument for covMcd() to be used for "detMCD"
 ** DONE adjOutlyingness():
 *** DONE change defaults for clower & cupper (E-mail from P.Segaert).
 *** DONE But there is more: +/- swap ==> results not back compatible
@@ -13,10 +17,8 @@
 R users already know optim() etc.. so the name seems more logical for them.
 * Short Term
 ** TODO estimethod(): also for lmrob() and glmrob() models
+** TODO VT implement .detMcd() in C
 ** TODO nlrob(*):
-*** TODO nlrob(*, method=.) -- try at least *one* other optimizer than JDEoptim(),
- since we provide already most of the needed "hooks".
-*** TODO nlrob(*, method="M"): try to allow a "fixed initial sigma" (--> inference for "MM")
 *** TODO for the "vector parameter" biomass example in tests/nlrob-tst.R:  method = "MM"
     As we do want the formula to work ==> we *must* allow 'lower' & 'upper' as list()s
     in R/nlregrob.R, have   14 matches for "eval *( *formula\[\[3L?"
@@ -36,8 +38,12 @@ R users already know optim() etc.. so the name seems more logical for them.
        442:	    fit <- eval( formula[[3L]], c(data, setNames(par, pnames)) )
        468:    fit <- eval( formula[[3L]], c(data, coef) )
     the same as in R/nlrob.R where we had  eval(.., c(data, coef)) but now eval(.., c(data, start))
-*** TODO confint.nlrob(), ideally based on (TODO) profile.nlrob(); but at first,
- rather follow confint.lmer() from lme4
+*** TODO nlrob(*, method=.) -- try at least *one* other optimizer than JDEoptim(),
+ since we provide already most of the needed "hooks".
+*** DONE nlrob(*, method="M"): allow a "fixed initial sigma" (--> inference for "MM")
+*** TODO confint.nlrob():, "Wald" works; naming follows confint.lmer() from lme4
+**** TODO  method = "profile" based on (TODO) profile.nlrob()
+**** DONE  method = "Wald" works
 ** TODO simulate() : implement for "nlrob" {and lmrob() ? and ..}
 ** glmrob
 *** BYlogreg()  [ R/BYlogreg.R ]

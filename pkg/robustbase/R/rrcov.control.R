@@ -21,14 +21,18 @@
 rrcov.control <-
     function(alpha = 1/2, nsamp = 500, nmini = 300,
              seed = NULL, tolSolve = 1e-14,
+             scalefn = "hrv2011", maxcsteps = 200,
 	     trace = FALSE, wgtFUN = "01.original",
              use.correction = identical(wgtFUN, "01.original"),
              adjust = FALSE)
 {
-    list(alpha=alpha, nsamp=nsamp, nmini=nmini, seed = as.integer(seed),
-	 tolSolve=tolSolve, trace=trace, wgtFUN=wgtFUN,
+    list(alpha=alpha, nsamp=nsamp, nmini=as.integer(nmini), seed = as.integer(seed),
+	 tolSolve=tolSolve, scalefn=scalefn, maxcsteps=as.integer(maxcsteps),
+         trace=trace, wgtFUN=wgtFUN,
 	 use.correction=use.correction, adjust=adjust)
 }
+## allow direct fast access:
+.scalefn.default <- eval(formals(rrcov.control)$scalefn)
 
 ## Only for back compatibility, as some new args did not exist pre 2013-04,
 ## and callers of covMcd() may use a "too small"  'control' list:

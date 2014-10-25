@@ -7,7 +7,9 @@
 }
 \usage{
 rrcov.control(alpha = 1/2, nsamp = 500, nmini = 300,
-              seed = NULL, tolSolve = 1e-14, trace = FALSE,
+              seed = NULL, tolSolve = 1e-14,
+              scalefn = "hrv2011", maxcsteps = 200,
+              trace = FALSE,
               wgtFUN = "01.original",
               use.correction = identical(wgtFUN, "01.original"),
               adjust = FALSE)
@@ -32,6 +34,14 @@ rrcov.control(alpha = 1/2, nsamp = 500, nmini = 300,
     argument in \code{\link{lmrob.control}}.}
   \item{tolSolve}{numeric tolerance to be used for inversion
     (\code{\link{solve}}) of the covariance matrix in \code{\link{mahalanobis}}.}
+  \item{scalefn}{(for deterministic \code{\link{covMcd}()}:) a character
+    string or \code{\link{function}} for computing a robust scale
+    estimate. The default, currently \code{"hrv2011"}, uses the recommendation of
+    Hubert, Rousseeuw and Verdonck (2011) who recommend \code{\link{Qn}}
+    for \eqn{n < 1000} and \code{\link{scaleTau2}} for larger n.  Alternatively,
+    \code{scalefn = "v2014"}, uses that rule with cutoff \eqn{n = 5000}.}
+  \item{maxcsteps}{integer specifying the maximal number of
+    concentration steps for the deterministic MCD.}
   \item{trace}{whether to print intermediate results.  Default is
     \code{trace = FALSE}}
   \item{wgtFUN}{a character string or \code{\link{function}}, specifying
@@ -41,7 +51,7 @@ rrcov.control(alpha = 1/2, nsamp = 500, nmini = 300,
     \code{"01.original"}, as the resulting weights are 0 or 1.}
   \item{use.correction}{whether to use finite sample correction factors.
     Defaults to \code{TRUE}.}
-  \item{adjust}{[for \code{\link{ltsReg}():} whether to perform
+  \item{adjust}{(for \code{\link{ltsReg}()}:) whether to perform
     intercept adjustment at each step.  Because this can be quite time
     consuming, the default is \code{adjust = FALSE}.}
 }

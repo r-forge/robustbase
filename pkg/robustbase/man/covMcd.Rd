@@ -10,17 +10,21 @@
 \title{Robust Location and Scatter Estimation via MCD}
 \concept{High breakdown point}
 \description{
-     Compute a robust multivariate location and scale estimate with a high
-     breakdown point, using the \sQuote{Fast MCD} (Minimum Covariance
-     Determinant) estimator.
+  Compute the Minimum Covariance Determinant (MCD) estimator,
+  a robust multivariate location and scale estimate with a high
+  breakdown point, via the \sQuote{Fast MCD} or \sQuote{Deterministic
+    MCD} (\dQuote{DetMcd}) algorithm.
 }
 \usage{
 covMcd(x, cor = FALSE, raw.only = FALSE,
-       alpha =, nsamp =, nmini =, seed =, tolSolve=, trace =,
+       alpha =, nsamp =, nmini =,
+       scalefn =, maxcsteps =,
+       initHsets = NULL, save.hsets = FALSE, % full.h = save.hsets,
+       seed =, tolSolve =, trace =,
        use.correction =, wgtFUN =, control = rrcov.control())
 }
 \arguments{
-  \item{x}{a matrix or data frame. }
+  \item{x}{a matrix or data frame.}
   \item{cor}{should the returned result include a correlation matrix?
     Default is \code{cor = FALSE}}.
   \item{raw.only}{should only the \dQuote{raw} estimate be returned,
@@ -30,17 +34,32 @@ covMcd(x, cor = FALSE, raw.only = FALSE,
     over which the determinant is minimized, i.e., \code{alpha*n}
     observations are used for computing the determinant.  Allowed values
     are between 0.5 and 1 and the default is 0.5.}
-  \item{nsamp}{number of subsets used for initial estimates or \code{"best"}
-    or \code{"exact"}.  Default is \code{nsamp = 500}.  For
+  \item{nsamp}{number of subsets used for initial estimates or \code{"best"},
+    \code{"exact"}, or \code{"det.6"}.  Default is \code{nsamp = 500}.  For
     \code{nsamp = "best"} exhaustive enumeration is done, as long as the
     number of trials does not exceed 100'000 (\code{= nLarge}).  For \code{"exact"},
     exhaustive enumeration will be attempted however many samples are
     needed.  In this case a warning message may be displayed saying
-    that the computation can take a very long time.}
+    that the computation can take a very long time.
+
+    For \code{"det.6"}, the \emph{deterministic} MCD is computed; as
+    proposed by Hubert et al. (2012) it starts from the \eqn{h} most
+    central observations of \emph{six} (deterministic) estimators.
+  }
   \item{nmini}{for large \eqn{n}, the algorithm splits the data into
     maximally \eqn{k_{\mathrm{rep}} = 5}{krep = 5} subsets of size
     \code{nmini}. %% FIXME? -- more accurately and in detail ?!
     The original algorithm had \code{nmini = 300} hard coded.}
+  \item{scalefn}{\code{\link{function}} to compute a robust scale
+    estimate or character string specifying a rule determining such a
+    function, see \code{\link{rrcov.control}}.}
+  \item{maxcsteps}{maximal number of concentration steps in the
+    deterministic MCD; should not be reached.}
+  \item{initHsets}{NULL or a \eqn{K x h} integer matrix of initial
+    subsets of observations of size \eqn{h} (specified by the indices in
+    \code{1:n}).}
+  \item{save.hsets}{(for deterministic MCD) logical indicating if the
+    initial subsets should be returned as \code{initHsets}.}
   \item{seed}{initial seed for random generator, see \code{\link{rrcov.control}}.}
   \item{tolSolve}{numeric tolerance to be used for inversion
     (\code{\link{solve}}) of the covariance matrix in \code{\link{mahalanobis}}.}
@@ -50,9 +69,9 @@ covMcd(x, cor = FALSE, raw.only = FALSE,
   \item{use.correction}{ whether to use finite sample correction
     factors; defaults to \code{TRUE}.}
   \item{wgtFUN}{a character string or \code{\link{function}}, specifying
-    how the weights for the reweighting step should be computed.
-    Up to April 2013, the only option has been the original proposal in
-    (1999), now specified by \code{wgtFUN = "01.original"} (or via \code{control}).}
+    how the weights for the reweighting step should be computed.  Up to
+    April 2013, the only option has been the original proposal in (1999),
+    now specified by \code{wgtFUN = "01.original"} (or via \code{control}).}
   \item{control}{a list with estimation options - this includes those
     above provided in the function specification, see
     \code{\link{rrcov.control}} for the defaults.  If \code{control} is
@@ -147,9 +166,13 @@ covMcd(x, cor = FALSE, raw.only = FALSE,
   A fast algorithm for the minimum covariance determinant estimator.
   \emph{Technometrics} \bold{41}, 212--223.
 
-  Pison, G., Van Aelst, S., and Willems, G. (2002),
+  Pison, G., Van Aelst, S., and Willems, G. (2002)
   Small Sample Corrections for LTS and MCD,
   \emph{Metrika} \bold{55}, 111--123.% ~/save/papers/robust-diverse/Pison_VanAelst_Willems.pdf
+
+  Hubert, M., Rousseeuw, P. J. and Verdonck, T. (2012)
+  A deterministic algorithm for robust location and scatter.
+  Journal of Computational and Graphical Statistics \bold{21}, 618--637.
 }
 \seealso{
   \code{\link[MASS]{cov.mcd}} from package \CRANpkg{MASS};
@@ -161,7 +184,8 @@ covMcd(x, cor = FALSE, raw.only = FALSE,
 \examples{
 data(hbk)
 hbk.x <- data.matrix(hbk[, 1:3])
-covMcd(hbk.x)
+(cH <- covMcd(hbk.x))
+cH0 <- covMcd(hbk.x, nsamp = "deterministic")
 
 ## the following three statements are equivalent
 c1 <- covMcd(hbk.x, alpha = 0.75)

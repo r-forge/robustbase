@@ -1,3 +1,5 @@
+2014-10-24  Martin Maechler  <maechler@stat.math.ethz.ch>
+	and
 2014-10-19  Valentin Todorov  <valentin.todorov@chello.at>
 
 	* DESCRIPTION (Version): 0.92-1
@@ -11,7 +13,7 @@
 
 	* inst/xtraR/test_MCD.R: modified to test covMcd() with nsamp="deterministic"
 
-	* NAMESPACE: export the functions getInitSubsets() and doScale() to
+	* NAMESPACE: export the functions r6pack() and doScale() to
 	  be used in rrcov for the deterministic S- and MM-estimates
 
 2014-10-17  Martin Maechler  <maechler@stat.math.ethz.ch>

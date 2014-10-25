@@ -260,7 +260,7 @@ robMD <- function(x, intercept, wqr, ...) {
                         class="try-error", condition = w),
                         error = function(e) structure("covMcd failed with an error",
                         class="try-error", condition = e))
-        if (is(rob, "try-error")) {
+	if (inherits(rob, "try-error")) {
             warning("Failed to compute robust Mahalanobis distances, reverting to robust leverages.")
             return(lmrob.leverages(wqr = wqr))
         }

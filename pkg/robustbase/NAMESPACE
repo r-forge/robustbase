@@ -3,25 +3,37 @@ useDynLib(robustbase, .registration=TRUE)
 if(FALSE) {##MM
     stopifnot(require(codetoolsBioC), require(robustbase))
     findExternalDeps("robustbase") }
-importFrom("graphics", plot)# < more ?
-importFrom("stats", alias, anova, case.names, coef, confint, cov,
-           dummy.coef, family, fitted, fivenum,
-           lm.fit, logLik, nobs,
-           model.frame, predict, residuals, terms, vcov,
-           variable.names, weights,
-           ## would like to import even more *.lm methods, as we wrap them,
-           ## but we cannot import non-exported methods
-           residuals.lm, model.matrix.lm
+importFrom("grDevices", dev.interactive)
+importFrom("graphics", abline, box, legend, lines, matplot, mtext,
+           par, plot, points, text, title)
+importFrom("stats",
+           aggregate, alias, as.formula, binomial,
+           coef, cov, cov.wt, cov2cor, delete.response, deviance, dnorm, dpois,
+           family, fitted, fivenum, formula,
+           gaussian, glm, glm.fit, integrate, is.empty.model, lm.fit, lm.wfit,
+           mad, mahalanobis, median, model.frame, model.matrix, model.matrix.lm,
+           model.offset, model.response, model.weights,
+           na.fail, na.omit, na.pass, napredict, naresid,
+           nlminb, nls, nls.control, nobs,
+           optim, optimize, pbinom, pchisq, pf, pgamma, pnorm, poisson, ppois,
+           predict, printCoefmat, pt,
+           qchisq, qnorm, qpois, qqline, qqnorm, qt, quantile,
+           resid, residuals, residuals.lm, setNames, splinefun, symnum,
+           terms, uniroot, var, vcov, weights, .checkMFClasses, .getXlevels,
+
+           ## S3 generics (*not* shown yet by  findExternalDeps() above):
+           anova, case.names, confint,
+           dummy.coef, logLik, variable.names
            )
 ## ^^^^ MASS has a bit more; take it as example
 if(getRversion() >= "3.1.0")
 importFrom("stats", .lm.fit, confint.lm, dummy.coef.lm)
 
-importFrom("utils", globalVariables)
+importFrom("utils", globalVariables, str)
 
 ## MASS has many rlm S3 methods; should we use some of them - for rnls() ?!
 ## we also currently use MASS::cov.rob(); but probably only temporarily
-importFrom("methods", new, setClass, setMethod)
+importFrom("methods", is, new, setClass, setMethod, slot, "slot<-")
 
 importFrom("DEoptimR", JDEoptim)
 
@@ -34,15 +46,13 @@ export(Sn, Qn, Qn.old,
 
        h.alpha.n,
        covMcd, .MCDcons, .MCDcnp2, .MCDcnp2.rew, .MCDsingularityMsg,
-       robMD,
+       robMD, mahalanobisD, # <- still "internal"
        ltsReg,
        tolEllipsePlot,
        ## RENAME ?!? :
        covPlot, ltsPlot,
        ## NO! ddplot, distplot, chi2qqplot
        rrcov.control,##  << RENAME --- FIXME
-       getInitSubsets,
-       doScale,
        huberM,
        covOGK, covGK, hard.rejection, scaleTau2,
        psiFunc, huberPsi, hampelPsi,
@@ -72,6 +82,9 @@ export(Sn, Qn, Qn.old,
        , BYlogreg ## R/BYlogreg.R FIXME: add to glmrob() and "deprecate"
        ## , glmrobMT ## R/MTestimador2.R
        , sigma, estimethod
+       ## related to detMCD() and to be used in rrcov etc:
+       , r6pack, doScale
+       , rankMM, classSVD, .signflip
        )
 
 
@@ -92,6 +105,7 @@ S3method(anova, glmrob)
 S3method(alias, lmrob)
 S3method(case.names, lmrob)
 S3method(confint, lmrob)
+S3method(confint, nlrob)
 S3method(dummy.coef, lmrob)
 S3method(estimethod, nlrob)
 S3method(family, lmrob)
