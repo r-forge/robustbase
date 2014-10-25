@@ -192,7 +192,7 @@ cc      integer seed
       integer mini(kmini)
       integer subdat(2,nmini*kmini)
       double precision mcdndex(10,2,kmini)
-c subndx(): vector of length = maximal value of  mini(j) {j in 1:kmini} below
+c     subndex(): vector of length = maximal value of  mini(j) {j in 1:kmini} below
       integer subndex(nmini * 3 / 2)
       integer replow
       integer fit
@@ -244,6 +244,9 @@ cc.     double precision faclts(11)
       double precision percen
 
       logical all,part,fine,final,rfodd,class
+c     -Wall:
+      all=.true.
+      part=.false.
 
 cc  Median of the chi-squared distribution:
 cc      data chimed/0.454937,1.38629,2.36597,3.35670,4.35146,
@@ -282,10 +285,6 @@ C     20.06.2005 - substitute the parameters nmax and nvmax
       nvm12=nvmax1*nvmax1
 
       nrep = krep
-      part=.false.
-      fine=.false.
-      final=.false.
-      all=.true.
       kstep=k1
       medi2=0
 
@@ -338,9 +337,9 @@ c     compute *only* the classical estimate
       endif
 
       if(nvar.eq.1) then
-         do 23, jj=1,n
+         do jj=1,n
             ndist(jj)=dat(jj,1)
- 23      continue
+         end do
          call rfshsort(ndist,n)
 cc. consistency correction now happens in R code
 cc.       nquant=min(int(real(((nhalff*1.D0/n)-0.5D0)*40))+1,11)
@@ -365,7 +364,7 @@ cc    ngroup = number of subdatasets, is in {1,2,.., kmini}
 cc    part = logical value, true if the dataset is split up
 cc    fine = logical value, becomes true when the subsets are merged
 cc    final = logical value, to indicate the final stage of the algorithm
-cc    all = logical value, true if all (p+1)-subsets out of should be drawn;
+cc    all = logical value, true if all (p+1)-subsets out n of should be drawn;
 cc          always true for (very) small n, but also when krep=0 (special value)
 cc    subdat = matrix with a first row containing indices of observations
 cc             and a second row indicating the corresponding subdataset
@@ -375,14 +374,12 @@ c      seed=iseed
       nsel=nvar+1
       nmaxi = nmini*kmini
       ngroup=1
-      part=.false.
       fine=.false.
       final=.false.
-      all=.true.
-      do 21,i=1,nmaxi
+      do i=1,nmaxi
          subdat(1,i)=1000000
          subdat(2,i)=1000000
- 21   continue
+      end do
 cc
 cc  Determine whether the dataset needs to be divided into subdatasets
 cc  or can be treated as a whole. The subroutine rfrdraw constructs
@@ -391,9 +388,9 @@ cc  For small n, the number of trial subsamples is determined.
 cc
 c MM(FIXME):  The following code depends crucially on  kmini == 5
 
-      do 22 i=1,kmini
+      do i=1,kmini
          mini(i)=0
- 22   continue
+      end do
       if(krep.gt.0 .and. n.gt.(2*nmini-1)) then
          kstep=k1
          part=.true.
@@ -471,12 +468,12 @@ c             use all combinations; happens iff  nsel = nvar+1 = p+1 <= 6
 
          else
 C VT::02.09.2004 - remove the hardcoded 500 for nrep
-C            nrep=500
+C           nrep=500
             nrep=krep
             all=.false.
          endif
       endif
-c      seed=iseed
+c     seed=iseed
 
 cc
 cc  Some more initializations:
@@ -502,34 +499,34 @@ cc    temp  = auxiliary vector
 cc    flag = vector with components indicating the occurrence of a
 cc           singular intermediate MCD estimate.
 cc
-      do 31 j=1,nvmax
-         do 33 k=1,10
+      do j=1,nvmax
+         do k=1,10
             mstock(k,j)=1000000.D0
-            do 35 kk=1,kmini
+            do kk=1,kmini
                m1stock((kk-1)*10+k,j)=1000000.D0
- 35         continue
-            do 37 i=1,nvmax
-               do 39 kk=1,kmini
+            end do
+            do i=1,nvmax
+               do kk=1,kmini
                   c1stock((kk-1)*10+k,(j-1)*nvmax+i)=1000000.D0
- 39            continue
+               end do
                cstock(k,(j-1)*nvmax+i)=1000000.D0
- 37         continue
- 33      continue
+            end do
+         end do
          means(j)=0.D0
          bmeans(j)=0.D0
          sd(j)=0.D0
- 31   continue
+      end do
 
-      do 41 j=1,nmax
+      do j=1,nmax
          nmahad(j)=0.D0
          ndist(j)=0.D0
          index1(j)=1000000
          index2(j)=1000000
          temp(j)=1000000
- 41   continue
-      do 43 j=1,km10
+      end do
+      do j=1,km10
          flag(j)=1
- 43   continue
+      end do
 
 
  9500 continue
@@ -537,26 +534,26 @@ cc
 cc      ********* Compute the classical estimates **************
 cc
       call rfcovinit(sscp1,nvar+1,nvar+1)
-      do 51 i=1,n
-         do 53 j=1,nvar
+      do i=1,n
+         do j=1,nvar
             rec(j)=dat(i,j)
- 53      continue
+         end do
          call rfadmit(rec,nvar,nvar+1,sscp1)
- 51   continue
+      end do
       call rfcovar(n,nvar,nvar+1,sscp1,cova1,means,sd)
-      do 57 j=1,nvar
+      do j=1,nvar
          if(sd(j).eq.0.D0)      goto 5001
- 57   continue
+      end do
 
       call rfcovcopy(cova1,cinv1,nvar,nvar)
       det=1.D0
-      do 58 j=1,nvar
+      do j=1,nvar
          pivot=cinv1((j-1)*nvar+j)
          det=det*pivot
          if(pivot.lt.eps)       goto 5001
 
          call rfcovsweep(cinv1,nvar,j)
- 58   continue
+      end do
       call rfcorrel(nvar,cova1,corr1,sd)
 
 c     if just classical estimate, we are done
@@ -572,9 +569,9 @@ c     singularity '1' (exact fit := 1) :
      *     sscp1,rec,dat, cova1,means,sd,nvar+1,weight)
       call rfcovcopy(cova1,initcov,nvar,nvar)
       call rfcovcopy(means,initmean,nvar,1)
-      do 56 j=1,nvar
+      do j=1,nvar
          coeff(1,j)=z(j)
- 56   continue
+      end do
       fit=1
       goto 9999
 
@@ -583,12 +580,13 @@ c     singularity '1' (exact fit := 1) :
 cc
 cc Compute and store classical Mahalanobis distances.
 cc
-      do 62 j=1,n
-         do 64 i=1,nvar
+      do j=1,n
+         do i=1,nvar
             rec(i)=dat(j,i)
- 64      continue
+         end do
          nmahad(j)=rfmahad(rec,nvar,means,cinv1)
- 62   continue
+      end do
+
 
 
 cc ******* Compute the MCD estimates ************** ----------------------------
@@ -655,7 +653,7 @@ c     (part .and. .not. final)
             else if (n*nvar .gt.900000 .and. n*nvar .le.1000000) then
                kstep=2
             else
-               kstep =1
+               kstep=1
             endif
             if (n.gt.5000) then
                nrep=1
@@ -665,9 +663,9 @@ c     (part .and. .not. final)
          endif
       endif
 
-      do 81 i=1,nsel-1
+      do i=1,nsel-1
          index1(i)=i
- 81   continue
+      end do
       index1(nsel)=nsel-1
 
 cc
@@ -682,19 +680,19 @@ cc  and the corresponding covariance matrices and mean vectors are stored in
 cc  the matrices cstock and mstock initialized earlier.
 cc
       if(.not. final) then
-         do 83 i=1,10
-            do 85 j=1,ngroup
+         do i=1,10
+            do j=1,ngroup
                mcdndex(i,1,j)=10.D25
                mcdndex(i,2,j)=10.D25
- 85         continue
- 83      continue
+            end do
+         end do
       endif
       if(.not.fine.and..not.final) then
-         do 82 j=1,nvar
-            do 84 i=1,n
+         do j=1,nvar
+            do i=1,n
                am(i)=dat(i,j)
                am2(i)=dat(i,j)
- 84         continue
+            end do
             if(2*n/2 .eq. n) then
                med1=rffindq(am,n,n/2,index2)
                med2=rffindq(am2,n,(n+2)/2,index2)
@@ -702,34 +700,34 @@ cc
             else
                med(j)=rffindq(am,n,(n+1)/2,index2)
             endif
-            do 86 i=1,n
+            do i=1,n
                ndist(i)=dabs(dat(i,j)-med(j))
- 86         continue
+            end do
             mad(j)=rffindq(ndist,n,nhalff,index2)
             if(mad(j)-0.D0 .lt. eps) then
-               do 80,k=1,j-1
-                  do 79,i=1,n
+               do k=1,j-1
+                  do i=1,n
                      dat(i,k)=dat(i,k)*mad(k)+med(k)
- 79               continue
- 80            continue
+                  end do
+               end do
                call rfcovinit(sscp1,nvar+1,nvar+1)
-               do 88 k=1,nsel
-                  do 89 m=1,nvar
+               do k=1,nsel
+                  do m=1,nvar
                      rec(m)=dat(index2(k),m)
- 89               continue
+                  end do
                   call rfadmit(rec,nvar,nvar+1,sscp1)
- 88            continue
+               end do
                call rfcovar(nsel,nvar,nvar+1,sscp1,cova1,means,sd)
                call rs(nvar,nvar,cova1,w,matz,z,fv1,fv2,ierr)
                if(z(j).ne.1) then
-                  do 77, kk=1,nvar
+                  do kk=1,nvar
                      if(z(kk*nvar+j).eq.1) then
-                        do 75, l=1,nvar
+                        do l=1,nvar
                            z(l)=z(kk*nvar+l)
- 75                     continue
-                        goto 76
+                        end do
+                        goto 76 ! break
                      endif
- 77               continue
+                  end do
                endif
  76            continue
                call rfdis(dat,z,ndist,n,nvar,n,nvar,means)
@@ -737,16 +735,16 @@ cc
      *              sscp1,rec,dat, cova1,means,sd,nvar+1,weight)
                call rfcovcopy(cova1,initcov,nvar,nvar)
                call rfcovcopy(means,initmean,nvar,1)
-               do 78 jjj=1,nvar
+               do jjj=1,nvar
                   coeff(1,jjj)=z(jjj)
- 78            continue
+               end do
                fit=2
                goto 9999
             endif
-            do 87 i=1,n
+            do i=1,n
                dat(i,j)=(dat(i,j)-med(j))/mad(j)
- 87         continue
- 82      continue
+            end do
+         end do
       endif
 cc
 cc  The matrix dath contains the observations to be used in the
@@ -759,11 +757,11 @@ cc  to the corresponding plane. In some situations the variable kount counts
 cc  the number of observations on that plane.
 cc
       if (fine .and. .not. final) then
-         do 91, j=1,minigr
-            do 93, k=1,nvar
+         do j=1,minigr
+            do k=1,nvar
                dath(j,k)=dat(subdat(1,j),k)
- 93         continue
- 91      continue
+            end do
+         end do
       endif
       kount=0
 
@@ -771,22 +769,22 @@ c---- For-Loop over groups  - - - - - - - - - - - - - - - - - - - - -
       do 1111 ii= 1,ngroup
          if(.not.fine) kount=0
          if(part .and. .not. fine) nn=mini(ii)
-         do 101 i=1,nn
+         do i=1,nn
             index2(i)=i
- 101     continue
+         end do
          if(part .and. .not. fine) then
             jndex=0
-            do 103 j=1,minigr
+            do j=1,minigr
                if(subdat(2,j).eq.ii) then
                   jndex=jndex+1
                   subndex(jndex)=subdat(1,j)
                endif
- 103        continue
-            do 105 j=1,mini(ii)
-               do 107 k=1,nvar
+            end do
+            do j=1,mini(ii)
+               do k=1,nvar
                   dath(j,k)=dat(subndex(j),k)
- 107           continue
- 105        continue
+               end do
+            end do
          endif
 
 cc  The number of trial subsamples is represented by nrep, which depends
@@ -872,39 +870,39 @@ cc  subroutine rfcovsweep, together with its determinant det.
 cc
  9550       call rfcovinit(sscp1,nvar+1,nvar+1)
             if(.not.fine.and.part) then
-               do 121 j=1,pnsel
-                  do 123 m=1,nvar
+               do j=1,pnsel
+                  do m=1,nvar
                      rec(m)=dath(index1(j),m)
- 123              continue
+                  end do
                   call rfadmit(rec,nvar,nvar+1,sscp1)
- 121           continue
+               end do
                call rfcovar(pnsel,nvar,nvar+1,sscp1,cova1,means,sd)
             endif
             if(.not.part.and..not.final) then
-               do 122 j=1,pnsel
-                  do 124 m=1,nvar
+               do j=1,pnsel
+                  do m=1,nvar
                      rec(m)=dat(index1(j),m)
- 124              continue
+                  end do
                   call rfadmit(rec,nvar,nvar+1,sscp1)
- 122           continue
+               end do
                call rfcovar(pnsel,nvar,nvar+1,sscp1,cova1,means,sd)
             endif
             if (final) then
                if(mstock(i,1).ne.1000000.D0) then
-                  do 125 jj=1,nvar
+                  do jj=1,nvar
                      means(jj)=mstock(i,jj)
-                     do 127 kk=1,nvar
+                     do kk=1,nvar
                         cova1((jj-1)*nvar+kk)=cstock(i,(jj-1)*nvar+kk)
- 127                 continue
- 125              continue
+                     end do
+                  end do
                else
                   goto 1111
                endif
                if(flag(i).eq.0) then
                   qorder=1.D0
-                  do 129,jjj=1,nvar
+                  do jjj=1,nvar
                      z(jjj)=coeff(1,jjj)
- 129              continue
+                  end do
                   call rfdis(dat,z,ndist,n,nvar,nn,nvar, means)
                   dist2=rffindq(ndist,nn,nhalf,index2)
                   goto 9555
@@ -912,36 +910,36 @@ cc
             endif
             if (fine .and. .not.final) then
                if(m1stock((ii-1)*10+i,1).ne.1000000.D0) then
-                  do 131 jj=1,nvar
+                  do jj=1,nvar
                      means(jj)=m1stock((ii-1)*10+i,jj)
-                     do 133 kk=1,nvar
+                     do kk=1,nvar
                         cova1((jj-1)*nvar+kk)=c1stock((ii-1)*10+i,
      *                       (jj-1)*nvar+kk)
- 133                 continue
- 131              continue
+                     end do
+                  end do
                else
                   goto 1111
                endif
                if(flag((ii-1)*10+i).eq.0) then
                   qorder=1.D0
-                  do 135,jjj=1,nvar
+                  do jjj=1,nvar
                      z(jjj)=coeff(ii,jjj)
- 135              continue
+                  end do
                   call rfdis(dath,z,ndist,nmaxi,nvmax,nn,nvar, means)
                   call rfshsort(ndist,nn)
                   qorder=ndist(nhalf)
                   if(dabs(qorder-0.D0).lt.10.D-8 .and. kount.eq.0
      *                 .and. n.gt.nmaxi) then
                      kount=nhalf
-                     do 137,kkk=nhalf+1,nn
+                     do kkk=nhalf+1,nn
                         if(dabs(ndist(kkk)-0.D0).lt.10.D-8) then
                            kount=kount+1
                         endif
- 137                 continue
+                     end do
                      flag(1)=0
-                     do 139,kkk=1,nvar
+                     do kkk=1,nvar
                         coeff(1,kkk)=z(kkk)
- 139                 continue
+                     end do
                      call rfstore2(nvar,cstock,mstock,nvmax2,nvmax,
      *                    kmini,cova1,means,i,mcdndex,kount)
                      kount=1
@@ -979,9 +977,9 @@ cc
      *                    sscp1,rec,dat, cova1,means,sd,nvar+1,weight)
                      call rfcovcopy(cova1,initcov,nvar,nvar)
                      call rfcovcopy(means,initmean,nvar,1)
-                     do 140,jjj=1,nvar
+                     do jjj=1,nvar
                         coeff(1,jjj)=z(jjj)
- 140                 continue
+                     end do
                      fit=2
                      goto 9999
                   else if(dabs(qorder-0.D0).lt. 10.D-8 .and. part .and.
@@ -996,24 +994,24 @@ cc
      *                       rec,dat, cova1,means,sd,nvar+1,weight)
                         call rfcovcopy(cova1,initcov,nvar,nvar)
                         call rfcovcopy(means,initmean,nvar,1)
-                        do 142,jjj=1,nvar
+                        do jjj=1,nvar
                            coeff(1,jjj)=z(jjj)
- 142                    continue
+                        end do
                         fit=2
                         goto 9999
                      endif
                      call rfdis(dath,z,ndist,nmaxi,nvmax,nn,nvar, means)
                      call rfshsort(ndist,nn)
                      kount=nhalf
-                     do 141,kkk=nhalf+1,nn
+                     do kkk=nhalf+1,nn
                         if(dabs(ndist(kkk)-0.D0).lt.10.D-8) then
                            kount=kount+1
                         endif
- 141                 continue
+                     end do
                      flag((ii-1)*10+1)=0
-                     do 143,kkk=1,nvar
+                     do kkk=1,nvar
                         coeff(ii,kkk)=z(kkk)
- 143                 continue
+                     end do
                      call rfstore1(nvar,c1stock,m1stock,nvmax2,nvmax,
      *                    kmini,cova1,means,i,km10,ii,mcdndex, kount)
                      kount=1
@@ -1037,19 +1035,19 @@ cc  The k-th order statistic of the mahalanobis distances is stored
 cc  in dist2. The array index2 containes the indices of the
 cc  corresponding observations.
 cc
-            do 151 j=1,nn
+            do j=1,nn
                if(.not.part.or.final) then
-                  do 152 mm=1,nvar
+                  do mm=1,nvar
                      rec(mm)=dat(j,mm)
- 152              continue
+                  end do
                else
-                  do 153 mm=1,nvar
+                  do mm=1,nvar
                      rec(mm)=dath(j,mm)
- 153              continue
+                  end do
                endif
                t=rfmahad(rec,nvar,means,cinv1)
                ndist(j)=t
- 151        continue
+            end do
             dist2=rffindq(ndist,nn,nhalf,index2)
 cc
 cc  The variable kstep represents the number of iterations. They depend on
@@ -1061,178 +1059,184 @@ cc  The best subset for the whole data is stored in the array inbest.
 cc  The iteration stops when two subsequent determinants become equal.
 cc
  9555       do 400 step=1,kstep
-              tottimes=tottimes+1
-              call rfcovinit(sscp1,nvar+1,nvar+1)
-              do 155 j=1,nhalf
-                 temp(j)=index2(j)
- 155          continue
-              call rfishsort(temp,nhalf)
-              do 157 j=1,nhalf
-                if(.not.part.or.final) then
-                   do 158 mm=1,nvar
-                      rec(mm)=dat(temp(j),mm)
- 158               continue
-                else
-                   do 159 mm=1,nvar
-                      rec(mm)=dath(temp(j),mm)
- 159               continue
-                endif
-                call rfadmit(rec,nvar,nvar+1,sscp1)
- 157         continue
-             call rfcovar(nhalf,nvar,nvar+1,sscp1,cova1,means,sd)
-             call rfcovcopy(cova1,cinv1,nvar,nvar)
-             det=1.D0
-             do 600 j=1,nvar
-               pivot=cinv1((j-1)*nvar+j)
-               det=det*pivot
-               if(pivot.lt.eps) then
-                 if(final .or. .not.part .or.
-     *              (fine.and. .not.final .and. n .le. nmaxi))
-     *            then
-                    call transfo(cova1,means,dat,med,mad,nvar,n)
-                    call rs(nvar,nvar,cova1,w,matz,z,fv1,fv2,ierr)
-                    if(final.or..not.part) then
-                     call rfdis(dath,z,ndist,nmax, nvmax,nn,nvar,means)
-                    else
-                     call rfdis(dath,z,ndist,nmaxi,nvmax,nn,nvar,means)
-                    endif
-                    call rfexact(kount,n,ndist, nvmax1,nvar,
-     *                   sscp1,rec,dat, cova1,means,sd,nvar+1,weight)
-                    call rfcovcopy(cova1,initcov,nvar,nvar)
-                    call rfcovcopy(means,initmean,nvar,1)
-                    do 160 jjj=1,nvar
-                       coeff(1,jjj)=z(jjj)
- 160                continue
-                    fit=2
-                    goto 9999
-                 endif
-                 if(part.and..not.fine.and.kount.eq.0) then
-                    call rs(nvar,nvar,cova1,w,matz,z,fv1,fv2,ierr)
-                    call rfdis(dat,z,ndist,n,nvar,n,nvar, means)
-                    call rfshsort(ndist,n)
-                    if(dabs(ndist(nhalff)-0.D0).lt.10.D-8) then
-                       call transfo(cova1,means,dat,med,mad,nvar,n)
-                       call rs(nvar,nvar,cova1,w,matz,z,fv1,fv2,ierr)
-                       call rfdis(dat,z,ndist,n,nvar,n,nvar,means)
-                       call rfexact(kount,n,ndist, nvmax1,nvar,
-     *                      sscp1,rec,dat, cova1,means,sd,nvar+1,weight)
-                       call rfcovcopy(cova1,initcov,nvar,nvar)
-                       call rfcovcopy(means,initmean,nvar,1)
-                       do 161 jjj=1,nvar
-                          coeff(1,jjj)=z(jjj)
- 161                   continue
-                       fit=2
-                       goto 9999
-                    endif
-                    call rfdis(dath,z,ndist,nmaxi,nvmax,nn,nvar, means)
-                    call rfshsort(ndist,nn)
-                    kount=nhalf
-                    do 162,kkk=nhalf+1,nn
-                       if(dabs(ndist(kkk)-0.D0).lt.10.D-8) then
-                          kount=kount+1
-                       endif
- 162                continue
-                    flag((ii-1)*10+1)=0
-                    do 164 kkk=1,nvar
-                       coeff(ii,kkk)=z(kkk)
- 164                continue
-                    call rfstore1(nvar,c1stock,m1stock,nvmax2,nvmax,
-     *                   kmini,cova1,means,i,km10,ii,mcdndex, kount)
-                    kount=1
-                    goto 1000
-                 else
-                    if(part.and..not.fine.and.kount.ne.0) then
-                       goto 1000
-                    endif
-                 endif
-                 if(fine.and..not.final.and.kount.eq.0) then
-                    call rs(nvar,nvar,cova1,w,matz,z,fv1,fv2,ierr)
-                    call rfdis(dat,z,ndist,n,nvar,n,nvar, means)
-                    call rfshsort(ndist,n)
-                    if(dabs(ndist(nhalff)-0.D0).lt.10.D-8) then
-                       call transfo(cova1,means,dat,med,mad,nvar,n)
-                       call rs(nvar,nvar,cova1,w,matz,z,fv1,fv2,ierr)
-                       call rfdis(dat,z,ndist,n,nvar,n,nvar,means)
-                       call rfexact(kount,n,ndist, nvmax1,nvar,
-     *                      sscp1,rec,dat, cova1,means,sd,nvar+1,weight)
-                       call rfcovcopy(cova1,initcov,nvar,nvar)
-                       call rfcovcopy(means,initmean,nvar,1)
-                       do 165 jjj=1,nvar
-                          coeff(1,jjj)=z(jjj)
- 165                   continue
-                       fit=2
-                       goto 9999
-                    endif
-                    call rfdis(dath,z,ndist,nmaxi,nvmax,nn,nvar, means)
-                    call rfshsort(ndist,nn)
-                    kount=nhalf
-                    do 166,kkk=nhalf+1,nn
-                       if(dabs(ndist(kkk)-0.D0).lt.10.D-8) then
-                          kount=kount+1
-                       endif
- 166                continue
-                    flag(1)=0
-                    do 168,kkk=1,nvar
-                       coeff(1,kkk)=z(kkk)
- 168                continue
-                    call rfstore2(nvar,cstock,mstock,nvmax2,nvmax,
-     *                   kmini,cova1,means,i,mcdndex,kount)
-                    kount=1
-                    goto 1000
-                 else
-                    if(fine.and..not.final.and.kount.ne.0) then
-                       goto 1000
-                    endif
-                 endif
-              endif
-              call rfcovsweep(cinv1,nvar,j)
- 600       continue
-           if(step.ge.2 .and. det.eq.detimin1) then
-              goto 5000
-           endif
-           detimin1=deti
-           deti=det
-           do 171 j=1,nn
-              if(.not.part.or.final) then
-                 do 172 mm=1,nvar
-                    rec(mm)=dat(j,mm)
- 172             continue
-              else
-                 do 173 mm=1,nvar
-                    rec(mm)=dath(j,mm)
- 173             continue
-              endif
-              t=rfmahad(rec,nvar,means,cinv1)
-              ndist(j)=t
- 171       continue
-           dist2=rffindq(ndist,nn,nhalf,index2)
-           dist=dsqrt(dist2)
-           if(((i.eq.1.and.step.eq.1.and..not.fine)
-     *          .or.det.lt.object).and.(final)) then
-              medi2=rffindq(ndist,nn,int(n/2),index1)
-              object=det
-              do 175 jjj=1,nhalf
-                 inbest(jjj)=index2(jjj)
- 175          continue
-              call rfcovcopy(cova1,cova2,nvar,nvar)
-              call rfcovcopy(cinv1,cinv2,nvar,nvar)
-              call rfcovcopy(means,bmeans,nvar,1)
-           endif
- 400    continue
+               tottimes=tottimes+1
+               call rfcovinit(sscp1,nvar+1,nvar+1)
+               do j=1,nhalf
+                  temp(j)=index2(j)
+               end do
+               call rfishsort(temp,nhalf)
+               do j=1,nhalf
+                  if(.not.part.or.final) then
+                     do mm=1,nvar
+                        rec(mm)=dat(temp(j),mm)
+                     end do
+                  else
+                     do mm=1,nvar
+                        rec(mm)=dath(temp(j),mm)
+                     end do
+                  endif
+                  call rfadmit(rec,nvar,nvar+1,sscp1)
+               end do
+               call rfcovar(nhalf,nvar,nvar+1,sscp1,cova1,means,sd)
+               call rfcovcopy(cova1,cinv1,nvar,nvar)
+               det=1.D0
+               do 600 j=1,nvar
+                  pivot=cinv1((j-1)*nvar+j)
+                  det=det*pivot
+                  if(pivot.lt.eps) then
+                     if(final .or. .not.part .or.
+     *                  (fine.and. .not.final .and. n .le. nmaxi)) then
+                        call transfo(cova1,means,dat,med,mad,nvar,n)
+                        call rs(nvar,nvar,cova1,w,matz,z,fv1,fv2,ierr)
+                        if(final.or..not.part) then
+                           call rfdis(dath,z,ndist,nmax, nvmax,nn,
+     *                          nvar,means)
+                        else
+                           call rfdis(dath,z,ndist,nmaxi,nvmax,nn,
+     *                          nvar,means)
+                        endif
+                        call rfexact(kount,n,ndist,nvmax1,nvar,sscp1,
+     *                       rec,dat, cova1,means,sd,nvar+1,weight)
+                        call rfcovcopy(cova1,initcov,nvar,nvar)
+                        call rfcovcopy(means,initmean,nvar,1)
+                        do jjj=1,nvar
+                           coeff(1,jjj)=z(jjj)
+                        end do
+                        fit=2
+                        goto 9999
+                     endif
+                     if(part.and..not.fine.and.kount.eq.0) then
+                        call rs(nvar,nvar,cova1,w,matz,z,fv1,fv2,ierr)
+                        call rfdis(dat,z,ndist,n,nvar,n,nvar, means)
+                        call rfshsort(ndist,n)
+                        if(dabs(ndist(nhalff)-0.D0).lt.10.D-8) then
+                           call transfo(cova1,means,dat,med,mad,nvar,n)
+                           call rs(nvar,nvar,cova1,w,matz,z,
+     *                          fv1,fv2,ierr)
+                           call rfdis(dat,z,ndist,n,nvar,n,nvar,means)
+                           call rfexact(kount,n,ndist,nvmax1,nvar,sscp1,
+     *                          rec,dat, cova1,means,sd,nvar+1,weight)
+                           call rfcovcopy(cova1,initcov,nvar,nvar)
+                           call rfcovcopy(means,initmean,nvar,1)
+                           do jjj=1,nvar
+                              coeff(1,jjj)=z(jjj)
+                           end do
+                           fit=2
+                           goto 9999
+                        endif
+                        call rfdis(dath,z,ndist,nmaxi,nvmax,nn,
+     *                       nvar,means)
+                        call rfshsort(ndist,nn)
+                        kount=nhalf
+                        do,kkk=nhalf+1,nn
+                           if(dabs(ndist(kkk)-0.D0).lt.10.D-8) then
+                              kount=kount+1
+                           endif
+                        end do
+                        flag((ii-1)*10+1)=0
+                        do kkk=1,nvar
+                           coeff(ii,kkk)=z(kkk)
+                        end do
+                        call rfstore1(nvar,c1stock,m1stock,nvmax2,nvmax,
+     *                       kmini,cova1,means,i,km10,ii,mcdndex, kount)
+                        kount=1
+                        goto 1000
+                     else
+                        if(part.and..not.fine.and.kount.ne.0) then
+                           goto 1000
+                        endif
+                     endif
+                     if(fine.and..not.final.and.kount.eq.0) then
+                        call rs(nvar,nvar,cova1,w,matz,z,fv1,fv2,ierr)
+                        call rfdis(dat,z,ndist,n,nvar,n,nvar, means)
+                        call rfshsort(ndist,n)
+                        if(dabs(ndist(nhalff)-0.D0).lt.10.D-8) then
+                           call transfo(cova1,means,dat,med,mad,nvar,n)
+                           call rs(nvar,nvar,cova1,w,matz,z,
+     *                          fv1,fv2,ierr)
+                           call rfdis(dat,z,ndist,n,nvar,n,nvar,means)
+                           call rfexact(kount,n,ndist,nvmax1,nvar,sscp1,
+     *                          rec,dat, cova1,means,sd,nvar+1,weight)
+                           call rfcovcopy(cova1,initcov,nvar,nvar)
+                           call rfcovcopy(means,initmean,nvar,1)
+                           do jjj=1,nvar
+                              coeff(1,jjj)=z(jjj)
+                           end do
+                           fit=2
+                           goto 9999
+                        endif
+                        call rfdis(dath,z,ndist,nmaxi,nvmax,nn,
+     *                       nvar,means)
+
+                        call rfshsort(ndist,nn)
+                        kount=nhalf
+                        do kkk=nhalf+1,nn
+                           if(dabs(ndist(kkk)-0.D0).lt.10.D-8) then
+                              kount=kount+1
+                           endif
+                        end do
+                        flag(1)=0
+                        do kkk=1,nvar
+                           coeff(1,kkk)=z(kkk)
+                        end do
+                        call rfstore2(nvar,cstock,mstock,nvmax2,nvmax,
+     *                       kmini,cova1,means,i,mcdndex,kount)
+                        kount=1
+                        goto 1000
+                     else
+                        if(fine.and..not.final.and.kount.ne.0) then
+                           goto 1000
+                        endif
+                     endif
+                  endif
+                  call rfcovsweep(cinv1,nvar,j)
+ 600           continue
+               if(step.ge.2 .and. det.eq.detimin1) then
+                  goto 5000
+               endif
+               detimin1=deti
+               deti=det
+               do j=1,nn
+                  if(.not.part.or.final) then
+                     do mm=1,nvar
+                        rec(mm)=dat(j,mm)
+                     end do
+                  else
+                     do mm=1,nvar
+                        rec(mm)=dath(j,mm)
+                     end do
+                  endif
+                  t=rfmahad(rec,nvar,means,cinv1)
+                  ndist(j)=t
+               end do
+               dist2=rffindq(ndist,nn,nhalf,index2)
+               dist=dsqrt(dist2)
+               if(((i.eq.1.and.step.eq.1.and..not.fine)
+     *              .or.det.lt.object).and.(final)) then
+                  medi2=rffindq(ndist,nn,int(n/2),index1)
+                  object=det
+                  do jjj=1,nhalf
+                     inbest(jjj)=index2(jjj)
+                  end do
+                  call rfcovcopy(cova1,cova2,nvar,nvar)
+                  call rfcovcopy(cinv1,cinv2,nvar,nvar)
+                  call rfcovcopy(means,bmeans,nvar,1)
+               endif
+ 400        continue
 
 cc  After each iteration, it has to be checked whether the new solution
 cc  is better than some previous one and therefore needs to be stored. This
 cc  isn't necessary in the third stage of the algorithm, where only the best
 cc  solution is kept.
 
- 5000   if(.not. final) then
-          if(part .and. .not. fine) then
-             iii=ii
-          else
-             iii=1
-c            At the end of the algorithm, only the ten
-c            best solutions need to be stored.
-          endif
+ 5000       if(.not. final) then
+               if(part .and. .not. fine) then
+                  iii=ii
+               else
+                  iii=1
+               endif
+c     At the end of the algorithm, only the ten
+c     best solutions need to be stored.
 
 cc  For each data group :
 cc    If the objective function is lower than the largest value in the
@@ -1267,95 +1271,99 @@ cc    corresponding flag is zero too, so the search in the arrays mcdndex,
 cc    m1stock, c1stock, mstock and cstock is done on the rows with flag one.
 cc
 
-          if( flag((iii-1)*10+1).eq.1) then
-             lll=1
-          else
-             lll=2
-          endif
-          do 201, j=lll,10
-            if (det .le. mcdndex(j,2,iii)) then
-              if(det.ne.mcdndex(j,2,iii)) then
-                if(.not.fine.and.part)                  goto 203
-                goto 205
-              else
-                do 207 kkk=j,10
-                  if(det.eq.mcdndex(kkk,2,iii)) then
-                     do 209, jjj=1,nvar
-                        if(part.and..not.fine) then
-                           if(means(jjj) .ne.
-     *                          m1stock((iii-1)*10+ kkk,jjj))  goto 203
-                        else
-                           if(means(jjj).ne.mstock(kkk,jjj))   goto 205
-                        endif
- 209                 continue
-                     do 211, jjj=1,nvar*nvar
-                        if(part.and..not.fine) then
-                           if(cova1(jjj) .ne.
-     *                          c1stock((iii-1)*10+ kkk,jjj))  goto 203
-                        else
-                           if(cova1(jjj).ne.cstock(kkk,jjj))   goto 205
-                        endif
- 211                 continue
+               if( flag((iii-1)*10+1).eq.1) then
+                  lll=1
+               else
+                  lll=2
+               endif
+               do j=lll,10
+                  if (det .le. mcdndex(j,2,iii)) then
+                     if(det.ne.mcdndex(j,2,iii)) then
+                        if(.not.fine.and.part)                  goto 203
+                        goto 205
+                     else
+                        do kkk=j,10
+                           if(det.eq.mcdndex(kkk,2,iii)) then
+                              do jjj=1,nvar
+                                 if(part.and..not.fine) then
+                                    if(means(jjj) .ne.
+     *                                 m1stock((iii-1)*10+ kkk,jjj))
+     *                                   goto 203
+                                 else
+                                    if(means(jjj).ne.mstock(kkk,jjj))
+     *                                   goto 205
+                                 endif
+                              end do
+                              do jjj=1,nvar*nvar
+                                 if(part.and..not.fine) then
+                                    if(cova1(jjj) .ne.
+     *                                   c1stock((iii-1)*10+ kkk,jjj))
+     *                                   goto 203
+                                 else
+                                    if(cova1(jjj).ne.cstock(kkk,jjj))
+     *                                   goto 205
+                                 endif
+                              end do
+                           endif
+                        end do  ! kkk
+                     endif
+                     goto 1000
+
+c---
+ 203                 do k=10,j+1,-1
+                        do kk=1,nvar*nvar
+                           c1stock((iii-1)*10+k,kk)=
+     *                          c1stock((iii-1)*10+k-1,kk)
+                        end do
+                        do kk=1,nvar
+                           m1stock((iii-1)*10+k,kk)=
+     *                          m1stock((iii-1)*10+k-1,kk)
+                        end do
+                        mcdndex(k,1,iii)=mcdndex(k-1,1,iii)
+                        mcdndex(k,2,iii)=mcdndex(k-1,2,iii)
+                     end do
+
+                     do kk=1,nvar
+                        do kkk=1,nvar
+                           c1stock((iii-1)*10+j,(kk-1)*nvar+kkk)=
+     *                          cova1((kk-1)*nvar+kkk)
+                           m1stock((iii-1)*10+j,kk)=means(kk)
+                        end do
+                     end do
+                     mcdndex(j,1,iii)=i
+                     mcdndex(j,2,iii)=det
+                     goto 1000
+c---
+ 205                 do k=10,j+1,-1
+                        do kk=1,nvar*nvar
+                           cstock(k,kk)= cstock(k-1,kk)
+                        end do
+
+                        do kk=1,nvar
+                           mstock(k,kk)= mstock(k-1,kk)
+                        end do
+
+                        mcdndex(k,1,iii)=mcdndex(k-1,1,iii)
+                        mcdndex(k,2,iii)=mcdndex(k-1,2,iii)
+                     end do
+                     do kk=1,nvar
+                        do kkk=1,nvar
+                           cstock(j,(kk-1)*nvar+kkk)=
+     *                          cova1((kk-1)*nvar+kkk)
+                           mstock(j,kk)=means(kk)
+                        end do
+                     end do
+                     mcdndex(j,1,iii)=i
+                     mcdndex(j,2,iii)=det
+                     goto 1000
+
                   endif
- 207            continue
-              endif
-              goto 1000
-
- 203          do 221 k=10,j+1,-1
-                 do 223 kk=1,nvar*nvar
-                    c1stock((iii-1)*10+k,kk)=
-     *                   c1stock((iii-1)*10+k-1,kk)
- 223             continue
-                 do 225 kk=1,nvar
-                    m1stock((iii-1)*10+k,kk)=
-     *                   m1stock((iii-1)*10+k-1,kk)
- 225             continue
-                 mcdndex(k,1,iii)=mcdndex(k-1,1,iii)
-                 mcdndex(k,2,iii)=mcdndex(k-1,2,iii)
- 221          continue
-              do 227 kk=1,nvar
-                 do 229 kkk=1,nvar
-                    c1stock((iii-1)*10+j,(kk-1)*nvar+kkk)=
-     *                   cova1((kk-1)*nvar+kkk)
-                    m1stock((iii-1)*10+j,kk)=means(kk)
- 229             continue
- 227          continue
-              mcdndex(j,1,iii)=i
-              mcdndex(j,2,iii)=det
-              goto 1000
-
- 205          do 231 k=10,j+1,-1
-                 do 233 kk=1,nvar*nvar
-                    cstock(k,kk)=
-     *                   cstock(k-1,kk)
- 233             continue
-
-                 do 235 kk=1,nvar
-                    mstock(k,kk)=
-     *                   mstock(k-1,kk)
- 235             continue
-
-                 mcdndex(k,1,iii)=mcdndex(k-1,1,iii)
-                 mcdndex(k,2,iii)=mcdndex(k-1,2,iii)
- 231          continue
-              do 237 kk=1,nvar
-                 do 239 kkk=1,nvar
-                    cstock(j,(kk-1)*nvar+kkk)=
-     *                   cova1((kk-1)*nvar+kkk)
-                    mstock(j,kk)=means(kk)
- 239             continue
- 237          continue
-              mcdndex(j,1,iii)=i
-              mcdndex(j,2,iii)=det
-              goto 1000
+               end do  ! j
 
             endif
- 201      continue
+c     (not final)
 
-        endif
-c       (not final)
-
- 1000 continue
+ 1000    continue
  1111 continue
 c---- - - - - - end [ For-loop -- ii= 1, ngroup  ]  - - - - - - - - -
 
@@ -1372,32 +1380,32 @@ cc
 cc******** end { Main Loop } ************** --------------------------------
 
 
-      do 261, j=1,nhalf
+      do j=1,nhalf
          temp(j)=inbest(j)
- 261  continue
+      end do
       call rfishsort(temp,nhalf)
       if(i_trace .ge. 2) then
          call intpr('Best subsample (sorted): ',-1,temp,nhalf)
       endif
 
-      do 271,j=1,nvar
+      do j=1,nvar
          means(j)=bmeans(j)*mad(j)+med(j)
- 271  continue
+      end do
       call rfcovcopy(means,initmean,nvar,1)
       if(i_trace .ge. 2) then
          call dblepr('Center: ',-1,initmean,nvar)
       endif
 
-      do 9145 i=1,nvar
-         do 9147 j=1,nvar
+      do i=1,nvar
+         do j=1,nvar
             cova1((i-1)*nvar+j)=cova2((i-1)*nvar+j)*mad(i)*mad(j)
- 9147    continue
- 9145 continue
+         end do
+      end do
       call rfcovcopy(cova1,initcov,nvar,nvar)
       det=object
-      do 9149 j=1,nvar
+      do j=1,nvar
          det=det*mad(j)*mad(j)
- 9149 continue
+      end do
 
 
 cc      VT::chimed is passed now as a parameter
@@ -1423,10 +1431,10 @@ cc
 cc VT:: no need - the cutoff now is passed as a parameter
 cc      cutoff=chi2(nvar)
 
-      do 280 i=1,n
-         do 282 mm=1,nvar
+      do i=1,n
+         do mm=1,nvar
             rec(mm)=dat(i,mm)
- 282     continue
+         end do
          dist2=rfmahad(rec,nvar,bmeans,cinv2)
          if(dist2.le.cutoff) then
             nin=nin+1
@@ -1434,15 +1442,19 @@ cc      cutoff=chi2(nvar)
          else
             weight(i)=0
          endif
- 280  continue
+      end do
 
       call transfo(cova2,bmeans,dat,med,mad,nvar,n)
       goto 9999
 cc ******************************************************************
 
  9999 continue
+      if(i_trace .ge. 2) then
+         call intpr('Finishing rffastmcd() - tot.times: ',-1,
+     *        tottimes,1)
+      endif
       call rndend
-C          ------ == PutRNGstate() in C
+C     ------ == PutRNGstate() in C
       return
       end
 ccccc end {rffastmcd}
@@ -1469,18 +1481,18 @@ cc
 
       call rfcovinit(sscp1,nvar+1,nvar+1)
       kount=0
-      do 10,kk=1,nn
+      do kk=1,nn
          if(dabs(ndist(kk)-0.D0).lt.10.D-8) then
             kount=kount+1
             weight(kk)=1
-            do 20,j=1,nvar
+            do j=1,nvar
                rec(j)=dat(kk,j)
- 20         continue
+            end do
             call rfadmit(rec,nvar,nvar+1,sscp1)
          else
             weight(kk)=0
          endif
- 10   continue
+      end do
       call rfcovar(kount,nvar,nvar+1,sscp1,cova1,means,sd)
       return
       end
@@ -1493,15 +1505,16 @@ cc
       double precision dat(n,nvar)
       double precision med(nvar),mad(nvar)
 
-      do 5,j=1,nvar
+      do j=1,nvar
         means(j)=means(j)*mad(j)+med(j)
-        do 10, k=1,nvar
+        do k=1,nvar
            cova(j,k)=cova(j,k)*mad(j)*mad(k)
- 10     continue
-        do 20,i=1,n
+        end do
+        do i=1,n
            dat(i,j)=dat(i,j)*mad(j)+med(j)
- 20     continue
- 5    continue
+        end do
+      end do
+
       return
       end
 ccccc
@@ -1513,11 +1526,11 @@ cc
       double precision a(n1,n2)
       double precision fac
 cc
-      do 100 i=1,n1
-        do 90 j=1,n2
+      do i=1,n1
+        do j=1,n2
           a(i,j)=a(i,j)*fac
- 90     continue
- 100  continue
+        end do
+      end do
       return
       end
 ccccc
@@ -1530,15 +1543,15 @@ cc
       double precision sscp(nvar1,nvar1)
 cc
       sscp(1,1)=sscp(1,1)+1.D0
-      do 10 j=1,nvar
+      do j=1,nvar
         sscp(1,j+1)=sscp(1,j+1)+rec(j)
         sscp(j+1,1)=sscp(1,j+1)
- 10   continue
-      do 100 i=1,nvar
-        do 90 j=1,nvar
+      end do
+      do i=1,nvar
+        do j=1,nvar
           sscp(i+1,j+1)=sscp(i+1,j+1)+rec(i)*rec(j)
- 90     continue
- 100  continue
+        end do
+      end do
       return
       end
 ccccc
@@ -1553,7 +1566,7 @@ cc
       double precision sd(nvar)
       double precision f
 cc
-      do 100 i=1,nvar
+      do i=1,nvar
         means(i)=sscp(1,i+1)
         sd(i)=sscp(i+1,i+1)
         f=(sd(i)-means(i)*means(i)/n)/(n-1)
@@ -1563,18 +1576,18 @@ cc
           sd(i)=0.D0
         endif
         means(i)=means(i)/n
- 100  continue
-      do 200 i=1,nvar
-        do 190 j=1,nvar
+      end do
+      do i=1,nvar
+        do j=1,nvar
           cova(i,j)=sscp(i+1,j+1)
- 190    continue
- 200  continue
-      do 300 i=1,nvar
-        do 290 j=1,nvar
+        end do
+      end do
+      do i=1,nvar
+        do j=1,nvar
           cova(i,j)=cova(i,j)-n*means(i)*means(j)
           cova(i,j)=cova(i,j)/(n-1)
- 290    continue
- 300  continue
+        end do
+      end do
       return
       end
 ccccc
@@ -1587,18 +1600,18 @@ cc
       double precision b(nvar,nvar)
       double precision sd(nvar)
 
-      do 10,j=1,nvar
+      do j=1,nvar
          sd(j)=1/sqrt(a(j,j))
- 10   continue
-      do 100 i=1,nvar
-         do 90 j=1,nvar
+      end do
+      do i=1,nvar
+         do j=1,nvar
             if(i.eq.j) then
                b(i,j)=1.0
             else
                b(i,j)=a(i,j)*sd(i)*sd(j)
             endif
- 90      continue
- 100  continue
+         end do
+      end do
       return
       end
 
@@ -1622,16 +1635,16 @@ C     endif
 
       jndex=jndex+1
       a(jndex)=nrand+jndex-1
-      do 5, i=1,jndex-1
+      do i=1,jndex-1
          if(a(i).gt.nrand+i-1) then
-            do 6,j=jndex,i+1,-1
+            do j=jndex,i+1,-1
                a(j)=a(j-1)
- 6          continue
+            end do
             a(i)=nrand+i-1
             goto 10
 c           ------- break
          endif
- 5    continue
+      end do
  10   continue
       return
       end
@@ -1645,11 +1658,11 @@ cc
       double precision rfmahad, t
 
       t=0
-      do 100 j=1,nvar
-         do 90 k=1,nvar
+      do j=1,nvar
+         do k=1,nvar
             t=t+(rec(j)-means(j))*(rec(k)-means(k))*sigma(j,k)
- 90      continue
- 100  continue
+         end do
+      end do
       rfmahad=t
       return
       end
@@ -1665,13 +1678,13 @@ cc
       double precision ndist(nn)
       double precision means(nvar)
 
-      do 10, i=1,nn
+      do i=1,nn
          ndist(i)=0
-         do 20, j=1,nvar
+         do j=1,nvar
             ndist(i)=z(j,1)*(da(i,j)-means(j))+ndist(i)
- 20      continue
+         end do
          ndist(i)=dabs(ndist(i))
- 10   continue
+      end do
       return
       end
 ccccc
@@ -1690,22 +1703,22 @@ cc
       double precision cova1(nvar,nvar)
       double precision means(nvar)
 
-      do 10,k=10,2,-1
-         do 20 kk=1,nvar*nvar
+      do k=10,2,-1
+         do kk=1,nvar*nvar
             cstock(k,kk)= cstock(k-1,kk)
- 20      continue
-         do 30 kk=1,nvar
+         end do
+         do kk=1,nvar
             mstock(k,kk)= mstock(k-1,kk)
- 30      continue
+         end do
          mcdndex(k,1,1)=mcdndex(k-1,1,1)
          mcdndex(k,2,1)=mcdndex(k-1,2,1)
- 10   continue
-      do 40 kk=1,nvar
+      end do
+      do kk=1,nvar
          mstock(1,kk)=means(kk)
-         do 50 jj=1,nvar
+         do jj=1,nvar
             cstock(1,(kk-1)*nvar+jj)=cova1(kk,jj)
- 50      continue
- 40   continue
+         end do
+      end do
       mcdndex(1,1,1)=i
       mcdndex(1,2,1)=kount
       return
@@ -1721,25 +1734,25 @@ ccccc
       double precision cova1(nvar,nvar)
       double precision means(nvar)
 
-      do 10,k=10,2,-1
-         do 20 kk=1,nvar*nvar
+      do k=10,2,-1
+         do kk=1,nvar*nvar
             c1stock((ii-1)*10+k,kk)=
      *           c1stock((ii-1)*10+k-1,kk)
- 20      continue
-         do 30 kk=1,nvar
+         end do
+         do kk=1,nvar
             m1stock((ii-1)*10+k,kk)=
      *           m1stock((ii-1)*10+k-1,kk)
- 30      continue
+         end do
          mcdndex(k,1,ii)=mcdndex(k-1,1,ii)
          mcdndex(k,2,ii)=mcdndex(k-1,2,ii)
- 10   continue
-      do 40 kk=1,nvar
+      end do
+      do kk=1,nvar
          m1stock((ii-1)*10+1,kk)=means(kk)
-         do 50 jj=1,nvar
+         do jj=1,nvar
             c1stock((ii-1)*10+1,(kk-1)*nvar+jj)=
      *           cova1(kk,jj)
- 50      continue
- 40   continue
+         end do
+      end do
       mcdndex(1,1,ii)=i
       mcdndex(1,2,ii)=kount
       return
@@ -1755,11 +1768,11 @@ cc  Initializes the matrix a by filling it with zeroes.
 cc
       double precision a(n1,n2)
 cc
-      do 100 i=1,n1
-        do 90 j=1,n2
-          a(i,j)=0.D0
- 90     continue
- 100  continue
+      do i=1,n1
+        do j=1,n2
+           a(i,j)=0.D0
+        end do
+      end do
       return
       end
 ccccc
@@ -1771,18 +1784,18 @@ cc
       double precision d
 cc
       d=a(k,k)
-      do 100 j=1,nvar
+      do j=1,nvar
          a(k,j)=a(k,j)/d
- 100  continue
-      do 1000 i=1,nvar
+      end do
+      do i=1,nvar
          if(i.ne.k) then
             b=a(i,k)
-            do 200 j=1,nvar
+            do j=1,nvar
                a(i,j)=a(i,j)-b*a(k,j)
- 200        continue
+            end do
             a(i,k)=-b/d
          endif
- 1000 continue
+      end do
       a(k,k)=1/d
       return
       end
