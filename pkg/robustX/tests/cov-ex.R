@@ -39,13 +39,15 @@ summ.NN <- function(cNN, digits = 3) {
           incc.p= round(cNN$innc$postprob, digits))
 }
 
-cbind(summ.NN(cN), summ.NN(cN1))
+s1 <- summ.NN(cN1)
+ss <- summ.NN(cN)
+if(isTRUE(all.equal(ss, s1))) ss else cbind(ss, s1)
 
 
 try( # testing
     chk.NN.new.old(cN, cN1, tol=0)
 )
-## need extended precision (typically 64-bit):
+## need extended precision (typically *includes* 64-bit):
 doCheck <- (.Machine$sizeof.longdouble >= 16)
 cat("doCheck:", doCheck,"\n")
 

@@ -1,5 +1,5 @@
-### Original is  /usr/local/app/R/R_local/src/covRobust/R/cov.nnve.R
-###              9129   Nov 18 2003  cov.nnve.R
+### Original is  /usr/local.nfs/app/R/R_local/src/covRobust/R/cov.nnve.R
+###              9129   Nov 18 2003  cov.nnve.R  [still there in Oct.2014]
 ### --> keep as covNNC1 (unexported) in ./covNNC-orig.R
 
 ## Much improved by Martin Maechler :
