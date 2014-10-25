@@ -1,6 +1,6 @@
 
-R version 3.0.0 Patched (2013-04-25 r62670) -- "Masked Marvel"
-Copyright (C) 2013 The R Foundation for Statistical Computing
+R version 3.1.2 RC (2014-10-24 r66864) -- "Pumpkin Helmet"
+Copyright (C) 2014 The R Foundation for Statistical Computing
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -299,8 +299,11 @@ Robust Estimate of Covariance:
 [3,]     0     0     0     0
 [4,]     0     0     0     0
 Warning message:
-In covMcd(X) :
-  The covariance matrix of the data is singular.There are 12 observations (in the entire dataset of 12 obs.) lying onthe hyperplane with equation a_1*(x_i1 - m_1) + ... + a_p*(x_ip - m_p)= 0 with (m_1,...,m_p) the mean of these observations and coefficientsa_i from the vector a <- c(1, 0, 0, 0)
+In covMcd(X) : The covariance matrix of the data is singular.
+There are 12 observations (in the entire dataset of 12 obs.) lying on
+the hyperplane with equation a_1*(x_i1 - m_1) + ... + a_p*(x_ip - m_p)
+= 0 with (m_1,...,m_p) the mean of these observations and coefficients
+a_i from the vector a <- c(1, 0, 0, 0)
 > summary(rC)
 Minimum Covariance Determinant (MCD) estimator.
 Call:
@@ -362,8 +365,8 @@ Robust Estimate of Covariance:
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  0.424 0.024 0.442 0 0 
+Time elapsed:  0.388 0.032 0.409 0.001 0.005 
 > 
 > proc.time()
    user  system elapsed 
-  0.424   0.024   0.442 
+  0.389   0.037   0.409 
