@@ -35,9 +35,9 @@ rrcov.control <-
 .scalefn.default <- eval(formals(rrcov.control)$scalefn)
 
 ## Only for back compatibility, as some new args did not exist pre 2013-04,
-## and callers of covMcd() may use a "too small"  'control' list:
-getDefCtrl <- function(nm) {
+## and callers of ltsReg() / covMcd() may use a "too small"  'control' list:
+getDefCtrl <- function(nm, defCtrl = rrcov.control()) {
     callerEnv <- parent.frame()
     if(is.null(get(nm, envir = callerEnv)))
-	assign(nm, rrcov.control()[[nm]], envir=callerEnv)
+	assign(nm, defCtrl[[nm]], envir=callerEnv)
 }

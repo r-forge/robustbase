@@ -50,6 +50,8 @@ covMcd <- function(x,
     logdet.Lrg <- 50
     ##   Analyze and validate the input parameters ...
     if(length(seed) > 0) {
+	if(length(seed) < 3 || seed[1L] < 100)
+	    stop("invalid 'seed'. Must be compatible with .Random.seed !")
         if(exists(".Random.seed", envir=.GlobalEnv, inherits=FALSE))  {
             seed.keep <- get(".Random.seed", envir=.GlobalEnv, inherits=FALSE)
             on.exit(assign(".Random.seed", seed.keep, envir=.GlobalEnv))
@@ -59,8 +61,9 @@ covMcd <- function(x,
 
     ## For back compatibility, as some new args did not exist pre 2013-04,
     ## and callers of covMcd() may use a "too small"  'control' list:
-    if(missing(wgtFUN)) getDefCtrl("wgtFUN")
-    if(is.null (nmini)) getDefCtrl("nmini")
+    defCtrl <- if(missing(control)) control else rrcov.control()
+    if(missing(wgtFUN)) getDefCtrl("wgtFUN", defCtrl)
+    if(is.null (nmini)) getDefCtrl("nmini", defCtrl)
 
     ##   vt::03.02.2006 - added options "best" and "exact" for nsamp
     ##   nsamp will be further analized in the wrapper .fastmcd()

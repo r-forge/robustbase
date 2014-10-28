@@ -72,7 +72,8 @@ ltsReg(x, \dots)
   \item{qr.out}{whether to return the QR decomposition (see
     \code{\link{qr}}); defaults to false.}
   \item{yname}{the name of the dependent variable.  Default is \code{yname = NULL}}
-  \item{seed}{initial seed for random generator, see \code{\link{rrcov.control}}.}
+  \item{seed}{initial seed for random generator, like
+    \code{\link{.Random.seed}}, see \code{\link{rrcov.control}}.}
   \item{trace}{logical (or integer) indicating if intermediate results
     should be printed; defaults to \code{FALSE}; values \eqn{\ge 2}{>= 2}
     also produce print from the internal (Fortran) code.}

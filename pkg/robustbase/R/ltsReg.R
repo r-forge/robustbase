@@ -118,12 +118,15 @@ ltsReg.default <- function (x, y, intercept = TRUE,
 	    use.correction <- control$use.correction
 	if(adjust == defCtrl$adjust)
 	    adjust <- control$adjust
-    }
+    } else defCtrl <- control ## == rrcov.control()
     ## For back compatibility, as some new args did not exist pre 2013-04,
     ## and callers of covMcd() may use a "too small"  'control' list:
-    if(missing(wgtFUN)) getDefCtrl("wgtFUN")
+
+    if(missing(wgtFUN)) getDefCtrl("wgtFUN", defCtrl)
 
     if(length(seed) > 0) {
+	if(length(seed) < 3 || seed[1L] < 100)
+	    stop("invalid 'seed'. Must be compatible with .Random.seed !")
 	if(exists(".Random.seed", envir=.GlobalEnv, inherits=FALSE))  {
 	    seed.keep <- get(".Random.seed", envir=.GlobalEnv, inherits=FALSE)
 	    on.exit(assign(".Random.seed", seed.keep, envir=.GlobalEnv))

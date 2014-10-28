@@ -60,7 +60,8 @@ covMcd(x, cor = FALSE, raw.only = FALSE,
     \code{1:n}).}
   \item{save.hsets}{(for deterministic MCD) logical indicating if the
     initial subsets should be returned as \code{initHsets}.}
-  \item{seed}{initial seed for random generator, see \code{\link{rrcov.control}}.}
+  \item{seed}{initial seed for random generator, like
+    \code{\link{.Random.seed}}, see \code{\link{rrcov.control}}.}
   \item{tolSolve}{numeric tolerance to be used for inversion
     (\code{\link{solve}}) of the covariance matrix in \code{\link{mahalanobis}}.}
   \item{trace}{logical (or integer) indicating if intermediate results
