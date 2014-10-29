@@ -35,14 +35,14 @@ covMcd(x, cor = FALSE, raw.only = FALSE,
     observations are used for computing the determinant.  Allowed values
     are between 0.5 and 1 and the default is 0.5.}
   \item{nsamp}{number of subsets used for initial estimates or \code{"best"},
-    \code{"exact"}, or \code{"det.6"}.  Default is \code{nsamp = 500}.  For
-    \code{nsamp = "best"} exhaustive enumeration is done, as long as the
-    number of trials does not exceed 100'000 (\code{= nLarge}).  For \code{"exact"},
-    exhaustive enumeration will be attempted however many samples are
-    needed.  In this case a warning message may be displayed saying
-    that the computation can take a very long time.
+    \code{"exact"}, or \code{"deterministic"}.  Default is \code{nsamp = 500}.
+    For \code{nsamp = "best"} exhaustive enumeration is done, as long as
+    the number of trials does not exceed 100'000 (\code{= nLarge}).
+    For \code{"exact"}, exhaustive enumeration will be attempted however
+    many samples are needed.  In this case a warning message may be
+    displayed saying that the computation can take a very long time.
 
-    For \code{"det.6"}, the \emph{deterministic} MCD is computed; as
+    For \code{"deterministic"}, the \emph{deterministic} MCD is computed; as
     proposed by Hubert et al. (2012) it starts from the \eqn{h} most
     central observations of \emph{six} (deterministic) estimators.
   }
@@ -106,7 +106,7 @@ covMcd(x, cor = FALSE, raw.only = FALSE,
   where \code{w} are weights determined by \dQuote{outlyingness} with
   the respect to the scaled raw MCD.  Again, a consistency factor and
   (if \code{use.correction} is true) a finite sample correction factor
-  (\code{.MCDcnp2.rew(p, n, alpha)})are applied.
+  (\code{.MCDcnp2.rew(p, n, alpha)}) are applied.
   The reweighted covariance is typically considerably more efficient
   than the raw one, see Pison et al. (2002).
 
@@ -156,7 +156,8 @@ covMcd(x, cor = FALSE, raw.only = FALSE,
     based.  If \code{quan} equals \code{n.obs}, the MCD is the classical
     covariance matrix.}
   \item{method}{character string naming the method (Minimum Covariance
-    Determinant).}
+    Determinant), starting with \code{"Deterministic"} when
+    \code{nsamp="deterministic"}.}
   \item{call}{the call used (see \code{\link{match.call}}).}
 }
 \references{
