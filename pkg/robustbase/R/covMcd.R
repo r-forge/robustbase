@@ -696,6 +696,7 @@ MCDcnp2.rew <- # <- *not* exported, but currently used in pkg rrcovNA
              temp   = integer(n),
              index1 = integer(n),
              index2 = integer(n),
+             indexx = integer(n),
              nmahad = double(n),
              ndist  = double(n),
              am     = double(n),

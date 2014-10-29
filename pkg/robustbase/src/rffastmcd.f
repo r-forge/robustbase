@@ -130,7 +130,7 @@ c     ------ nhalff = quan = h(alpha);  krep == nsamp
      *     initcov,initmean,
      *     inbest,det,weight,fit,coeff,kount,adcov,
 cc     *     iseed,
-     *     temp, index1, index2, nmahad, ndist, am, am2, slutn,
+     *     temp, index1, index2, indexx, nmahad, ndist, am, am2, slutn,
      *     med, mad, sd, means, bmeans, w, fv1, fv2,
      *     rec, sscp1, cova1, corr1, cinv1, cova2, cinv2, z,
      *     cstock, mstock, c1stock, m1stock, dath,
@@ -214,6 +214,7 @@ cc.     double precision faclts(11)
       integer temp(n)
       integer index1(n)
       integer index2(n)
+      integer indexx(n)
       double precision nmahad(n)
       double precision ndist(n)
       double precision am(n),am2(n),slutn(n)
@@ -495,6 +496,8 @@ cc    ndist = vector of general (possibly robust) distances
 cc    inbest = best solution vector
 cc    index1 = index vector of subsample observations
 cc    index2 = index vector of ordered mahalanobis distances
+cc    indexx = temporary index vector, parallel to index1, used when
+cc              generating all possible subsamples
 cc    temp  = auxiliary vector
 cc    flag = vector with components indicating the occurrence of a
 cc           singular intermediate MCD estimate.
@@ -522,6 +525,7 @@ cc
          ndist(j)=0.D0
          index1(j)=1000000
          index2(j)=1000000
+         indexx(j)=1000000
          temp(j)=1000000
       end do
       do j=1,km10
@@ -665,9 +669,10 @@ c     (part .and. .not. final)
 
       do i=1,nsel-1
          index1(i)=i
+         indexx(i)=i
       end do
       index1(nsel)=nsel-1
-
+      indexx(nsel)=nsel-1
 cc
 cc  Initialization of the matrices to store partial results. For the
 cc  first stage of the algorithm, the currently best covariance matrices and
@@ -839,6 +844,11 @@ cc
 cc  When the program stops because of an exact fit, the covariance matrix and
 cc  mean of the observations on the hyperplane will always be given.
 cc
+C        VT::27.10.2014 - an issue with nsamp="exact" fixed:
+         do ix=1,n
+             indexx(ix)=index1(ix)
+         end do
+
          do 1000 i=1,nrep
             pnsel=nsel
             tottimes=tottimes+1
@@ -850,7 +860,10 @@ cc
                if(part) then
                   call rfrangen(mini(ii),nsel,index1)
                else if(all) then
-                  call rfgenpn(n,nsel,index1)
+                  call rfgenpn(n,nsel,indexx)
+                  do ix=1,n
+                        index1(ix)=indexx(ix)
+                  end do
                else
                   call rfrangen(n,nsel,index1)
                endif
@@ -1020,6 +1033,19 @@ cc
      *                    kount.ne.0) then
                      goto 1000
                   else
+C
+C                 VT::27.10.2014 - an issue with nsamp="exact" fixed:
+C                          
+C                 Add one more observation and return to recompute the
+C                 covariance. In case of complete enumeration, when all 
+C                 p+1 subsamples are generated, the array 'index1' must 
+C                 be preserved 8around label 9550).
+C
+                     if(i_trace .ge. 2) then 
+                     call intpr('Singularity-extending the subsample: ',
+     *                   -1,index1,nsel)
+                     endif
+
                      call rfishsort(index1,pnsel)
                      call prdraw(index1,pnsel, nn)
                      pnsel=pnsel+1
