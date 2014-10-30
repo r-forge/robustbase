@@ -6,9 +6,7 @@
 \alias{mahalanobisD}
 %
 \alias{r6pack}
-\alias{rankMM}
 \alias{doScale}
-\alias{classSVD}
 \alias{.signflip}
 %
 \description{
@@ -48,14 +46,12 @@ glmrobMqleDiffQuasiDevPois(mu, mu0, y, ni, w.x, phi, tcc)
 robMD(x, intercept, wqr, ...)
 
 mahalanobisD(x, center, sd)
-rankMM(A, tol = NULL, sv = svd(A, 0, 0)$d)
 
 ## Utilities currently for the deterministic MCD only:
 ## subject to change / be renamed ?
 r6pack(x, h, hsets.init, full.h, scaled=TRUE,
        scalefn = rrcov.control()$scalefn)
 doScale(x, center, scale)
-classSVD(x, scale = FALSE, signflip = TRUE)
 .signflip(loadings)
 }
 

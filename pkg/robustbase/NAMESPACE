@@ -84,7 +84,7 @@ export(Sn, Qn, Qn.old,
        , sigma, estimethod
        ## related to detMCD() and to be used in rrcov etc:
        , r6pack, doScale
-       , rankMM, classSVD, .signflip
+       , rankMM, classPC, .signflip
        )
 
 

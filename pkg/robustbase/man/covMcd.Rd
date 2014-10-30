@@ -188,6 +188,8 @@ data(hbk)
 hbk.x <- data.matrix(hbk[, 1:3])
 (cH <- covMcd(hbk.x))
 cH0 <- covMcd(hbk.x, nsamp = "deterministic")
+with(cH0, stopifnot(quan == 39, iBest == 1, identical(raw.weights, mcd.wt),
+     identical(which(mcd.wt == 0), 1:14), all.equal(crit, 0.3515158085745)))
 
 ## the following three statements are equivalent
 c1 <- covMcd(hbk.x, alpha = 0.75)

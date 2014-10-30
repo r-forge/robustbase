@@ -110,7 +110,7 @@
                 obs_in_set <- sort.list(mah)[1:h] #, partial = 1:h not yet
             }
             ## [P,T,L,r,centerX,meanvct] = classSVD(data(obs_in_set,:));
-            svd <- classSVD(z[obs_in_set, ,drop=FALSE])
+            svd <- classPC(z[obs_in_set, ,drop=FALSE])
             obj <- prod(svd$eigenvalues)
 
 	    if(svd$rank < p) { ## FIXME --> return exact fit property rather than stop() ??
@@ -159,13 +159,13 @@
 	warning(sprintf("%s did not converge in maxcsteps=%d concentration steps",
 			p1, maxcsteps), domain=NA)
     }
-    reweighting <- FALSE # it happens in covMcd()
-    if(reweighting) {
-        svd <- classSVD(z[bestset, ])    # [P,T,L,r,centerX,meanvct] = classSVD(data(bestset,:));
-        mah <- mahalanobisD((z - rep(svd$center, each=n)) %*% svd$loadings,
-                           FALSE, sqrt(abs(svd$eigenvalues)))
-        sortmah <- sort(mah)
-    }
+    ## reweighting <- FALSE # it happens in covMcd()
+    ## if(reweighting) {
+    ##     svd <- classPC(z[bestset, ])    # [P,T,L,r,centerX,meanvct] = classSVD(data(bestset,:));
+    ##     mah <- mahalanobisD((z - rep(svd$center, each=n)) %*% svd$loadings,
+    ##                        FALSE, sqrt(abs(svd$eigenvalues)))
+    ##     sortmah <- sort(mah)
+    ## }
     ##    factor <- sortmah[h]/qchisq(h/n, p)
     ##    raw.cov <- factor*initcov
     ## raw.cov <- initcov
@@ -228,7 +228,7 @@ doScale <- function (x, center, scale)
                           "center"), domain=NA)
     }
     if(doIt)
-	x <- sweep(x, 2L, center, check.margin=FALSE)
+	x <- sweep(x, 2L, center, `-`, check.margin=FALSE)
 
     doIt <- if(is.function(scale)) {
 	scale <- apply(x, 2L, scale)
@@ -248,81 +248,6 @@ doScale <- function (x, center, scale)
     ## return
     list(x=x, center=center, scale=scale)
 }
-
-##' Flip the signs of the loadings
-##'  - comment from Stephan Milborrow
-.signflip <- function(loadings) {
-    apply(loadings, 2L,
-          function(x) if(x[which.max(abs(x))] < 0) -x else x)
-}
-
-classSVD <- function(x, scale=FALSE, signflip=TRUE)
-{
-    if(!is.numeric(x) || !is.matrix(x))
-        stop("'x' must be a numeric matrix")
-    else if((n <- nrow(x)) <= 1)
-        stop("The sample size must be greater than 1 for svd")
-
-    center <- colMeans(x)
-    x <- scale(x, center=center, scale=scale)
-    ##   -----
-    if(scale)
-        scale <- attr(x, "scaled:scale")
-
-    svd <- svd(x/sqrt(n-1))
-    rank <- rankMM(x, sv=svd$d)
-    loadings <- svd$v[,1:rank]
-    ## if(!is.matrix(loadings))
-    ##     loadings <- data.matrix(loadings)
-    ## VT::15.06.2010 - signflip: flip the sign of the loadings
-    if(signflip)
-        loadings <- .signflip(loadings)
-
-    ## only return what we use later:
-    list(loadings=loadings,
-	 ## scores = x %*% loadings,
-	 eigenvalues = (svd$d[1:rank])^2, ## FIXME: here .^2; later sqrt(.)
-	 rank=rank,
-	 ## x=x,
-	 ## scale=scale,
-	 center=center)
-}
-
-##  <Matlab>
-##      a=[1 2 ; 3 4];
-##      repmat(a,2,3)
-##
-##  <R>
-##      a <- matrix(1:4,2,byrow=T)
-##      repmat(a,2,3)
-##
-## MM: FIXME: I think repmat() is almost always a big waste of CPU time,
-##     notably if it is used instead of sweep()!!
-## repmat <- function(A, n, p) {
-##     if(is.vector(A))    # we need a column matrix, not a vector, speaking in R terms
-##         A <- t(A)
-##     kronecker(matrix(1,n,p), A)
-## }
-
-
-## Purpose: rank of a matrix ``as Matlab''
-## ----------------------------------------------------------------------
-## Arguments:  A: a numerical matrix, maybe non-square
-##           tol: numerical tolerance (compared to singular values)
-##            sv: vector of non-increasing singular values of A
-##                (pass as argument if already known)
-## ----------------------------------------------------------------------
-## Author: Martin Maechler, Date:  7 Apr 2007, 16:16
-rankMM <- function(A, tol = NULL, sv = svd(A,0,0)$d) {
-    d <- dim(A)
-    stopifnot(length(d)==2, length(sv)==min(d), diff(sv) <= 0)   # must be sorted decreasingly
-    if(is.null(tol))
-        tol <- max(d) * .Machine$double.eps * abs(sv[1])
-    else
-        stopifnot(is.numeric(tol), tol >= 0)
-    sum(sv >= tol)
-}
-
 ##'  Compute six initial (robust) estimators of location scale,
 ##'  for each of them compute the distances and take the h (>= n/2)
 ##'  observations with smallest dik. Then compute the statistical
@@ -332,6 +257,8 @@ rankMM <- function(A, tol = NULL, sv = svd(A,0,0)$d) {
 ##' @title
 ##' @param x
 ##' @param h
+##' @param hsets.init
+##' @param full.h
 ##' @param scaled
 ##' @param scalefn
 ##' @return
@@ -455,7 +382,7 @@ r6pack <- function(x, h, hsets.init, full.h, scaled=TRUE,
     for(k in 1:nsets)
     {
         xk <- x[hsets[,k], , drop=FALSE]
-        svd <- classSVD(xk)         # [P,T,L,r,centerX,meanvct] = classSVD(xk)
+        svd <- classPC(xk)         # [P,T,L,r,centerX,meanvct] = classSVD(xk)
         if(svd$rank < p) ## FIXME: " return("exactfit")  "
             stop('More than half of the observations lie on a hyperplane.')
         score <- (x - rep(svd$center, each=n)) %*% svd$loadings
