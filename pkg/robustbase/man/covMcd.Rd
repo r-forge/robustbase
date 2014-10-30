@@ -31,7 +31,8 @@ covMcd(x, cor = FALSE, raw.only = FALSE,
     i.e., no weighted reweit the returned result include a correlation matrix?
     Default is \code{cor = FALSE}}.
   \item{alpha}{numeric parameter controlling the size of the subsets
-    over which the determinant is minimized, i.e., \code{alpha*n}
+    over which the determinant is minimized; roughly \code{alpha*n},
+    (see \sQuote{Details} below)
     observations are used for computing the determinant.  Allowed values
     are between 0.5 and 1 and the default is 0.5.}
   \item{nsamp}{number of subsets used for initial estimates or \code{"best"},

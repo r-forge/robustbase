@@ -1,5 +1,5 @@
 
-R version 3.1.2 RC (2014-10-28 r66892) -- "Pumpkin Helmet"
+R version 3.1.2 RC (2014-10-30 r66905) -- "Pumpkin Helmet"
 Copyright (C) 2014 The R Foundation for Statistical Computing
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
@@ -23,7 +23,7 @@ Type 'q()' to quit R.
 Loading required package: tools
 > ## -> assertError(), relErr(), and:
 > showProc.time()
-Time elapsed:  0 0 0 
+Time elapsed:  0.001 0 0 
 > 
 > ## -- now do it:
 > options(digits = 5)
@@ -1135,7 +1135,7 @@ DEP        -0.103     0.1142    -0.200
 SCHOOL     -0.600    -0.1996     1.509
 --------------------------------------------------------
 ========================================================
-There were 14 warnings (use warnings() to see them)
+There were 20 warnings (use warnings() to see them)
 Warning messages:
 1: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
   original detmcd() wrongly declared c-step convergence (obj=0.0408242, i=1, j=3)
@@ -1146,25 +1146,37 @@ Warning messages:
 4: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
   original detmcd() wrongly declared c-step convergence (obj=0.0408242, i=4, j=3)
 5: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.039851, i=5, j=3)
-6: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
   original detmcd() wrongly declared c-step convergence (obj=0.0408242, i=6, j=3)
+6: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
+  original detmcd() wrongly declared c-step convergence (obj=0.0867952, i=1, j=2)
 7: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0821953, i=4, j=2)
+  original detmcd() wrongly declared c-step convergence (obj=0.0867952, i=2, j=2)
 8: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=1, j=2)
+  original detmcd() wrongly declared c-step convergence (obj=0.0867952, i=3, j=2)
 9: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=2, j=2)
+  original detmcd() wrongly declared c-step convergence (obj=0.0821953, i=4, j=2)
 10: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=3, j=2)
+  original detmcd() wrongly declared c-step convergence (obj=0.0867952, i=6, j=2)
 11: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=5, j=2)
+  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=1, j=2)
 12: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=6, j=2)
+  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=2, j=2)
 13: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.00544513, i=4, j=2)
+  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=3, j=2)
 14: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.00544513, i=5, j=2)
+  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=5, j=2)
+15: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
+  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=6, j=2)
+16: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
+  original detmcd() wrongly declared c-step convergence (obj=0.0906946, i=1, j=2)
+17: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
+  original detmcd() wrongly declared c-step convergence (obj=0.0906946, i=2, j=2)
+18: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
+  original detmcd() wrongly declared c-step convergence (obj=0.0906946, i=3, j=2)
+19: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
+  original detmcd() wrongly declared c-step convergence (obj=0.0906946, i=6, j=2)
+20: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
+  original detmcd() wrongly declared c-step convergence (obj=0.0051485, i=5, j=2)
 > ##                        vvvv no timing for 'R CMD Rdiff' outputs
 > doMCDdata(nrep = 12, time=FALSE)
 
@@ -2272,7 +2284,7 @@ DEP        -0.103     0.1142    -0.200
 SCHOOL     -0.600    -0.1996     1.509
 --------------------------------------------------------
 ========================================================
-There were 14 warnings (use warnings() to see them)
+There were 20 warnings (use warnings() to see them)
 Warning messages:
 1: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
   original detmcd() wrongly declared c-step convergence (obj=0.0408242, i=1, j=3)
@@ -2283,25 +2295,37 @@ Warning messages:
 4: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
   original detmcd() wrongly declared c-step convergence (obj=0.0408242, i=4, j=3)
 5: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.039851, i=5, j=3)
-6: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
   original detmcd() wrongly declared c-step convergence (obj=0.0408242, i=6, j=3)
+6: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
+  original detmcd() wrongly declared c-step convergence (obj=0.0867952, i=1, j=2)
 7: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0821953, i=4, j=2)
+  original detmcd() wrongly declared c-step convergence (obj=0.0867952, i=2, j=2)
 8: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=1, j=2)
+  original detmcd() wrongly declared c-step convergence (obj=0.0867952, i=3, j=2)
 9: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=2, j=2)
+  original detmcd() wrongly declared c-step convergence (obj=0.0821953, i=4, j=2)
 10: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=3, j=2)
+  original detmcd() wrongly declared c-step convergence (obj=0.0867952, i=6, j=2)
 11: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=5, j=2)
+  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=1, j=2)
 12: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=6, j=2)
+  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=2, j=2)
 13: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.00544513, i=4, j=2)
+  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=3, j=2)
 14: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.00544513, i=5, j=2)
+  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=5, j=2)
+15: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
+  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=6, j=2)
+16: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
+  original detmcd() wrongly declared c-step convergence (obj=0.0906946, i=1, j=2)
+17: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
+  original detmcd() wrongly declared c-step convergence (obj=0.0906946, i=2, j=2)
+18: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
+  original detmcd() wrongly declared c-step convergence (obj=0.0906946, i=3, j=2)
+19: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
+  original detmcd() wrongly declared c-step convergence (obj=0.0906946, i=6, j=2)
+20: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
+  original detmcd() wrongly declared c-step convergence (obj=0.0051485, i=5, j=2)
 > doMCDdata(nrep = 12, time=FALSE, method = "MASS")
 
 Call:  doMCDdata(nrep = 12, time = FALSE, method = "MASS") 
@@ -3117,6 +3141,9 @@ DENS    -6.05   -93.800   -69.74    13.25   159.82   11.822  -336.4   -60.6
 NONW    16.84     0.297     5.34     7.92    11.82    2.868   -89.4   -10.6
 EDUC  -766.90  -420.172  -783.08   341.66  -336.41  -89.394  6356.8   447.6
 IN69  -135.30    14.609    44.91    73.42   -60.63  -10.622   447.6   162.2
+Warning message:
+In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  :
+  original detmcd() wrongly declared c-step convergence (obj=0.000782388, i=6, j=2)
 > stopifnot(log(c3$crit) <= log(c3.$crit),
 +           print(log(c3.$crit / c3$crit)) <= 0.8)
 [1] 0.51608
@@ -3138,7 +3165,7 @@ Error in solve.default(cov, ...) :
   system is computationally singular: reciprocal condition number = 2.71945e-11
 > 
 > showProc.time()
-Time elapsed:  2.825 0.055 3.349 
+Time elapsed:  4.244 0.064 4.313 
 > 
 > ## "large" examples using different algo branches {seg.fault in version 0.4-4}:
 > 
@@ -3160,15 +3187,6 @@ Robust Estimate of Covariance:
 [2,]  -114  11221    250
 [3,]   389    250  11726
 >  cX. <- covMcd(X, nsamp="deterministic", scalefn = scaleTau2)
-Warning messages:
-1: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  :
-  original detmcd() wrongly declared c-step convergence (obj=0.0653501, i=1, j=7)
-2: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  :
-  original detmcd() wrongly declared c-step convergence (obj=0.0653501, i=2, j=7)
-3: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  :
-  original detmcd() wrongly declared c-step convergence (obj=0.0653501, i=3, j=8)
-4: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  :
-  original detmcd() wrongly declared c-step convergence (obj=0.0653501, i=6, j=7)
 > i <- names(cX); i <- i[!(i %in% c("call", "method", "raw.weights"))]
 > stopifnot(sum(cX.$raw.weights != cX$raw.weights) <= 2,
 +           all.equal(cX[i], cX.[i], tol= 1/9))
@@ -3203,7 +3221,7 @@ Robust Estimate of Covariance:
 > stopifnot(cXo$raw.only, all.equal(cX[i], cXo[i], tol = 1e-15),
 +           c("best", "mah") %in% setdiff(names(cX), names(cXo)))
 > showProc.time()
-Time elapsed:  0.336 0.002 0.34 
+Time elapsed:  0.475 0.004 0.479 
 > 
 > ## Now, some small sample cases:
 > 
@@ -3362,16 +3380,16 @@ In covMcd(X, use.correction = FALSE) :
 +           all.equal(c(mcc$cov / cc$raw.cov), rep(0.7528695976179, p*p)))
 > 
 > showProc.time()
-Time elapsed:  0.035 0 0.035 
+Time elapsed:  0.044 0 0.044 
 > 
 > ## nsamp = "exact" -- here for p=7
 > coleman.x <- data.matrix(coleman[, 1:6])
 > showSys.time(CcX <- covMcd(coleman.x, nsamp= "exact"))
 Time    user  system elapsed 
-Time   0.823   0.000   0.824 
+Time   1.155   0.004   1.159 
 > showSys.time(Ccd <- covMcd(coleman.x, nsamp= "deterministic"))
 Time    user  system elapsed 
-Time   0.014   0.000   0.014 
+Time   0.021   0.000   0.021 
 > stopifnot(all.equal(CcX$best,
 + 		    c(2, 5:9, 11,13, 14:16, 19:20), tolerance=0),
 + 	  intersect(CcX$best, Ccd$best) == c(2,5,7,8,13,14,16,19,20),
@@ -4144,7 +4162,7 @@ X2  -1.14e-16   0.00e+00
 + d2. <- covMcd(d.x, nsamp = "deterministic", scalefn = Qn)
 
 > stopifnot(d2$singularity$kind == "on.hyperplane")
-There were 15 warnings (use warnings() to see them)
+There were 21 warnings (use warnings() to see them)
 > warnings()
 Warning messages:
 1: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
@@ -4156,26 +4174,38 @@ Warning messages:
 4: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
   original detmcd() wrongly declared c-step convergence (obj=0.0408242, i=4, j=3)
 5: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.039851, i=5, j=3)
-6: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
   original detmcd() wrongly declared c-step convergence (obj=0.0408242, i=6, j=3)
+6: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
+  original detmcd() wrongly declared c-step convergence (obj=0.0867952, i=1, j=2)
 7: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0821953, i=4, j=2)
+  original detmcd() wrongly declared c-step convergence (obj=0.0867952, i=2, j=2)
 8: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=1, j=2)
+  original detmcd() wrongly declared c-step convergence (obj=0.0867952, i=3, j=2)
 9: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=2, j=2)
+  original detmcd() wrongly declared c-step convergence (obj=0.0821953, i=4, j=2)
 10: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=3, j=2)
+  original detmcd() wrongly declared c-step convergence (obj=0.0867952, i=6, j=2)
 11: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=5, j=2)
+  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=1, j=2)
 12: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=6, j=2)
+  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=2, j=2)
 13: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.00544513, i=4, j=2)
+  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=3, j=2)
 14: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.00544513, i=5, j=2)
-15: In covMcd(d.x) : The covariance matrix has become singular during
+  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=5, j=2)
+15: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
+  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=6, j=2)
+16: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
+  original detmcd() wrongly declared c-step convergence (obj=0.0906946, i=1, j=2)
+17: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
+  original detmcd() wrongly declared c-step convergence (obj=0.0906946, i=2, j=2)
+18: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
+  original detmcd() wrongly declared c-step convergence (obj=0.0906946, i=3, j=2)
+19: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
+  original detmcd() wrongly declared c-step convergence (obj=0.0906946, i=6, j=2)
+20: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
+  original detmcd() wrongly declared c-step convergence (obj=0.0051485, i=5, j=2)
+21: In covMcd(d.x) : The covariance matrix has become singular during
 the iterations of the MCD algorithm.
 There are 55 observations (in the entire dataset of 100 obs.) lying on
 the line with equation 0 (x_i1-m_1) + 1 (x_i2-m_2) = 0 with (m_1,m_2)
@@ -4184,4 +4214,4 @@ the mean of these observations.
 > 
 > proc.time()
    user  system elapsed 
-  4.923   0.102   5.700 
+  7.303   0.100   7.394 

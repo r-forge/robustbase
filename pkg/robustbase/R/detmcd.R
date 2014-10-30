@@ -142,10 +142,8 @@
             bestobj <- obj
             initmean <- svd$center
             L <- svd$loadings
-            ## MM: speedup:  L Diag L' =
-            initcov <- L %*% diag(svd$eigenvalues) %*% t(L)
-            ##? initcov <- tcrossprod(L * rep(svd$eigenvalues, each=nrow(L)), L)
-
+            ## MM speedup: was L Diag L' = L %*% diag(svd$eigenvalues) %*% t(L)
+	    initcov <- tcrossprod(L * rep(svd$eigenvalues, each=nrow(L)), L)
             ## raw.initcov <- initcov
             ## rew.Hsubsets.Hopt <- bestset
             ind.best <- i # to determine which subset gives best results.
@@ -277,8 +275,8 @@ r6pack <- function(x, h, hsets.init, full.h, scaled=TRUE,
         n <- d[1]
         stopifnot(h <= n)
         lambda <- doScale(data %*% P, center=median, scale=scalefn)$scale
-        sqrtcov <- P %*% diag(lambda) %*% t(P)   ### FIXME  P Diag P'
-        sqrtinvcov <- P %*% diag(1/lambda) %*% t(P)
+        sqrtcov    <- P %*% (lambda * t(P)) ## == P %*% diag(lambda) %*% t(P)
+        sqrtinvcov <- P %*% (t(P) / lambda) ## == P %*% diag(1/lambda) %*% t(P)
         estloc <- apply(data %*% sqrtinvcov, 2L, median) %*% sqrtcov
         centeredx <- (data - rep(estloc, each=n)) %*% P
 	sort.list(mahalanobisD(centeredx, FALSE, lambda))[1:h]# , partial = 1:h
@@ -307,7 +305,7 @@ r6pack <- function(x, h, hsets.init, full.h, scaled=TRUE,
         }
 
         ## now done above: U <- lower.tri(U) * U + t(U)    #    U <- tril(U, -1) + t(U)
-        P <- eigen(U)$vectors
+        P <- eigen(U, symmetric=TRUE)$vectors
 	if(only.P)
 	    return(P)
         ## else :
@@ -339,21 +337,18 @@ r6pack <- function(x, h, hsets.init, full.h, scaled=TRUE,
     ## 1. Hyperbolic tangent of standardized data
     y1 <- tanh(x)
     R1 <- cor(y1)
-    P <- eigen(R1)$vectors
+    P <- eigen(R1, symmetric=TRUE)$vectors
     hsets[,1] <- initset(x, scalefn=scalefn, P=P, h=h)
 
     ## 2. Spearmann correlation matrix
     R2 <- cor(x, method="spearman")
-    P <- eigen(R2)$vectors
+    P <- eigen(R2, symmetric=TRUE)$vectors
     hsets[,2] <- initset(x, scalefn=scalefn, P=P, h=h)
 
     ## 3. Tukey normal scores
-    y2 <- x
-    for(j in 1:p)## FIXME: apply
-        y2[,j] <- rank(x[, j])
-    y3 <- qnorm((y2-1/3)/(n+1/3))
+    y3 <- qnorm((apply(x, 2L, rank) - 1/3)/(n + 1/3))
     R3 <- cor(y3, use = "complete.obs")
-    P <- eigen(R3)$vectors
+    P <- eigen(R3, symmetric=TRUE)$vectors
     hsets[,3] <- initset(x, scalefn=scalefn, P=P, h=h)
 
     ## 4. Spatial sign covariance matrix
@@ -361,8 +356,8 @@ r6pack <- function(x, h, hsets.init, full.h, scaled=TRUE,
     ii <- znorm > .Machine$double.eps
     x.nrmd <- x
     x.nrmd[ii,] <- x[ii, ] / znorm[ii]
-    SCM <- crossprod(x.nrmd) / (n-1)
-    P <- eigen(SCM)$vectors
+    SCM <- crossprod(x.nrmd)# / (n-1) not needed for e.vectors
+    P <- eigen(SCM, symmetric=TRUE)$vectors
     hsets[,4] <- initset(x, scalefn=scalefn, P=P, h=h)
 
     ## 5. BACON
@@ -370,7 +365,7 @@ r6pack <- function(x, h, hsets.init, full.h, scaled=TRUE,
     half <- ceiling(n/2)
     Hinit <- ind5[1:half]
     covx <- cov(x[Hinit, , drop=FALSE])
-    P <- eigen(covx)$vectors
+    P <- eigen(covx, symmetric=TRUE)$vectors
     hsets[,5] <- initset(x, scalefn=scalefn, P=P, h=h)
 
     ## 6. Raw OGK estimate for scatter

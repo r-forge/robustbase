@@ -33,18 +33,19 @@ classPC <- function(x, scale=FALSE, center=TRUE,
 	center <- attr(x, "scaled:center")
 
     if(via.svd) {
-	svd <- svd(x/sqrt(n-1), nu=0)
+	svd <- svd(x, nu=0)
 	rank <- rankMM(x, sv=svd$d)
 	loadings <- svd$v[,1:rank]
-	eigenvalues <- (svd$d[1:rank])^2 ## FIXME: here .^2; later sqrt(.)
+	eigenvalues <- (svd$d[1:rank])^2 /(n-1) ## FIXME: here .^2; later sqrt(.)
     } else { ## n <= p; was "kernelEVD"
-	e <- eigen(tcrossprod(x)/(n-1), symmetric=TRUE)
-	tolerance <- n * max(e$values) * .Machine$double.eps
-	rank <- sum(e$values > tolerance)
-	ii <- seq_len(rank)
-	eigenvalues <- e$values[ii]
-	## MM{FIXME (efficiency)}:
-	loadings <- t((x/sqrt(n-1))) %*% e$vectors[,1:rank] %*% diag(1/sqrt(eigenvalues))
+	e <- eigen(tcrossprod(x), symmetric=TRUE)
+        evs <- e$values
+	tolerance <- n * max(evs) * .Machine$double.eps
+	rank <- sum(evs > tolerance)
+        evs <- evs[ii <- seq_len(rank)]
+	eigenvalues <- evs / (n-1)
+	## MM speedup, was:  crossprod(..) %*% diag(1/sqrt(evs))
+	loadings <- crossprod(x, e$vectors[,ii]) * rep(1/sqrt(evs), each=p)
     }
 
     ## VT::15.06.2010 - signflip: flip the sign of the loadings
