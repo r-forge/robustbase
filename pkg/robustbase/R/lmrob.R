@@ -404,7 +404,7 @@ print.summary.lmrob <-
 			 na.print="NA", ...)
 	    cat("\nRobust residual standard error:",
 		format(signif(x$scale, digits)),"\n")
-            if (!is.null(x$r.squared) && x$df[1] != attr(x$terms, "intercept")) {
+          if (!is.null(x$r.squared) && x$df[1] != attr(x$terms, "intercept")) {
                 cat("Multiple R-squared: ", formatC(x$r.squared, digits = digits))
                 cat(",\tAdjusted R-squared: ", formatC(x$adj.r.squared, digits = digits),
                     "\n")

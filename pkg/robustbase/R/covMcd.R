@@ -122,8 +122,8 @@ covMcd <- function(x,
     ##   (neither for the raw estimates nor for the reweighted ones)
     raw.cnp2 <- cnp2 <- c(1,1)
 
-    ans <- list(method = "Minimum Covariance Determinant Estimator.",
-		call = match.call())
+    ans <- list(call = match.call(), nsamp = nsamp,
+                method = sprintf("MCD(alpha=%g ==> h=%d)", alpha, h))
 
     if(alpha == 1) { ## alpha=1: Just compute the classical estimates --------
         mcd <- cov(x) #MM: was  cov.wt(x)$cov
@@ -172,10 +172,9 @@ covMcd <- function(x,
             dimnames(ans$raw.cov) <- list(nms,nms)
         }
         ans$crit <- exp(obj)
-        ans$method <-
-            paste(ans$method,
-                  "\nThe minimum covariance determinant estimates based on",
-                  n, "observations \nare equal to the classical estimates.")
+        ans$method <- paste(ans$method,
+                            "\nalpha = 1: The minimum covariance determinant estimates based on",
+                            n, "observations \nare equal to the classical estimates.")
         ans$mcd.wt <- rep.int(NA, length(ok))
         ans$mcd.wt[ok] <- weights
         if(length(dimn[[1]]))
@@ -195,12 +194,14 @@ covMcd <- function(x,
     } ## end {alpha=1} --
 
     mcd <- if(nsamp == "deterministic") {
-        ans$method <- paste("Deterministic", ans$method)
+	ans$method <- paste("Deterministic", ans$method)
 	.detmcd (x, h, hsets.init = initHsets,
-                 save.hsets=save.hsets, # full.h=full.h,
+		 save.hsets=save.hsets, # full.h=full.h,
 		 scalefn=scalefn, maxcsteps=maxcsteps, trace=as.integer(trace))
-    } else
-        .fastmcd(x, h, nsamp, nmini, trace=as.integer(trace))
+    } else {
+	ans$method <- paste0("Fast ", ans$method, "; nsamp = ", nsamp, "; nmini = ", nmini)
+	.fastmcd(x, h, nsamp, nmini, trace=as.integer(trace))
+    }
 
     ## Compute the consistency correction factor for the raw MCD
     ##  (see calfa in Croux and Haesbroeck)
@@ -210,8 +211,7 @@ covMcd <- function(x,
 
     if(p == 1) {
         ## ==> Compute univariate location and scale estimates
-        ans$method <- "Univariate location and scale estimation."
-
+	ans$method <- paste("Univariate", ans$method)
         scale <- sqrt(calpha * correct) * as.double(mcd$initcovariance)
         center <- as.double(mcd$initmean)
         if(abs(scale - 0) < 1e-07) {
@@ -260,9 +260,7 @@ covMcd <- function(x,
 
       ## Apply correction factor to the raw estimates
       ## and use them to compute weights
-      mcd$initcovariance <- calpha * correct * mcd$initcovariance
-      dim(mcd$initcovariance) <- c(p, p)
-
+      mcd$initcovariance <- matrix(calpha * correct * mcd$initcovariance, p,p)
       if(raw.only || mcd$exactfit != 0) {
         ## If not all observations are in general position, i.e. more than
         ## h observations lie on a hyperplane, the program still yields
@@ -306,7 +304,7 @@ covMcd <- function(x,
         ans$crit <- 0
         weights <- mcd$weights
 
-      } ## end exact fit <==>  (mcd$exactfit != 0)
+      } ## end (raw.only || exact fit)
 
       else { ## have general position (exactfit == 0) : ------------------------
 
@@ -343,7 +341,7 @@ covMcd <- function(x,
         ans$raw.mah <- mahalanobis(x, ans$raw.center, ans$raw.cov, tol = tolSolve)
 
         ## Check if the reweighted scatter matrix is singular.
-        if(sing.rewt ||  - (determinant(ans$cov, logarithm = TRUE)$modulus[1] - 0)/p > logdet.Lrg) {
+        if(sing.rewt || - determinant(ans$cov, logarithm = TRUE)$modulus[1]/p > logdet.Lrg) {
 	    ans$singularity <- list(kind = paste0("reweighted.MCD",
 				    if(sing.rewt)"(zero col.)"))
             ans$mah <- ans$raw.mah
@@ -442,25 +440,26 @@ covMcd <- function(x,
 
 print.mcd <- function(x, digits = max(3, getOption("digits") - 3), print.gap = 2, ...)
 {
-    cat("Minimum Covariance Determinant (MCD) estimator.\n")
+    cat("Minimum Covariance Determinant (MCD) estimator approximation.\n",
+        "Method: ", x$method, "\n", sep="")
     if(!is.null(cl <- x$call)) {
-    cat("Call:\n")
-    dput(cl)
+        cat("Call:\n")
+        dput(cl)
     }
-    cat("-> Method: ", x$method, "\n")
     if(is.list(x$singularity))
         cat(strwrap(.MCDsingularityMsg(x$singularity, x$n.obs)), sep ="\n")
 
+    if(identical(x$nsamp, "deterministic"))
+	cat("iBest: ", x$iBest, "; C-step iterations: ",
+	    paste(x$n.csteps, collapse=", "), "\n", sep="")
     ## VT::29.03.2007 - solve a conflict with fastmcd() in package robust -
     ##      also returning an object of class "mcd"
     xx <- NA
     if(!is.null(x$crit))
-        xx <- format(log(x$crit), digits = digits)
+	xx <- format(log(x$crit), digits = digits)
     else if (!is.null(x$raw.objective))
-        xx <- format(log(x$raw.objective), digits = digits)
-
-    cat("\nLog(Det.): ", xx ,"\n")
-    cat("Robust Estimate of Location:\n")
+	xx <- format(log(x$raw.objective), digits = digits)
+    cat("Log(Det.): ", xx , "\n\nRobust Estimate of Location:\n")
     print(x$center, digits = digits, print.gap = print.gap, ...)
     cat("Robust Estimate of Covariance:\n")
     print(x$cov, digits = digits, print.gap = print.gap, ...)
@@ -480,18 +479,20 @@ print.summary.mcd <-
 
     ## hmm, maybe not *such* a good idea :
     if(!is.null(x$cor)) {
-    cat("\nRobust Estimate of Correlation: \n")
-    dimnames(x$cor) <- dimnames(x$cov)
-    print(x$cor, digits = digits, print.gap = print.gap, ...)
+        cat("\nRobust Estimate of Correlation: \n")
+        dimnames(x$cor) <- dimnames(x$cov)
+        print(x$cor, digits = digits, print.gap = print.gap, ...)
     }
 
     cat("\nEigenvalues:\n")
     print(eigen(x$cov, only.values = TRUE)$values, digits = digits, ...)
 
     if(!is.null(x$mah)) {
-    cat("\nRobust Distances: \n")
-    print(as.vector(x$mah), digits = digits, ...)
+	cat("\nRobust Distances: \n")
+	print(summary(x$mah, digits = digits), digits = digits, ...)
     }
+    if(!is.null(wt <- x$mcd.wt))
+	summarizeRobWeights(wt, digits = digits)
     invisible(x)
 }
 

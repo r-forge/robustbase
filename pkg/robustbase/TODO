@@ -1,6 +1,8 @@
 				-*- org -*- C-c C-o follows link[MM: grep-r -e '\(FIXME\|TODO\)']
 
 * Before next release
+** TODO print(<covMcd>) and print(summary(<covMcd>)): 'method' almost twice; show iBest
+   for "deterministic"
 ** DONE covMcd(): allow 'hsets.ini' argument to covMcd(), and *return* them (optionally) as 'Hsubsets'
 ** DONE export rankMM, classSVD, .signflip [MM: repmat should not be needed]
 ** DONE 'scalefn' argument for covMcd() to be used for "detMCD"

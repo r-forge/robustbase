@@ -8,7 +8,7 @@
 \usage{
 rrcov.control(alpha = 1/2, nsamp = 500, nmini = 300,
               seed = NULL, tolSolve = 1e-14,
-              scalefn = "hrv2011", maxcsteps = 200,
+              scalefn = "hrv2012", maxcsteps = 200,
               trace = FALSE,
               wgtFUN = "01.original",
               use.correction = identical(wgtFUN, "01.original"),
@@ -36,14 +36,12 @@ rrcov.control(alpha = 1/2, nsamp = 500, nmini = 300,
     (\code{\link{solve}}) of the covariance matrix in \code{\link{mahalanobis}}.}
   \item{scalefn}{(for deterministic \code{\link{covMcd}()}:) a character
     string or \code{\link{function}} for computing a robust scale
-    estimate. The default, currently \code{"hrv2011"}, uses the recommendation of
-    Hubert, Rousseeuw and Verdonck (2011) who recommend \code{\link{Qn}}
-    for \eqn{n < 1000} and \code{\link{scaleTau2}} for larger n.  Alternatively,
-    \code{scalefn = "v2014"}, uses that rule with cutoff \eqn{n = 5000}.}
+    estimate.  The current default \code{"hrv2012"} uses the recommendation
+    of Hubert et al (2012); see \code{\link{covMcd}} for more.}
   \item{maxcsteps}{integer specifying the maximal number of
     concentration steps for the deterministic MCD.}
-  \item{trace}{whether to print intermediate results.  Default is
-    \code{trace = FALSE}}
+  \item{trace}{logical or integer indicating whether to print
+    intermediate results.  Default is \code{trace = FALSE}.}
   \item{wgtFUN}{a character string or \code{\link{function}}, specifying
     how the weights for the reweighting step should be computed, see
     \code{\link{ltsReg}} or \code{\link{covMcd}}, respectively.  The
@@ -56,12 +54,11 @@ rrcov.control(alpha = 1/2, nsamp = 500, nmini = 300,
     consuming, the default is \code{adjust = FALSE}.}
 }
 \seealso{
-  For details about the options, see the documentation
-  about the estimation functions,
-  \code{\link{ltsReg}} and \code{\link{covMcd}}, respectively.
+  For details, see the documentation about \code{\link{ltsReg}} and
+  \code{\link{covMcd}}, respectively.
 }
 \value{
-  A list with components, as the parameters passed  by the invocation
+  A list with components, as the parameters passed by the invocation
 }
 \author{Valentin Todorov}
 \examples{

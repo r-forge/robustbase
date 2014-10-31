@@ -23,7 +23,7 @@ Type 'q()' to quit R.
 Loading required package: tools
 > ## -> assertError(), relErr(), and:
 > showProc.time()
-Time elapsed:  0.001 0 0 
+Time elapsed:  0.001 0 0.001 
 > 
 > ## -- now do it:
 > options(digits = 5)
@@ -39,12 +39,12 @@ Best subsample:
 Outliers:  16 : 
  [1]  7  8  9 10 11 12 29 30 31 32 33 34 35 36 37 38
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=22); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  18.1 
+
 Robust Estimate of Location:
  V1   V2   V3   V4   V5  
 105  147  274  218  279  
@@ -63,12 +63,12 @@ Best subsample:
 [1]  1  3  4  5  7  9 11
 Outliers:  0 
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=7); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  5.68 
+
 Robust Estimate of Location:
 height  weight  
   38.3    33.1  
@@ -85,12 +85,12 @@ Best subsample:
 Outliers:  6 : 
 [1]  7 11 14 20 30 34
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=25); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  -8.03 
+
 Robust Estimate of Location:
    log.Te  log.light  
      4.41       4.95  
@@ -107,12 +107,12 @@ Best subsample:
 Outliers:  9 : 
 [1]  1  2  3 15 16 17 18 19 21
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=12); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  5.47 
+
 Robust Estimate of Location:
   Air.Flow  Water.Temp  Acid.Conc.  
       59.5        20.8        87.3  
@@ -130,12 +130,12 @@ Best subsample:
 Outliers:  2 : 
 [1] 1 6
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=10); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  6.88 
+
 Robust Estimate of Location:
   inorg  organic  
    13.4     38.8  
@@ -152,12 +152,12 @@ Best subsample:
 Outliers:  7 : 
 [1]  1  6  9 10 11 15 18
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=13); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  1.29 
+
 Robust Estimate of Location:
   salaryP   fatherWc    sstatus  teacherSc  motherLev  
      2.76      48.38       6.12      25.00       6.40  
@@ -177,12 +177,12 @@ Best subsample:
 Outliers:  4 : 
 [1]  5 16 23 24
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=16); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  1.33 
+
 Robust Estimate of Location:
    X1     X2     X3  
 10.08   2.78  22.78  
@@ -200,12 +200,12 @@ Best subsample:
 Outliers:  7 : 
 [1]  4  6  7  8 11 16 19
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=13); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  -36.3 
+
 Robust Estimate of Location:
    x1     x2     x3     x4     x5  
 0.587  0.122  0.531  0.538  0.892  
@@ -226,12 +226,12 @@ Best subsample:
 Outliers:  14 : 
  [1]  1  2  3  4  5  6  7  8  9 10 11 12 13 14
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=39); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  -1.05 
+
 Robust Estimate of Location:
   X1    X2    X3  
 1.54  1.78  1.69  
@@ -249,12 +249,12 @@ Best subsample:
 Outliers:  13 : 
  [1]  2  6  7  8  9 12 13 14 15 16 24 25 28
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=15); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  14.6 
+
 Robust Estimate of Location:
  body  brain  
  18.7   64.9  
@@ -272,12 +272,12 @@ Best subsample:
 Outliers:  20 : 
  [1]  1  2  3 11 12 13 14 15 16 17 18 20 27 41 44 47 70 74 75 77
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=47); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  -28.8 
+
 Robust Estimate of Location:
     X1      X2      X3      X4      X5      X6      X7      X8  
   1.03   35.87   33.09   26.15   25.13   25.06  123.14   14.39  
@@ -309,12 +309,12 @@ Best subsample:
 Outliers:  3 : 
 [1] 17 19 20
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=11); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  0.36 
+
 Robust Estimate of Location:
    X     Y  
 3.86  5.01  
@@ -331,12 +331,12 @@ Best subsample:
 Outliers:  4 : 
 [1] 15 16 17 18
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=10); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  16.7 
+
 Robust Estimate of Location:
   Income  Reserves  
     52.3     560.9  
@@ -352,12 +352,12 @@ Best subsample:
  [1]  2  3  6  7  9 12 15 16 17 18 20
 Outliers:  0 
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=11); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  6.49 
+
 Robust Estimate of Location:
     X      Y  
 101.1   67.7  
@@ -374,12 +374,12 @@ Best subsample:
 Outliers:  3 : 
 [1]  1  2 17
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=21); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  -3.97 
+
 Robust Estimate of Location:
 Volume    Rate  
   1.16    1.72  
@@ -397,12 +397,12 @@ Best subsample:
 Outliers:  13 : 
  [1]  1  8 21 22 28 29 33 39 42 43 46 50 63
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=35); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  6.57 
+
 Robust Estimate of Location:
 Region      PA     GPA      HS     GHS       y  
 11.318  34.050  -2.049   2.498   0.289   6.650  
@@ -430,12 +430,12 @@ Outliers:  60 :
 [39] 100 101 102 103 133 140 142 143 144 146 147 148 149 150 151 152 153 154 155
 [58] 156 157 158
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=82); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  8.88 
+
 Robust Estimate of Location:
  Weight  Length1  Length2  Length3   Height    Width  
   331.9     24.4     26.6     29.7     31.2     14.7  
@@ -456,12 +456,12 @@ Best subsample:
 Outliers:  9 : 
 [1]  3  8 12 16 17 18 23 24 25
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=17); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  -10.6 
+
 Robust Estimate of Location:
     SI      AL      FE      MG      CA      TI  
 54.983  15.206   9.700   3.817   5.211   0.859  
@@ -484,12 +484,12 @@ Best subsample:
 Outliers:  11 : 
  [1]  9 28 40 42 49 58 62 64 71 75 77
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=56); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  -14.4 
+
 Robust Estimate of Location:
              Favor          Appearance               Taste          Stickiness  
            -0.2844              0.0786             -0.1453              0.0378  
@@ -521,12 +521,12 @@ Outliers:  29 :
  [1]  3  4  5  6  7  8 11 13 15 19 21 22 28 29 30 35 36 38 40 43 44 46 53 54 58
 [26] 59 66 68 69
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=40); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  17 
+
 Robust Estimate of Location:
    POP     MOR     CAR      DR     GNP     DEN      TB  
 20.364  69.750   6.463   0.859   1.133  59.998   0.439  
@@ -548,12 +548,12 @@ Best subsample:
 Outliers:  13 : 
  [1]  4  5  9 13 16 18 19 24 28 29 30 31 32
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=23); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  25.7 
+
 Robust Estimate of Location:
     HRS     RATE     ERSP     ERNO     NEIN    ASSET      AGE      DEP  
 2140.17     2.85  1133.30   307.48   343.26  6539.43    39.57     2.44  
@@ -593,12 +593,13 @@ Best subsample:
 Outliers:  16 : 
  [1]  7  8  9 10 11 12 29 30 31 32 33 34 35 36 37 38
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=22)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 2; C-step iterations: 2, 3, 3, 2, 2, 3
 Log(Det.):  18.1 
+
 Robust Estimate of Location:
  V1   V2   V3   V4   V5  
 105  147  274  218  279  
@@ -617,12 +618,13 @@ Best subsample:
 [1]  1  3  4  5  7  9 11
 Outliers:  0 
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=7)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 1; C-step iterations: 2, 2, 2, 2, 2, 2
 Log(Det.):  5.68 
+
 Robust Estimate of Location:
 height  weight  
   38.3    33.1  
@@ -639,12 +641,13 @@ Best subsample:
 Outliers:  6 : 
 [1]  7 11 14 20 30 34
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=25)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 5; C-step iterations: 4, 4, 4, 4, 4, 4
 Log(Det.):  -8.03 
+
 Robust Estimate of Location:
    log.Te  log.light  
      4.41       4.95  
@@ -661,12 +664,13 @@ Best subsample:
 Outliers:  2 : 
 [1] 1 2
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=12)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 6; C-step iterations: 3, 3, 3, 3, 2, 2
 Log(Det.):  6.58 
+
 Robust Estimate of Location:
   Air.Flow  Water.Temp  Acid.Conc.  
       58.4        20.5        86.1  
@@ -684,12 +688,13 @@ Best subsample:
 Outliers:  1 : 
 [1] 6
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=10)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 4; C-step iterations: 3, 3, 3, 3, 3, 3
 Log(Det.):  7.73 
+
 Robust Estimate of Location:
   inorg  organic  
    12.5     40.8  
@@ -706,12 +711,13 @@ Best subsample:
 Outliers:  2 : 
 [1]  6 10
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=13)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 5; C-step iterations: 2, 2, 2, 2, 2, 3
 Log(Det.):  2.15 
+
 Robust Estimate of Location:
   salaryP   fatherWc    sstatus  teacherSc  motherLev  
      2.76      41.08       2.76      25.01       6.27  
@@ -731,12 +737,13 @@ Best subsample:
 Outliers:  2 : 
 [1]  5 16
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=16)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 4; C-step iterations: 2, 2, 2, 3, 2, 2
 Log(Det.):  1.94 
+
 Robust Estimate of Location:
    X1     X2     X3  
 10.50   2.58  23.12  
@@ -754,12 +761,13 @@ Best subsample:
 Outliers:  4 : 
 [1]  4  6  8 19
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=13)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 1; C-step iterations: 2, 2, 2, 2, 2, 2
 Log(Det.):  -35.2 
+
 Robust Estimate of Location:
    x1     x2     x3     x4     x5  
 0.582  0.125  0.530  0.534  0.888  
@@ -780,12 +788,13 @@ Best subsample:
 Outliers:  14 : 
  [1]  1  2  3  4  5  6  7  8  9 10 11 12 13 14
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=39)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 1; C-step iterations: 5, 5, 5, 5, 4, 5
 Log(Det.):  -1.05 
+
 Robust Estimate of Location:
   X1    X2    X3  
 1.54  1.78  1.69  
@@ -803,12 +812,13 @@ Best subsample:
 Outliers:  13 : 
  [1]  2  6  7  8  9 12 13 14 15 16 24 25 28
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=15)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 1; C-step iterations: 2, 2, 2, 2, 2, 2
 Log(Det.):  14.6 
+
 Robust Estimate of Location:
  body  brain  
  18.7   64.9  
@@ -826,12 +836,13 @@ Best subsample:
 Outliers:  20 : 
  [1]  1  2  3 11 12 13 14 15 16 17 18 20 27 41 44 47 70 74 75 77
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=47)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 5; C-step iterations: 3, 3, 4, 3, 3, 4
 Log(Det.):  -28.8 
+
 Robust Estimate of Location:
     X1      X2      X3      X4      X5      X6      X7      X8  
   1.03   35.90   33.10   26.16   25.13   25.07  123.13   14.39  
@@ -863,12 +874,13 @@ Best subsample:
 Outliers:  3 : 
 [1] 17 19 20
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=11)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 1; C-step iterations: 3, 3, 3, 2, 3, 3
 Log(Det.):  0.36 
+
 Robust Estimate of Location:
    X     Y  
 3.86  5.01  
@@ -885,12 +897,13 @@ Best subsample:
 Outliers:  4 : 
 [1] 15 16 17 18
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=10)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 1; C-step iterations: 2, 2, 2, 3, 3, 2
 Log(Det.):  16.7 
+
 Robust Estimate of Location:
   Income  Reserves  
     52.3     560.9  
@@ -906,12 +919,13 @@ Best subsample:
  [1]  1  2  3  4  8 11 12 13 14 15 19
 Outliers:  0 
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=11)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 1; C-step iterations: 2, 2, 2, 2, 2, 2
 Log(Det.):  7.02 
+
 Robust Estimate of Location:
     X      Y  
 103.0   68.6  
@@ -928,12 +942,13 @@ Best subsample:
 Outliers:  3 : 
 [1]  1  2 17
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=21)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 1; C-step iterations: 3, 3, 3, 2, 2, 3
 Log(Det.):  -3.97 
+
 Robust Estimate of Location:
 Volume    Rate  
   1.16    1.72  
@@ -951,12 +966,13 @@ Best subsample:
 Outliers:  10 : 
  [1]  1  8 21 22 29 33 42 43 50 63
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=35)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 3; C-step iterations: 3, 3, 3, 3, 3, 3
 Log(Det.):  6.51 
+
 Robust Estimate of Location:
 Region      PA     GPA      HS     GHS       y  
  10.91   33.65   -2.05    2.43    0.31    6.98  
@@ -983,12 +999,13 @@ Outliers:  51 :
 [20]  85  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100 101 102 103
 [39] 142 144 147 149 150 151 152 153 154 155 156 157 158
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=82)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 1; C-step iterations: 7, 7, 7, 5, 6, 6
 Log(Det.):  8.88 
+
 Robust Estimate of Location:
  Weight  Length1  Length2  Length3   Height    Width  
   316.3     24.1     26.3     29.3     31.0     14.7  
@@ -1009,12 +1026,13 @@ Best subsample:
 Outliers:  9 : 
 [1]  3  8 12 16 17 18 23 24 25
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=17)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 3; C-step iterations: 2, 2, 2, 2, 2, 2
 Log(Det.):  -10.6 
+
 Robust Estimate of Location:
     SI      AL      FE      MG      CA      TI  
 54.983  15.206   9.700   3.817   5.211   0.859  
@@ -1037,12 +1055,13 @@ Best subsample:
 Outliers:  13 : 
  [1]  9 19 28 40 42 43 49 58 62 64 71 75 77
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=56)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 1; C-step iterations: 3, 3, 3, 3, 5, 3
 Log(Det.):  -14.4 
+
 Robust Estimate of Location:
              Favor          Appearance               Taste          Stickiness  
            -0.2950              0.0799             -0.1555              0.0363  
@@ -1074,12 +1093,13 @@ Outliers:  28 :
  [1]  3  4  5  6  7  8 11 13 15 21 22 28 29 30 35 36 38 40 43 44 46 53 54 58 59
 [26] 66 68 69
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=40)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 1; C-step iterations: 3, 2, 3, 3, 2, 3
 Log(Det.):  17.1 
+
 Robust Estimate of Location:
    POP     MOR     CAR      DR     GNP     DEN      TB  
 17.036  68.512   6.444   0.877   1.134  64.140   0.433  
@@ -1101,12 +1121,13 @@ Best subsample:
 Outliers:  13 : 
  [1]  4  5  9 12 13 16 18 19 24 26 28 30 32
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=23)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 1; C-step iterations: 2, 2, 2, 2, 2, 2
 Log(Det.):  25.7 
+
 Robust Estimate of Location:
     HRS     RATE     ERSP     ERNO     NEIN    ASSET      AGE      DEP  
 2150.30     2.90  1117.87   306.83   356.52  6861.39    39.32     2.45  
@@ -1189,12 +1210,12 @@ Best subsample:
 Outliers:  16 : 
  [1]  7  8  9 10 11 12 29 30 31 32 33 34 35 36 37 38
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=22); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  18.1 
+
 Robust Estimate of Location:
  V1   V2   V3   V4   V5  
 105  147  274  218  279  
@@ -1213,12 +1234,12 @@ Best subsample:
 [1]  1  3  4  5  7  9 11
 Outliers:  0 
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=7); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  5.68 
+
 Robust Estimate of Location:
 height  weight  
   38.3    33.1  
@@ -1235,12 +1256,12 @@ Best subsample:
 Outliers:  6 : 
 [1]  7 11 14 20 30 34
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=25); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  -8.03 
+
 Robust Estimate of Location:
    log.Te  log.light  
      4.41       4.95  
@@ -1257,12 +1278,12 @@ Best subsample:
 Outliers:  9 : 
 [1]  1  2  3 15 16 17 18 19 21
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=12); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  5.47 
+
 Robust Estimate of Location:
   Air.Flow  Water.Temp  Acid.Conc.  
       59.5        20.8        87.3  
@@ -1280,12 +1301,12 @@ Best subsample:
 Outliers:  2 : 
 [1] 1 6
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=10); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  6.88 
+
 Robust Estimate of Location:
   inorg  organic  
    13.4     38.8  
@@ -1302,12 +1323,12 @@ Best subsample:
 Outliers:  7 : 
 [1]  1  6  9 10 11 15 18
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=13); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  1.29 
+
 Robust Estimate of Location:
   salaryP   fatherWc    sstatus  teacherSc  motherLev  
      2.76      48.38       6.12      25.00       6.40  
@@ -1327,12 +1348,12 @@ Best subsample:
 Outliers:  4 : 
 [1]  5 16 23 24
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=16); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  1.33 
+
 Robust Estimate of Location:
    X1     X2     X3  
 10.08   2.78  22.78  
@@ -1350,12 +1371,12 @@ Best subsample:
 Outliers:  7 : 
 [1]  4  6  7  8 11 16 19
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=13); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  -36.3 
+
 Robust Estimate of Location:
    x1     x2     x3     x4     x5  
 0.587  0.122  0.531  0.538  0.892  
@@ -1376,12 +1397,12 @@ Best subsample:
 Outliers:  14 : 
  [1]  1  2  3  4  5  6  7  8  9 10 11 12 13 14
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=39); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  -1.05 
+
 Robust Estimate of Location:
   X1    X2    X3  
 1.54  1.78  1.69  
@@ -1399,12 +1420,12 @@ Best subsample:
 Outliers:  13 : 
  [1]  2  6  7  8  9 12 13 14 15 16 24 25 28
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=15); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  14.6 
+
 Robust Estimate of Location:
  body  brain  
  18.7   64.9  
@@ -1422,12 +1443,12 @@ Best subsample:
 Outliers:  20 : 
  [1]  1  2  3 11 12 13 14 15 16 17 18 20 27 41 44 47 70 74 75 77
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=47); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  -28.9 
+
 Robust Estimate of Location:
     X1      X2      X3      X4      X5      X6      X7      X8  
   1.03   35.76   33.05   26.12   25.10   25.04  122.94   14.36  
@@ -1459,12 +1480,12 @@ Best subsample:
 Outliers:  3 : 
 [1] 17 19 20
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=11); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  0.36 
+
 Robust Estimate of Location:
    X     Y  
 3.86  5.01  
@@ -1481,12 +1502,12 @@ Best subsample:
 Outliers:  4 : 
 [1] 15 16 17 18
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=10); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  16.7 
+
 Robust Estimate of Location:
   Income  Reserves  
     52.3     560.9  
@@ -1502,12 +1523,12 @@ Best subsample:
  [1]  2  3  6  7  9 12 15 16 17 18 20
 Outliers:  0 
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=11); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  6.49 
+
 Robust Estimate of Location:
     X      Y  
 101.1   67.7  
@@ -1524,12 +1545,12 @@ Best subsample:
 Outliers:  3 : 
 [1]  1  2 17
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=21); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  -3.97 
+
 Robust Estimate of Location:
 Volume    Rate  
   1.16    1.72  
@@ -1547,12 +1568,12 @@ Best subsample:
 Outliers:  13 : 
  [1]  1  8 21 22 28 29 33 39 42 43 46 50 63
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=35); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  6.57 
+
 Robust Estimate of Location:
 Region      PA     GPA      HS     GHS       y  
 11.318  34.050  -2.049   2.498   0.289   6.650  
@@ -1579,12 +1600,12 @@ Outliers:  51 :
 [20]  82  83  85  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100 101
 [39] 102 103 142 144 147 149 151 152 154 155 156 157 158
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=82); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  8.86 
+
 Robust Estimate of Location:
  Weight  Length1  Length2  Length3   Height    Width  
   329.9     24.5     26.6     29.7     31.1     14.7  
@@ -1605,12 +1626,12 @@ Best subsample:
 Outliers:  9 : 
 [1]  3  8 12 16 17 18 23 24 25
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=17); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  -10.6 
+
 Robust Estimate of Location:
     SI      AL      FE      MG      CA      TI  
 54.983  15.206   9.700   3.817   5.211   0.859  
@@ -1633,12 +1654,12 @@ Best subsample:
 Outliers:  11 : 
  [1]  9 28 40 42 49 58 62 71 75 77 89
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=56); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  -14.5 
+
 Robust Estimate of Location:
              Favor          Appearance               Taste          Stickiness  
            -0.2731              0.0600             -0.1468              0.0646  
@@ -1670,12 +1691,12 @@ Outliers:  31 :
  [1]  3  4  5  6  7  8 11 13 15 19 21 22 25 28 29 30 34 35 36 38 40 43 44 46 53
 [26] 54 58 59 66 68 69
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=40); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  17 
+
 Robust Estimate of Location:
    POP     MOR     CAR      DR     GNP     DEN      TB  
 21.110  70.143   6.581   0.834   1.169  53.692   0.444  
@@ -1697,12 +1718,12 @@ Best subsample:
 Outliers:  13 : 
  [1]  4  5 12 13 15 16 19 24 28 29 30 31 32
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=23); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  25.8 
+
 Robust Estimate of Location:
     HRS     RATE     ERSP     ERNO     NEIN    ASSET      AGE      DEP  
 2150.65     2.82  1135.17   293.00   345.61  6552.57    39.44     2.39  
@@ -1742,12 +1763,13 @@ Best subsample:
 Outliers:  16 : 
  [1]  7  8  9 10 11 12 29 30 31 32 33 34 35 36 37 38
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=22)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 2; C-step iterations: 2, 3, 3, 2, 2, 3
 Log(Det.):  18.1 
+
 Robust Estimate of Location:
  V1   V2   V3   V4   V5  
 105  147  274  218  279  
@@ -1766,12 +1788,13 @@ Best subsample:
 [1]  1  3  4  5  7  9 11
 Outliers:  0 
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=7)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 1; C-step iterations: 2, 2, 2, 2, 2, 2
 Log(Det.):  5.68 
+
 Robust Estimate of Location:
 height  weight  
   38.3    33.1  
@@ -1788,12 +1811,13 @@ Best subsample:
 Outliers:  6 : 
 [1]  7 11 14 20 30 34
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=25)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 5; C-step iterations: 4, 4, 4, 4, 4, 4
 Log(Det.):  -8.03 
+
 Robust Estimate of Location:
    log.Te  log.light  
      4.41       4.95  
@@ -1810,12 +1834,13 @@ Best subsample:
 Outliers:  2 : 
 [1] 1 2
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=12)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 6; C-step iterations: 3, 3, 3, 3, 2, 2
 Log(Det.):  6.58 
+
 Robust Estimate of Location:
   Air.Flow  Water.Temp  Acid.Conc.  
       58.4        20.5        86.1  
@@ -1833,12 +1858,13 @@ Best subsample:
 Outliers:  1 : 
 [1] 6
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=10)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 4; C-step iterations: 3, 3, 3, 3, 3, 3
 Log(Det.):  7.73 
+
 Robust Estimate of Location:
   inorg  organic  
    12.5     40.8  
@@ -1855,12 +1881,13 @@ Best subsample:
 Outliers:  2 : 
 [1]  6 10
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=13)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 5; C-step iterations: 2, 2, 2, 2, 2, 3
 Log(Det.):  2.15 
+
 Robust Estimate of Location:
   salaryP   fatherWc    sstatus  teacherSc  motherLev  
      2.76      41.08       2.76      25.01       6.27  
@@ -1880,12 +1907,13 @@ Best subsample:
 Outliers:  2 : 
 [1]  5 16
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=16)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 4; C-step iterations: 2, 2, 2, 3, 2, 2
 Log(Det.):  1.94 
+
 Robust Estimate of Location:
    X1     X2     X3  
 10.50   2.58  23.12  
@@ -1903,12 +1931,13 @@ Best subsample:
 Outliers:  4 : 
 [1]  4  6  8 19
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=13)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 1; C-step iterations: 2, 2, 2, 2, 2, 2
 Log(Det.):  -35.2 
+
 Robust Estimate of Location:
    x1     x2     x3     x4     x5  
 0.582  0.125  0.530  0.534  0.888  
@@ -1929,12 +1958,13 @@ Best subsample:
 Outliers:  14 : 
  [1]  1  2  3  4  5  6  7  8  9 10 11 12 13 14
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=39)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 1; C-step iterations: 5, 5, 5, 5, 4, 5
 Log(Det.):  -1.05 
+
 Robust Estimate of Location:
   X1    X2    X3  
 1.54  1.78  1.69  
@@ -1952,12 +1982,13 @@ Best subsample:
 Outliers:  13 : 
  [1]  2  6  7  8  9 12 13 14 15 16 24 25 28
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=15)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 1; C-step iterations: 2, 2, 2, 2, 2, 2
 Log(Det.):  14.6 
+
 Robust Estimate of Location:
  body  brain  
  18.7   64.9  
@@ -1975,12 +2006,13 @@ Best subsample:
 Outliers:  20 : 
  [1]  1  2  3 11 12 13 14 15 16 17 18 20 27 41 44 47 70 74 75 77
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=47)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 5; C-step iterations: 3, 3, 4, 3, 3, 4
 Log(Det.):  -28.8 
+
 Robust Estimate of Location:
     X1      X2      X3      X4      X5      X6      X7      X8  
   1.03   35.90   33.10   26.16   25.13   25.07  123.13   14.39  
@@ -2012,12 +2044,13 @@ Best subsample:
 Outliers:  3 : 
 [1] 17 19 20
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=11)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 1; C-step iterations: 3, 3, 3, 2, 3, 3
 Log(Det.):  0.36 
+
 Robust Estimate of Location:
    X     Y  
 3.86  5.01  
@@ -2034,12 +2067,13 @@ Best subsample:
 Outliers:  4 : 
 [1] 15 16 17 18
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=10)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 1; C-step iterations: 2, 2, 2, 3, 3, 2
 Log(Det.):  16.7 
+
 Robust Estimate of Location:
   Income  Reserves  
     52.3     560.9  
@@ -2055,12 +2089,13 @@ Best subsample:
  [1]  1  2  3  4  8 11 12 13 14 15 19
 Outliers:  0 
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=11)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 1; C-step iterations: 2, 2, 2, 2, 2, 2
 Log(Det.):  7.02 
+
 Robust Estimate of Location:
     X      Y  
 103.0   68.6  
@@ -2077,12 +2112,13 @@ Best subsample:
 Outliers:  3 : 
 [1]  1  2 17
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=21)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 1; C-step iterations: 3, 3, 3, 2, 2, 3
 Log(Det.):  -3.97 
+
 Robust Estimate of Location:
 Volume    Rate  
   1.16    1.72  
@@ -2100,12 +2136,13 @@ Best subsample:
 Outliers:  10 : 
  [1]  1  8 21 22 29 33 42 43 50 63
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=35)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 3; C-step iterations: 3, 3, 3, 3, 3, 3
 Log(Det.):  6.51 
+
 Robust Estimate of Location:
 Region      PA     GPA      HS     GHS       y  
  10.91   33.65   -2.05    2.43    0.31    6.98  
@@ -2132,12 +2169,13 @@ Outliers:  51 :
 [20]  85  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100 101 102 103
 [39] 142 144 147 149 150 151 152 153 154 155 156 157 158
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=82)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 1; C-step iterations: 7, 7, 7, 5, 6, 6
 Log(Det.):  8.88 
+
 Robust Estimate of Location:
  Weight  Length1  Length2  Length3   Height    Width  
   316.3     24.1     26.3     29.3     31.0     14.7  
@@ -2158,12 +2196,13 @@ Best subsample:
 Outliers:  9 : 
 [1]  3  8 12 16 17 18 23 24 25
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=17)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 3; C-step iterations: 2, 2, 2, 2, 2, 2
 Log(Det.):  -10.6 
+
 Robust Estimate of Location:
     SI      AL      FE      MG      CA      TI  
 54.983  15.206   9.700   3.817   5.211   0.859  
@@ -2186,12 +2225,13 @@ Best subsample:
 Outliers:  13 : 
  [1]  9 19 28 40 42 43 49 58 62 64 71 75 77
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=56)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 1; C-step iterations: 3, 3, 3, 3, 5, 3
 Log(Det.):  -14.4 
+
 Robust Estimate of Location:
              Favor          Appearance               Taste          Stickiness  
            -0.2950              0.0799             -0.1555              0.0363  
@@ -2223,12 +2263,13 @@ Outliers:  28 :
  [1]  3  4  5  6  7  8 11 13 15 21 22 28 29 30 35 36 38 40 43 44 46 53 54 58 59
 [26] 66 68 69
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=40)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 1; C-step iterations: 3, 2, 3, 3, 2, 3
 Log(Det.):  17.1 
+
 Robust Estimate of Location:
    POP     MOR     CAR      DR     GNP     DEN      TB  
 17.036  68.512   6.444   0.877   1.134  64.140   0.433  
@@ -2250,12 +2291,13 @@ Best subsample:
 Outliers:  13 : 
  [1]  4  5  9 12 13 16 18 19 24 26 28 30 32
 ------------- *MCD() result: --------------------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=23)
 Call:
 covMcd(x = x, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 1; C-step iterations: 2, 2, 2, 2, 2, 2
 Log(Det.):  25.7 
+
 Robust Estimate of Location:
     HRS     RATE     ERSP     ERNO     NEIN    ASSET      AGE      DEP  
 2150.30     2.90  1117.87   306.83   356.52  6861.39    39.32     2.45  
@@ -3102,12 +3144,12 @@ $quan
 > ###--- now the "close to singular" mahalanobis case:
 > set.seed(6)
 > (c3  <- covMcd(mort3))
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=34); nsamp = 500; nmini = 300
 Call:
 covMcd(x = mort3)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  37.5 
+
 Robust Estimate of Location:
   MO70    MAGE    CI68    MDOC    DENS    NONW    EDUC    IN69  
 113.06  287.91  164.84  155.76   19.56    2.23  558.23  106.91  
@@ -3122,12 +3164,13 @@ NONW    13.6    -0.0216     6.61     2.47    10.5     2.7723  -110   -10.09
 EDUC  -983.2  -569.0122  -845.03   379.51  -416.7  -109.6081  7501   572.66
 IN69  -138.3     4.3931    25.34   129.33   -54.7   -10.0935   573   142.59
 > (c3. <- covMcd(mort3, nsamp="deterministic"))
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=34)
 Call:
 covMcd(x = mort3, nsamp = "deterministic")
--> Method:  Deterministic Minimum Covariance Determinant Estimator. 
-
+iBest: 2; C-step iterations: 3, 3, 3, 2, 2, 3
 Log(Det.):  38 
+
 Robust Estimate of Location:
   MO70    MAGE    CI68    MDOC    DENS    NONW    EDUC    IN69  
 111.41  286.52  164.44  155.62   19.50    2.24  556.46  107.68  
@@ -3165,7 +3208,7 @@ Error in solve.default(cov, ...) :
   system is computationally singular: reciprocal condition number = 2.71945e-11
 > 
 > showProc.time()
-Time elapsed:  4.244 0.064 4.313 
+Time elapsed:  4.52 0.072 4.593 
 > 
 > ## "large" examples using different algo branches {seg.fault in version 0.4-4}:
 > 
@@ -3173,12 +3216,12 @@ Time elapsed:  4.244 0.064 4.313
 > set.seed(1)
 > X <- matrix(round(100*rnorm(n * 3)), n, 3)
 > (cX  <- covMcd(X))
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=302); nsamp = 500; nmini = 300
 Call:
 covMcd(x = X)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  25.1 
+
 Robust Estimate of Location:
 [1]   0.141  -6.083  -0.703
 Robust Estimate of Covariance:
@@ -3187,7 +3230,7 @@ Robust Estimate of Covariance:
 [2,]  -114  11221    250
 [3,]   389    250  11726
 >  cX. <- covMcd(X, nsamp="deterministic", scalefn = scaleTau2)
-> i <- names(cX); i <- i[!(i %in% c("call", "method", "raw.weights"))]
+> i <- names(cX); i <- i[!(i %in% c("call", "nsamp", "method", "raw.weights"))]
 > stopifnot(sum(cX.$raw.weights != cX$raw.weights) <= 2,
 +           all.equal(cX[i], cX.[i], tol= 1/9))
 > 
@@ -3195,13 +3238,13 @@ Robust Estimate of Covariance:
 > set.seed(4)
 > X <- matrix(round(100*rnorm(n * 3)), n, 3)
 > set.seed(1)
-> (cX  <- covMcd(X))
-Minimum Covariance Determinant (MCD) estimator.
+> summary(cX  <- covMcd(X)) # <- show newly activated  print.summary.mcd(.)
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=1002); nsamp = 500; nmini = 300
 Call:
 covMcd(x = X)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  24.9 
+
 Robust Estimate of Location:
 [1]   0.422  -0.422  -0.252
 Robust Estimate of Covariance:
@@ -3209,6 +3252,17 @@ Robust Estimate of Covariance:
 [1,]  9943.7   -61.1     74.6
 [2,]   -61.1  9551.8   -275.3
 [3,]    74.6  -275.3  10118.1
+
+Eigenvalues:
+[1] 10257  9918  9438
+
+Robust Distances: 
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.0169  1.1600  2.4100  2.9900  4.1100 15.7000 
+Robustness weights: 
+ 50 observations c(118,122,130,152,155,159,181,246,266,376,394,432,483,517,608,666,774,792,840,913,971,986,1067,1095,1099,1106,1129,1167,1179,1222,1276,1293,1412,1443,1499,1534,1570,1573,1589,1596,1622,1633,1712,1714,1726,1784,1795,1805,1845,1891)
+	 are outliers with |weight| = 0 ( < 5e-05); 
+ 1950 weights are ~= 1.
 >  cX. <- covMcd(X, nsamp="deterministic", scalefn = scaleTau2)
 > i2 <- i[i != "mcd.wt"]
 > stopifnot(print(sum(cX.$raw.weights != cX$raw.weights)) <= 3, # 2
@@ -3221,7 +3275,7 @@ Robust Estimate of Covariance:
 > stopifnot(cXo$raw.only, all.equal(cX[i], cXo[i], tol = 1e-15),
 +           c("best", "mah") %in% setdiff(names(cX), names(cXo)))
 > showProc.time()
-Time elapsed:  0.475 0.004 0.479 
+Time elapsed:  0.527 0 0.526 
 > 
 > ## Now, some small sample cases:
 > 
@@ -3257,13 +3311,13 @@ Time elapsed:  0.475 0.004 0.479
 > X <- X.[1:5, 1:3]
 > set.seed(101)
 > ## the finite-sample correction is definitely doubtful:
-> (cc <- covMcd(X, use.correction = FALSE))
-Minimum Covariance Determinant (MCD) estimator.
+> summary(cc <- covMcd(X, use.correction = FALSE))
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=4); nsamp = 500; nmini = 300
 Call:
 covMcd(x = X, use.correction = FALSE)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  4.3 
+
 Robust Estimate of Location:
 [1]   2.50  -6.50   1.25
 Robust Estimate of Covariance:
@@ -3271,13 +3325,23 @@ Robust Estimate of Covariance:
 [1,]   2.474   -6.93    0.742
 [2,]  -6.928  273.67  -28.456
 [3,]   0.742  -28.46    3.341
+
+Eigenvalues:
+[1] 276.815   2.298   0.377
+
+Robust Distances: 
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   1.52    1.52    1.52  546.00    1.52 2720.00 
+Robustness weights: 
+[1] 1 1 1 1 0
 Warning message:
 In covMcd(X, use.correction = FALSE) :
   n < 2 * p, i.e., possibly too small sample size
 > str(cc) ## best = 2 3 4 5
-List of 18
- $ method     : chr "Minimum Covariance Determinant Estimator."
+List of 19
  $ call       : language covMcd(x = X, use.correction = FALSE)
+ $ nsamp      : num 500
+ $ method     : chr "Fast MCD(alpha=0.5 ==> h=4); nsamp = 500; nmini = 300"
  $ cov        : num [1:3, 1:3] 2.474 -6.928 0.742 -6.928 273.675 ...
  $ center     : num [1:3] 2.5 -6.5 1.25
  $ n.obs      : int 5
@@ -3309,12 +3373,12 @@ List of 18
 > X <- X.[1:n, 1+(1:p)]
 > stopifnot(dim(X) == c(n,p))
 > (cc <- covMcd(X, use.correction = FALSE))
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=6); nsamp = 500; nmini = 300
 Call:
 covMcd(x = X, use.correction = FALSE)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  15.6 
+
 Robust Estimate of Location:
 [1]   0.333   3.000   0.683  -4.267
 Robust Estimate of Covariance:
@@ -3327,9 +3391,10 @@ Warning message:
 In covMcd(X, use.correction = FALSE) :
   n < 2 * p, i.e., possibly too small sample size
 > str(cc) ## best = 1 2 4 5 6 7
-List of 18
- $ method     : chr "Minimum Covariance Determinant Estimator."
+List of 19
  $ call       : language covMcd(x = X, use.correction = FALSE)
+ $ nsamp      : num 500
+ $ method     : chr "Fast MCD(alpha=0.5 ==> h=6); nsamp = 500; nmini = 300"
  $ cov        : num [1:4, 1:4] 319 61.2 -82.3 102.9 61.2 ...
  $ center     : num [1:4] 0.333 3 0.683 -4.267
  $ n.obs      : int 7
@@ -3357,12 +3422,12 @@ List of 18
 > n <- 6
 > X <- X[1:n,]
 > (cc <- covMcd(X, use.correction = FALSE))
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=5); nsamp = 500; nmini = 300
 Call:
 covMcd(x = X, use.correction = FALSE)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  7.67 
+
 Robust Estimate of Location:
 [1]  -4.00   0.40   1.38  -4.68
 Robust Estimate of Covariance:
@@ -3380,21 +3445,50 @@ In covMcd(X, use.correction = FALSE) :
 +           all.equal(c(mcc$cov / cc$raw.cov), rep(0.7528695976179, p*p)))
 > 
 > showProc.time()
-Time elapsed:  0.044 0 0.044 
+Time elapsed:  0.047 0.004 0.051 
 > 
 > ## nsamp = "exact" -- here for p=7
 > coleman.x <- data.matrix(coleman[, 1:6])
 > showSys.time(CcX <- covMcd(coleman.x, nsamp= "exact"))
 Time    user  system elapsed 
-Time   1.155   0.004   1.159 
+Time   1.297   0.000   1.296 
 > showSys.time(Ccd <- covMcd(coleman.x, nsamp= "deterministic"))
 Time    user  system elapsed 
-Time   0.021   0.000   0.021 
+Time   0.022   0.000   0.023 
 > stopifnot(all.equal(CcX$best,
 + 		    c(2, 5:9, 11,13, 14:16, 19:20), tolerance=0),
 + 	  intersect(CcX$best, Ccd$best) == c(2,5,7,8,13,14,16,19,20),
 +           relErr(CcX$crit, Ccd$crit) < 0.35 # see ~ 0.34
 + )
+> summary(Ccd)
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Deterministic MCD(alpha=0.5 ==> h=13)
+Call:
+covMcd(x = coleman.x, nsamp = "deterministic")
+iBest: 1; C-step iterations: 3, 2, 2, 2, 2, 2
+Log(Det.):  1.85 
+
+Robust Estimate of Location:
+  salaryP   fatherWc    sstatus  teacherSc  motherLev          Y  
+     2.76      48.38       6.12      25.00       6.40      36.53  
+Robust Estimate of Covariance:
+           salaryP  fatherWc  sstatus  teacherSc  motherLev       Y
+salaryP      0.485      3.42    -0.51       0.29      0.144   -1.24
+fatherWc     3.420   2495.44   632.76      24.13     66.059  366.87
+sstatus     -0.510    632.76   229.54       7.34     19.396  129.97
+teacherSc    0.290     24.13     7.34       1.50      1.063    2.99
+motherLev    0.144     66.06    19.40       1.06      1.996   10.66
+Y           -1.243    366.87   129.97       2.99     10.663   82.91
+
+Eigenvalues:
+[1] 2.72e+03 8.37e+01 7.35e+00 1.16e+00 3.11e-01 2.78e-02
+
+Robust Distances: 
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  0.596   1.330   1.980  10.500  14.900  49.900 
+Robustness weights: 
+ 5 observations c(6,9,10,11,18) are outliers with |weight| = 0 ( < 0.005); 
+ 15 weights are ~= 1.
 > 
 > demo(determinMCD)
 
@@ -3509,12 +3603,12 @@ Best subsamples:
  detMCD is the same as FastMCD
 Details about FastMCD : Outliers:  0 
 -------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=22); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x, trace = trace)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  18.1 
+
 Robust Estimate of Location:
  V1   V2   V3   V4   V5  
 105  147  274  218  279  
@@ -3537,12 +3631,12 @@ Best subsamples:
  exactMCD is the same as FastMCD
 Details about FastMCD : Outliers:  0 
 -------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=7); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x, trace = trace)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  5.68 
+
 Robust Estimate of Location:
 height  weight  
   38.3    33.1  
@@ -3561,12 +3655,12 @@ Best subsamples:
  Difference  detMCD - FastMCD:[1] 23 31 47
 Details about FastMCD : Outliers:  0 
 -------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=25); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x, trace = trace)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  -8.03 
+
 Robust Estimate of Location:
    log.Te  log.light  
      4.41       4.95  
@@ -3585,12 +3679,12 @@ Best subsamples:
  Difference  detMCD - FastMCD:[1] 16 18 19
 Details about FastMCD : Outliers:  0 
 -------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=12); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x, trace = trace)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  5.47 
+
 Robust Estimate of Location:
   Air.Flow  Water.Temp  Acid.Conc.  
       59.5        20.8        87.3  
@@ -3612,12 +3706,12 @@ Best subsamples:
  exactMCD is the same as FastMCD
 Details about FastMCD : Outliers:  0 
 -------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=10); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x, trace = trace)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  6.88 
+
 Robust Estimate of Location:
   inorg  organic  
    13.4     38.8  
@@ -3636,12 +3730,12 @@ Best subsamples:
  Difference  detMCD - FastMCD:[1] 18
 Details about FastMCD : Outliers:  0 
 -------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=13); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x, trace = trace)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  1.29 
+
 Robust Estimate of Location:
   salaryP   fatherWc    sstatus  teacherSc  motherLev  
      2.76      48.38       6.12      25.00       6.40  
@@ -3663,12 +3757,12 @@ Best subsamples:
  Difference  detMCD - FastMCD:[1] 10 15 17
 Details about FastMCD : Outliers:  0 
 -------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=16); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x, trace = trace)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  1.33 
+
 Robust Estimate of Location:
    X1     X2     X3  
 10.08   2.78  22.78  
@@ -3688,12 +3782,12 @@ Best subsamples:
  Difference  detMCD - FastMCD:[1] 11
 Details about FastMCD : Outliers:  0 
 -------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=13); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x, trace = trace)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  -36.3 
+
 Robust Estimate of Location:
    x1     x2     x3     x4     x5  
 0.587  0.122  0.531  0.538  0.892  
@@ -3717,12 +3811,12 @@ Best subsamples:
  Difference  detMCD - FastMCD:[1] 28 29 41 48
 Details about FastMCD : Outliers:  0 
 -------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=39); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x, trace = trace)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  -1.05 
+
 Robust Estimate of Location:
   X1    X2    X3  
 1.54  1.78  1.69  
@@ -3743,12 +3837,12 @@ Best subsamples:
  exactMCD is the same as FastMCD
 Details about FastMCD : Outliers:  0 
 -------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=15); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x, trace = trace)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  14.6 
+
 Robust Estimate of Location:
  body  brain  
  18.7   64.9  
@@ -3769,12 +3863,12 @@ Best subsamples:
  Difference  detMCD - FastMCD:[1] 21 36 62
 Details about FastMCD : Outliers:  0 
 -------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=47); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x, trace = trace)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  -28.9 
+
 Robust Estimate of Location:
     X1      X2      X3      X4      X5      X6      X7      X8  
   1.03   35.76   33.05   26.12   25.10   25.04  122.94   14.36  
@@ -3809,12 +3903,12 @@ Best subsamples:
  exactMCD is the same as FastMCD
 Details about FastMCD : Outliers:  0 
 -------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=11); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x, trace = trace)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  0.36 
+
 Robust Estimate of Location:
    X     Y  
 3.86  5.01  
@@ -3834,12 +3928,12 @@ Best subsamples:
  exactMCD is the same as FastMCD
 Details about FastMCD : Outliers:  0 
 -------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=10); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x, trace = trace)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  16.7 
+
 Robust Estimate of Location:
   Income  Reserves  
     52.3     560.9  
@@ -3860,12 +3954,12 @@ Best subsamples:
  exactMCD is the same as FastMCD
 Details about FastMCD : Outliers:  0 
 -------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=11); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x, trace = trace)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  6.49 
+
 Robust Estimate of Location:
     X      Y  
 101.1   67.7  
@@ -3883,12 +3977,12 @@ Best subsamples:
  detMCD is the same as FastMCD
 Details about FastMCD : Outliers:  0 
 -------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=21); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x, trace = trace)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  -3.97 
+
 Robust Estimate of Location:
 Volume    Rate  
   1.16    1.72  
@@ -3909,12 +4003,12 @@ Best subsamples:
  Difference  detMCD - FastMCD:[1] 17
 Details about FastMCD : Outliers:  0 
 -------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=35); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x, trace = trace)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  6.61 
+
 Robust Estimate of Location:
 Region      PA     GPA      HS     GHS       y  
 10.872  33.408  -1.919   2.461   0.369   7.879  
@@ -3945,12 +4039,12 @@ Best subsamples:
  Difference  detMCD - FastMCD:[1] 106 108 112
 Details about FastMCD : Outliers:  0 
 -------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=82); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x, trace = trace)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  8.88 
+
 Robust Estimate of Location:
  Weight  Length1  Length2  Length3   Height    Width  
   329.9     24.5     26.6     29.7     31.1     14.7  
@@ -3972,12 +4066,12 @@ Best subsamples:
  detMCD is the same as FastMCD
 Details about FastMCD : Outliers:  0 
 -------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=17); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x, trace = trace)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  -10.6 
+
 Robust Estimate of Location:
     SI      AL      FE      MG      CA      TI  
 54.983  15.206   9.700   3.817   5.211   0.859  
@@ -4004,12 +4098,12 @@ Best subsamples:
  Difference  detMCD - FastMCD: [1]  13  16  17  25  27  60  66  74  90 100 101
 Details about FastMCD : Outliers:  0 
 -------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=56); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x, trace = trace)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  -14.5 
+
 Robust Estimate of Location:
              Favor          Appearance               Taste          Stickiness  
            -0.2731              0.0600             -0.1468              0.0646  
@@ -4043,12 +4137,12 @@ Best subsamples:
  Difference  detMCD - FastMCD:[1]  2 19 25
 Details about FastMCD : Outliers:  0 
 -------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=40); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x, trace = trace)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  16.9 
+
 Robust Estimate of Location:
    POP     MOR     CAR      DR     GNP     DEN      TB  
 20.364  69.750   6.463   0.859   1.133  59.998   0.439  
@@ -4072,12 +4166,12 @@ Best subsamples:
  Difference  detMCD - FastMCD:[1] 29 31
 Details about FastMCD : Outliers:  0 
 -------------
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=23); nsamp = 500; nmini = 300
 Call:
 covMcd(x = x, trace = trace)
--> Method:  Minimum Covariance Determinant Estimator. 
-
 Log(Det.):  25.7 
+
 Robust Estimate of Location:
     HRS     RATE     ERSP     ERNO     NEIN    ASSET      AGE      DEP  
 2140.17     2.85  1133.30   307.48   343.26  6539.43    39.57     2.44  
@@ -4138,17 +4232,17 @@ In covMcd(X, use.correction = FALSE) :
 > ## At line 723 of file rffastmcd.f
 > ## Fortran runtime error: Index '6' of dimension 1 of array 'z' above upper bound of 4
 > d2
-Minimum Covariance Determinant (MCD) estimator.
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=51); nsamp = 500; nmini = 300
 Call:
 covMcd(x = d.x)
--> Method:  Minimum Covariance Determinant Estimator. 
 The covariance matrix has become singular during
 the iterations of the MCD algorithm.
 There are 55 observations (in the entire dataset of 100 obs.) lying on
 the line with equation 0 (x_i1-m_1) + 1 (x_i2-m_2) = 0 with (m_1,m_2)
 the mean of these observations.
-
 Log(Det.):  -Inf 
+
 Robust Estimate of Location:
     X1      X2  
 0.0621  3.0000  
@@ -4214,4 +4308,4 @@ the mean of these observations.
 > 
 > proc.time()
    user  system elapsed 
-  7.303   0.100   7.394 
+  8.393   0.138   8.526 

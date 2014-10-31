@@ -85,10 +85,10 @@ ltsReg(x, \dots)
     (1999), now specified by \code{wgtFUN = "01.original"} (or via \code{control}).}
   %% MM:  want control also for formula !?!?!?!?!!
   \item{control}{a list with estimation options - same as these provided
-  in the function specification.  If the control object is supplied, the
-  parameters from it will be used.  If parameters are passed also in the
-  invocation statement, they will override the corresponding elements of
-  the control object.}
+    in the function specification.  If the control object is supplied, the
+    parameters from it will be used.  If parameters are passed also in the
+    invocation statement, they will override the corresponding elements of
+    the control object.}
   \item{\dots}{arguments passed to or from other methods.}
 }
 \details{

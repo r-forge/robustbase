@@ -21,7 +21,7 @@
 rrcov.control <-
     function(alpha = 1/2, nsamp = 500, nmini = 300,
              seed = NULL, tolSolve = 1e-14,
-             scalefn = "hrv2011", maxcsteps = 200,
+             scalefn = "hrv2012", maxcsteps = 200,
 	     trace = FALSE, wgtFUN = "01.original",
              use.correction = identical(wgtFUN, "01.original"),
              adjust = FALSE)

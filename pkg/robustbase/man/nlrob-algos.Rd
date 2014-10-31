@@ -83,7 +83,7 @@ nlrob.mtl(formula, data, pnames, lower, upper,
 }
 \author{
   Eduardo L. T. Conceicao; compatibility (to \code{\link{nlrob}})
-  tweaks and generalizations, by Martin Maechler.
+  tweaks and generalizations, inference, by Martin Maechler.
 }
 \source{
   For \code{"MTL"}:

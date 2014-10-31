@@ -44,7 +44,7 @@ set.seed(1)
 X <- matrix(round(100*rnorm(n * 3)), n, 3)
 (cX  <- covMcd(X))
  cX. <- covMcd(X, nsamp="deterministic", scalefn = scaleTau2)
-i <- names(cX); i <- i[!(i %in% c("call", "method", "raw.weights"))]
+i <- names(cX); i <- i[!(i %in% c("call", "nsamp", "method", "raw.weights"))]
 stopifnot(sum(cX.$raw.weights != cX$raw.weights) <= 2,
           all.equal(cX[i], cX.[i], tol= 1/9))
 
@@ -52,7 +52,7 @@ n <- 2000 ## - nesting will be triggered
 set.seed(4)
 X <- matrix(round(100*rnorm(n * 3)), n, 3)
 set.seed(1)
-(cX  <- covMcd(X))
+summary(cX  <- covMcd(X)) # <- show newly activated  print.summary.mcd(.)
  cX. <- covMcd(X, nsamp="deterministic", scalefn = scaleTau2)
 i2 <- i[i != "mcd.wt"]
 stopifnot(print(sum(cX.$raw.weights != cX$raw.weights)) <= 3, # 2
@@ -88,7 +88,7 @@ stopifnot(inherits(r, "error"),
 X <- X.[1:5, 1:3]
 set.seed(101)
 ## the finite-sample correction is definitely doubtful:
-(cc <- covMcd(X, use.correction = FALSE))
+summary(cc <- covMcd(X, use.correction = FALSE))
 str(cc) ## best = 2 3 4 5
 mcc <- MASS::cov.mcd(X)
 stopifnot(cc$best == mcc$best,
@@ -125,6 +125,7 @@ stopifnot(all.equal(CcX$best,
 	  intersect(CcX$best, Ccd$best) == c(2,5,7,8,13,14,16,19,20),
           relErr(CcX$crit, Ccd$crit) < 0.35 # see ~ 0.34
 )
+summary(Ccd)
 
 demo(determinMCD)
 warnings()

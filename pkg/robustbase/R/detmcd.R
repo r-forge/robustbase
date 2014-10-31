@@ -198,8 +198,8 @@ robScalefn <- function(scalefn, n) {
 	scalefn
     else
 	switch(scalefn,
-	       ## Hubert Rousseeuw, Verdonck, May 16, 2011, p.7 :
-	       "hrv2011" = if(n < 1000) Qn else scaleTau2,
+	       ## Hubert, Rousseeuw, Verdonck, JCGS 2012 :
+	       "hrv2012" = if(n < 1000) Qn else scaleTau2,
 	       ## Version of 2014:
 	       "v2014"	 = if(n < 5000) Qn else scaleTau2,
 	       ## otherwise

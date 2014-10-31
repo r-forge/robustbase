@@ -28,8 +28,7 @@ covMcd(x, cor = FALSE, raw.only = FALSE,
   \item{cor}{should the returned result include a correlation matrix?
     Default is \code{cor = FALSE}}.
   \item{raw.only}{should only the \dQuote{raw} estimate be returned,
-    i.e., no weighted reweit the returned result include a correlation matrix?
-    Default is \code{cor = FALSE}}.
+    i.e., no (re)weighting step be performed; default is false.}
   \item{alpha}{numeric parameter controlling the size of the subsets
     over which the determinant is minimized; roughly \code{alpha*n},
     (see \sQuote{Details} below)
@@ -51,9 +50,13 @@ covMcd(x, cor = FALSE, raw.only = FALSE,
     maximally \eqn{k_{\mathrm{rep}} = 5}{krep = 5} subsets of size
     \code{nmini}. %% FIXME? -- more accurately and in detail ?!
     The original algorithm had \code{nmini = 300} hard coded.}
-  \item{scalefn}{\code{\link{function}} to compute a robust scale
-    estimate or character string specifying a rule determining such a
-    function, see \code{\link{rrcov.control}}.}
+  \item{scalefn}{for the deterministic MCD: \code{\link{function}} to
+    compute a robust scale estimate or character string specifying a
+    rule determining such a function.  The default, currently
+    \code{"hrv2012"}, uses the recommendation of Hubert, Rousseeuw and
+    Verdonck (2012) who recommend \code{\link{Qn}}
+    for \eqn{n < 1000} and \code{\link{scaleTau2}} for larger n.  Alternatively,
+    \code{scalefn = "v2014"}, uses that rule with cutoff \eqn{n = 5000}.}
   \item{maxcsteps}{maximal number of concentration steps in the
     deterministic MCD; should not be reached.}
   \item{initHsets}{NULL or a \eqn{K x h} integer matrix of initial
