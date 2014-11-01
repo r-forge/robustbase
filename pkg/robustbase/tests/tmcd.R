@@ -127,6 +127,6 @@ stopifnot(all.equal(CcX$best,
 )
 summary(Ccd)
 
-demo(determinMCD)
+demo(determinMCD)## ../demo/determinMCD.R
 warnings()
 
