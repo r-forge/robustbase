@@ -128,7 +128,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine rffastmcd(dat,n,nvar,nhalff, krep, nmini,
 c     ------ nhalff = quan = h(alpha);  krep == nsamp
      *     initcov,initmean,
-     *     inbest,det,weight,fit,coeff,kount,adcov,
+     *     inbest, det, weight, fit, coeff, kount, adcov,
 cc     *     iseed,
      *     temp, index1, index2, indexx, nmahad, ndist, am, am2, slutn,
      *     med, mad, sd, means, bmeans, w, fv1, fv2,
@@ -585,10 +585,7 @@ cc
 cc Compute and store classical Mahalanobis distances.
 cc
       do j=1,n
-         do i=1,nvar
-            rec(i)=dat(j,i)
-         end do
-         nmahad(j)=rfmahad(rec,nvar,means,cinv1)
+         nmahad(j)=rfmahad(dat(j,1), nvar,means, cinv1)
       end do
 
 
@@ -1035,13 +1032,13 @@ cc
                   else
 C
 C                 VT::27.10.2014 - an issue with nsamp="exact" fixed:
-C                          
+C
 C                 Add one more observation and return to recompute the
-C                 covariance. In case of complete enumeration, when all 
-C                 p+1 subsamples are generated, the array 'index1' must 
+C                 covariance. In case of complete enumeration, when all
+C                 p+1 subsamples are generated, the array 'index1' must
 C                 be preserved 8around label 9550).
 C
-                     if(i_trace .ge. 2) then 
+                     if(i_trace .ge. 2) then
                      call intpr('Singularity-extending the subsample: ',
      *                   -1,index1,nsel)
                      endif
@@ -1063,15 +1060,11 @@ cc  corresponding observations.
 cc
             do j=1,nn
                if(.not.part.or.final) then
-                  do mm=1,nvar
-                     rec(mm)=dat(j,mm)
-                  end do
+                  t=rfmahad(dat (j,1), nvar, means, cinv1)
                else
-                  do mm=1,nvar
-                     rec(mm)=dath(j,mm)
-                  end do
+                  t=rfmahad(dath(j,1), nvar, means, cinv1)
                endif
-               t=rfmahad(rec,nvar,means,cinv1)
+
                ndist(j)=t
             end do
             dist2=rffindq(ndist,nn,nhalf,index2)
@@ -1224,15 +1217,10 @@ cc
                deti=det
                do j=1,nn
                   if(.not.part.or.final) then
-                     do mm=1,nvar
-                        rec(mm)=dat(j,mm)
-                     end do
+                     t=rfmahad(dat (j,1), nvar, means, cinv1)
                   else
-                     do mm=1,nvar
-                        rec(mm)=dath(j,mm)
-                     end do
+                     t=rfmahad(dath(j,1), nvar, means, cinv1)
                   endif
-                  t=rfmahad(rec,nvar,means,cinv1)
                   ndist(j)=t
                end do
                dist2=rffindq(ndist,nn,nhalf,index2)
@@ -1452,18 +1440,13 @@ cc      For every observation we compute its MCD distance
 cc      and compare it to a cutoff value.
 cc
       call rfcovinit(sscp1,nvar+1,nvar+1)
-      nin=0
 
 cc VT:: no need - the cutoff now is passed as a parameter
 cc      cutoff=chi2(nvar)
 
       do i=1,n
-         do mm=1,nvar
-            rec(mm)=dat(i,mm)
-         end do
-         dist2=rfmahad(rec,nvar,bmeans,cinv2)
+         dist2=rfmahad(dat(i,1), nvar,bmeans, cinv2)
          if(dist2.le.cutoff) then
-            nin=nin+1
             weight(i)=1
          else
             weight(i)=0
@@ -1676,12 +1659,11 @@ c           ------- break
       end
 ccccc
 ccccc
-      function rfmahad(rec,nvar,means,sigma)
+      double precision function rfmahad(rec,nvar,means,sigma)
 cc
 cc  Computes a Mahalanobis-type distance.
 cc
-      double precision rec(nvar), means(nvar), sigma(nvar,nvar)
-      double precision rfmahad, t
+      double precision rec(nvar), means(nvar), sigma(nvar,nvar), t
 
       t=0
       do j=1,nvar
