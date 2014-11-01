@@ -77,7 +77,7 @@ dput(Rnk(a4$adjout),, {})
 
 stopifnot(which(!a2$nonOut) == 1:14,
 	  which(!a3$nonOut) == 1:14,
-	  if(isSun && isMac && is32) TRUE else
+	  if(isSun || isMac || is32) TRUE else
 	  ## which(!a4$nonOut) == if(is32 && !isMac) c(1, 2, 41, 70) else c(12, 70),
           which(!a4$nonOut) == c(9:19, 23:27,57, 59, 70, 77),
 	  ## 'longley', 'wood' have no outliers in the "adjOut" sense:
