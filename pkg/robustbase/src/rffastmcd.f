@@ -585,7 +585,10 @@ cc
 cc Compute and store classical Mahalanobis distances.
 cc
       do j=1,n
-         nmahad(j)=rfmahad(dat(j,1), nvar,means, cinv1)
+         do i=1,nvar
+            rec(i)=dat(j,i)
+         end do
+         nmahad(j)=rfmahad(rec,nvar,means,cinv1)
       end do
 
 
@@ -1060,11 +1063,15 @@ cc  corresponding observations.
 cc
             do j=1,nn
                if(.not.part.or.final) then
-                  t=rfmahad(dat (j,1), nvar, means, cinv1)
+                  do mm=1,nvar
+                     rec(mm)=dat(j,mm)
+                  end do
                else
-                  t=rfmahad(dath(j,1), nvar, means, cinv1)
+                  do mm=1,nvar
+                     rec(mm)=dath(j,mm)
+                  end do
                endif
-
+               t=rfmahad(rec,nvar,means,cinv1)
                ndist(j)=t
             end do
             dist2=rffindq(ndist,nn,nhalf,index2)
@@ -1217,10 +1224,15 @@ cc
                deti=det
                do j=1,nn
                   if(.not.part.or.final) then
-                     t=rfmahad(dat (j,1), nvar, means, cinv1)
+                     do mm=1,nvar
+                        rec(mm)=dat(j,mm)
+                     end do
                   else
-                     t=rfmahad(dath(j,1), nvar, means, cinv1)
+                     do mm=1,nvar
+                        rec(mm)=dath(j,mm)
+                     end do
                   endif
+                  t=rfmahad(rec,nvar,means,cinv1)
                   ndist(j)=t
                end do
                dist2=rffindq(ndist,nn,nhalf,index2)
@@ -1445,7 +1457,10 @@ cc VT:: no need - the cutoff now is passed as a parameter
 cc      cutoff=chi2(nvar)
 
       do i=1,n
-         dist2=rfmahad(dat(i,1), nvar,bmeans, cinv2)
+         do mm=1,nvar
+            rec(mm)=dat(i,mm)
+         end do
+         dist2=rfmahad(rec,nvar,bmeans,cinv2)
          if(dist2.le.cutoff) then
             weight(i)=1
          else
