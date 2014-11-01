@@ -62,7 +62,7 @@ set.seed(11); S.time(a1.2 <- adjOutlyingness(longley))
 ##
 set.seed(2); S.time(a2 <- adjOutlyingness(hbk))
 set.seed(3); S.time(a3 <- adjOutlyingness(hbk[, 1:3]))# the 'X' space
-set.seed(4); S.time(a4 <- adjOutlyingness(milk))
+set.seed(4); S.time(a4 <- adjOutlyingness(milk)) # obs.63 = obs.64
 set.seed(5); S.time(a5 <- adjOutlyingness(wood))
 set.seed(6); S.time(a6 <- adjOutlyingness(wood[, 1:5]))# the 'X' space
 
@@ -71,9 +71,9 @@ is32 <- .Machine$sizeof.pointer == 4 ## <- should work for Linux/MacOS/Windows
 isMac <- Sys.info()["sysname"] == "Darwin"
 isSun <- Sys.info()["sysname"] == "SunOS"
 Rnk <- function(u) rank(unname(u), ties.method = "first")
-## for later testing:
-dput(Rnk(a3$adjout),, {})
-dput(Rnk(a4$adjout),, {})
+## to use for testing below:
+cat("\nRnk(a3 $ adjout): "); dput(Rnk(a3$adjout), control= {})
+cat("\nRnk(a4 $ adjout): "); dput(Rnk(a4$adjout), control= {})
 
 stopifnot(which(!a2$nonOut) == 1:14,
 	  which(!a3$nonOut) == 1:14,
@@ -86,17 +86,17 @@ stopifnot(which(!a2$nonOut) == 1:14,
 	  a5$nonOut,
           a6$nonOut[-20],
 	  ## hbk (n = 75) :
-	  abs(print(Rnk(a3$adjout)) -
+	  abs(Rnk(a3$adjout) -
              c(62, 64, 68, 71, 70,   65, 66, 63, 69, 67,   73, 75, 72, 74, 25,
                52, 44,  5, 11, 33,    6, 21, 29, 28, 59,    9, 12, 13, 37, 27,
                43, 35, 22, 55, 14,    2, 26, 46, 54, 15,   23, 41, 40, 32, 60,
                30, 61, 19, 16,  8,   39, 53, 51, 48, 20,   47, 50, 42,  7, 38,
                17, 57, 45, 18, 24,   34,  3, 58, 56,  4,    1, 10, 31, 36, 49)
-	      ) <= 3
+	      ) <= 3 ## all 0 on 32-bit Linux
          ,
 	  ## milk (n = 86) : -- Quite platform dependent!
       {
-	  print(r <- Rnk(a4$adjout))
+	  r <- Rnk(a4$adjout)
 	  r64 <- ## the 64-bit (ubuntu 14.04, nb-mm3) values:
 	      c(65, 66, 61, 56, 47,   51, 19, 37, 74, 67,   79, 86, 83, 84, 85,
 		82, 81, 73, 80, 55,   27,  3, 70, 68, 78,   76, 77, 53, 48,  8,
@@ -104,9 +104,20 @@ stopifnot(which(!a2$nonOut) == 1:14,
 		30, 57, 46, 43, 45,   25, 54, 12,  1,  9,    2, 71, 14, 75, 23,
 		 4, 10, 34, 35, 17,   24, 15, 20, 38, 72,   42, 13, 50, 60, 62,
 		26, 69, 18,  5, 21,    7, 49, 11, 41, 59,   16)
+          r32 <- ## Linux 32bit (florence: 3.14.8-100.fc19.i686.PAE)
+              c(78, 79, 72, 66, 52,   61, 22, 41, 53, 14,   74, 85, 82, 83, 84,
+                80, 81, 56, 73, 65,   30,  3, 16, 17, 68,   57, 58, 63, 54,  8,
+                32, 37,  6, 36, 31,   35, 40, 44, 25, 69,   77, 62, 43, 76, 48,
+                34, 67, 51, 47, 49,   28, 64, 12,  1,  9,    2, 33, 15, 59, 26,
+                 4, 10, 38, 39, 20,   27, 18, 23, 42, 86,   46, 13, 60, 71, 75,
+                29, 50, 21,  5, 24,    7, 55, 11, 45, 70,   19)
+          d <- (r - if (is32) r32 else r64)
+          if(has.d <- any(d != 0)) { print(cbind(r, d)); print(table(abs(d))) }
 	  ## for the biggest part (79 out of 86), the ranks are "close":
-	  table(d <- (r - r64)[-c(9, 24:27, 59, 71)]) # 32b Linux: 0 .. 6
-	  abs(d) <= 7
+          ## 2014: still true, but in a different sense..
+          if(has.d)
+              sum(abs(d) <= 17) >= 78 && sum(abs(d) <= 13) >= 75
+          else TRUE
       })
 
 
