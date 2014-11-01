@@ -39,7 +39,7 @@ covMcd <- function(x,
            nsamp = control$ nsamp,
            nmini = control$ nmini,
            scalefn=control$scalefn, maxcsteps=control$maxcsteps,
-           initHsets = NULL, save.hsets = FALSE, # full.h = save.hsets,
+           initHsets = NULL, save.hsets = FALSE,
            seed  = control$ seed,
            tolSolve = control$ tolSolve, # had 1e-10 hardwired {now 1e-14 default}
            trace = control$ trace,
@@ -77,7 +77,7 @@ covMcd <- function(x,
                     dimnames = list(names(x), deparse(substitute(x))))
 
     ## drop all rows with missing values (!!) :
-    ok <- is.finite(x %*% rep(1, ncol(x)))
+    ok <- is.finite(x %*% rep.int(1, ncol(x)))
     x <- x[ok, , drop = FALSE]
     if(!length(dx <- dim(x)))
         stop("All observations have missing values!")
@@ -101,7 +101,8 @@ covMcd <- function(x,
     ##     we should even omit the (n < 2p) warning
     if(h > n)
         stop("Sample size n  <  h(alpha; n,p) := size of \"good\" subsample")
-    else if(alpha > 1) stop("alpha must be <= 1")
+    else if(2*h < n)
+	warning("subsample size	 h < n/2  may be too small")
 
     if(is.character(wgtFUN)) {
 	switch(wgtFUN,
@@ -125,7 +126,7 @@ covMcd <- function(x,
     ans <- list(call = match.call(), nsamp = nsamp,
                 method = sprintf("MCD(alpha=%g ==> h=%d)", alpha, h))
 
-    if(alpha == 1) { ## alpha=1: Just compute the classical estimates --------
+    if(h == n) { ## <==> alpha ~= 1 : Just compute the classical estimates --------
         mcd <- cov(x) #MM: was  cov.wt(x)$cov
         loc <- as.vector(colMeans(x))
         obj <- determinant(mcd, logarithm = TRUE)$modulus[1]
@@ -507,7 +508,7 @@ print.summary.mcd <-
 ##' Compute the consistency correction factor for the MCD estimate
 ##'    (see calfa in Croux and Haesbroeck)
 ##' @param p
-##' @param alpha alpha = h/n = quan/n
+##' @param alpha alpha ~= h/n = quan/n
 ##'    also use for the reweighted MCD, calling with alpha = 'sum(weights)/n'
 MCDcons <- # <- *not* exported, but currently used in pkgs rrcov, rrcovNA
 .MCDcons <- function(p, alpha)
@@ -521,7 +522,7 @@ MCDcnp2 <- # <- *not* exported, but currently used in pkg rrcovNA
 ##' Finite sample correction factor for raw MCD:
 .MCDcnp2 <- function(p, n, alpha)
 {
-    stopifnot(0.5 <= alpha, alpha <= 1)
+    stopifnot(0 <= alpha, alpha <= 1, length(alpha) == 1)
 
     if(p > 2) {
 	##				"alfaq"	        "betaq"	    "qwaarden"
@@ -568,7 +569,7 @@ MCDcnp2.rew <- # <- *not* exported, but currently used in pkg rrcovNA
 ##' Finite sample correction factor for *REW*eighted MCD
 .MCDcnp2.rew <- function(p, n, alpha)
 {
-    stopifnot(0.5 <= alpha, alpha <= 1)
+    stopifnot(0 <= alpha, alpha <= 1, length(alpha) == 1)
 
     if(p > 2) {
         ##                              "alfaq"         "betaq"        "qwaarden"

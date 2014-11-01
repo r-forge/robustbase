@@ -39,8 +39,7 @@
 ##' @param x a numerical matrix. The columns represent variables, and rows represent observations.
 ##' @param h The quantile of observations whose covariance determinant will
 ##'          be minimized.  Any value between n/2 and n may be specified.
-##'          The default value is 0.5*n.
-##' @param hsets.init If one gives here already a matrix with for each row an
+##' @param hsets.init If one gives here already a matrix with for each column an
 ##' ordering of the observations (first the one with smallest statistical
 ##' distance), then the initial shape estimates are not calculated.
 ##' Default value = NULL.
@@ -81,10 +80,15 @@
     } else { ## user specified, (even just *one* vector):
 	if(is.vector(hsets.init)) hsets.init <- as.matrix(hsets.init)
 	dh <- dim(hsets.init)
-	if(!is.matrix(hsets.init) || dh[1] < h || dh[2] < 1)
+	if(dh[1] < h || dh[2] < 1)
 	    stop("'hsets.init' must be a  h' x L  matrix (h' >= h) of observation indices")
+        ## TODO?: We could *extend* the sets to large h, even all n
+        ## ====> could input the 'best' sets, also e.g. from fastmcd
 	if(full.h && dh[1] != n)
-	    stop("When 'full.h' is true, user specified 'hsets.init' must have n rows")
+	    warning("'full.h' is true, but 'hsets.init' has less than n rows")
+##	    stop("When 'full.h' is true, user specified 'hsets.init' must have n rows")
+	if(min(hsets.init) < 1 || max(hsets.init) > n)
+	   stop("'hsets.init' must be in {1,2,...,n}; n = ", n)
     }
 
     nsets <- ncol(hsets.init)# typically 6, currently
