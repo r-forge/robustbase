@@ -23,7 +23,7 @@ Type 'q()' to quit R.
 Loading required package: tools
 > ## -> assertError(), relErr(), and:
 > showProc.time()
-Time elapsed:  0.001 0 0.001 
+Time elapsed:  0 0 0 
 > 
 > ## -- now do it:
 > options(digits = 5)
@@ -40,7 +40,7 @@ Outliers:  16 :
  [1]  7  8  9 10 11 12 29 30 31 32 33 34 35 36 37 38
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=22); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=22); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  18.1 
@@ -64,7 +64,7 @@ Best subsample:
 Outliers:  0 
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=7); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=7); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  5.68 
@@ -86,7 +86,7 @@ Outliers:  6 :
 [1]  7 11 14 20 30 34
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=25); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=25); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  -8.03 
@@ -108,7 +108,7 @@ Outliers:  9 :
 [1]  1  2  3 15 16 17 18 19 21
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=12); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=12); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  5.47 
@@ -131,7 +131,7 @@ Outliers:  2 :
 [1] 1 6
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=10); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=10); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  6.88 
@@ -153,7 +153,7 @@ Outliers:  7 :
 [1]  1  6  9 10 11 15 18
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=13); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=13); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  1.29 
@@ -178,7 +178,7 @@ Outliers:  4 :
 [1]  5 16 23 24
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=16); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=16); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  1.33 
@@ -201,7 +201,7 @@ Outliers:  7 :
 [1]  4  6  7  8 11 16 19
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=13); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=13); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  -36.3 
@@ -227,7 +227,7 @@ Outliers:  14 :
  [1]  1  2  3  4  5  6  7  8  9 10 11 12 13 14
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=39); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=39); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  -1.05 
@@ -250,7 +250,7 @@ Outliers:  13 :
  [1]  2  6  7  8  9 12 13 14 15 16 24 25 28
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=15); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=15); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  14.6 
@@ -273,7 +273,7 @@ Outliers:  20 :
  [1]  1  2  3 11 12 13 14 15 16 17 18 20 27 41 44 47 70 74 75 77
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=47); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=47); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  -28.8 
@@ -310,7 +310,7 @@ Outliers:  3 :
 [1] 17 19 20
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=11); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=11); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  0.36 
@@ -332,7 +332,7 @@ Outliers:  4 :
 [1] 15 16 17 18
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=10); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=10); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  16.7 
@@ -353,7 +353,7 @@ Best subsample:
 Outliers:  0 
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=11); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=11); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  6.49 
@@ -375,7 +375,7 @@ Outliers:  3 :
 [1]  1  2 17
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=21); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=21); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  -3.97 
@@ -398,7 +398,7 @@ Outliers:  13 :
  [1]  1  8 21 22 28 29 33 39 42 43 46 50 63
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=35); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=35); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  6.57 
@@ -431,7 +431,7 @@ Outliers:  60 :
 [58] 156 157 158
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=82); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=82); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  8.88 
@@ -457,7 +457,7 @@ Outliers:  9 :
 [1]  3  8 12 16 17 18 23 24 25
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=17); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=17); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  -10.6 
@@ -485,7 +485,7 @@ Outliers:  11 :
  [1]  9 28 40 42 49 58 62 64 71 75 77
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=56); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=56); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  -14.4 
@@ -522,7 +522,7 @@ Outliers:  29 :
 [26] 59 66 68 69
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=40); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=40); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  17 
@@ -549,7 +549,7 @@ Outliers:  13 :
  [1]  4  5  9 13 16 18 19 24 28 29 30 31 32
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=23); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=23); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  25.7 
@@ -597,7 +597,7 @@ Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Deterministic MCD(alpha=0.5 ==> h=22)
 Call:
 covMcd(x = x, nsamp = "deterministic")
-iBest: 2; C-step iterations: 2, 3, 3, 2, 2, 3
+iBest: 2, 3, 6; C-step iterations: 2, 3, 3, 2, 2, 3
 Log(Det.):  18.1 
 
 Robust Estimate of Location:
@@ -622,7 +622,7 @@ Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Deterministic MCD(alpha=0.5 ==> h=7)
 Call:
 covMcd(x = x, nsamp = "deterministic")
-iBest: 1; C-step iterations: 2, 2, 2, 2, 2, 2
+iBest: 1, 2, 3, 4, 6; C-step iterations: 2, 2, 2, 2, 2, 2
 Log(Det.):  5.68 
 
 Robust Estimate of Location:
@@ -741,7 +741,7 @@ Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Deterministic MCD(alpha=0.5 ==> h=16)
 Call:
 covMcd(x = x, nsamp = "deterministic")
-iBest: 4; C-step iterations: 2, 2, 2, 3, 2, 2
+iBest: 4, 5; C-step iterations: 2, 2, 2, 3, 2, 2
 Log(Det.):  1.94 
 
 Robust Estimate of Location:
@@ -765,7 +765,7 @@ Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Deterministic MCD(alpha=0.5 ==> h=13)
 Call:
 covMcd(x = x, nsamp = "deterministic")
-iBest: 1; C-step iterations: 2, 2, 2, 2, 2, 2
+iBest: 1, 2; C-step iterations: 2, 2, 2, 2, 2, 2
 Log(Det.):  -35.2 
 
 Robust Estimate of Location:
@@ -792,7 +792,7 @@ Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Deterministic MCD(alpha=0.5 ==> h=39)
 Call:
 covMcd(x = x, nsamp = "deterministic")
-iBest: 1; C-step iterations: 5, 5, 5, 5, 4, 5
+iBest: 1, 2, 3, 4, 6; C-step iterations: 5, 5, 5, 5, 4, 5
 Log(Det.):  -1.05 
 
 Robust Estimate of Location:
@@ -816,7 +816,7 @@ Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Deterministic MCD(alpha=0.5 ==> h=15)
 Call:
 covMcd(x = x, nsamp = "deterministic")
-iBest: 1; C-step iterations: 2, 2, 2, 2, 2, 2
+iBest: 1, 2, 3, 4, 5, 6; C-step iterations: 2, 2, 2, 2, 2, 2
 Log(Det.):  14.6 
 
 Robust Estimate of Location:
@@ -878,7 +878,7 @@ Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Deterministic MCD(alpha=0.5 ==> h=11)
 Call:
 covMcd(x = x, nsamp = "deterministic")
-iBest: 1; C-step iterations: 3, 3, 3, 2, 3, 3
+iBest: 1, 2, 3, 4, 5, 6; C-step iterations: 3, 3, 3, 2, 3, 3
 Log(Det.):  0.36 
 
 Robust Estimate of Location:
@@ -901,7 +901,7 @@ Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Deterministic MCD(alpha=0.5 ==> h=10)
 Call:
 covMcd(x = x, nsamp = "deterministic")
-iBest: 1; C-step iterations: 2, 2, 2, 3, 3, 2
+iBest: 1, 2, 3, 4, 5, 6; C-step iterations: 2, 2, 2, 3, 3, 2
 Log(Det.):  16.7 
 
 Robust Estimate of Location:
@@ -923,7 +923,7 @@ Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Deterministic MCD(alpha=0.5 ==> h=11)
 Call:
 covMcd(x = x, nsamp = "deterministic")
-iBest: 1; C-step iterations: 2, 2, 2, 2, 2, 2
+iBest: 1, 2, 3, 4, 5, 6; C-step iterations: 2, 2, 2, 2, 2, 2
 Log(Det.):  7.02 
 
 Robust Estimate of Location:
@@ -946,7 +946,7 @@ Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Deterministic MCD(alpha=0.5 ==> h=21)
 Call:
 covMcd(x = x, nsamp = "deterministic")
-iBest: 1; C-step iterations: 3, 3, 3, 2, 2, 3
+iBest: 1, 2, 3, 4, 6; C-step iterations: 3, 3, 3, 2, 2, 3
 Log(Det.):  -3.97 
 
 Robust Estimate of Location:
@@ -1003,7 +1003,7 @@ Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Deterministic MCD(alpha=0.5 ==> h=82)
 Call:
 covMcd(x = x, nsamp = "deterministic")
-iBest: 1; C-step iterations: 7, 7, 7, 5, 6, 6
+iBest: 1, 6; C-step iterations: 7, 7, 7, 5, 6, 6
 Log(Det.):  8.88 
 
 Robust Estimate of Location:
@@ -1097,7 +1097,7 @@ Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Deterministic MCD(alpha=0.5 ==> h=40)
 Call:
 covMcd(x = x, nsamp = "deterministic")
-iBest: 1; C-step iterations: 3, 2, 3, 3, 2, 3
+iBest: 1, 2, 3, 4, 6; C-step iterations: 3, 2, 3, 3, 2, 3
 Log(Det.):  17.1 
 
 Robust Estimate of Location:
@@ -1156,48 +1156,7 @@ DEP        -0.103     0.1142    -0.200
 SCHOOL     -0.600    -0.1996     1.509
 --------------------------------------------------------
 ========================================================
-There were 20 warnings (use warnings() to see them)
-Warning messages:
-1: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0408242, i=1, j=3)
-2: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0408242, i=2, j=3)
-3: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0408242, i=3, j=3)
-4: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0408242, i=4, j=3)
-5: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0408242, i=6, j=3)
-6: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0867952, i=1, j=2)
-7: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0867952, i=2, j=2)
-8: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0867952, i=3, j=2)
-9: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0821953, i=4, j=2)
-10: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0867952, i=6, j=2)
-11: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=1, j=2)
-12: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=2, j=2)
-13: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=3, j=2)
-14: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=5, j=2)
-15: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=6, j=2)
-16: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0906946, i=1, j=2)
-17: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0906946, i=2, j=2)
-18: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0906946, i=3, j=2)
-19: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0906946, i=6, j=2)
-20: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0051485, i=5, j=2)
+NULL
 > ##                        vvvv no timing for 'R CMD Rdiff' outputs
 > doMCDdata(nrep = 12, time=FALSE)
 
@@ -1211,7 +1170,7 @@ Outliers:  16 :
  [1]  7  8  9 10 11 12 29 30 31 32 33 34 35 36 37 38
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=22); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=22); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  18.1 
@@ -1235,7 +1194,7 @@ Best subsample:
 Outliers:  0 
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=7); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=7); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  5.68 
@@ -1257,7 +1216,7 @@ Outliers:  6 :
 [1]  7 11 14 20 30 34
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=25); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=25); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  -8.03 
@@ -1279,7 +1238,7 @@ Outliers:  9 :
 [1]  1  2  3 15 16 17 18 19 21
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=12); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=12); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  5.47 
@@ -1302,7 +1261,7 @@ Outliers:  2 :
 [1] 1 6
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=10); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=10); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  6.88 
@@ -1324,7 +1283,7 @@ Outliers:  7 :
 [1]  1  6  9 10 11 15 18
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=13); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=13); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  1.29 
@@ -1349,7 +1308,7 @@ Outliers:  4 :
 [1]  5 16 23 24
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=16); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=16); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  1.33 
@@ -1372,7 +1331,7 @@ Outliers:  7 :
 [1]  4  6  7  8 11 16 19
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=13); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=13); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  -36.3 
@@ -1398,7 +1357,7 @@ Outliers:  14 :
  [1]  1  2  3  4  5  6  7  8  9 10 11 12 13 14
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=39); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=39); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  -1.05 
@@ -1421,7 +1380,7 @@ Outliers:  13 :
  [1]  2  6  7  8  9 12 13 14 15 16 24 25 28
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=15); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=15); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  14.6 
@@ -1444,7 +1403,7 @@ Outliers:  20 :
  [1]  1  2  3 11 12 13 14 15 16 17 18 20 27 41 44 47 70 74 75 77
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=47); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=47); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  -28.9 
@@ -1481,7 +1440,7 @@ Outliers:  3 :
 [1] 17 19 20
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=11); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=11); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  0.36 
@@ -1503,7 +1462,7 @@ Outliers:  4 :
 [1] 15 16 17 18
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=10); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=10); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  16.7 
@@ -1524,7 +1483,7 @@ Best subsample:
 Outliers:  0 
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=11); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=11); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  6.49 
@@ -1546,7 +1505,7 @@ Outliers:  3 :
 [1]  1  2 17
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=21); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=21); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  -3.97 
@@ -1569,7 +1528,7 @@ Outliers:  13 :
  [1]  1  8 21 22 28 29 33 39 42 43 46 50 63
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=35); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=35); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  6.57 
@@ -1601,7 +1560,7 @@ Outliers:  51 :
 [39] 102 103 142 144 147 149 151 152 154 155 156 157 158
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=82); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=82); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  8.86 
@@ -1627,7 +1586,7 @@ Outliers:  9 :
 [1]  3  8 12 16 17 18 23 24 25
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=17); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=17); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  -10.6 
@@ -1655,7 +1614,7 @@ Outliers:  11 :
  [1]  9 28 40 42 49 58 62 71 75 77 89
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=56); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=56); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  -14.5 
@@ -1692,7 +1651,7 @@ Outliers:  31 :
 [26] 54 58 59 66 68 69
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=40); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=40); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  17 
@@ -1719,7 +1678,7 @@ Outliers:  13 :
  [1]  4  5 12 13 15 16 19 24 28 29 30 31 32
 ------------- *MCD() result: --------------------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=23); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=23); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  25.8 
@@ -1767,7 +1726,7 @@ Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Deterministic MCD(alpha=0.5 ==> h=22)
 Call:
 covMcd(x = x, nsamp = "deterministic")
-iBest: 2; C-step iterations: 2, 3, 3, 2, 2, 3
+iBest: 2, 3, 6; C-step iterations: 2, 3, 3, 2, 2, 3
 Log(Det.):  18.1 
 
 Robust Estimate of Location:
@@ -1792,7 +1751,7 @@ Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Deterministic MCD(alpha=0.5 ==> h=7)
 Call:
 covMcd(x = x, nsamp = "deterministic")
-iBest: 1; C-step iterations: 2, 2, 2, 2, 2, 2
+iBest: 1, 2, 3, 4, 6; C-step iterations: 2, 2, 2, 2, 2, 2
 Log(Det.):  5.68 
 
 Robust Estimate of Location:
@@ -1911,7 +1870,7 @@ Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Deterministic MCD(alpha=0.5 ==> h=16)
 Call:
 covMcd(x = x, nsamp = "deterministic")
-iBest: 4; C-step iterations: 2, 2, 2, 3, 2, 2
+iBest: 4, 5; C-step iterations: 2, 2, 2, 3, 2, 2
 Log(Det.):  1.94 
 
 Robust Estimate of Location:
@@ -1935,7 +1894,7 @@ Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Deterministic MCD(alpha=0.5 ==> h=13)
 Call:
 covMcd(x = x, nsamp = "deterministic")
-iBest: 1; C-step iterations: 2, 2, 2, 2, 2, 2
+iBest: 1, 2; C-step iterations: 2, 2, 2, 2, 2, 2
 Log(Det.):  -35.2 
 
 Robust Estimate of Location:
@@ -1962,7 +1921,7 @@ Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Deterministic MCD(alpha=0.5 ==> h=39)
 Call:
 covMcd(x = x, nsamp = "deterministic")
-iBest: 1; C-step iterations: 5, 5, 5, 5, 4, 5
+iBest: 1, 2, 3, 4, 6; C-step iterations: 5, 5, 5, 5, 4, 5
 Log(Det.):  -1.05 
 
 Robust Estimate of Location:
@@ -1986,7 +1945,7 @@ Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Deterministic MCD(alpha=0.5 ==> h=15)
 Call:
 covMcd(x = x, nsamp = "deterministic")
-iBest: 1; C-step iterations: 2, 2, 2, 2, 2, 2
+iBest: 1, 2, 3, 4, 5, 6; C-step iterations: 2, 2, 2, 2, 2, 2
 Log(Det.):  14.6 
 
 Robust Estimate of Location:
@@ -2048,7 +2007,7 @@ Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Deterministic MCD(alpha=0.5 ==> h=11)
 Call:
 covMcd(x = x, nsamp = "deterministic")
-iBest: 1; C-step iterations: 3, 3, 3, 2, 3, 3
+iBest: 1, 2, 3, 4, 5, 6; C-step iterations: 3, 3, 3, 2, 3, 3
 Log(Det.):  0.36 
 
 Robust Estimate of Location:
@@ -2071,7 +2030,7 @@ Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Deterministic MCD(alpha=0.5 ==> h=10)
 Call:
 covMcd(x = x, nsamp = "deterministic")
-iBest: 1; C-step iterations: 2, 2, 2, 3, 3, 2
+iBest: 1, 2, 3, 4, 5, 6; C-step iterations: 2, 2, 2, 3, 3, 2
 Log(Det.):  16.7 
 
 Robust Estimate of Location:
@@ -2093,7 +2052,7 @@ Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Deterministic MCD(alpha=0.5 ==> h=11)
 Call:
 covMcd(x = x, nsamp = "deterministic")
-iBest: 1; C-step iterations: 2, 2, 2, 2, 2, 2
+iBest: 1, 2, 3, 4, 5, 6; C-step iterations: 2, 2, 2, 2, 2, 2
 Log(Det.):  7.02 
 
 Robust Estimate of Location:
@@ -2116,7 +2075,7 @@ Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Deterministic MCD(alpha=0.5 ==> h=21)
 Call:
 covMcd(x = x, nsamp = "deterministic")
-iBest: 1; C-step iterations: 3, 3, 3, 2, 2, 3
+iBest: 1, 2, 3, 4, 6; C-step iterations: 3, 3, 3, 2, 2, 3
 Log(Det.):  -3.97 
 
 Robust Estimate of Location:
@@ -2173,7 +2132,7 @@ Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Deterministic MCD(alpha=0.5 ==> h=82)
 Call:
 covMcd(x = x, nsamp = "deterministic")
-iBest: 1; C-step iterations: 7, 7, 7, 5, 6, 6
+iBest: 1, 6; C-step iterations: 7, 7, 7, 5, 6, 6
 Log(Det.):  8.88 
 
 Robust Estimate of Location:
@@ -2267,7 +2226,7 @@ Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Deterministic MCD(alpha=0.5 ==> h=40)
 Call:
 covMcd(x = x, nsamp = "deterministic")
-iBest: 1; C-step iterations: 3, 2, 3, 3, 2, 3
+iBest: 1, 2, 3, 4, 6; C-step iterations: 3, 2, 3, 3, 2, 3
 Log(Det.):  17.1 
 
 Robust Estimate of Location:
@@ -2326,48 +2285,7 @@ DEP        -0.103     0.1142    -0.200
 SCHOOL     -0.600    -0.1996     1.509
 --------------------------------------------------------
 ========================================================
-There were 20 warnings (use warnings() to see them)
-Warning messages:
-1: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0408242, i=1, j=3)
-2: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0408242, i=2, j=3)
-3: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0408242, i=3, j=3)
-4: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0408242, i=4, j=3)
-5: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0408242, i=6, j=3)
-6: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0867952, i=1, j=2)
-7: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0867952, i=2, j=2)
-8: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0867952, i=3, j=2)
-9: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0821953, i=4, j=2)
-10: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0867952, i=6, j=2)
-11: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=1, j=2)
-12: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=2, j=2)
-13: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=3, j=2)
-14: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=5, j=2)
-15: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=6, j=2)
-16: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0906946, i=1, j=2)
-17: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0906946, i=2, j=2)
-18: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0906946, i=3, j=2)
-19: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0906946, i=6, j=2)
-20: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0051485, i=5, j=2)
+NULL
 > doMCDdata(nrep = 12, time=FALSE, method = "MASS")
 
 Call:  doMCDdata(nrep = 12, time = FALSE, method = "MASS") 
@@ -3145,7 +3063,7 @@ $quan
 > set.seed(6)
 > (c3  <- covMcd(mort3))
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=34); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=34); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = mort3)
 Log(Det.):  37.5 
@@ -3184,12 +3102,9 @@ DENS    -6.05   -93.800   -69.74    13.25   159.82   11.822  -336.4   -60.6
 NONW    16.84     0.297     5.34     7.92    11.82    2.868   -89.4   -10.6
 EDUC  -766.90  -420.172  -783.08   341.66  -336.41  -89.394  6356.8   447.6
 IN69  -135.30    14.609    44.91    73.42   -60.63  -10.622   447.6   162.2
-Warning message:
-In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  :
-  original detmcd() wrongly declared c-step convergence (obj=0.000782388, i=6, j=2)
 > stopifnot(log(c3$crit) <= log(c3.$crit),
 +           print(log(c3.$crit / c3$crit)) <= 0.8)
-[1] 0.51608
+[1] 0.013676
 > ## see 0.516 / 0.291 {with seed 7}
 > ##
 > ## rescale variables:
@@ -3208,7 +3123,7 @@ Error in solve.default(cov, ...) :
   system is computationally singular: reciprocal condition number = 2.71945e-11
 > 
 > showProc.time()
-Time elapsed:  5.008 0.051 5.098 
+Time elapsed:  4.182 0.051 4.254 
 > 
 > ## "large" examples using different algo branches {seg.fault in version 0.4-4}:
 > 
@@ -3217,7 +3132,7 @@ Time elapsed:  5.008 0.051 5.098
 > X <- matrix(round(100*rnorm(n * 3)), n, 3)
 > (cX  <- covMcd(X))
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=302); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=302); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = X)
 Log(Det.):  25.1 
@@ -3240,7 +3155,7 @@ Robust Estimate of Covariance:
 > set.seed(1)
 > summary(cX  <- covMcd(X)) # <- show newly activated  print.summary.mcd(.)
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=1002); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=1002); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = X)
 Log(Det.):  24.9 
@@ -3275,7 +3190,7 @@ Robustness weights:
 > stopifnot(cXo$raw.only, all.equal(cX[i], cXo[i], tol = 1e-15),
 +           c("best", "mah") %in% setdiff(names(cX), names(cXo)))
 > showProc.time()
-Time elapsed:  0.748 0 0.748 
+Time elapsed:  0.482 0.004 0.486 
 > 
 > ## Now, some small sample cases:
 > 
@@ -3313,7 +3228,7 @@ Time elapsed:  0.748 0 0.748
 > ## the finite-sample correction is definitely doubtful:
 > summary(cc <- covMcd(X, use.correction = FALSE))
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=4); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=4); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = X, use.correction = FALSE)
 Log(Det.):  4.3 
@@ -3341,7 +3256,7 @@ In covMcd(X, use.correction = FALSE) :
 List of 19
  $ call       : language covMcd(x = X, use.correction = FALSE)
  $ nsamp      : num 500
- $ method     : chr "Fast MCD(alpha=0.5 ==> h=4); nsamp = 500; nmini = 300"
+ $ method     : chr "Fast MCD(alpha=0.5 ==> h=4); nsamp = 500; (n,k)mini = (300,5)"
  $ cov        : num [1:3, 1:3] 2.474 -6.928 0.742 -6.928 273.675 ...
  $ center     : num [1:3] 2.5 -6.5 1.25
  $ n.obs      : int 5
@@ -3351,7 +3266,7 @@ List of 19
  $ raw.cov    : num [1:3, 1:3] 2.474 -6.928 0.742 -6.928 273.675 ...
  $ raw.center : num [1:3] 2.5 -6.5 1.25
  $ raw.weights: num [1:5] 1 1 1 1 0
- $ crit       : num 73.3
+ $ crit       : num 4.3
  $ raw.mah    : num [1:5] 1.52 1.52 1.52 1.52 2724.44
  $ mah        : num [1:5] 1.52 1.52 1.52 1.52 2724.44
  $ mcd.wt     : num [1:5] 1 1 1 1 0
@@ -3374,7 +3289,7 @@ List of 19
 > stopifnot(dim(X) == c(n,p))
 > (cc <- covMcd(X, use.correction = FALSE))
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=6); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=6); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = X, use.correction = FALSE)
 Log(Det.):  15.6 
@@ -3394,7 +3309,7 @@ In covMcd(X, use.correction = FALSE) :
 List of 19
  $ call       : language covMcd(x = X, use.correction = FALSE)
  $ nsamp      : num 500
- $ method     : chr "Fast MCD(alpha=0.5 ==> h=6); nsamp = 500; nmini = 300"
+ $ method     : chr "Fast MCD(alpha=0.5 ==> h=6); nsamp = 500; (n,k)mini = (300,5)"
  $ cov        : num [1:4, 1:4] 319 61.2 -82.3 102.9 61.2 ...
  $ center     : num [1:4] 0.333 3 0.683 -4.267
  $ n.obs      : int 7
@@ -3404,7 +3319,7 @@ List of 19
  $ raw.cov    : num [1:4, 1:4] 319 61.2 -82.3 102.9 61.2 ...
  $ raw.center : num [1:4] 0.333 3 0.683 -4.267
  $ raw.weights: num [1:7] 1 1 1 1 0 1 1
- $ crit       : num 6011409
+ $ crit       : num 15.6
  $ raw.mah    : num [1:7] 2.546 2.477 3.224 0.835 24.765 ...
  $ mah        : num [1:7] 2.546 2.477 3.224 0.835 24.765 ...
  $ mcd.wt     : num [1:7] 1 1 1 1 0 1 1
@@ -3423,7 +3338,7 @@ List of 19
 > X <- X[1:n,]
 > (cc <- covMcd(X, use.correction = FALSE))
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=5); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=5); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = X, use.correction = FALSE)
 Log(Det.):  7.67 
@@ -3445,16 +3360,16 @@ In covMcd(X, use.correction = FALSE) :
 +           all.equal(c(mcc$cov / cc$raw.cov), rep(0.7528695976179, p*p)))
 > 
 > showProc.time()
-Time elapsed:  0.058 0.004 0.063 
+Time elapsed:  0.042 0.004 0.046 
 > 
 > ## nsamp = "exact" -- here for p=7
 > coleman.x <- data.matrix(coleman[, 1:6])
 > showSys.time(CcX <- covMcd(coleman.x, nsamp= "exact"))
 Time    user  system elapsed 
-Time   1.389   0.000   1.389 
+Time   1.207   0.000   1.207 
 > showSys.time(Ccd <- covMcd(coleman.x, nsamp= "deterministic"))
 Time    user  system elapsed 
-Time   0.022   0.000   0.023 
+Time    0.02    0.00    0.02 
 > stopifnot(all.equal(CcX$best,
 + 		    c(2, 5:9, 11,13, 14:16, 19:20), tolerance=0),
 + 	  intersect(CcX$best, Ccd$best) == c(2,5,7,8,13,14,16,19,20),
@@ -3537,7 +3452,7 @@ Robustness weights:
 +         set.seed(seed); mcdX <- covMcd(x, nsamp="exact", trace=trace)
 +     }
 +     mkRes <- function(mcd)
-+         sprintf("%3d %3d %3d %12.6f\n", n,p, mcd$quan, log(mcd$crit))
++ 	sprintf("%3d %3d %3d %12.6f\n", n,p, mcd$quan, mcd$crit)
 +     xresa <- mkRes(mcda)
 +     xresb <- mkRes(mcdb)
 +     if(do.exact) xresX <- mkRes(mcdX)
@@ -3604,7 +3519,7 @@ Best subsamples:
 Details about FastMCD : Outliers:  0 
 -------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=22); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=22); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x, trace = trace)
 Log(Det.):  18.1 
@@ -3632,7 +3547,7 @@ Best subsamples:
 Details about FastMCD : Outliers:  0 
 -------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=7); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=7); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x, trace = trace)
 Log(Det.):  5.68 
@@ -3656,7 +3571,7 @@ Best subsamples:
 Details about FastMCD : Outliers:  0 
 -------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=25); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=25); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x, trace = trace)
 Log(Det.):  -8.03 
@@ -3680,7 +3595,7 @@ Best subsamples:
 Details about FastMCD : Outliers:  0 
 -------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=12); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=12); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x, trace = trace)
 Log(Det.):  5.47 
@@ -3707,7 +3622,7 @@ Best subsamples:
 Details about FastMCD : Outliers:  0 
 -------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=10); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=10); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x, trace = trace)
 Log(Det.):  6.88 
@@ -3731,7 +3646,7 @@ Best subsamples:
 Details about FastMCD : Outliers:  0 
 -------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=13); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=13); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x, trace = trace)
 Log(Det.):  1.29 
@@ -3758,7 +3673,7 @@ Best subsamples:
 Details about FastMCD : Outliers:  0 
 -------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=16); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=16); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x, trace = trace)
 Log(Det.):  1.33 
@@ -3783,7 +3698,7 @@ Best subsamples:
 Details about FastMCD : Outliers:  0 
 -------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=13); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=13); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x, trace = trace)
 Log(Det.):  -36.3 
@@ -3812,7 +3727,7 @@ Best subsamples:
 Details about FastMCD : Outliers:  0 
 -------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=39); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=39); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x, trace = trace)
 Log(Det.):  -1.05 
@@ -3838,7 +3753,7 @@ Best subsamples:
 Details about FastMCD : Outliers:  0 
 -------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=15); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=15); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x, trace = trace)
 Log(Det.):  14.6 
@@ -3864,7 +3779,7 @@ Best subsamples:
 Details about FastMCD : Outliers:  0 
 -------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=47); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=47); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x, trace = trace)
 Log(Det.):  -28.9 
@@ -3904,7 +3819,7 @@ Best subsamples:
 Details about FastMCD : Outliers:  0 
 -------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=11); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=11); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x, trace = trace)
 Log(Det.):  0.36 
@@ -3929,7 +3844,7 @@ Best subsamples:
 Details about FastMCD : Outliers:  0 
 -------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=10); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=10); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x, trace = trace)
 Log(Det.):  16.7 
@@ -3955,7 +3870,7 @@ Best subsamples:
 Details about FastMCD : Outliers:  0 
 -------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=11); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=11); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x, trace = trace)
 Log(Det.):  6.49 
@@ -3978,7 +3893,7 @@ Best subsamples:
 Details about FastMCD : Outliers:  0 
 -------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=21); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=21); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x, trace = trace)
 Log(Det.):  -3.97 
@@ -4004,7 +3919,7 @@ Best subsamples:
 Details about FastMCD : Outliers:  0 
 -------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=35); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=35); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x, trace = trace)
 Log(Det.):  6.61 
@@ -4040,7 +3955,7 @@ Best subsamples:
 Details about FastMCD : Outliers:  0 
 -------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=82); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=82); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x, trace = trace)
 Log(Det.):  8.88 
@@ -4067,7 +3982,7 @@ Best subsamples:
 Details about FastMCD : Outliers:  0 
 -------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=17); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=17); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x, trace = trace)
 Log(Det.):  -10.6 
@@ -4099,7 +4014,7 @@ Best subsamples:
 Details about FastMCD : Outliers:  0 
 -------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=56); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=56); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x, trace = trace)
 Log(Det.):  -14.5 
@@ -4138,7 +4053,7 @@ Best subsamples:
 Details about FastMCD : Outliers:  0 
 -------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=40); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=40); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x, trace = trace)
 Log(Det.):  16.9 
@@ -4167,7 +4082,7 @@ Best subsamples:
 Details about FastMCD : Outliers:  0 
 -------------
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=23); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=23); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x, trace = trace)
 Log(Det.):  25.7 
@@ -4241,7 +4156,7 @@ In covMcd(X, use.correction = FALSE) :
 +  stopifnot(d2$singularity$kind == "on.hyperplane")
 + }
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=51); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=51); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = d.x)
 The covariance matrix has become singular during
@@ -4258,50 +4173,15 @@ Robust Estimate of Covariance:
            X1         X2
 X1   2.86e+00  -1.14e-16
 X2  -1.14e-16   0.00e+00
-There were 21 warnings (use warnings() to see them)
+Warning message:
+In covMcd(d.x) : The covariance matrix has become singular during
+the iterations of the MCD algorithm.
+There are 55 observations (in the entire dataset of 100 obs.) lying on
+the line with equation 0 (x_i1-m_1) + 1 (x_i2-m_2) = 0 with (m_1,m_2)
+the mean of these observations.
 > warnings()
-Warning messages:
-1: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0408242, i=1, j=3)
-2: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0408242, i=2, j=3)
-3: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0408242, i=3, j=3)
-4: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0408242, i=4, j=3)
-5: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0408242, i=6, j=3)
-6: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0867952, i=1, j=2)
-7: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0867952, i=2, j=2)
-8: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0867952, i=3, j=2)
-9: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0821953, i=4, j=2)
-10: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0867952, i=6, j=2)
-11: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=1, j=2)
-12: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=2, j=2)
-13: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=3, j=2)
-14: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=5, j=2)
-15: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0020448, i=6, j=2)
-16: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0906946, i=1, j=2)
-17: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0906946, i=2, j=2)
-18: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0906946, i=3, j=2)
-19: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0906946, i=6, j=2)
-20: In .detmcd(x, h, hsets.init = initHsets, save.hsets = save.hsets,  ... :
-  original detmcd() wrongly declared c-step convergence (obj=0.0051485, i=5, j=2)
-21: In covMcd(d.x) : The covariance matrix has become singular during
+Warning message:
+In covMcd(d.x) : The covariance matrix has become singular during
 the iterations of the MCD algorithm.
 There are 55 observations (in the entire dataset of 100 obs.) lying on
 the line with equation 0 (x_i1-m_1) + 1 (x_i2-m_2) = 0 with (m_1,m_2)
@@ -4310,4 +4190,4 @@ the mean of these observations.
 > 
 > proc.time()
    user  system elapsed 
-  8.750   0.096   8.953 
+  7.246   0.113   7.368 

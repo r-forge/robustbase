@@ -39,7 +39,7 @@ domcd.2 <- function(x, xname, nrep=1,
         set.seed(seed); mcdX <- covMcd(x, nsamp="exact", trace=trace)
     }
     mkRes <- function(mcd)
-        sprintf("%3d %3d %3d %12.6f\n", n,p, mcd$quan, log(mcd$crit))
+	sprintf("%3d %3d %3d %12.6f\n", n,p, mcd$quan, mcd$crit)
     xresa <- mkRes(mcda)
     xresb <- mkRes(mcdb)
     if(do.exact) xresX <- mkRes(mcdX)

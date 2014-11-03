@@ -19,14 +19,15 @@
 ##          1) covMcd()'s         default in ./covMcd.R
 ##          2) ltsReg.default()'s default in ./ltsReg.R
 rrcov.control <-
-    function(alpha = 1/2, nsamp = 500, nmini = 300,
+    function(alpha = 1/2, nsamp = 500, nmini = 300, kmini = 5,
              seed = NULL, tolSolve = 1e-14,
              scalefn = "hrv2012", maxcsteps = 200,
 	     trace = FALSE, wgtFUN = "01.original",
              use.correction = identical(wgtFUN, "01.original"),
              adjust = FALSE)
 {
-    list(alpha=alpha, nsamp=nsamp, nmini=as.integer(nmini), seed = as.integer(seed),
+    list(alpha=alpha, nsamp=nsamp, nmini=as.integer(nmini), kmini=as.integer(kmini),
+         seed = as.integer(seed),
 	 tolSolve=tolSolve, scalefn=scalefn, maxcsteps=as.integer(maxcsteps),
          trace=trace, wgtFUN=wgtFUN,
 	 use.correction=use.correction, adjust=adjust)

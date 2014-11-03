@@ -43,15 +43,21 @@
 ##' ordering of the observations (first the one with smallest statistical
 ##' distance), then the initial shape estimates are not calculated.
 ##' Default value = NULL.
+##' @param save.hsets
+##' @param full.h
 ##' @param scalefn function (or "rule") to estimate the scale.
-##' @param csteps
+##' @param maxcsteps
+##' @param warn.nonconv.csteps
+##' @param warn.wrong.obj.conv
 ##' @param trace
 ##' @return
 ##' @author Valentin Todorov;  tweaks by Martin Maechler
 .detmcd <- function(x, h, hsets.init=NULL,
-                    save.hsets = missing(hsets.init), full.h = save.hsets,
-                    scalefn, maxcsteps = 200, warn.nonconv.csteps = TRUE,
-                    trace = as.integer(trace))
+		    save.hsets = missing(hsets.init), full.h = save.hsets,
+		    scalefn, maxcsteps = 200,
+		    warn.nonconv.csteps = getOption("robustbase:warn.nonconv.csteps", TRUE),
+		    warn.wrong.obj.conv = getOption("robustbase:warn.wrong.obj.conv",FALSE),
+		    trace = as.integer(trace))
 {
     stopifnot(length(dx <- dim(x)) == 2, h == as.integer(h), h >= 1)
     n <- dx[1]
@@ -100,7 +106,7 @@
         if(trace) {
             if(trace >= 2)
                 cat(sprintf("H-subset %d = observations c(%s):\n-----------\n",
-                            i, paste(hsets.init[1:h,i], collapse=", ")))
+			    i, pasteK(hsets.init[1:h,i])))
             else
                 cat(sprintf("H-subset %d: ", i))
         }
@@ -115,7 +121,7 @@
             }
             ## [P,T,L,r,centerX,meanvct] = classSVD(data(obs_in_set,:));
             svd <- classPC(z[obs_in_set, ,drop=FALSE])
-            obj <- prod(svd$eigenvalues)
+            obj <- sum(log(svd$eigenvalues))
 
 	    if(svd$rank < p) { ## FIXME --> return exact fit property rather than stop() ??
 		stop('More than h of the observations lie on a hyperplane.')
@@ -128,14 +134,16 @@
                 if(identical(obs_in_set, prevobs))
                     break
 		## else :
-		warning(sprintf("original detmcd() wrongly declared c-step convergence (obj=%g, i=%d, j=%d)",
-				obj, i,j))
+		if(warn.wrong.obj.conv)
+		    warning(sprintf(
+			"original detmcd() wrongly declared c-step convergence (obj=%g, i=%d, j=%d)",
+			obj, i,j))
             }
             prevdet <- obj
             prevobs <- obs_in_set
         }
         hset.csteps[i] <- j # how many csteps necessary to converge.
-        if(trace) cat(sprintf("%3d csteps, det|.|=%g", j, obj))
+        if(trace) cat(sprintf("%3d csteps, obj=log(det|.|)=%g", j, obj))
 
         if(obj < bestobj) {
             if(trace) cat(" = new optim.\n")
@@ -151,13 +159,15 @@
             ## raw.initcov <- initcov
             ## rew.Hsubsets.Hopt <- bestset
             ind.best <- i # to determine which subset gives best results.
-        } else if(trace) cat("\n")
+	} else if(obj == bestobj) ## store as well:
+	    ind.best <- c(ind.best, i)
+        else if(trace) cat("\n")
 
     } ## for(i in 1:nsets)
 
     if(warn.nonconv.csteps && any(eq <- hset.csteps == maxcsteps)) {
-	p1 <- paste(ngettext(sum(eq),"Initial set", "Initial sets"),
-		    paste(which(eq), collapse=", "))
+	p1 <- paste(ngettext(sum(eq), "Initial set", "Initial sets"),
+		    pasteK(which(eq)))
 	warning(sprintf("%s did not converge in maxcsteps=%d concentration steps",
 			p1, maxcsteps), domain=NA)
     }
@@ -176,7 +186,7 @@
     raw.cov <- initcov * tcrossprod(z.scale)
     dimnames(raw.cov) <- list(vnms, vnms)
     raw.center <- setNames(initmean * z.scale + z.center, vnms)
-    raw.objective <- bestobj * prod(z.scale)^2
+    raw.objective <- bestobj + 2*sum(log(z.scale)) # log(det = obj.best * prod(z.scale)^2)
     ## raw.mah <- mahalanobis(x, raw.center, raw.cov, tol=1E-14)
     ## medi2 <- median(raw.mah)
 
@@ -217,7 +227,9 @@ doScale <- function (x, center, scale)
     stopifnot(is.numeric(p <- ncol(x)))
     ## MM: follow standard R's	scale.default() as much as possible
 
-    doIt <- if(is.function(center)) {
+    centerFn <- is.function(center)
+    doIt <- if(centerFn) {
+        centerName <- deparse(substitute(center)) # "median" typically
 	center <- apply(x, 2L, center)
 	TRUE
     } else {
@@ -232,9 +244,10 @@ doScale <- function (x, center, scale)
     if(doIt)
 	x <- sweep(x, 2L, center, `-`, check.margin=FALSE)
 
-    doIt <- if(is.function(scale)) {
+    scaleFn <- is.function(scale)
+    doIt <- if(scaleFn) {
 	scale <- apply(x, 2L, scale)
-        TRUE
+	TRUE
     } else {
 	if(length(scale) == p && is.numeric(scale))
 	    TRUE
@@ -245,8 +258,28 @@ doScale <- function (x, center, scale)
 	    stop(gettextf("'%s' must be a function, numeric vector of length p, or NULL",
                           "scale"), domain=NA)
     }
-    if(doIt)
-	x <- sweep(x, 2L, scale, `/`, check.margin = FALSE)
+    if(doIt) {
+        if(any(is.na(scale)) || any(scale < 0))
+            stop("provide better scale; must be all positive")
+        if(any(s0 <- scale == 0)) {
+## FIXME:
+### Better and easier alternative (and as "FAST MCD"): return "singular cov.matrix"
+### since scale 0 ==>  more than 50% points are on hyperplane x[,j] == const.
+            ## find scale if there is any variation; otherwise use s := 1
+            S <- if(centerFn && centerName == "median")
+                     abs else function(.) abs(. - median(.))
+            non0Q <- function(u) {
+                alph <- c(10:19, 19.75)/20 # not all the way to '1' {=> finite qnorm()}
+                qq <- quantile(S(u), probs=alph, names=FALSE)
+                if(any(pos <- qq != 0)) { ## the first non-0 if there is one
+                    i <- which.max(pos)
+                    qq[i] / qnorm((alph[i] + 1)/2)
+                } else 1
+            }
+            scale[s0] <- apply(x[,s0, drop=FALSE], 2L, non0Q)
+        }
+        x <- sweep(x, 2L, scale, `/`, check.margin = FALSE)
+    }
     ## return
     list(x=x, center=center, scale=scale)
 }

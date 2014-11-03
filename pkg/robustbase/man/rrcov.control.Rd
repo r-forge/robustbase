@@ -6,7 +6,7 @@
   estimation functions.
 }
 \usage{
-rrcov.control(alpha = 1/2, nsamp = 500, nmini = 300,
+rrcov.control(alpha = 1/2, nsamp = 500, nmini = 300, kmini = 5,
               seed = NULL, tolSolve = 1e-14,
               scalefn = "hrv2012", maxcsteps = 200,
               trace = FALSE,
@@ -26,9 +26,9 @@ rrcov.control(alpha = 1/2, nsamp = 500, nmini = 300,
     exhaustive enumeration will be attempted however many samples
     are needed. In this case a warning message will be displayed
     saying that the computation can take a very long time. }
-  \item{nmini}{for \code{\link{covMcd}}: For large \eqn{n}, the algorithm
-    splits the data into maximally \eqn{k_{\mathrm{rep}} = 5}{krep = 5}
-    subsets of size \code{nmini}.}%%- more details  see --- ./covMcd.Rd
+  \item{nmini, kmini}{for \code{\link{covMcd}}: For large \eqn{n}, the algorithm
+    splits the data into maximally \eqn{kmini} subsets of targetted size
+    \code{nmini}.  See \code{\link{covMcd}} for more details.}%--- ./covMcd.Rd
   \item{seed}{initial seed for R's random number generator; see
     \code{\link{.Random.seed}} and the description of the \code{seed}
     argument in \code{\link{lmrob.control}}.}

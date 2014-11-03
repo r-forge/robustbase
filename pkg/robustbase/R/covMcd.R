@@ -37,7 +37,7 @@ covMcd <- function(x,
 	   raw.only = FALSE,
            alpha = control$ alpha,
            nsamp = control$ nsamp,
-           nmini = control$ nmini,
+           nmini = control$ nmini, kmini = control$ kmini,
            scalefn=control$scalefn, maxcsteps=control$maxcsteps,
            initHsets = NULL, save.hsets = FALSE,
            seed  = control$ seed,
@@ -172,7 +172,7 @@ covMcd <- function(x,
             names(ans$raw.center) <- nms
             dimnames(ans$raw.cov) <- list(nms,nms)
         }
-        ans$crit <- exp(obj)
+        ans$crit <- obj # was exp(obj); but log-scale is "robust" against under/overflow
         ans$method <- paste(ans$method,
                             "\nalpha = 1: The minimum covariance determinant estimates based on",
                             n, "observations \nare equal to the classical estimates.")
@@ -200,8 +200,9 @@ covMcd <- function(x,
 		 save.hsets=save.hsets, # full.h=full.h,
 		 scalefn=scalefn, maxcsteps=maxcsteps, trace=as.integer(trace))
     } else {
-	ans$method <- paste0("Fast ", ans$method, "; nsamp = ", nsamp, "; nmini = ", nmini)
-	.fastmcd(x, h, nsamp, nmini, trace=as.integer(trace))
+	ans$method <- paste0("Fast ", ans$method, "; nsamp = ", nsamp,
+			     "; (n,k)mini = (", nmini,",",kmini,")")
+	.fastmcd(x, h, nsamp, nmini, kmini, trace=as.integer(trace))
     }
 
     ## Compute the consistency correction factor for the raw MCD
@@ -226,7 +227,7 @@ covMcd <- function(x,
                 names(ans$raw.center) <- names(ans$center) <- nms
                 dimnames(ans$raw.cov) <- dimnames(ans$cov) <- list(nms,nms)
             }
-            ans$crit <- 0
+            ans$crit <- -Inf # = log(0)
             weights <- as.numeric(abs(x - center) < 1e-07) # 0 / 1
         } ## end { scale ~= 0 }
         else {
@@ -249,8 +250,8 @@ covMcd <- function(x,
                 dimnames(ans$raw.cov) <- list(nms,nms)
                 names(ans$raw.center) <- nms
             }
-            ans$crit <- 1/(h - 1) *
-                sum(sort((x - as.double(mcd$initmean))^2, partial = h)[1:h])
+	    ans$crit <- ## log(det) =
+		log(sum(sort((x - as.double(mcd$initmean))^2, partial = h)[1:h])/max(1,h-1))
             center <- ans$center
             scale <- as.vector(sqrt(ans$cov))
             weights <- wgtFUN(((x - center)/scale)^2)
@@ -302,7 +303,7 @@ covMcd <- function(x,
             names(ans$raw.center) <- nms
             dimnames(ans$raw.cov) <- list(nms,nms)
         }
-        ans$crit <- 0
+        ans$crit <- -Inf # = log(0)
         weights <- mcd$weights
 
       } ## end (raw.only || exact fit)
@@ -338,7 +339,7 @@ covMcd <- function(x,
             dimnames(ans$raw.cov) <- list(nms,nms)
         }
         ans$raw.weights <- weights
-        ans$crit <- mcd$mcdestimate
+        ans$crit <- mcd$mcdestimate # now in log scale!
         ans$raw.mah <- mahalanobis(x, ans$raw.center, ans$raw.cov, tol = tolSolve)
 
         ## Check if the reweighted scatter matrix is singular.
@@ -451,13 +452,13 @@ print.mcd <- function(x, digits = max(3, getOption("digits") - 3), print.gap = 2
         cat(strwrap(.MCDsingularityMsg(x$singularity, x$n.obs)), sep ="\n")
 
     if(identical(x$nsamp, "deterministic"))
-	cat("iBest: ", x$iBest, "; C-step iterations: ",
-	    paste(x$n.csteps, collapse=", "), "\n", sep="")
+	cat("iBest: ", pasteK(x$iBest), "; C-step iterations: ", pasteK(x$n.csteps),
+            "\n", sep="")
     ## VT::29.03.2007 - solve a conflict with fastmcd() in package robust -
     ##      also returning an object of class "mcd"
     xx <- NA
     if(!is.null(x$crit))
-	xx <- format(log(x$crit), digits = digits)
+	xx <- format(x$crit, digits = digits)
     else if (!is.null(x$raw.objective))
 	xx <- format(log(x$raw.objective), digits = digits)
     cat("Log(Det.): ", xx , "\n\nRobust Estimate of Location:\n")
@@ -613,14 +614,14 @@ MCDcnp2.rew <- # <- *not* exported, but currently used in pkg rrcovNA
 } ## end{.MCDcnp2.rew }
 
 
-.fastmcd <- function(x, h, nsamp, nmini, trace = 0)
+.fastmcd <- function(x, h, nsamp, nmini, kmini, trace = 0)
 {
     dx <- dim(x)
     n <- dx[1]
     p <- dx[2]
 
     ##   parameters for partitioning {equal to those in Fortran !!}
-    kmini <- 5
+    ## kmini <- 5
     ## nmini <- 300
     km10 <- 10*kmini
     nmaxi <- nmini*kmini
@@ -685,6 +686,7 @@ MCDcnp2.rew <- # <- *not* exported, but currently used in pkg rrcovNA
              nhalff =   as.integer(h),
              nsamp  =   as.integer(nsamp), # = 'krep'
              nmini  =   as.integer(nmini),
+	     kmini  =	as.integer(kmini),
              initcovariance = double(p * p),
              initmean       = double(p),
              best       = rep.int(as.integer(10000), h),

@@ -223,7 +223,7 @@ ltsReg.default <- function (x, y, intercept = TRUE,
 	    ## xbest <- NULL
 	} else {
             sh <- .fastmcd(as.matrix(y), as.integer(h), nsamp = 0, # (y *is* 1-dim.!)
-                           nmini = 300)
+			   nmini = 300, kmini = 5)
 	    center <- as.double(sh$initmean)
 	    qalpha <- qchisq(h/n, 1)
 	    calphainvers <- pgamma(qalpha/2, 1/2 + 1)/(h/n)
@@ -431,7 +431,7 @@ ltsReg.default <- function (x, y, intercept = TRUE,
 	    ans$crit <- z$objfct
 	    if (intercept) {
                 sh <- .fastmcd(as.matrix(y), as.integer(h), nsamp = 0, # (y *is* 1-dim.!)
-                               nmini = 300)
+			       nmini = 300, kmini = 5)
 		y <- as.vector(y) ## < ??
 		sh <- as.double(sh$adjustcov)
 		iR2 <- (sh0/sh)^2

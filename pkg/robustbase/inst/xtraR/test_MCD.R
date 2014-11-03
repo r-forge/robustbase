@@ -28,10 +28,8 @@ domcd1 <- function(x, xname, nrep = 1,
 	header <- get("header", parent.frame())
 	header(time)
     }
-    quan <- as.integer(mcd$quan)
-    crit <- if(method == "MASS") mcd$crit else log(mcd$crit)
-
-    xres <- sprintf("%*s %3d %3d %3d %12.6f", lname, xname, n, p, quan, crit)
+    xres <- sprintf("%*s %3d %3d %3d %12.6f", lname, xname,
+		    n, p, mcd$quan, mcd$crit)
     if(time) {
 	xtime <- system.time(repMCD(x, nrep, method))[1]/nrep
 	xres <- sprintf("%s %10.1f", xres, 1000 * xtime)

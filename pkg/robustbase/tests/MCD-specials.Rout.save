@@ -24,7 +24,7 @@ Type 'q()' to quit R.
 > x <- c(rnorm(50),100, 1e10)
 > (r1 <- covMcd(x))
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Univariate Fast MCD(alpha=0.5 ==> h=27); nsamp = 500; nmini = 300
+Method: Univariate Fast MCD(alpha=0.5 ==> h=27); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  -2.13 
@@ -39,7 +39,7 @@ x  0.7483
 List of 15
  $ call      : language covMcd(x = x)
  $ nsamp     : num 500
- $ method    : chr "Univariate Fast MCD(alpha=0.5 ==> h=27); nsamp = 500; nmini = 300"
+ $ method    : chr "Univariate Fast MCD(alpha=0.5 ==> h=27); nsamp = 500; (n,k)mini = (300,5)"
  $ cov       : num [1, 1] 0.748
   ..- attr(*, "dimnames")=List of 2
   .. ..$ : chr "x"
@@ -55,7 +55,7 @@ List of 15
   .. ..$ : chr "x"
  $ raw.center: Named num 0.325
   ..- attr(*, "names")= chr "x"
- $ crit      : num 0.119
+ $ crit      : num -2.13
  $ mcd.wt    : num [1:52] 1 1 1 1 1 1 1 1 1 1 ...
  $ X         : num [1:52, 1] -0.626 0.184 -0.836 1.595 0.33 ...
   ..- attr(*, "dimnames")=List of 2
@@ -66,7 +66,7 @@ List of 15
  - attr(*, "class")= chr "mcd"
 > summary(r1)
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Univariate Fast MCD(alpha=0.5 ==> h=27); nsamp = 500; nmini = 300
+Method: Univariate Fast MCD(alpha=0.5 ==> h=27); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = x)
 Log(Det.):  -2.13 
@@ -119,7 +119,7 @@ List of 15
   .. ..$ : chr "x"
  $ raw.center: Named num 1.92e+08
   ..- attr(*, "names")= chr "x"
- $ crit      : num 1.92e+18
+ $ crit      : num 42.1
  $ mcd.wt    : num [1:52] 1 1 1 1 1 1 1 1 1 1 ...
  $ X         : num [1:52, 1] -0.626 0.184 -0.836 1.595 0.33 ...
   ..- attr(*, "dimnames")=List of 2
@@ -153,7 +153,7 @@ Robustness weights:
 > ### 1b) p = 1, constant scale
 > (rc <- covMcd(rep(1,12)))
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Univariate Fast MCD(alpha=0.5 ==> h=7); nsamp = 500; nmini = 300
+Method: Univariate Fast MCD(alpha=0.5 ==> h=7); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = rep(1, 12))
 Initial scale 0 because more than 'h' (=7) observations are identical.
@@ -172,7 +172,7 @@ In covMcd(rep(1, 12)) :
 List of 16
  $ call       : language covMcd(x = rep(1, 12))
  $ nsamp      : num 500
- $ method     : chr "Univariate Fast MCD(alpha=0.5 ==> h=7); nsamp = 500; nmini = 300"
+ $ method     : chr "Univariate Fast MCD(alpha=0.5 ==> h=7); nsamp = 500; (n,k)mini = (300,5)"
  $ singularity:List of 2
   ..$ kind: chr "identicalObs"
   ..$ q   : num 7
@@ -191,7 +191,7 @@ List of 16
  $ n.obs      : int 12
  $ alpha      : num 0.5
  $ quan       : num 7
- $ crit       : num 0
+ $ crit       : num -Inf
  $ mcd.wt     : num [1:12] 1 1 1 1 1 1 1 1 1 1 ...
  $ X          : num [1:12, 1] 1 1 1 1 1 1 1 1 1 1 ...
   ..- attr(*, "dimnames")=List of 2
@@ -202,7 +202,7 @@ List of 16
  - attr(*, "class")= chr "mcd"
 > summary(rc)
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Univariate Fast MCD(alpha=0.5 ==> h=7); nsamp = 500; nmini = 300
+Method: Univariate Fast MCD(alpha=0.5 ==> h=7); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = rep(1, 12))
 Initial scale 0 because more than 'h' (=7) observations are identical.
@@ -258,7 +258,7 @@ List of 16
   .. ..$ : chr "rep(1, 12)"
  $ raw.center : Named num 1
   ..- attr(*, "names")= chr "rep(1, 12)"
- $ crit       : num 0
+ $ crit       : num -Inf
  $ mcd.wt     : num [1:12] 1 1 1 1 1 1 1 1 1 1 ...
  $ X          : num [1:12, 1] 1 1 1 1 1 1 1 1 1 1 ...
   ..- attr(*, "dimnames")=List of 2
@@ -306,7 +306,7 @@ Robustness weights:
 [12,]    2    4    6    8
 > (rC  <- covMcd(X))
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=8); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=8); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = X)
 The covariance matrix of the data is singular.
@@ -332,7 +332,7 @@ the hyperplane with equation a_1*(x_i1 - m_1) + ... + a_p*(x_ip - m_p)
 a_i from the vector a <- c(1, 0, 0, 0)
 > summary(rC)
 Minimum Covariance Determinant (MCD) estimator approximation.
-Method: Fast MCD(alpha=0.5 ==> h=8); nsamp = 500; nmini = 300
+Method: Fast MCD(alpha=0.5 ==> h=8); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = X)
 The covariance matrix of the data is singular.
@@ -401,8 +401,8 @@ Robustness weights:
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  0.624 0.036 0.672 0 0.005 
+Time elapsed:  0.39 0.036 0.418 0 0.005 
 > 
 > proc.time()
    user  system elapsed 
-  0.624   0.041   0.672 
+  0.390   0.041   0.418 

@@ -17,7 +17,7 @@
 }
 \usage{
 covMcd(x, cor = FALSE, raw.only = FALSE,
-       alpha =, nsamp =, nmini =,
+       alpha =, nsamp =, nmini =, kmini =,
        scalefn =, maxcsteps =,
        initHsets = NULL, save.hsets = FALSE, % full.h = save.hsets,
        seed =, tolSolve =, trace =,
@@ -26,7 +26,7 @@ covMcd(x, cor = FALSE, raw.only = FALSE,
 \arguments{
   \item{x}{a matrix or data frame.}
   \item{cor}{should the returned result include a correlation matrix?
-    Default is \code{cor = FALSE}}.
+    Default is \code{cor = FALSE}.}
   \item{raw.only}{should only the \dQuote{raw} estimate be returned,
     i.e., no (re)weighting step be performed; default is false.}
   \item{alpha}{numeric parameter controlling the size of the subsets
@@ -46,10 +46,13 @@ covMcd(x, cor = FALSE, raw.only = FALSE,
     proposed by Hubert et al. (2012) it starts from the \eqn{h} most
     central observations of \emph{six} (deterministic) estimators.
   }
-  \item{nmini}{for large \eqn{n}, the algorithm splits the data into
-    maximally \eqn{k_{\mathrm{rep}} = 5}{krep = 5} subsets of size
-    \code{nmini}. %% FIXME? -- more accurately and in detail ?!
-    The original algorithm had \code{nmini = 300} hard coded.}
+  \item{nmini, kmini}{for \eqn{n > n_0}, \eqn{n_0 := \code{nmini}}, the
+    algorithm splits the data into maximally \code{kmini} (by default 5)
+    subsets, of size approximately \code{nmini} as long as
+    \code{nmini*kmini <= n}.
+    %% FIXME? -- more accurately ==> ../src/rffastmcd.f
+    The original algorithm had \code{nmini = 300} and \code{kmini = 5}
+    hard coded.}
   \item{scalefn}{for the deterministic MCD: \code{\link{function}} to
     compute a robust scale estimate or character string specifying a
     rule determining such a function.  The default, currently
@@ -132,7 +135,9 @@ covMcd(x, cor = FALSE, raw.only = FALSE,
   \item{cov}{the final estimate of scatter.}
   \item{cor}{the (final) estimate of the correlation matrix (only if
     \code{cor = TRUE}).}
-  \item{crit}{the value of the criterion, i.e. the determinant.}
+  \item{crit}{the value of the criterion, i.e., the logarithm of the
+    determinant.  Previous to Nov.2014, it contained the determinant
+    itself which can under- or overflow relatively easily.}
   \item{best}{the best subset found and used for computing the raw
     estimates, with \code{\link{length}(best) == quan =
       \link{h.alpha.n}(alpha,n,p)}.}
@@ -162,6 +167,10 @@ covMcd(x, cor = FALSE, raw.only = FALSE,
   \item{method}{character string naming the method (Minimum Covariance
     Determinant), starting with \code{"Deterministic"} when
     \code{nsamp="deterministic"}.}
+  \item{iBest}{(for the deterministic MCD) contains indices from 1:6
+    denoting which of the (six) initial subsets lead to the best set found.}
+  \item{n.csteps}{(for the deterministic MCD) for each of the initial
+    subsets, the number of C-steps executed till convergence.}
   \item{call}{the call used (see \code{\link{match.call}}).}
 }
 \references{
@@ -192,8 +201,10 @@ data(hbk)
 hbk.x <- data.matrix(hbk[, 1:3])
 (cH <- covMcd(hbk.x))
 cH0 <- covMcd(hbk.x, nsamp = "deterministic")
-with(cH0, stopifnot(quan == 39, iBest == 1, identical(raw.weights, mcd.wt),
-     identical(which(mcd.wt == 0), 1:14), all.equal(crit, 0.3515158085745)))
+with(cH0, stopifnot(quan == 39,
+     iBest == c(1:4,6), # 5 out of 6 gave the same
+     identical(raw.weights, mcd.wt),
+     identical(which(mcd.wt == 0), 1:14), all.equal(crit, -1.045500594135)))
 
 ## the following three statements are equivalent
 c1 <- covMcd(hbk.x, alpha = 0.75)

@@ -78,11 +78,11 @@ cc
 cc   The algorithm works as follows:
 cc
 cc      The dataset contains n cases, and nvar variables are used.
-cc      Let n_0 := 2 * nmini (== 600).
-cc      When n <  n_0, the algorithm will analyze the dataset as a whole.
-cc      When n >= n_0, the algorithm will use several subdatasets.
+cc      Let n_0 := 2 * nmini (== 600 by default).
+cc      When n <  n_0, the algorithm will analyze the dataset as a whole,
+cc      when n >= n_0, the algorithm will use several subdatasets.
 cc
-cc      When the dataset is analyzed as a whole, a trial
+cc   1. n < n_0 : When the dataset is analyzed as a whole, a trial
 cc      subsample of nvar+1 cases is taken, of which the mean and
 cc      covariance matrix is calculated. The h cases with smallest
 cc      relative distances are used to calculate the next mean and
@@ -95,7 +95,7 @@ cc      iterations. These iterations stop when two subsequent determinants
 cc      become equal. (At most k3 iteration steps are taken.)
 cc      The solution with smallest determinant is retained.
 cc
-cc      When the dataset contains more than 2*nmini cases, the algorithm
+cc   2. n > n_0 --- more than n_0 = 2*nmini cases: The algorithm
 cc      does part of the calculations on (at most) kmini nonoverlapping
 cc      subdatasets, of (roughly) nmini cases.
 cc
@@ -125,11 +125,9 @@ cc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      subroutine rffastmcd(dat,n,nvar,nhalff, krep, nmini,
-c     ------ nhalff = quan = h(alpha);  krep == nsamp
-     *     initcov,initmean,
+      subroutine rffastmcd(dat, n,nvar, nhalff, krep, nmini,kmini,
+     *     initcov, initmean,
      *     inbest, det, weight, fit, coeff, kount, adcov,
-cc     *     iseed,
      *     temp, index1, index2, indexx, nmahad, ndist, am, am2, slutn,
      *     med, mad, sd, means, bmeans, w, fv1, fv2,
      *     rec, sscp1, cova1, corr1, cinv1, cova2, cinv2, z,
@@ -142,132 +140,110 @@ cc              with nvar degrees of freedom. Since now we have no
 cc              restriction on the number of variables, these will be
 cc              passed as parameters - cutoff and chimed
 
-cc
-      implicit integer(i-n), double precision(a-h,o-z)
-cc
+      implicit none
+
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-cc
-cc  ALGORITHM PARAMETERS:
-cc
-cc      To change the number of subdatasets and their size, the values of
-cc      kmini and nmini can be changed.
-cc
-      parameter (kmini=5)
-cc This is now also an optionally changeable argument:
-cc    parameter (nmini=300)
-cc
-cc      The number of iteration steps in stages 1,2 and 3 can be changed
-cc      by adapting the parameters k1, k2, and k3.
-cc
+c
+c  ALGORITHM PARAMETERS:
+c
+c      The number of iteration steps in stages 1,2 and 3 can be changed
+c      by adapting the parameters k1, k2, and k3.
+
+      integer k1,k2,k3
       parameter (k1=2)
       parameter (k2=2)
       parameter (k3=100)
 
-c MM: below, '10' ("the ten best solutions") is also hardcoded in many places,
-c       related to "stock" !
+c Arguments
+      integer n,nvar ! (n, p)
+      integer nhalff ! == quan := h(alpha) >= n/2 "n half"
+      integer krep   ! krep == nsamp
+c  krep := the total number of trial subsamples
+c          to be drawn when n exceeds 2*nmini;
+c          krep = 0  :<==>  "exact"  <==>  all possible subsamples
+c      was hardcoded krep := 500; now an *argument*
+      integer nmini ! the number of subdatasets   and
+      integer kmini ! their size
 
-cc
-cc  krep := the total number of trial subsamples
-cc          to be drawn when n exceeds 2*nmini;
-c           krep = 0  :<==>  "exact"  <==>  all possible subsamples
-cc      was hardcoded krep := 500; now an *argument*
-cc
+      double precision dat(n,nvar)
+      double precision initcov(nvar*nvar), initmean(nvar)
+      integer inbest(nhalff)
+      double precision det
+      integer weight(n), fit
+      double precision coeff(kmini,nvar)
+      integer kount
+      double precision adcov(nvar*nvar)
 
-cc  The following lines need not be modified.
-cc
-C     parameter (nvmax1=nvmax+1)
-C     parameter (nvmax2=nvmax*nvmax)
-C     parameter (nvm12=nvmax1*nvmax1)
-      parameter (km10=10*kmini)
-c- nmaxi: now *variable* as nmini is:
-c-    parameter (nmaxi=nmini*kmini)
-cc
-      integer nmaxi
+      integer temp(n)
+      integer index1(n), index2(n), indexx(n)
+      double precision nmahad(n), ndist(n)
+      double precision am(n), am2(n), slutn(n)
+
+      double precision med(nvar), mad(nvar), sd(nvar), means(nvar),
+     *     bmeans(nvar), w(nvar), fv1(nvar), fv2(nvar)
+
+      double precision rec(nvar+1),
+     *     sscp1((nvar+1)*(nvar+1)), corr1(nvar*nvar),
+     *     cova1(nvar*nvar), cinv1(nvar*nvar),
+     *     cova2(nvar*nvar), cinv2(nvar*nvar),
+     *     z(nvar*nvar)
+
+      double precision cstock(10,nvar*nvar), mstock(10,nvar),
+     *     c1stock(10*kmini, nvar*nvar),
+     *     m1stock(10*kmini, nvar*nvar),
+     *     dath(nmini*kmini, nvar)
+
+      double precision cutoff, chimed
+      integer i_trace
+
+c Functions from ./rf-common.f :
+      integer replow
       integer rfncomb
-c unused   integer rfnbreak
-cc      integer seed
-      integer ierr,matz,tottimes,step
-      integer pnsel
-      integer flag(km10)
-      integer mini(kmini)
-      integer subdat(2,nmini*kmini)
+      double precision rffindq
+      logical rfodd
+
+c ------------------------------------------------------------------
+
+c Variables
+      integer i,ii,iii, ix, j,jj,jjj, jndex, k,kk,kkk,kstep,
+     *     l,lll, m,mm,minigr,
+     *     nn,ngroup,nhalf,nmax,nrep,nsel,
+     *     nvm12,nvmax,nvmax1,nvmax2
+      double precision bstd, deti,detimin1,dist,dist2, eps,
+     *     object, qorder, t
+
+c km10, nmaxi: now *variable* as nmini
+      integer km10, nmaxi,
+     *     ierr,matz,pnsel, tottimes, step,
+     *     flag(10*kmini), mini(kmini),
+     *     subdat(2, nmini*kmini)
       double precision mcdndex(10,2,kmini)
 c     subndex(): vector of length = maximal value of  mini(j) {j in 1:kmini} below
       integer subndex(nmini * 3 / 2)
-      integer replow
-      integer fit
-cc      double precision chi2(50)
-cc      double precision chimed(50)
-cc. consistency correction now happens in R code
-cc.     double precision faclts(11)
-      double precision pivot,rfmahad,medi2
-
-      integer inbest(nhalff)
-      integer weight(n)
-      double precision coeff(kmini,nvar)
-      double precision dat(n,nvar)
-      double precision initcov(nvar*nvar)
-      double precision adcov(nvar*nvar)
-      double precision initmean(nvar)
-
-      double precision med1,med2
-      integer temp(n)
-      integer index1(n)
-      integer index2(n)
-      integer indexx(n)
-      double precision nmahad(n)
-      double precision ndist(n)
-      double precision am(n),am2(n),slutn(n)
-
-      double precision med(nvar)
-      double precision mad(nvar)
-      double precision sd(nvar)
-      double precision means(nvar)
-      double precision bmeans(nvar)
-      double precision w(nvar),fv1(nvar),fv2(nvar)
-
-      double precision rec(nvar+1)
-      double precision sscp1((nvar+1)*(nvar+1))
-      double precision cova1(nvar*nvar)
-      double precision corr1(nvar*nvar)
-      double precision cinv1(nvar*nvar)
-      double precision cova2(nvar*nvar)
-      double precision cinv2(nvar*nvar)
-      double precision z(nvar*nvar)
-
-
-      double precision cstock(10,nvar*nvar)
-      double precision mstock(10,nvar)
-      double precision c1stock(km10,nvar*nvar)
-      double precision m1stock(km10,nvar*nvar)
-      double precision dath(nmini*kmini,nvar)
-
-      double precision percen
-
-      logical all,part,fine,final,rfodd,class
+      double precision med1,med2, percen, pivot,rfmahad,medi2
+      logical all,part,fine,final,class
 c     -Wall:
       all=.true.
       part=.false.
 
-cc  Median of the chi-squared distribution:
-cc      data chimed/0.454937,1.38629,2.36597,3.35670,4.35146,
-cc     *  5.34812,6.34581,7.34412,8.34283,9.34182,10.34,11.34,12.34,
-cc     *  13.34,14.34,15.34,16.34,17.34,18.34,19.34,20.34,21.34,22.34,
-cc     *  23.34,24.34,25.34,26.34,27.34,28.34,29.34,30.34,31.34,32.34,
-cc     *  33.34,34.34,35.34,36.34,37.34,38.34,39.34,40.34,41.34,42.34,
-cc     *  43.34,44.34,45.34,46.34,47.33,48.33,49.33/
-cc  The 0.975 quantile of the chi-squared distribution:
-cc      data chi2/5.02389,7.37776,9.34840,11.1433,12.8325,
-cc     *  14.4494,16.0128,17.5346,19.0228,20.4831,21.920,23.337,
-cc     *  24.736,26.119,27.488,28.845,30.191,31.526,32.852,34.170,
-cc     *  35.479,36.781,38.076,39.364,40.646,41.923,43.194,44.461,
-cc     *  45.722,46.979,48.232,49.481,50.725,51.966,53.203,54.437,
-cc     *  55.668,56.896,58.120,59.342,60.561,61.777,62.990,64.201,
-cc     *  65.410,66.617,67.821,69.022,70.222,71.420/
-
-cc. consistency correction now happens in R code
-cc       data faclts/2.6477,2.5092,2.3826,2.2662,2.1587,
-cc.     *  2.0589,1.9660,1.879,1.7973,1.7203,1.6473/
+c  Median of the chi-squared distribution:
+c      data chimed/0.454937,1.38629,2.36597,3.35670,4.35146,
+c     *  5.34812,6.34581,7.34412,8.34283,9.34182,10.34,11.34,12.34,
+c     *  13.34,14.34,15.34,16.34,17.34,18.34,19.34,20.34,21.34,22.34,
+c     *  23.34,24.34,25.34,26.34,27.34,28.34,29.34,30.34,31.34,32.34,
+c     *  33.34,34.34,35.34,36.34,37.34,38.34,39.34,40.34,41.34,42.34,
+c     *  43.34,44.34,45.34,46.34,47.33,48.33,49.33/
+c  The 0.975 quantile of the chi-squared distribution:
+c      data chi2/5.02389,7.37776,9.34840,11.1433,12.8325,
+c     *  14.4494,16.0128,17.5346,19.0228,20.4831,21.920,23.337,
+c     *  24.736,26.119,27.488,28.845,30.191,31.526,32.852,34.170,
+c    *  35.479,36.781,38.076,39.364,40.646,41.923,43.194,44.461,
+c     *  45.722,46.979,48.232,49.481,50.725,51.966,53.203,54.437,
+c     *  55.668,56.896,58.120,59.342,60.561,61.777,62.990,64.201,
+c     *  65.410,66.617,67.821,69.022,70.222,71.420/
+c. consistency correction now happens in R code
+c       data faclts/2.6477,2.5092,2.3826,2.2662,2.1587,
+c.     *  2.0589,1.9660,1.879,1.7973,1.7203,1.6473/
 
 
       if(i_trace .ge. 2) then
@@ -356,8 +332,12 @@ cc.       call rfmcduni(ndist,n,nhalff,slutn,bstd,am,am2, factor,
 
 cc  p >= 2   in the following
 cc  ------
+c    parameter (nmaxi=nmini*kmini)
+c    parameter (km10=10*kmini)
+      nmaxi = nmini*kmini
+      km10 = 10*kmini
+
 cc  Some initializations:
-cc    seed = starting value for random generator
 cc    matz = auxiliary variable for the subroutine rs, indicating whether
 cc           or not eigenvectors are calculated
 cc    nsel = number of variables + 1
@@ -370,10 +350,8 @@ cc          always true for (very) small n, but also when krep=0 (special value)
 cc    subdat = matrix with a first row containing indices of observations
 cc             and a second row indicating the corresponding subdataset
 cc
-c      seed=iseed
       matz=1
       nsel=nvar+1
-      nmaxi = nmini*kmini
       ngroup=1
       fine=.false.
       final=.false.
@@ -542,18 +520,18 @@ cc
          do j=1,nvar
             rec(j)=dat(i,j)
          end do
-         call rfadmit(rec,nvar,nvar+1,sscp1)
+         call rfadmit(rec,nvar,sscp1)
       end do
-      call rfcovar(n,nvar,nvar+1,sscp1,cova1,means,sd)
+      call rfcovar(n,nvar,sscp1,cova1,means,sd)
       do j=1,nvar
          if(sd(j).eq.0.D0)      goto 5001
       end do
 
       call rfcovcopy(cova1,cinv1,nvar,nvar)
-      det=1.D0
+      det= 0.
       do j=1,nvar
          pivot=cinv1((j-1)*nvar+j)
-         det=det*pivot
+         det=det + log(pivot)
          if(pivot.lt.eps)       goto 5001
 
          call rfcovsweep(cinv1,nvar,j)
@@ -720,9 +698,9 @@ cc
                   do m=1,nvar
                      rec(m)=dat(index2(k),m)
                   end do
-                  call rfadmit(rec,nvar,nvar+1,sscp1)
+                  call rfadmit(rec,nvar,sscp1)
                end do
-               call rfcovar(nsel,nvar,nvar+1,sscp1,cova1,means,sd)
+               call rfcovar(nsel,nvar,sscp1,cova1,means,sd)
                call rs(nvar,nvar,cova1,w,matz,z,fv1,fv2,ierr)
                if(z(j).ne.1) then
                   do kk=1,nvar
@@ -852,8 +830,8 @@ C        VT::27.10.2014 - an issue with nsamp="exact" fixed:
          do 1000 i=1,nrep
             pnsel=nsel
             tottimes=tottimes+1
-            deti=0.D0
-            detimin1=0.D0
+            deti= -1.d300
+            detimin1=deti
             step=0
             call rfcovinit(sscp1,nvar+1,nvar+1)
             if((part.and..not.fine).or.(.not.part.and..not.final)) then
@@ -887,18 +865,18 @@ cc
                   do m=1,nvar
                      rec(m)=dath(index1(j),m)
                   end do
-                  call rfadmit(rec,nvar,nvar+1,sscp1)
+                  call rfadmit(rec,nvar,sscp1)
                end do
-               call rfcovar(pnsel,nvar,nvar+1,sscp1,cova1,means,sd)
+               call rfcovar(pnsel,nvar,sscp1,cova1,means,sd)
             endif
             if(.not.part.and..not.final) then
                do j=1,pnsel
                   do m=1,nvar
                      rec(m)=dat(index1(j),m)
                   end do
-                  call rfadmit(rec,nvar,nvar+1,sscp1)
+                  call rfadmit(rec,nvar,sscp1)
                end do
-               call rfcovar(pnsel,nvar,nvar+1,sscp1,cova1,means,sd)
+               call rfcovar(pnsel,nvar,sscp1,cova1,means,sd)
             endif
             if (final) then
                if(mstock(i,1).ne.1000000.D0) then
@@ -968,10 +946,10 @@ cc
                endif
             endif
             call rfcovcopy(cova1,cinv1,nvar,nvar)
-            det=1.D0
+            det=0.
             do 200 j=1,nvar
                pivot=cinv1((j-1)*nvar+j)
-               det=det*pivot
+               det=det + log(pivot)
                if(pivot.lt.eps) then
                   call rs(nvar,nvar,cova1,w,matz,z,fv1,fv2,ierr)
                   qorder=1.D0
@@ -1101,14 +1079,14 @@ cc
                         rec(mm)=dath(temp(j),mm)
                      end do
                   endif
-                  call rfadmit(rec,nvar,nvar+1,sscp1)
+                  call rfadmit(rec,nvar,sscp1)
                end do
-               call rfcovar(nhalf,nvar,nvar+1,sscp1,cova1,means,sd)
+               call rfcovar(nhalf,nvar,sscp1,cova1,means,sd)
                call rfcovcopy(cova1,cinv1,nvar,nvar)
-               det=1.D0
+               det= 0.
                do 600 j=1,nvar
                   pivot=cinv1((j-1)*nvar+j)
-                  det=det*pivot
+                  det=det + log(pivot)
                   if(pivot.lt.eps) then
                      if(final .or. .not.part .or.
      *                  (fine.and. .not.final .and. n .le. nmaxi)) then
@@ -1430,7 +1408,7 @@ cc******** end { Main Loop } ************** --------------------------------
       call rfcovcopy(cova1,initcov,nvar,nvar)
       det=object
       do j=1,nvar
-         det=det*mad(j)*mad(j)
+         det=det + 2*log(mad(j))
       end do
 
 
@@ -1512,23 +1490,23 @@ cc
             do j=1,nvar
                rec(j)=dat(kk,j)
             end do
-            call rfadmit(rec,nvar,nvar+1,sscp1)
+            call rfadmit(rec,nvar,sscp1)
          else
             weight(kk)=0
          endif
       end do
-      call rfcovar(kount,nvar,nvar+1,sscp1,cova1,means,sd)
+      call rfcovar(kount,nvar,sscp1,cova1,means,sd)
       return
       end
 ccccc
 ccccc
       subroutine transfo(cova,means,dat,med,mad,nvar,n)
 cc
-      double precision cova(nvar,nvar)
-      double precision means(nvar)
-      double precision dat(n,nvar)
-      double precision med(nvar),mad(nvar)
-
+      implicit none
+      integer n, nvar
+      double precision dat(n,nvar), cova(nvar,nvar)
+      double precision means(nvar), med(nvar), mad(nvar)
+      integer i,j,k
       do j=1,nvar
         means(j)=means(j)*mad(j)+med(j)
         do k=1,nvar
@@ -1559,12 +1537,12 @@ cc
       end
 ccccc
 ccccc
-      subroutine rfadmit(rec,nvar,nvar1,sscp)
+      subroutine rfadmit(rec,nvar,sscp)
 cc
 cc  Updates the sscp matrix with the additional case rec.
 cc
       double precision rec(nvar)
-      double precision sscp(nvar1,nvar1)
+      double precision sscp(nvar+1,nvar+1)
 cc
       sscp(1,1)=sscp(1,1)+1.D0
       do j=1,nvar
@@ -1580,16 +1558,15 @@ cc
       end
 ccccc
 ccccc
-      subroutine rfcovar(n,nvar,nvar1,sscp,cova,means,sd)
+      subroutine rfcovar(n,nvar, sscp,cova, means,sd)
 cc
 cc  Computes the classical mean and covariance matrix.
 cc
-      double precision sscp(nvar1,nvar1)
-      double precision cova(nvar,nvar)
-      double precision means(nvar)
-      double precision sd(nvar)
-      double precision f
-cc
+      implicit none
+      integer n,nvar, i,j
+      double precision sscp(nvar+1,nvar+1), cova(nvar,nvar)
+      double precision means(nvar), sd(nvar), f
+
       do i=1,nvar
         means(i)=sscp(1,i+1)
         sd(i)=sscp(i+1,i+1)
@@ -1620,9 +1597,10 @@ ccccc
 cc
 cc  Transforms the scatter matrix a to the correlation matrix b: <==> R's  cov2cor(.)
 cc
-      double precision a(nvar,nvar)
-      double precision b(nvar,nvar)
-      double precision sd(nvar)
+      implicit none
+      integer nvar
+      double precision a(nvar,nvar), b(nvar,nvar), sd(nvar)
+      integer j,i
 
       do j=1,nvar
          sd(j)=1/sqrt(a(j,j))
@@ -1680,10 +1658,10 @@ cc  Computes a Mahalanobis-type distance.
 cc
       double precision rec(nvar), means(nvar), sigma(nvar,nvar), t
 
-      t=0
+      t = 0.
       do j=1,nvar
          do k=1,nvar
-            t=t+(rec(j)-means(j))*(rec(k)-means(k))*sigma(j,k)
+            t = t + (rec(j)-means(j))*(rec(k)-means(k))*sigma(j,k)
          end do
       end do
       rfmahad=t
@@ -1720,11 +1698,10 @@ cc  z(1,1)*(x_i1 - means_1) + ... +  z(p,1)*(x_ip - means_p) = 0
 cc  into the first row of the matrix mstock, and shifts the other
 cc  elements of the arrays mstock and cstock.
 cc
-      double precision cstock(10,nvmax2)
-      double precision mstock(10,nvmax)
-      double precision mcdndex(10,2,kmini)
-      double precision cova1(nvar,nvar)
-      double precision means(nvar)
+      double precision cstock(10, nvmax2)
+      double precision mstock(10, nvmax)
+      double precision mcdndex(10, 2, kmini)
+      double precision cova1(nvar,nvar), means(nvar)
 
       do k=10,2,-1
          do kk=1,nvar*nvar
@@ -1751,11 +1728,10 @@ ccccc
       subroutine rfstore1(nvar,c1stock,m1stock,nvmax2,nvmax,
      *     kmini,cova1,means,i,km10,ii,mcdndex,kount)
 
-      double precision c1stock(km10,nvmax2)
-      double precision m1stock(km10,nvmax)
+      double precision c1stock(km10, nvmax2)
+      double precision m1stock(km10, nvmax)
       double precision mcdndex(10,2,kmini)
-      double precision cova1(nvar,nvar)
-      double precision means(nvar)
+      double precision cova1(nvar,nvar), means(nvar)
 
       do k=10,2,-1
          do kk=1,nvar*nvar
@@ -1803,8 +1779,7 @@ ccccc
       subroutine rfcovsweep(a,nvar,k)
 cc
       double precision a(nvar,nvar)
-      double precision b
-      double precision d
+      double precision b, d
 cc
       d=a(k,k)
       do j=1,nvar
@@ -1816,7 +1791,7 @@ cc
             do j=1,nvar
                a(i,j)=a(i,j)-b*a(k,j)
             end do
-            a(i,k)=-b/d
+            a(i,k) = -b/d
          endif
       end do
       a(k,k)=1/d
