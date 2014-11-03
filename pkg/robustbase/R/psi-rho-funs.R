@@ -193,9 +193,7 @@ setMethod("chgDefaults", signature("psi_func"),
             paste(name, paste(n, round(v, round), sep = "=", collapse = "\n"),
                   sep = "\n")
         else
-            paste(name, " (",
-                  paste(n, round(v, round), sep = " = ", collapse = ", "), ")",
-                  sep="")
+	    paste0(name, " (", pasteK(n, round(v, round), sep = " = "), ")")
     } else name
 }
 

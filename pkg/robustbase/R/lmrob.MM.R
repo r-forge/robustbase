@@ -17,8 +17,8 @@
 		  psi)
     nms <- if(redescending) .Mpsi.R.names else .Mpsi.names
     if (is.na(i <- pmatch(psi, nms)))
-        stop(gettextf("'psi' should be one of %s", paste(dQuote(nms),
-            collapse = ", ")), domain = NA)
+	stop(gettextf("'psi' should be one of %s", pasteK(dQuote(nms))),
+	     domain = NA)
     nms[i]
 }
 
@@ -285,7 +285,7 @@ globalVariables("r", add=TRUE) ## below and in other lmrob.E() expressions
         cov.corrfact <- if (cov.hubercorr) 'empirical' else 'tau'
     } else if(length(cov.corrfact) != 1 || is.na(match(cov.corrfact, val.corrf)))
 	stop(":.vcov.w: cov.corrfact must be one of ",
-             paste(dQuote(val.corrf), collapse=", "))
+             pasteK(dQuote(val.corrf)))
     if (is.null(cov.dfcorr)) {
         cov.dfcorr <- if (cov.hubercorr | cov.corrfact %in% c('tau', 'hybrid')) 1 else -1
     } else if (!is.numeric(cov.dfcorr) || is.na(match(cov.dfcorr, -1:3)))
@@ -295,7 +295,7 @@ globalVariables("r", add=TRUE) ## below and in other lmrob.E() expressions
     if (is.null(cov.resid)) cov.resid <- 'final'
     else if (length(cov.resid) != 1 || is.na(match(cov.resid, val.cov.res)))
 	stop(":.vcov.w: cov.resid must be one of ",
-             paste(dQuote(val.cov.res), collapse=", "))
+	     pasteK(dQuote(val.cov.res)))
     if (is.null(cov.xwx)) cov.xwx <- TRUE
     else if (!is.logical(cov.xwx))
 	stop(':.vcov.w: cov.xwx must be logical (or NULL)')
@@ -1287,7 +1287,7 @@ outlierStats <- function(object,
     for (int in which(colSums(fa[cv,, drop=FALSE]) > 1)) {
         cvars <- c(cvars, list(names(which(fa[cv, int] == 1))))
     }
-    
+
     warn <- character(0)
     for (cvar in unique(cvars)) {
         var <- if (length(cvar) == 1) mf[[cvar]] else {
@@ -1321,19 +1321,19 @@ outlierStats <- function(object,
             st <- st | any(lbr <- lbr | tl$Mean.RobWeight <= warn.limit.meanrw)
         if (st)
             warn <- c(warn,
-                      paste("'", cn, "' (", if (sum(lbr) > 1) "levels" else "level", " ",
-                            paste0("'", tl[lbr, cn], "'"), ")", collapse=", ", sep=""))
+                      paste0("'", cn, "' (", if(sum(lbr) > 1) "levels" else "level", " ",
+			     paste0("'", tl[lbr, cn], "'"), ")", collapse=", "))
     }
 
     if (length(warn) > 0) {
         attr(report, "warning") <- warn
         warning("Detected possible local breakdown of ", control$method, "-estimate in ",
                 if (length(warn) > 1) paste(length(warn), "factors") else "factor",
-                " ", paste(warn, collapse=", "), ".",
+                " ", pasteK(warn), ".",
                 if ("KS2014" %in% control$setting) "" else
                 "\nUse lmrob argument 'setting=\"KS2014\"' to avoid this problem."
                 )
     }
 
-    return(report)
+    report
 }

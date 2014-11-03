@@ -15,7 +15,7 @@ getOptfun <- function(optimizer, needArgs = c("fn","par","lower","control"))
     if (!is.function(optfun)) stop("non-function specified as optimizer")
     if (any(is.na(match(needArgs, names(formals(optfun))))))
 	stop("optimizer function must use (at least) formal parameters ",
-	     paste(sQuote(needArgs), collapse=", "))
+	     pasteK(sQuote(needArgs)))
     optfun
 }
 

@@ -98,7 +98,7 @@ glmrobMqle <-
 			 family = family)$coefficients
     if(any(ina <- is.na(start))) {
 	cat("initial start 'theta' has NA's; eliminating columns X[, j];",
-	    "j = ", paste(which(ina), collapse=", "),"\n")
+	    "j = ", pasteK(which(ina)),"\n")
 	theta.na <- start
 	X <- X[, !ina, drop = FALSE]
 	start <- glm.fit(x = X, y = y, weights = weights, offset = offset,

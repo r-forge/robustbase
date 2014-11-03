@@ -58,7 +58,7 @@ nlrob <-
 	  warning(sprintf(ngettext(sum(not.missA),
 				   "For method = \"%s\", argument %s is not made use of",
 				   "For method = \"%s\", arguments %s are not made use of"),
-			  method, paste(sQuote(aNms[not.missA]), collapse=", ")),
+			  method, pasteK(sQuote(aNms[not.missA]))),
 		  domain=NA)
       }
 
