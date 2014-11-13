@@ -1,5 +1,5 @@
 
-R version 3.1.0 (2014-04-10) -- "Spring Dance"
+R Under development (unstable) (2014-07-10 r66124) -- "Unsuffered Consequences"
 Copyright (C) 2014 The R Foundation for Statistical Computing
 Platform: x86_64-apple-darwin13.1.0 (64-bit)
 
@@ -117,11 +117,11 @@ Robustness weights:
  0.7873  0.9365  0.9847  0.9519  0.9876  0.9943 
 Algorithmic parameters: 
        tuning.chi                bb        tuning.psi        refine.tol 
-        1.5476400         0.5000000         4.6850610         0.0000001 
-          rel.tol         solve.tol       eps.outlier warn.limit.reject 
-        0.0000001         0.0000001         0.0055556         0.5000000 
-warn.limit.meanrw 
-        0.5000000 
+        1.548e+00         5.000e-01         4.685e+00         1.000e-07 
+          rel.tol         solve.tol       eps.outlier             eps.x 
+        1.000e-07         1.000e-07         5.556e-03         4.369e-12 
+warn.limit.reject warn.limit.meanrw 
+        5.000e-01         5.000e-01 
      nResample         max.it       best.r.s       k.fast.s          k.max 
            500             50              2              1            200 
    maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
@@ -414,11 +414,11 @@ Robustness weights:
 0.9089 0.8885 0.9700 0.9768 0.9982 0.9989 0.9920 0.9524 0.9518 0.8423 
 Algorithmic parameters: 
        tuning.chi                bb        tuning.psi        refine.tol 
-        1.5476400         0.5000000         4.6850610         0.0000001 
-          rel.tol         solve.tol       eps.outlier warn.limit.reject 
-        0.0000001         0.0000001         0.0100000         0.5000000 
-warn.limit.meanrw 
-        0.5000000 
+        1.548e+00         5.000e-01         4.685e+00         1.000e-07 
+          rel.tol         solve.tol       eps.outlier             eps.x 
+        1.000e-07         1.000e-07         1.000e-02         1.819e-12 
+warn.limit.reject warn.limit.meanrw 
+        5.000e-01         5.000e-01 
      nResample         max.it       best.r.s       k.fast.s          k.max 
            500             50              2              1            200 
    maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
@@ -463,6 +463,8 @@ warn.limit.reject warn.limit.meanrw
         0.5000000         0.5000000 
         max.it    maxit.scale      trace.lev     compute.rd fast.s.large.n 
             50            200              0              0           2000 
+         eps.x 
+             0 
                   psi                   cov compute.outlier.stats 
            "bisquare"         ".vcov.avar1"                  "SM" 
 seed : int(0) 
@@ -479,4 +481,4 @@ seed : int(0)
 > 
 > proc.time()
    user  system elapsed 
-  0.623   0.031   0.644 
+  0.599   0.036   0.624 

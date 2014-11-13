@@ -26,6 +26,7 @@ lmrob.control(setting, seed = NULL, nResample = 500,
               numpoints = 10, cov = NULL,
               split.type = c("f", "fi", "fii"), fast.s.large.n = 2000,
 	      eps.outlier = function(nobs) 0.1 / nobs,
+              eps.x = function(maxx) .Machine$double.eps^(.75)*maxx,
               compute.outlier.stats = method,
               warn.limit.reject = 0.5,
               warn.limit.meanrw = 0.5, ...)
@@ -124,6 +125,10 @@ lmrob.control(setting, seed = NULL, nResample = 500,
     Either a numeric(1) or a function that takes the number of observations as
     an argument.  Used in \code{\link{summary.lmrob}} and
     \code{\link{outlierStats}}.}
+  \item{eps.x}{limit on the absolute value of the elements of the design matrix
+    below which an element is considered zero.
+    Either a numeric(1) or a function that takes the maximum absolute value in
+    the design matrix as an argument.}
   \item{compute.outlier.stats}{vector of \code{\link{character}}
     strings, each valid to be used as \code{method} argument.  Used to
     specify for which estimators outlier statistics (and warnings)

@@ -1,5 +1,5 @@
 
-R version 3.1.0 (2014-04-10) -- "Spring Dance"
+R Under development (unstable) (2014-07-10 r66124) -- "Unsuffered Consequences"
 Copyright (C) 2014 The R Foundation for Statistical Computing
 Platform: x86_64-apple-darwin13.1.0 (64-bit)
 
@@ -53,11 +53,11 @@ Robustness weights:
  0.4126  0.7595  0.8726  0.8270  0.9718  0.9986 
 Algorithmic parameters: 
        tuning.chi                bb        tuning.psi        refine.tol 
-        1.5476400         0.5000000         4.6850610         0.0000001 
-          rel.tol         solve.tol       eps.outlier warn.limit.reject 
-        0.0000001         0.0000001         0.0047619         0.5000000 
-warn.limit.meanrw 
-        0.5000000 
+        1.548e+00         5.000e-01         4.685e+00         1.000e-07 
+          rel.tol         solve.tol       eps.outlier             eps.x 
+        1.000e-07         1.000e-07         4.762e-03         1.692e-10 
+warn.limit.reject warn.limit.meanrw 
+        5.000e-01         5.000e-01 
      nResample         max.it       best.r.s       k.fast.s          k.max 
            500             50              2              1            200 
    maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
@@ -109,11 +109,11 @@ Robustness weights:
  0.1215  0.8757  0.9428  0.8721  0.9797  0.9978 
 Algorithmic parameters: 
        tuning.chi                bb        tuning.psi        refine.tol 
-        1.5476400         0.5000000         4.6850610         0.0000001 
-          rel.tol         solve.tol       eps.outlier warn.limit.reject 
-        0.0000001         0.0000001         0.0047619         0.5000000 
-warn.limit.meanrw 
-        0.5000000 
+        1.548e+00         5.000e-01         4.685e+00         1.000e-07 
+          rel.tol         solve.tol       eps.outlier             eps.x 
+        1.000e-07         1.000e-07         4.762e-03         1.692e-10 
+warn.limit.reject warn.limit.meanrw 
+        5.000e-01         5.000e-01 
      nResample         max.it       best.r.s       k.fast.s          k.max 
            500             50              2              1            200 
    maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
@@ -167,11 +167,11 @@ Robustness weights:
  0.1215  0.8757  0.9428  0.8721  0.9797  0.9978 
 Algorithmic parameters: 
        tuning.chi                bb        tuning.psi        refine.tol 
-        1.5476400         0.5000000         4.6850610         0.0000001 
-          rel.tol         solve.tol       eps.outlier warn.limit.reject 
-        0.0000001         0.0000001         0.0047619         0.5000000 
-warn.limit.meanrw 
-        0.5000000 
+        1.548e+00         5.000e-01         4.685e+00         1.000e-07 
+          rel.tol         solve.tol       eps.outlier             eps.x 
+        1.000e-07         1.000e-07         4.762e-03         1.692e-10 
+warn.limit.reject warn.limit.meanrw 
+        5.000e-01         5.000e-01 
      nResample         max.it       best.r.s       k.fast.s          k.max 
            500             50              2              1            200 
    maxit.scale      trace.lev            mts     compute.rd      numpoints 
@@ -213,11 +213,11 @@ Robustness weights:
  0.1215  0.8757  0.9428  0.8721  0.9797  0.9978 
 Algorithmic parameters: 
        tuning.chi                bb        tuning.psi        refine.tol 
-        1.5476400         0.5000000         4.6850610         0.0000001 
-          rel.tol         solve.tol       eps.outlier warn.limit.reject 
-        0.0000001         0.0000001         0.0047619         0.5000000 
-warn.limit.meanrw 
-        0.5000000 
+        1.548e+00         5.000e-01         4.685e+00         1.000e-07 
+          rel.tol         solve.tol       eps.outlier             eps.x 
+        1.000e-07         1.000e-07         4.762e-03         1.692e-10 
+warn.limit.reject warn.limit.meanrw 
+        5.000e-01         5.000e-01 
      nResample         max.it       best.r.s       k.fast.s          k.max 
            500             50              2              1            200 
    maxit.scale      trace.lev            mts     compute.rd      numpoints 
@@ -270,11 +270,11 @@ Robustness weights:
  0.1546  0.9139  0.9597  0.8874  0.9866  0.9966 
 Algorithmic parameters: 
        tuning.chi                bb        tuning.psi        refine.tol 
-        1.5476400         0.5000000         4.6850610         0.0000001 
-          rel.tol         solve.tol       eps.outlier warn.limit.reject 
-        0.0000001         0.0000001         0.0047619         0.5000000 
-warn.limit.meanrw 
-        0.5000000 
+        1.548e+00         5.000e-01         4.685e+00         1.000e-07 
+          rel.tol         solve.tol       eps.outlier             eps.x 
+        1.000e-07         1.000e-07         4.762e-03         1.692e-10 
+warn.limit.reject warn.limit.meanrw 
+        5.000e-01         5.000e-01 
      nResample         max.it       best.r.s       k.fast.s          k.max 
            500             50              2              1            200 
    maxit.scale      trace.lev            mts     compute.rd      numpoints 
@@ -315,11 +315,11 @@ Robustness weights:
  0.1546  0.9139  0.9597  0.8874  0.9866  0.9966 
 Algorithmic parameters: 
        tuning.chi                bb        tuning.psi        refine.tol 
-        1.5476400         0.5000000         4.6850610         0.0000001 
-          rel.tol         solve.tol       eps.outlier warn.limit.reject 
-        0.0000001         0.0000001         0.0047619         0.5000000 
-warn.limit.meanrw 
-        0.5000000 
+        1.548e+00         5.000e-01         4.685e+00         1.000e-07 
+          rel.tol         solve.tol       eps.outlier             eps.x 
+        1.000e-07         1.000e-07         4.762e-03         1.692e-10 
+warn.limit.reject warn.limit.meanrw 
+        5.000e-01         5.000e-01 
      nResample         max.it       best.r.s       k.fast.s          k.max 
            500             50              2              1            200 
    maxit.scale      trace.lev            mts     compute.rd      numpoints 
@@ -359,4 +359,4 @@ Error in lmrob.S(model.matrix(model, NOxEmissions)[1:682, ], NOxEmissions$LNOx[1
 > 
 > proc.time()
    user  system elapsed 
-  0.587   0.041   0.618 
+  0.609   0.045   0.643 

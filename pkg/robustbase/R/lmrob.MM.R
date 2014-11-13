@@ -74,6 +74,7 @@ lmrob.control <-
 	     split.type = c("f", "fi", "fii"),
 	     fast.s.large.n = 2000,
              eps.outlier = function(nobs) 0.1 / nobs,
+             eps.x = function(maxx) .Machine$double.eps^(.75)*maxx,
              compute.outlier.stats = method,
              warn.limit.reject = 0.5,
              warn.limit.meanrw = 0.5,
@@ -126,7 +127,8 @@ lmrob.control <-
            subsampling=subsampling,
            compute.rd=compute.rd, method=method, numpoints=numpoints,
            cov=cov, split.type = match.arg(split.type),
-           fast.s.large.n=fast.s.large.n, eps.outlier = eps.outlier,
+           fast.s.large.n=fast.s.large.n,
+           eps.outlier = eps.outlier, eps.x = eps.x,
            compute.outlier.stats = sub("^MM$", "SM", compute.outlier.stats),
            warn.limit.reject = warn.limit.reject,
            warn.limit.meanrw = warn.limit.meanrw),
@@ -594,7 +596,7 @@ lmrob..M..fit <- function (x=obj$x, y=obj$y, beta.initial=obj$coef,
     }
     class(ret) <- "lmrob"
     if (control$method %in% control$compute.outlier.stats & !missing(obj))
-        ret$ostats <- outlierStats(ret, control, mf = mf)
+        ret$ostats <- outlierStats(ret, x, control)
     ret
 }
 
@@ -678,7 +680,7 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev, mf = NULL)
         b$call <- match.call()
     class(b) <- 'lmrob.S'
     if ("S" %in% control$compute.outlier.stats)
-        b$ostats <- outlierStats(b, control, mf=mf)
+        b$ostats <- outlierStats(b, x, control)
     b
 }
 
@@ -751,7 +753,7 @@ lmrob..D..fit <- function(obj, x=obj$x, control = obj$control,
         obj$cov <- lf.cov(obj, x)
     }
     if (control$method %in% control$compute.outlier.stats)
-        obj$ostats <- outlierStats(obj, control, mf = mf)
+        obj$ostats <- outlierStats(obj, x, control)
 
     obj
 }
@@ -1241,13 +1243,12 @@ ghq <- function(n = 1, modify = TRUE) {
 
 globalVariables(c("Freq"), add=TRUE)
 
-outlierStats <- function(object,
+outlierStats <- function(object, x = object$x,
                          control = object$control,
                          epsw = control$eps.outlier,
+                         epsx = control$eps.x,
                          warn.limit.reject = control$warn.limit.reject,
-                         warn.limit.meanrw = control$warn.limit.meanrw,
-                         mf = object$model
-                         ##   ^^^^^^^^^^^^ not model.frame() to avoid errors
+                         warn.limit.meanrw = control$warn.limit.meanrw
                          ) {
     ## look at all the factors in the model and count
     ## for each level how many observations were rejected.
@@ -1262,74 +1263,38 @@ outlierStats <- function(object,
     if (!is.numeric(epsw) | length(epsw) != 1)
         stop("'epsw' needs to be numeric(1) or a functon of nobs(object) with a numeric(1) return value.")
     rj <- abs(rw) < epsw
-    ## Overall statistics
-    report <- list(Overall = data.frame(Overall = "Overall",
-                   Freq = nobs(object), Freq.rejected = sum(rj),
-                   Freq.ratio = sum(rj) / nobs(object),
-                   Mean.RobWeight = mean(rw)))
-    ## look for factors in the model
-    if (is.null(mf)) {
-        warning("Cannot do outlier statistics if argument 'mf' is missing")
-        return(report)
+    if (NROW(x) != length(rw))
+        stop("number of rows in 'x' and length of 'object$rweights' must be the same.")
+    if (is.function(epsx)) epsx <- epsx(max(abs(x)))
+    if (!is.numeric(epsx) | length(epsx) != 1)
+        stop("'epsx' needs to be numeric(1) or a functon of max(abs(object$x)) with a numeric(1) return value.")
+    xnz <- abs(x) > epsx
+    
+    cc <- function(idx) {
+        nnz <- sum(idx)
+        Fr <- sum(rj[idx])
+        return(c(N.nonzero = nnz,
+                 N.rejected = Fr,
+                 Ratio = Fr / nnz,
+                 Mean.RobWeight = mean(rw[idx])))
     }
-    tm <- terms(mf)
-    cv <- attr(tm, "dataClasses") %in% c("factor", "ordered")
-    ## FIXME: add a test for dummy variables?
-    ## Revert to simple outlier statistics as in summary()
-    ## if there are no factors in the model:
-    if (!any(cv)) {
-        return(report)
-    }
-    ## get names
-    cvars <- as.list(cv <- names(attr(tm, "dataClasses"))[cv])
-    ## get also interactions between factors
-    fa <- attr(tm, "factors")
-    for (int in which(colSums(fa[cv,, drop=FALSE]) > 1)) {
-        cvars <- c(cvars, list(names(which(fa[cv, int] == 1))))
-    }
+    
+    report <- t(apply(cbind(Overall=TRUE, xnz[, colSums(xnz) < NROW(xnz)]), 2, cc))
 
-    warn <- character(0)
-    for (cvar in unique(cvars)) {
-        var <- if (length(cvar) == 1) mf[[cvar]] else {
-            do.call(interaction, c(mf[cvar], list(drop=TRUE)))
-        }
-        ## drop zero weight observations
-        if (!is.null(attr(mf, "zero.weights")))
-            var <- var[-attr(mf, "zero.weights")]
-        ## tabulate levels including all observations
-        tl1 <- as.data.frame(table(var))
-        colnames(tl1)[1] <- cn <- paste(cvar, collapse=":")
-        ## tabulate levels including excluding observations
-        ## with robustness weight 0
-        tl2 <- as.data.frame(table(var[rj]))
-        colnames(tl2) <- c(cn, "Freq.rejected")
-        ## merge all together
-        tl <- merge(tl1, tl2, all.x = TRUE)
-        tl <- subset(tl, Freq > 0)
-        tl$Freq.ratio <- with(tl, Freq.rejected / Freq)
-        ## compute average robustness weight per level
-        tl3 <- aggregate(rw ~ var, data.frame(rw=rw, var=var), mean)
-        colnames(tl3) <- c(cn, "Mean.RobWeight")
-        ## and merge this as well
-        tl <- merge(tl, tl3)
-        report[[cn]] <- tl
-        st <- FALSE
-        lbr <- rep.int(FALSE, nrow(tl))
-        if (!is.null(warn.limit.reject))
-            st <- any(lbr <- tl$Freq.ratio >= warn.limit.reject)
-        if (!is.null(warn.limit.meanrw))
-            st <- st | any(lbr <- lbr | tl$Mean.RobWeight <= warn.limit.meanrw)
-        if (st)
-            warn <- c(warn,
-                      paste0("'", cn, "' (", if(sum(lbr) > 1) "levels" else "level", " ",
-			     paste0("'", tl[lbr, cn], "'"), ")", collapse=", "))
-    }
-
-    if (length(warn) > 0) {
-        attr(report, "warning") <- warn
+    st <- FALSE
+    lbr <- rep.int(FALSE, nrow(report))
+    if (!is.null(warn.limit.reject))
+        st <- any(lbr <- report[, "Ratio"] >= warn.limit.reject)
+    if (!is.null(warn.limit.meanrw))
+        st <- st | any(lbr <- lbr | report[, "Mean.RobWeight"] <= warn.limit.meanrw)
+    
+    if (any(st)) {
+        nbr <- rownames(report)[lbr]
+        attr(report, "warning") <- paste("Possible local breakdown of",
+                                         paste0("'", nbr, "'", collapse=", "))
         warning("Detected possible local breakdown of ", control$method, "-estimate in ",
-                if (length(warn) > 1) paste(length(warn), "factors") else "factor",
-                " ", pasteK(warn), ".",
+                if (length(nbr) > 1) paste(length(nbr), "coefficients") else "coefficient",
+                " ", paste0("'", nbr, "'", collapse=", "), ".",
                 if ("KS2014" %in% control$setting) "" else
                 "\nUse lmrob argument 'setting=\"KS2014\"' to avoid this problem."
                 )

@@ -118,6 +118,8 @@ lmrob <-
 		x <- x[,p1]
 		attr(x, "assign") <- assign[p1] ## needed for splitFrame to work
 	    }
+            if (is.function(control$eps.x))
+                control$eps.x <- control$eps.x(max(abs(x)))
 	    if (!is.null(ini <- init)) {
 		if (is.character(init)) {
 		    init <- switch(init,
@@ -584,6 +586,11 @@ summary.lmrob <- function(object, correlation = FALSE, symbolic.cor = FALSE, ...
     ans$sigma <- sigma # 'sigma': in summary.lm() & 'fit.models' pkg
     if (is.function(ans$control$eps.outlier))
         ans$control$eps.outlier <- ans$control$eps.outlier(nobs(object))
+    if (is.function(ans$control$eps.x)) {
+        if (!is.null(object[['x']])) {
+            ans$control$eps.x <- ans$control$eps.x(max(abs(object[['x']])))
+        } else ans$control$eps.x <- NULL
+    }
     class(ans) <- "summary.lmrob"
     ans
 }

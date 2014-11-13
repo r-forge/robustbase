@@ -1,5 +1,5 @@
 
-R version 3.1.0 (2014-04-10) -- "Spring Dance"
+R Under development (unstable) (2014-07-10 r66124) -- "Unsuffered Consequences"
 Copyright (C) 2014 The R Foundation for Statistical Computing
 Platform: x86_64-apple-darwin13.1.0 (64-bit)
 
@@ -165,9 +165,9 @@ Robustness weights:
  All 33 weights are ~= 1.
 Algorithmic parameters: 
                bb        refine.tol           rel.tol         solve.tol 
-        0.0003846         0.0000001         0.0000001         0.0000001 
-      eps.outlier warn.limit.reject warn.limit.meanrw 
-        0.0030303         0.5000000         0.5000000 
+        3.846e-04         1.000e-07         1.000e-07         1.000e-07 
+      eps.outlier             eps.x warn.limit.reject warn.limit.meanrw 
+        3.030e-03         4.369e-12         5.000e-01         5.000e-01 
      nResample     tuning.chi     tuning.psi         max.it       best.r.s 
            500             20             20             50              2 
       k.fast.s          k.max    maxit.scale      trace.lev            mts 
@@ -216,9 +216,9 @@ Robustness weights:
  27 weights are ~= 1.
 Algorithmic parameters: 
                bb        refine.tol           rel.tol         solve.tol 
-        0.0003846         0.0000001         0.0000001         0.0000001 
-      eps.outlier warn.limit.reject warn.limit.meanrw 
-        0.0037037         0.5000000         0.5000000 
+        3.846e-04         1.000e-07         1.000e-07         1.000e-07 
+      eps.outlier             eps.x warn.limit.reject warn.limit.meanrw 
+        3.704e-03         5.094e-12         5.000e-01         5.000e-01 
      nResample     tuning.chi     tuning.psi         max.it       best.r.s 
            500             20             20             50              2 
       k.fast.s          k.max    maxit.scale      trace.lev            mts 
@@ -265,9 +265,9 @@ Robustness weights:
  All 38 weights are ~= 1.
 Algorithmic parameters: 
                bb        refine.tol           rel.tol         solve.tol 
-        0.0003846         0.0000001         0.0000001         0.0000001 
-      eps.outlier warn.limit.reject warn.limit.meanrw 
-        0.0026316         0.5000000         0.5000000 
+        3.846e-04         1.000e-07         1.000e-07         1.000e-07 
+      eps.outlier             eps.x warn.limit.reject warn.limit.meanrw 
+        2.632e-03         4.369e-12         5.000e-01         5.000e-01 
      nResample     tuning.chi     tuning.psi         max.it       best.r.s 
            500             20             20             50              2 
       k.fast.s          k.max    maxit.scale      trace.lev            mts 
@@ -446,4 +446,4 @@ Coefficients:
 > 
 > proc.time()
    user  system elapsed 
-  0.625   0.033   0.647 
+  0.550   0.031   0.570 

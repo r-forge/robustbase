@@ -1,5 +1,5 @@
 
-R version 3.1.0 (2014-04-10) -- "Spring Dance"
+R Under development (unstable) (2014-07-10 r66124) -- "Unsuffered Consequences"
 Copyright (C) 2014 The R Foundation for Statistical Computing
 Platform: x86_64-apple-darwin13.1.0 (64-bit)
 
@@ -56,11 +56,11 @@ Robustness weights:
  0.5611  0.8986  0.9553  0.9044  0.9918  0.9987 
 Algorithmic parameters: 
        tuning.chi                bb        tuning.psi        refine.tol 
-        1.5476400         0.5000000         4.6850610         0.0000001 
-          rel.tol         solve.tol       eps.outlier warn.limit.reject 
-        0.0000001         0.0000001         0.0050000         0.5000000 
-warn.limit.meanrw 
-        0.5000000 
+        1.548e+00         5.000e-01         4.685e+00         1.000e-07 
+          rel.tol         solve.tol       eps.outlier             eps.x 
+        1.000e-07         1.000e-07         5.000e-03         1.819e-12 
+warn.limit.reject warn.limit.meanrw 
+        5.000e-01         5.000e-01 
      nResample         max.it       best.r.s       k.fast.s          k.max 
            500             50              2              1            200 
    maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
@@ -102,11 +102,11 @@ Robustness weights:
  0.1491  0.9412  0.9847  0.9279  0.9947  0.9982 
 Algorithmic parameters: 
        tuning.chi                bb        tuning.psi        refine.tol 
-        1.5476400         0.5000000         4.6850610         0.0000001 
-          rel.tol         solve.tol       eps.outlier warn.limit.reject 
-        0.0000001         0.0000001         0.0050000         0.5000000 
-warn.limit.meanrw 
-        0.5000000 
+        1.548e+00         5.000e-01         4.685e+00         1.000e-07 
+          rel.tol         solve.tol       eps.outlier             eps.x 
+        1.000e-07         1.000e-07         5.000e-03         1.569e-10 
+warn.limit.reject warn.limit.meanrw 
+        5.000e-01         5.000e-01 
      nResample         max.it       best.r.s       k.fast.s          k.max 
            500             50              2              1            200 
    maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
@@ -149,11 +149,11 @@ Robustness weights:
 0.06899 0.89030 0.95860 0.82750 0.98700 0.99820 
 Algorithmic parameters: 
        tuning.chi                bb        tuning.psi        refine.tol 
-        1.5476400         0.5000000         4.6850610         0.0000001 
-          rel.tol         solve.tol       eps.outlier warn.limit.reject 
-        0.0000001         0.0000001         0.0050000         0.5000000 
-warn.limit.meanrw 
-        0.5000000 
+        1.548e+00         5.000e-01         4.685e+00         1.000e-07 
+          rel.tol         solve.tol       eps.outlier             eps.x 
+        1.000e-07         1.000e-07         5.000e-03         1.569e-10 
+warn.limit.reject warn.limit.meanrw 
+        5.000e-01         5.000e-01 
      nResample         max.it       best.r.s       k.fast.s          k.max 
            500             50              2              1            200 
    maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
@@ -198,11 +198,11 @@ Robustness weights:
  0.5441  0.9257  0.9833  0.9303  0.9956  0.9985 
 Algorithmic parameters: 
        tuning.chi                bb        tuning.psi        refine.tol 
-        1.5476400         0.5000000         4.6850610         0.0000001 
-          rel.tol         solve.tol       eps.outlier warn.limit.reject 
-        0.0000001         0.0000001         0.0050000         0.5000000 
-warn.limit.meanrw 
-        0.5000000 
+        1.548e+00         5.000e-01         4.685e+00         1.000e-07 
+          rel.tol         solve.tol       eps.outlier             eps.x 
+        1.000e-07         1.000e-07         5.000e-03         2.219e-10 
+warn.limit.reject warn.limit.meanrw 
+        5.000e-01         5.000e-01 
      nResample         max.it       best.r.s       k.fast.s          k.max 
            500             50              2              1            200 
    maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
@@ -255,4 +255,4 @@ seed : int(0)
 > 
 > proc.time()
    user  system elapsed 
-  0.529   0.032   0.551 
+  0.512   0.029   0.530 

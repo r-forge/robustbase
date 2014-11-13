@@ -166,6 +166,6 @@ lmrob.M.S <- function(x, y, control, mf, split) {
                 ## ../src/lmrob.c : m_s_descent() notes that convergence is *not* guaranteed
                 converged = TRUE, descent.conv = conv, control = control)
     if (control$method %in% control$compute.outlier.stats)
-        obj$ostats <- outlierStats(obj, control, mf = mf)
+        obj$ostats <- outlierStats(obj, x, control)
     obj
 }
