@@ -10,6 +10,7 @@ Y <- DNase1[,"density"] # for convenience below
 fm1 <- nls(density ~ Asym/(1 + exp(( xmid - log(conc) )/scal ) ),
 	   data = DNase1, start = list(Asym = 3, xmid = 0, scal = 1), trace=TRUE)
 summary(fm1)
+wm1 <- update(fm1, weights = sqrt(conc)) # (weights as function of <var>)
 
 ## robust
 rm1 <- nlrob(formula(fm1), data = DNase1, trace = TRUE,
@@ -32,6 +33,15 @@ assert.EQ(sqrt(diag(sm1$cov)), giveRE=TRUE,
 	  ## 32b 0.08626872273,     0.0902194541,      0.03503833759
 	  c(Asym=0.0862687305, xmid=0.0902194608, scal=0.0350383389),
 	  tol = 7e-7)
+## examples with weights:
+rm. <- update(rm1, weights = NULL)# 'NULL' but not missing()
+ww <- sqrt(DNase1[,"conc"])
+wr1  <- update(rm1, weights = sqrt(conc), trace=FALSE)
+wr1. <- update(rm1, weights = ww,         trace=FALSE)
+ii <- names(rm1) != "call"
+stopifnot(all.equal(rm1[ii], rm.[ii], tol = 1e-15),
+          all.equal(wr1[ii],wr1.[ii], tol = 1e-15))
+
 
 ## From: "Pascal A. Niklaus" <pascal.niklaus@ieu.uzh.ch>
 ## To: <maechler@stat.math.ethz.ch>
