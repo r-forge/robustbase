@@ -244,12 +244,15 @@ fm2DNase1 <- nls( density ~ 1/(1 + exp(( xmid - log(conc) )/scal ) ),
 summary( fm2DNase1 )
 
 ## robust
-if(FALSE) { # currently fails %% FIXME error in nls's nlsModel.plinear()
 frm2DNase1 <- nlrob(density ~ 1/(1 + exp(( xmid - log(conc) )/scal ) ),
                   data = DNase1, start = c( xmid = 0, scal = 1 ),
                   alg = "plinear", trace = TRUE )
 summary( frm2DNase1 )
-} # not yet
+## Confidence for linear parameter is quite smaller than "Asym" above
+c1 <- coef(summary(RmN1))
+c2 <- coef(summary(frm2DNase1))
+rownames(c2)[rownames(c2) == ".lin"] <- "Asym"
+stopifnot(all.equal(c1[,1:2], c2[rownames(c1), 1:2], tol = 0.09)) # 0.07315
 
 ### -- new examples -- "moderate outlier":
 DN2 <- DNase1
