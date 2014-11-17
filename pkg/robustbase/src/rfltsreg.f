@@ -285,23 +285,25 @@ cc
 CDDD  CALL INTPR('>>> Start initialization ... nrep=',-1,nrep,1)
 
       do 31, j=1,nvmax
-        do 33, k=1,10
+        do k=1,10
           mstock(k,j)=1000000.D0
-          do 35, kk=1,kmini
- 35         m1stock((kk-1)*10+k,j)=1000000.D0
-          do 37 i=1,nvmax
-            do 39,kk=1,kmini
- 39           c1stock((kk-1)*10+k,(j-1)*nvmax+i)=1000000.D0
+          do kk=1,kmini
+            m1stock((kk-1)*10+k,j)=1000000.D0
+          end do
+          do i=1,nvmax
+            do kk=1,kmini
+              c1stock((kk-1)*10+k,(j-1)*nvmax+i)=1000000.D0
+            end do
             cstock(k,(j-1)*nvmax+i)=1000000.D0
- 37       continue
- 33     continue
+          end do
+        end do
         means(j)=0.D0
         bmeans(j)=0.D0
         sd(j)=0.D0
-        do 46, k=1,nvmax1
+        do k=1,nvmax1
           c(j,k)=0.D0
           h(j,k)=0.D0
- 46     continue
+        end do
  31   continue
 
       do 41, j=1,nmax
@@ -320,32 +322,35 @@ CDDD  CALL INTPR('>>> Start initialization ... nrep=',-1,nrep,1)
         slutn(j)=0.D0
  41   continue
 
-      do 43,j=1,km10
- 43     flag(j)=1
+      do j=1,km10
+        flag(j)=1
+      end do
       do 45, j=1,nvmax1
         jmiss(j)=0
         xmed(j)=0.D0
         xmad(j)=0.D0
         a(j)=0.D0
         da(j)=0.D0
-        do 48,k=1,nmaxi
- 48       dath(k,j)=0.D0
+        do k=1,nmaxi
+          dath(k,j)=0.D0
+        end do
  45   continue
 
-      do 44, j=1,maxmini
+      do j=1,maxmini
         subndex(j)=0
- 44   continue
-
-      do 47,j=1,nvm11
- 47     hvec(j)=0.D0
+      end do
+      do j=1,nvm11
+        hvec(j)=0.D0
+      end do
 
       if(i_trace .ge. 2)
      +    call intpr(' rftls.... initialization ready',-1,0,1)
  9000 continue
 
       if(nvad.eq.1) then
-        do 23, jj=1,n
- 23       ndist(jj)=dat(jj,1)
+        do jj=1,n
+          ndist(jj)=dat(jj,1)
+        end do
         call rfshsort(ndist,n)
         call rfmcduni(ndist,n,nhalff,slutn,bstd,am,am2,factor,
      *       n-nhalff+1)
@@ -422,23 +427,25 @@ c----
          call intpr('Main (number of trials nrep, kstep, nhalf):',
      +        -1, i_aux, 3)
       endif
-      do 81 i=1,nsel-1
+      do i=1,nsel-1
          index1(i)=i
- 81   continue
+      end do
       index1(nsel)=nsel-1
 cc
       if(.not. final) then
-        do 83 i=1,10
-          do 85 j=1,ngroup
+        do i=1,10
+          do j=1,ngroup
             mcdndex(i,1,j)=10.D25
- 85       mcdndex(i,2,j)=10.D25
- 83     continue
+            mcdndex(i,2,j)=10.D25
+          end do
+        end do
       endif
       if (fine .and. .not. final) then
-        do 91, j=1,minigr
-          do 93, k=1,nvad
- 93         dath(j,k)=dat(subdat(1,j),k)
- 91     continue
+        do j=1,minigr
+          do k=1,nvad
+            dath(j,k)=dat(subdat(1,j),k)
+          end do
+        end do
       endif
       kount=0
 
@@ -571,15 +578,18 @@ CDDD  CALL INTPR('>>> INTERCEPT ADJUSTMENT 1',-1,i,1)
               call rfmcduni(aw,nn,nhalf,slutn,bstd,am,am2,
      *             factor,nn-nhalf+1)
               a(nvar)=a(nvar)+slutn(1)
-              do 154 jnc=1,nn
- 154            residu(jnc)=residu(jnc)-slutn(1)
+              do jnc=1,nn
+                residu(jnc)=residu(jnc)-slutn(1)
+              end do
             else if(intercept.eq.1) then
               call rfshsort(aw,nn)
-              do 184 jj=1,nn
- 184            am2(jj)=abs(aw(jj))
+              do jj=1,nn
+                am2(jj)=abs(aw(jj))
+              end do
               dist2=rffindq(am2,nn,nhalf,index1)
-              do 174, jj=1,nhalf
- 174            aw2(jj)=aw(index1(jj))
+              do jj=1,nhalf
+                aw2(jj)=aw(index1(jj))
+              end do
               dist2=rffindq(aw2,nhalf,1,index2)
               jnc=index1(index2(1))
               if(jnc+nmore-nmore2+nhalf-1.gt.nn.or.jnc-nmore2.lt.1)
@@ -903,22 +913,25 @@ c     nstop=0: success;  =1 : "problem": mad ~= 0
 c       regression without intercept
         do 50 j=1,nvad
           xmed(j)=0.0
-          do 10 jnc=1,n
- 10         aw2(jnc)=abs(x(jnc,j))
+          do jnc=1,n
+            aw2(jnc)=abs(x(jnc,j))
+          end do
+
           xmad(j)=rfamdan(nmax,aw2,n,index2)*1.4826
           if(abs(xmad(j)) .le. MADeps) then
             xmad(j)=0.0
-            do 20 jnc=1,n
- 20           xmad(j)=xmad(j)+aw2(jnc)
+            do jnc=1,n
+              xmad(j)=xmad(j)+aw2(jnc)
+            end do
             xmad(j)=(xmad(j)/n)*1.2533
             if(abs(xmad(j)) .le. MADeps) then
               nstop=1
               return
             endif
           endif
-          do 40 jnc=1,n
+          do jnc=1,n
             x(jnc,j)=x(jnc,j)/xmad(j)
- 40       continue
+          end do
  50     continue
 
       else
@@ -927,18 +940,19 @@ c     	regression with intercept
         xmad(nvar)=1.D0
         do 120 j=1,nvad
           if(j.eq.nvar) goto 120
-          do 70 jnc=1,n
+          do jnc=1,n
             aw2(jnc)=x(jnc,j)
- 70       continue
+          end do
           xmed(j)=rfamdan(nmax,aw2,n,index2)
-          do 80 jnc=1,n
+          do jnc=1,n
             aw2(jnc)=abs(aw2(jnc)-xmed(j))
- 80       continue
+          end do
           xmad(j)=rfamdan(nmax,aw2,n,index2)*1.4826
           if(abs(xmad(j)) .le. MADeps) then
             xmad(j)=0.0
-            do 90 jnc=1,n
- 90           xmad(j)=xmad(j)+aw2(jnc)
+            do jnc=1,n
+              xmad(j)=xmad(j)+aw2(jnc)
+            end do
             xmad(j)=(xmad(j)/n)*1.2533
             if(dabs(xmad(j)) .le. MADeps) then
               nstop=1
@@ -946,17 +960,17 @@ c     	regression with intercept
             endif
           endif
 
-          do 110 jnc=1,n
+          do jnc=1,n
             x(jnc,j)=(x(jnc,j)-xmed(j))/xmad(j)
- 110      continue
+          end do
  120    continue
 
       endif
 
-      do 270, jnc=1,n
+      do jnc=1,n
         weights(jnc)=1.0
         y(jnc)=x(jnc,nvad)
- 270  continue
+      end do
       return
       end
 cc
@@ -995,30 +1009,30 @@ cc Var
       integer j,l, jnc,ka,kplus, mm
 cc
       kplus=k+1
-      do 10 jnc=1,k
-        do 20 j=1,kplus
+      do jnc=1,k
+        do j=1,kplus
           h(jnc,j)=0.D0
- 20     continue
- 10   continue
+        end do
+      end do
       anul=0.0
       do 30 jnc=1,nnn
         call rffcn(k,f,x,jnc,n,nvad)
         dwjnc=dble(w(jnc))
         anul=anul+w(jnc)
         dyj=dble(x(jnc,kplus))
-        do 40 ka=1,k
+        do ka=1,k
           dfka=dble(f(ka))
           h(ka,k+1)=h(ka,k+1)+dwjnc*dfka*dyj
-          do 50 l=1,ka
+          do l=1,ka
             h(ka,l)=h(ka,l)+dwjnc*dfka*dble(f(l))
- 50       continue
- 40     continue
+          end do
+        end do
  30   continue
-      do 60 j=1,k
-        do 70 jnc=1,j
+      do j=1,k
+        do jnc=1,j
           h(jnc,j)=h(j,jnc)
- 70     continue
- 60   continue
+        end do
+      end do
       call rfmatnv(h,nvmax,nvmax1,hvec,nvm11,k,1,jmiss)
       mm=k+1
       fckw = rfqlsrg(k,n,nvmax1,nvmax,f,x, w,h,mm,nvad,nnn)
@@ -1029,15 +1043,15 @@ cc
       ank=anul-k
       dfact=dble(ank)
       dfact=dfckw/dfact
-      do 90 jnc=1,k
-        do 100 j=1,k
+      do jnc=1,k
+        do j=1,k
           h(jnc,j)=h(jnc,j)*dfact
- 100    continue
- 90   continue
-      do 110 jnc=1,k
+        end do
+      end do
+      do jnc=1,k
         hda=h(jnc,jnc)
         da(jnc)=sqrt(hda)
- 110  continue
+      end do
       return
       end
 ccccc
@@ -1070,12 +1084,13 @@ cc
       n=na
       npnb=n+nb
       jnk=0
-      do 10 j=1,npnb
+      do j=1,npnb
         jnk=(j-1)*nvmax
-        do 10 nc=1,nvmax
+        do nc=1,nvmax
           jnk=jnk+1
           hvec(jnk)=an(nc,j)
- 10   continue
+        end do
+      end do
       ldel=0
       jdm=nvmax
       nma=n-1
@@ -1110,8 +1125,9 @@ cc
         deter=deter*turn
         turn=1.0D0/turn
         jncd=jdelc+nma
-        do 90 jnc=jdelc,jncd
- 90       hvec(jnc)=-hvec(jnc)*turn
+        do jnc=jdelc,jncd
+          hvec(jnc)=-hvec(jnc)*turn
+        end do
         hvec(jdla)=turn
         jncb=jhfd-jdm
         jpaal=1-jdm
@@ -1122,10 +1138,10 @@ cc
             jcl=jpaal+nma
             swap=hvec(jncb)
             jncd=jdelc-1
-            do 110 jncc=jpaal,jcl
+            do jncc=jpaal,jcl
               jncd=jncd+1
               hvec(jncc)=hvec(jncc)+swap*hvec(jncd)
- 110        continue
+            end do
             hvec(jncb)=swap*turn
           endif
  120    continue
@@ -1137,21 +1153,22 @@ cc
           jpaal=(ldel-1)*jdm+1
           jcl=jpaal+nma
           jdelc=(jhfd-1)*jdm+1-jpaal
-          do 150 jncc=jpaal,jcl
+          do jncc=jpaal,jcl
             jncd=jncc+jdelc
             swap=hvec(jncc)
             hvec(jncc)=hvec(jncd)
             hvec(jncd)=swap
- 150      continue
+          end do
         endif
  160  continue
 c---
  180  jnk=0
-      do 190 j=1,npnb
-        do 190 nc=1,nvmax
+      do j=1,npnb
+        do nc=1,nvmax
           jnk=jnk+1
           an(nc,j)=hvec(jnk)
- 190  continue
+        end do
+      end do
       return
       end
 ccccc
@@ -1269,12 +1286,13 @@ cc
      *         (dble(xmad(k)))*h(nvar,nvad)
            endif
  80     continue
-        do 90 j=1,nfac
-           do 90 k=j+1,nvar
-             hnn=2.0D0*dble(xmed(j))*dble(xmed(k))*xmp2
-             h(nvar,nvar)=h(nvar,nvar)+hnn/
-     *         (dble(xmad(j))*dble(xmad(k)))*h(j,k)
- 90     continue
+        do j=1,nfac
+          do k=j+1,nvar
+            hnn=2.0D0*dble(xmed(j))*dble(xmed(k))*xmp2
+            h(nvar,nvar)=h(nvar,nvar)+hnn/
+     *           (dble(xmad(j))*dble(xmad(k)))*h(j,k)
+          end do
+        end do
         da(nvar)=dsqrt(h(nvar,nvar))
       endif
       return
@@ -1297,56 +1315,63 @@ ccccc
       n=na
       jmat=n+nb
       jnk=0
-      do 10 j=1,jmat
-         jnk=(j-1)*nvmax
-         do 10 nc=1,nvmax
-            jnk=jnk+1
-            hvec(jnk)=am(nc,j)
- 10   continue
-
+      do j=1,jmat
+        jnk=(j-1)*nvmax
+        do nc=1,nvmax
+          jnk=jnk+1
+          hvec(jnk)=am(nc,j)
+        end do
+      end do
       nznde=n-1
       lclpl=-jdm
+
       do 120 jhfd=1,n
          turn=0.D0
          lclpl=lclpl+jdm+1
          jdel=lclpl+n-jhfd
-         do 40 jncb=lclpl,jdel
+         do jncb=lclpl,jdel
            if(dabs(hvec(jncb)) .gt. dabs(turn)) then
              turn=hvec(jncb)
              ldel=jncb
            endif
- 40      continue
+         end do
          if(dabs(turn) .le. 1D-8) then
             nerr=-1
             goto 180
          endif
-         if(ldel-lclpl) 60,80,60
- 60         deter=-deter
+
+         if(ldel .ne. lclpl) then
+            deter=-deter
             ldel=ldel-jdm
             jncb=lclpl-jdm
-            do 70 jncc=jhfd,jmat
-               ldel=ldel+jdm
-               jncb=jncb+jdm
-               swap=hvec(jncb)
-               hvec(jncb)=hvec(ldel)
- 70         hvec(ldel)=swap
- 80         deter=deter*turn
+            do jncc=jhfd,jmat
+              ldel=ldel+jdm
+              jncb=jncb+jdm
+              swap=hvec(jncb)
+              hvec(jncb)=hvec(ldel)
+              hvec(ldel)=swap
+            end do
+         end if
+         deter=deter*turn
+
          if(jhfd.eq.n) goto 120
          turn=1./turn
          jncb=lclpl+1
-         do 90 jncc=jncb,jdel
- 90         hvec(jncc)=hvec(jncc)*turn
+         do jncc=jncb,jdel
+           hvec(jncc)=hvec(jncc)*turn
+         end do
          jncd=lclpl
          jrow=jhfd+1
-         do 110 jncb=jrow,n
+         do jncb=jrow,n
             jncd=jncd+1
             jnce=lclpl
             jncf=jncd
-            do 100 jncc=jrow,jmat
-               jnce=jnce+jdm
-               jncf=jncf+jdm
- 100        hvec(jncf)=hvec(jncf)-hvec(jnce)*hvec(jncd)
- 110     continue
+            do jncc=jrow,jmat
+              jnce=jnce+jdm
+              jncf=jncf+jdm
+              hvec(jncf)=hvec(jncf)-hvec(jnce)*hvec(jncd)
+            end do
+         end do
  120  continue
 
       nerr=0
@@ -1364,10 +1389,10 @@ ccccc
             hvec(jendx)=hvec(jendx)/hvec(jendc+1)
             swap=hvec(jendx)
             jncd=jbegx-1
-            do 130 jncc=jbegc,jendc
+            do jncc=jbegc,jendc
                jncd=jncd+1
                hvec(jncd)=hvec(jncd)-hvec(jncc)*swap
- 130        continue
+            end do
  140     continue
          hvec(jbegx)=hvec(jbegx)/hvec(1)
  150  continue
@@ -1379,18 +1404,19 @@ ccccc
          jendx=jendx+jdm
          jnc=jnc+jdm
          jncd=jnc
-         do 165 jncc=jbegx,jendx
+         do jncc=jbegx,jendx
             jncd=jncd+1
             hvec(jncd)=hvec(jncc)
- 165     continue
+         end do
  160  continue
 
  180  jnk=0
-      do 190 j=1,jmat
-         do 190 nc=1,nvmax
+      do j=1,jmat
+         do nc=1,nvmax
             jnk=jnk+1
             am(nc,j)=hvec(jnk)
- 190  continue
+         end do
+      end do
       return
       end
 ccccc
