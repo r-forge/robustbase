@@ -1,7 +1,7 @@
 
-R version 3.1.2 RC (2014-10-30 r66905) -- "Pumpkin Helmet"
+R version 3.1.2 Patched (2014-11-16 r66991) -- "Pumpkin Helmet"
 Copyright (C) 2014 The R Foundation for Statistical Computing
-Platform: x86_64-unknown-linux-gnu (64-bit)
+Platform: i686-pc-linux-gnu (32-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -312,8 +312,8 @@ covMcd(x = X)
 The covariance matrix of the data is singular.
 There are 12 observations (in the entire dataset of 12 obs.) lying on
 the hyperplane with equation a_1*(x_i1 - m_1) + ... + a_p*(x_ip - m_p)
-= 0 with (m_1,...,m_p) the mean of these observations and coefficients
-a_i from the vector a <- c(1, 0, 0, 0)
+= 0 with (m_1, ..., m_p) the mean of these observations and
+coefficients a_i from the vector a <- c(1, 0, 0, 0)
 Log(Det.):  -Inf 
 
 Robust Estimate of Location:
@@ -328,8 +328,8 @@ Warning message:
 In covMcd(X) : The covariance matrix of the data is singular.
 There are 12 observations (in the entire dataset of 12 obs.) lying on
 the hyperplane with equation a_1*(x_i1 - m_1) + ... + a_p*(x_ip - m_p)
-= 0 with (m_1,...,m_p) the mean of these observations and coefficients
-a_i from the vector a <- c(1, 0, 0, 0)
+= 0 with (m_1, ..., m_p) the mean of these observations and
+coefficients a_i from the vector a <- c(1, 0, 0, 0)
 > summary(rC)
 Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Fast MCD(alpha=0.5 ==> h=8); nsamp = 500; (n,k)mini = (300,5)
@@ -338,8 +338,8 @@ covMcd(x = X)
 The covariance matrix of the data is singular.
 There are 12 observations (in the entire dataset of 12 obs.) lying on
 the hyperplane with equation a_1*(x_i1 - m_1) + ... + a_p*(x_ip - m_p)
-= 0 with (m_1,...,m_p) the mean of these observations and coefficients
-a_i from the vector a <- c(1, 0, 0, 0)
+= 0 with (m_1, ..., m_p) the mean of these observations and
+coefficients a_i from the vector a <- c(1, 0, 0, 0)
 Log(Det.):  -Inf 
 
 Robust Estimate of Location:
@@ -401,8 +401,8 @@ Robustness weights:
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  0.39 0.036 0.418 0 0.005 
+Time elapsed:  0.514 0.071 0.664 0.001 0.001 
 > 
 > proc.time()
    user  system elapsed 
-  0.390   0.041   0.418 
+  0.515   0.072   0.664 

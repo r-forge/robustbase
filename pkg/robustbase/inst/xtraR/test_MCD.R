@@ -1,4 +1,4 @@
-#### Utility functions for testing covMCD()
+#### Utility functions for testing covMcd()
 #### -------------------------------------- ../tests/tmcd.R
 
 ## "workhorse" -- by default *passed* to and called from doMCDdata():
@@ -224,7 +224,6 @@ gendata <- function(n,p, eps=0, b=10) {
         stop("eps must be in [0,0.5)")
     X <- matrix(rnorm(n*p), n, p)
     nbad <- as.integer(eps * n)
-    Sig <- diag(1,nrow=p,ncol=p)
     if(nbad > 0) {
         b <- rep(b, length = p) # recycle to p-vector
         ## = E[.] of bad obs.

@@ -48,8 +48,8 @@ covMcd(x, cor = FALSE, raw.only = FALSE,
   }
   \item{nmini, kmini}{for \eqn{n > n_0}, \eqn{n_0 := \code{nmini}}, the
     algorithm splits the data into maximally \code{kmini} (by default 5)
-    subsets, of size approximately \code{nmini} as long as
-    \code{nmini*kmini <= n}.
+    subsets, of size approximately \code{nmini}.  When \code{nmini*kmini < n},
+    the initial search uses only a subsample of size \code{nmini*kmini}.
     %% FIXME? -- more accurately ==> ../src/rffastmcd.f
     The original algorithm had \code{nmini = 300} and \code{kmini = 5}
     hard coded.}
@@ -158,7 +158,8 @@ covMcd(x, cor = FALSE, raw.only = FALSE,
     correction factor and the finite sample correction factor of
     the raw estimate of the covariance matrix.}
   \item{X}{the input data as numeric matrix, without \code{\link{NA}}s.}
-  \item{n.obs}{total number of observations.}
+  \item{nobs}{% was 'n.obs' which still works but is deprecated (Nov.17, 2014)
+    total number of observations.}
   \item{alpha}{the size of the subsets over which the determinant is
     minimized (the default is \eqn{(n+p+1)/2}).}
   \item{quan}{the number of observations, \eqn{h}, on which the MCD is

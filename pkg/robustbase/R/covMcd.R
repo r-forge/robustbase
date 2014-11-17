@@ -442,6 +442,8 @@ covMcd <- function(x,
        ) ## end{switch}
 }
 
+nobs.mcd <- function (object, ...) object$n.obs
+
 print.mcd <- function(x, digits = max(3, getOption("digits") - 3), print.gap = 2, ...)
 {
     cat("Minimum Covariance Determinant (MCD) estimator approximation.\n",
