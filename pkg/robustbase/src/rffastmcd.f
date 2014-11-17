@@ -702,6 +702,13 @@ cc
                end do
                call rfcovar(nsel,nvar,sscp1,cova1,means,sd)
                call rs(nvar,nvar,cova1,w,matz,z,fv1,fv2,ierr)
+
+C       VT::15.11.2014, fixing array overrun, found by MM
+C       The following code expects that z (the plane coefficients)
+C       are all zeros with 1 in the position of the variable with MAD=0
+C       If not, tries to find it.
+C
+            if(.FALSE.) then
                if(z(j).ne.1) then
                   do kk=1,nvar
                      if(z(kk*nvar+j).eq.1) then
@@ -713,6 +720,16 @@ cc
                   end do
                endif
  76            continue
+            else
+C       Instead of this, we set all coefficients to 0 and the one of
+C       variable j to 1. The exactfit code will be set 3 and will be
+C       handled respectively by the R code.
+               do kk=1,nvar
+                 z(kk) = 0
+               end do
+               z(j) = 1
+            end if
+
                call rfdis(dat,z,ndist,n,nvar,n,nvar,means)
                call rfexact(kount,n,ndist, nvmax1,nvar,
      *              sscp1,rec,dat, cova1,means,sd,nvar+1,weight)
@@ -721,7 +738,7 @@ cc
                do jjj=1,nvar
                   coeff(1,jjj)=z(jjj)
                end do
-               fit=2
+               fit=3
                goto 9999
             endif
             do i=1,n

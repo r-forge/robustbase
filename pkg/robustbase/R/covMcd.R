@@ -287,7 +287,7 @@ covMcd <- function(x,
 	    ##      stop("The program allows for at most ", mcd$kount, " observations.")
 	    ##      if(mcd$exactfit == -2)
 	    ##      stop("The program allows for at most ", mcd$kount, " variables.")
-	    if(!(mcd$exactfit %in% c(1,2)))
+	    if(!(mcd$exactfit %in% c(1,2,3)))
 		stop("Unexpected 'exactfit' code ", mcd$exactfit, ". Please report!")
 	    ## new (2007-01) and *instead* of older long 'method' extension;
 	    ## the old message is still *printed* via .MCDsingularityMsg()
@@ -295,7 +295,7 @@ covMcd <- function(x,
 	    ## exactfit is now *passed* to result instead of coded into 'message':
 	    ans$singularity <-
 		list(kind = "on.hyperplane", exactCode = mcd$exactfit,
-		     p = p, count = mcd$kount, coeff = mcd$coeff[1,])
+		     p = p, h = h, count = mcd$kount, coeff = mcd$coeff[1,])
 	}
         ans$alpha <- alpha
         ans$quan <- h
@@ -385,6 +385,7 @@ covMcd <- function(x,
 .MCDsingularityMsg <- function(singList, n.obs)
 {
     stopifnot(is.list(singList))
+
     switch(singList$kind,
        "classical" = {
            "The classical covariance matrix is singular."
@@ -403,37 +404,38 @@ covMcd <- function(x,
 		     "observations (in the entire dataset of", n, "obs.)",
 		     "lying on the")
            with(singList,
-                    c(switch(exactCode,
-                             ## exactfit == 1 :
-                             "The covariance matrix of the data is singular.",
-                             ## exactfit == 2 :
-                             c("The covariance matrix has become singular during",
-                               "the iterations of the MCD algorithm.")),
+                c(switch(exactCode,
+                         ## exactfit == 1 :
+                         "The covariance matrix of the data is singular.",
+                         ## exactfit == 2 :
+                         c("The covariance matrix has become singular during",
+                           "the iterations of the MCD algorithm."),
+			 ## exactfit == 3:
+			 paste0("The ", h,
+				"-th order statistic of the absolute deviation of variable ",
+				which(singList$coeff == 1), " is zero.")),
 
-                      if(p == 2) {
-                          paste(obsMsg(count, n.obs), "line with equation ",
-                                signif(coeff[1], digits= 5), "(x_i1-m_1) +",
-                                signif(coeff[2], digits= 5), "(x_i2-m_2) = 0",
-                                "with (m_1,m_2) the mean of these observations.")
-                      }
-                      else if(p == 3) {
-                          paste(obsMsg(count, n.obs), "plane with equation ",
-                                signif(coeff[1], digits= 5), "(x_i1-m_1) +",
-                                signif(coeff[2], digits= 5), "(x_i2-m_2) +",
-                                signif(coeff[3], digits= 5), "(x_i3-m_3) = 0",
-                                "with (m_1,m_2) the mean of these observations."
-                                )
-                      }
-                      else { ##  p > 3 -----------
-                          con <- textConnection("astring", "w")
-                          dput(zapsmall(coeff), con)
-                          close(con)
-                          paste(obsMsg(count, n.obs), "hyperplane with equation ",
+                  if(p == 2) {
+                      paste(obsMsg(count, n.obs), "line with equation ",
+                            signif(coeff[1], digits= 5), "(x_i1-m_1) +",
+                            signif(coeff[2], digits= 5), "(x_i2-m_2) = 0",
+                            "with (m_1,m_2) the mean of these observations.")
+                  }
+                  else if(p == 3) {
+                      paste(obsMsg(count, n.obs), "plane with equation ",
+                            signif(coeff[1], digits= 5), "(x_i1-m_1) +",
+                            signif(coeff[2], digits= 5), "(x_i2-m_2) +",
+                            signif(coeff[3], digits= 5), "(x_i3-m_3) = 0",
+                            "with (m_1,m_2) the mean of these observations."
+                            )
+                  }
+                  else { ##  p > 3 -----------
+                      paste(obsMsg(count, n.obs), "hyperplane with equation ",
                                 "a_1*(x_i1 - m_1) + ... + a_p*(x_ip - m_p) = 0",
-                                " with (m_1,...,m_p) the mean of these observations",
-                                " and coefficients a_i from the vector   a <- ",
-                                paste(astring, collapse="\n "))
-                      }))
+                            "with (m_1, ..., m_p) the mean of these observations",
+			    "and coefficients a_i from the vector   a <- ",
+			    paste(deparse(zapsmall(coeff)), collapse="\n "))
+                  }))
        },
        ## Otherwise
        stop("illegal 'singularity$kind'")

@@ -99,32 +99,36 @@ warnings() ## in one example  n < 2 * p ..
 ###' Test the exact fit property of CovMcd --------------------------------
 
 ##' generate "exact fit" data
-d.exact <- function(seed=seed) {
+d.exact <- function(seed=seed, p=2) {
+    stopifnot(p >= 1)
     set.seed(seed)
     n1 <- 45
-    p <- 2
     x1 <- matrix(rnorm(p*n1), nrow=n1, ncol=p)
     x1[,p] <- x1[,p] + 3
     n2 <- 55
     m2 <- 3
-    x <- rbind(x1, cbind(rnorm(n2), rep(m2,n2)))
-    colnames(x) <- c("X1","X2")
+    x <- rbind(x1, cbind(matrix(rnorm((p-1)*n2), n2, p-1), rep(m2,n2)))
+    colnames(x) <- paste0("X", 1:p)
     x
 }
 
-d.x <- d.exact(1234)
-plot(d.x)
+plot(d.exact(18, p=2))
+pairs(d.exact(1234, p=3), gap=0.1)
 
-is32 <- .Machine$sizeof.pointer == 4 ## <- 32-bit test for all platform
-if(!(is32 && Sys.info()[["sysname"]] == "Linux")) {
- d2 <- covMcd(d.x)
- ## on 686 (32-bit) Linux (F19), MM gets *error*
- ## At line 729 of file rffastmcd.f
- ## Fortran runtime error: Index '6' of dimension 1 of array 'z' above upper bound of 4
- print(d2)
- ## prints ok here
- if(FALSE) ## FIXME fails when calling eigen() in "r6pack()"
- d2. <- covMcd(d.x, nsamp = "deterministic", scalefn = Qn)
-
- stopifnot(d2$singularity$kind == "on.hyperplane")
+for(p in c(2,4))
+for(sid in c(2, 4, 18, 1234)) {
+    cat("\nseed = ",sid,"; p = ",p,":\n")
+    d.x <- d.exact(sid, p=p)
+    d2 <- covMcd(d.x)
+    ## Gave error {for p=2, seeds 2, 4, 18 also on 64-bit}:
+    ## At line 729 of file rffastmcd.f
+    ## Fortran runtime error: Index '6' of dimension 1 of array 'z' above upper bound of 4
+    print(d2)
+    if(FALSE) ## FIXME fails when calling eigen() in "r6pack()"
+        d2. <- covMcd(d.x, nsamp = "deterministic", scalefn = Qn)
+    stopifnot(d2$singularity$kind == "on.hyperplane")
 }
+
+
+## TODO: also get examples of other singularity$kind's
+

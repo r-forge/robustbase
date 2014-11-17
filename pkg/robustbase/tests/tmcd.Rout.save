@@ -1,5 +1,5 @@
 
-R version 3.1.2 RC (2014-10-30 r66905) -- "Pumpkin Helmet"
+R version 3.1.2 Patched (2014-11-09 r66949) -- "Pumpkin Helmet"
 Copyright (C) 2014 The R Foundation for Statistical Computing
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
@@ -3123,7 +3123,7 @@ Error in solve.default(cov, ...) :
   system is computationally singular: reciprocal condition number = 2.71945e-11
 > 
 > showProc.time()
-Time elapsed:  4.182 0.051 4.254 
+Time elapsed:  4.34 0.068 4.785 
 > 
 > ## "large" examples using different algo branches {seg.fault in version 0.4-4}:
 > 
@@ -3190,7 +3190,7 @@ Robustness weights:
 > stopifnot(cXo$raw.only, all.equal(cX[i], cXo[i], tol = 1e-15),
 +           c("best", "mah") %in% setdiff(names(cX), names(cXo)))
 > showProc.time()
-Time elapsed:  0.482 0.004 0.486 
+Time elapsed:  0.427 0 0.428 
 > 
 > ## Now, some small sample cases:
 > 
@@ -3360,16 +3360,16 @@ In covMcd(X, use.correction = FALSE) :
 +           all.equal(c(mcc$cov / cc$raw.cov), rep(0.7528695976179, p*p)))
 > 
 > showProc.time()
-Time elapsed:  0.042 0.004 0.046 
+Time elapsed:  0.03 0.001 0.031 
 > 
 > ## nsamp = "exact" -- here for p=7
 > coleman.x <- data.matrix(coleman[, 1:6])
 > showSys.time(CcX <- covMcd(coleman.x, nsamp= "exact"))
 Time    user  system elapsed 
-Time   1.207   0.000   1.207 
+Time   1.659   0.000   1.662 
 > showSys.time(Ccd <- covMcd(coleman.x, nsamp= "deterministic"))
 Time    user  system elapsed 
-Time    0.02    0.00    0.02 
+Time   0.015   0.000   0.014 
 > stopifnot(all.equal(CcX$best,
 + 		    c(2, 5:9, 11,13, 14:16, 19:20), tolerance=0),
 + 	  intersect(CcX$best, Ccd$best) == c(2,5,7,8,13,14,16,19,20),
@@ -4124,43 +4124,104 @@ In covMcd(X, use.correction = FALSE) :
 > ###' Test the exact fit property of CovMcd --------------------------------
 > 
 > ##' generate "exact fit" data
-> d.exact <- function(seed=seed) {
+> d.exact <- function(seed=seed, p=2) {
++     stopifnot(p >= 1)
 +     set.seed(seed)
 +     n1 <- 45
-+     p <- 2
 +     x1 <- matrix(rnorm(p*n1), nrow=n1, ncol=p)
 +     x1[,p] <- x1[,p] + 3
 +     n2 <- 55
 +     m2 <- 3
-+     x <- rbind(x1, cbind(rnorm(n2), rep(m2,n2)))
-+     colnames(x) <- c("X1","X2")
++     x <- rbind(x1, cbind(matrix(rnorm((p-1)*n2), n2, p-1), rep(m2,n2)))
++     colnames(x) <- paste0("X", 1:p)
 +     x
 + }
 
-> d.x <- d.exact(1234)
+> plot(d.exact(18, p=2))
 
-> plot(d.x)
+> pairs(d.exact(1234, p=3), gap=0.1)
 
-> is32 <- .Machine$sizeof.pointer == 4 ## <- 32-bit test for all platform
-
-> if(!(is32 && Sys.info()[["sysname"]] == "Linux")) {
-+  d2 <- covMcd(d.x)
-+  ## on 686 (32-bit) Linux (F19), MM gets *error*
-+  ## At line 729 of file rffastmcd.f
-+  ## Fortran runtime error: Index '6' of dimension 1 of array 'z' above upper bound of 4
-+  print(d2)
-+  ## prints ok here
-+  if(FALSE) ## FIXME fails when calling eigen() in "r6pack()"
-+  d2. <- covMcd(d.x, nsamp = "deterministic", scalefn = Qn)
-+ 
-+  stopifnot(d2$singularity$kind == "on.hyperplane")
+> for(p in c(2,4))
++ for(sid in c(2, 4, 18, 1234)) {
++     cat("\nseed = ",sid,"; p = ",p,":\n")
++     d.x <- d.exact(sid, p=p)
++     d2 <- covMcd(d.x)
++     ## Gave error {for p=2, seeds 2, 4, 18 also on 64-bit}:
++     ## At line 729 of file rffastmcd.f
++     ## Fortran runtime error: Index '6' of dimension 1 of array 'z' above upper bound of 4
++     print(d2)
++     if(FALSE) ## FIXME fails when calling eigen() in "r6pack()"
++         d2. <- covMcd(d.x, nsamp = "deterministic", scalefn = Qn)
++     stopifnot(d2$singularity$kind == "on.hyperplane")
 + }
+
+seed =  2 ; p =  2 :
 Minimum Covariance Determinant (MCD) estimator approximation.
 Method: Fast MCD(alpha=0.5 ==> h=51); nsamp = 500; (n,k)mini = (300,5)
 Call:
 covMcd(x = d.x)
-The covariance matrix has become singular during
-the iterations of the MCD algorithm.
+The 51-th order statistic of the absolute deviation of variable 2 is
+zero.
+There are 55 observations (in the entire dataset of 100 obs.) lying on
+the line with equation 0 (x_i1-m_1) + 1 (x_i2-m_2) = 0 with (m_1,m_2)
+the mean of these observations.
+Log(Det.):  -Inf 
+
+Robust Estimate of Location:
+   X1     X2  
+0.158  3.000  
+Robust Estimate of Covariance:
+      X1  X2
+X1  4.26   0
+X2  0.00   0
+
+seed =  4 ; p =  2 :
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=51); nsamp = 500; (n,k)mini = (300,5)
+Call:
+covMcd(x = d.x)
+The 51-th order statistic of the absolute deviation of variable 2 is
+zero.
+There are 55 observations (in the entire dataset of 100 obs.) lying on
+the line with equation 0 (x_i1-m_1) + 1 (x_i2-m_2) = 0 with (m_1,m_2)
+the mean of these observations.
+Log(Det.):  -Inf 
+
+Robust Estimate of Location:
+    X1      X2  
+0.0133  3.0000  
+Robust Estimate of Covariance:
+           X1         X2
+X1   3.59e+00  -8.53e-17
+X2  -8.53e-17   0.00e+00
+
+seed =  18 ; p =  2 :
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=51); nsamp = 500; (n,k)mini = (300,5)
+Call:
+covMcd(x = d.x)
+The 51-th order statistic of the absolute deviation of variable 2 is
+zero.
+There are 55 observations (in the entire dataset of 100 obs.) lying on
+the line with equation 0 (x_i1-m_1) + 1 (x_i2-m_2) = 0 with (m_1,m_2)
+the mean of these observations.
+Log(Det.):  -Inf 
+
+Robust Estimate of Location:
+    X1      X2  
+0.0277  3.0000  
+Robust Estimate of Covariance:
+           X1         X2
+X1   3.01e+00  -1.14e-16
+X2  -5.69e-17   0.00e+00
+
+seed =  1234 ; p =  2 :
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=51); nsamp = 500; (n,k)mini = (300,5)
+Call:
+covMcd(x = d.x)
+The 51-th order statistic of the absolute deviation of variable 2 is
+zero.
 There are 55 observations (in the entire dataset of 100 obs.) lying on
 the line with equation 0 (x_i1-m_1) + 1 (x_i2-m_2) = 0 with (m_1,m_2)
 the mean of these observations.
@@ -4173,21 +4234,210 @@ Robust Estimate of Covariance:
            X1         X2
 X1   2.86e+00  -1.14e-16
 X2  -1.14e-16   0.00e+00
-Warning message:
-In covMcd(d.x) : The covariance matrix has become singular during
-the iterations of the MCD algorithm.
+
+seed =  2 ; p =  4 :
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=52); nsamp = 500; (n,k)mini = (300,5)
+Call:
+covMcd(x = d.x)
+The 52-th order statistic of the absolute deviation of variable 4 is
+zero.
+There are 55 observations (in the entire dataset of 100 obs.) lying on
+the hyperplane with equation a_1*(x_i1 - m_1) + ... + a_p*(x_ip - m_p)
+= 0 with (m_1, ..., m_p) the mean of these observations and
+coefficients a_i from the vector a <- c(0, 0, 0, 1)
+Log(Det.):  -Inf 
+
+Robust Estimate of Location:
+   X1     X2     X3     X4  
+0.033  0.197  0.160  3.000  
+Robust Estimate of Covariance:
+           X1      X2      X3         X4
+X1   2.52e+00   0.185  -0.113  -2.61e-16
+X2   1.85e-01   2.236  -0.141   0.00e+00
+X3  -1.13e-01  -0.141   1.789   0.00e+00
+X4  -2.61e-16   0.000   0.000   0.00e+00
+
+seed =  4 ; p =  4 :
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=52); nsamp = 500; (n,k)mini = (300,5)
+Call:
+covMcd(x = d.x)
+The 52-th order statistic of the absolute deviation of variable 4 is
+zero.
+There are 55 observations (in the entire dataset of 100 obs.) lying on
+the hyperplane with equation a_1*(x_i1 - m_1) + ... + a_p*(x_ip - m_p)
+= 0 with (m_1, ..., m_p) the mean of these observations and
+coefficients a_i from the vector a <- c(0, 0, 0, 1)
+Log(Det.):  -Inf 
+
+Robust Estimate of Location:
+      X1        X2        X3        X4  
+-0.00568  -0.08741  -0.08413   3.00000  
+Robust Estimate of Covariance:
+           X1         X2         X3        X4
+X1   2.24e+00   1.70e-01  -8.48e-02  1.07e-16
+X2   1.70e-01   1.95e+00  -1.09e-01  1.49e-16
+X3  -8.48e-02  -1.09e-01   2.20e+00  1.49e-16
+X4   1.07e-16   7.45e-17   1.49e-16  0.00e+00
+
+seed =  18 ; p =  4 :
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=52); nsamp = 500; (n,k)mini = (300,5)
+Call:
+covMcd(x = d.x)
+The 52-th order statistic of the absolute deviation of variable 4 is
+zero.
+There are 55 observations (in the entire dataset of 100 obs.) lying on
+the hyperplane with equation a_1*(x_i1 - m_1) + ... + a_p*(x_ip - m_p)
+= 0 with (m_1, ..., m_p) the mean of these observations and
+coefficients a_i from the vector a <- c(0, 0, 0, 1)
+Log(Det.):  -Inf 
+
+Robust Estimate of Location:
+     X1       X2       X3       X4  
+-0.1567   0.0415   0.0109   3.0000  
+Robust Estimate of Covariance:
+           X1         X2         X3         X4
+X1   2.59e+00   3.97e-02  -4.40e-01  -4.47e-16
+X2   3.97e-02   2.21e+00  -3.44e-01  -7.45e-17
+X3  -4.40e-01  -3.44e-01   2.55e+00   2.61e-16
+X4  -4.47e-16  -7.45e-17   2.52e-16   0.00e+00
+
+seed =  1234 ; p =  4 :
+Minimum Covariance Determinant (MCD) estimator approximation.
+Method: Fast MCD(alpha=0.5 ==> h=52); nsamp = 500; (n,k)mini = (300,5)
+Call:
+covMcd(x = d.x)
+The 52-th order statistic of the absolute deviation of variable 4 is
+zero.
+There are 55 observations (in the entire dataset of 100 obs.) lying on
+the hyperplane with equation a_1*(x_i1 - m_1) + ... + a_p*(x_ip - m_p)
+= 0 with (m_1, ..., m_p) the mean of these observations and
+coefficients a_i from the vector a <- c(0, 0, 0, 1)
+Log(Det.):  -Inf 
+
+Robust Estimate of Location:
+    X1      X2      X3      X4  
+0.1901  0.0538  0.0847  3.0000  
+Robust Estimate of Covariance:
+          X1         X2       X3        X4
+X1  2.79e+00   2.21e-01   0.1668  5.96e-16
+X2  2.21e-01   2.02e+00  -0.0216  1.49e-16
+X3  1.67e-01  -2.16e-02   1.7319  0.00e+00
+X4  5.96e-16   1.49e-16   0.0000  0.00e+00
+
+> ## TODO: also get examples of other singularity$kind's
+> 
+Warning messages:
+1: In covMcd(d.x) :
+  The 51-th order statistic of the absolute deviation of variable 2 is
+zero.
 There are 55 observations (in the entire dataset of 100 obs.) lying on
 the line with equation 0 (x_i1-m_1) + 1 (x_i2-m_2) = 0 with (m_1,m_2)
 the mean of these observations.
+2: In covMcd(d.x) :
+  The 51-th order statistic of the absolute deviation of variable 2 is
+zero.
+There are 55 observations (in the entire dataset of 100 obs.) lying on
+the line with equation 0 (x_i1-m_1) + 1 (x_i2-m_2) = 0 with (m_1,m_2)
+the mean of these observations.
+3: In covMcd(d.x) :
+  The 51-th order statistic of the absolute deviation of variable 2 is
+zero.
+There are 55 observations (in the entire dataset of 100 obs.) lying on
+the line with equation 0 (x_i1-m_1) + 1 (x_i2-m_2) = 0 with (m_1,m_2)
+the mean of these observations.
+4: In covMcd(d.x) :
+  The 51-th order statistic of the absolute deviation of variable 2 is
+zero.
+There are 55 observations (in the entire dataset of 100 obs.) lying on
+the line with equation 0 (x_i1-m_1) + 1 (x_i2-m_2) = 0 with (m_1,m_2)
+the mean of these observations.
+5: In covMcd(d.x) :
+  The 52-th order statistic of the absolute deviation of variable 4 is
+zero.
+There are 55 observations (in the entire dataset of 100 obs.) lying on
+the hyperplane with equation a_1*(x_i1 - m_1) + ... + a_p*(x_ip - m_p)
+= 0 with (m_1, ..., m_p) the mean of these observations and
+coefficients a_i from the vector a <- c(0, 0, 0, 1)
+6: In covMcd(d.x) :
+  The 52-th order statistic of the absolute deviation of variable 4 is
+zero.
+There are 55 observations (in the entire dataset of 100 obs.) lying on
+the hyperplane with equation a_1*(x_i1 - m_1) + ... + a_p*(x_ip - m_p)
+= 0 with (m_1, ..., m_p) the mean of these observations and
+coefficients a_i from the vector a <- c(0, 0, 0, 1)
+7: In covMcd(d.x) :
+  The 52-th order statistic of the absolute deviation of variable 4 is
+zero.
+There are 55 observations (in the entire dataset of 100 obs.) lying on
+the hyperplane with equation a_1*(x_i1 - m_1) + ... + a_p*(x_ip - m_p)
+= 0 with (m_1, ..., m_p) the mean of these observations and
+coefficients a_i from the vector a <- c(0, 0, 0, 1)
+8: In covMcd(d.x) :
+  The 52-th order statistic of the absolute deviation of variable 4 is
+zero.
+There are 55 observations (in the entire dataset of 100 obs.) lying on
+the hyperplane with equation a_1*(x_i1 - m_1) + ... + a_p*(x_ip - m_p)
+= 0 with (m_1, ..., m_p) the mean of these observations and
+coefficients a_i from the vector a <- c(0, 0, 0, 1)
 > warnings()
-Warning message:
-In covMcd(d.x) : The covariance matrix has become singular during
-the iterations of the MCD algorithm.
+Warning messages:
+1: In covMcd(d.x) :
+  The 51-th order statistic of the absolute deviation of variable 2 is
+zero.
 There are 55 observations (in the entire dataset of 100 obs.) lying on
 the line with equation 0 (x_i1-m_1) + 1 (x_i2-m_2) = 0 with (m_1,m_2)
 the mean of these observations.
+2: In covMcd(d.x) :
+  The 51-th order statistic of the absolute deviation of variable 2 is
+zero.
+There are 55 observations (in the entire dataset of 100 obs.) lying on
+the line with equation 0 (x_i1-m_1) + 1 (x_i2-m_2) = 0 with (m_1,m_2)
+the mean of these observations.
+3: In covMcd(d.x) :
+  The 51-th order statistic of the absolute deviation of variable 2 is
+zero.
+There are 55 observations (in the entire dataset of 100 obs.) lying on
+the line with equation 0 (x_i1-m_1) + 1 (x_i2-m_2) = 0 with (m_1,m_2)
+the mean of these observations.
+4: In covMcd(d.x) :
+  The 51-th order statistic of the absolute deviation of variable 2 is
+zero.
+There are 55 observations (in the entire dataset of 100 obs.) lying on
+the line with equation 0 (x_i1-m_1) + 1 (x_i2-m_2) = 0 with (m_1,m_2)
+the mean of these observations.
+5: In covMcd(d.x) :
+  The 52-th order statistic of the absolute deviation of variable 4 is
+zero.
+There are 55 observations (in the entire dataset of 100 obs.) lying on
+the hyperplane with equation a_1*(x_i1 - m_1) + ... + a_p*(x_ip - m_p)
+= 0 with (m_1, ..., m_p) the mean of these observations and
+coefficients a_i from the vector a <- c(0, 0, 0, 1)
+6: In covMcd(d.x) :
+  The 52-th order statistic of the absolute deviation of variable 4 is
+zero.
+There are 55 observations (in the entire dataset of 100 obs.) lying on
+the hyperplane with equation a_1*(x_i1 - m_1) + ... + a_p*(x_ip - m_p)
+= 0 with (m_1, ..., m_p) the mean of these observations and
+coefficients a_i from the vector a <- c(0, 0, 0, 1)
+7: In covMcd(d.x) :
+  The 52-th order statistic of the absolute deviation of variable 4 is
+zero.
+There are 55 observations (in the entire dataset of 100 obs.) lying on
+the hyperplane with equation a_1*(x_i1 - m_1) + ... + a_p*(x_ip - m_p)
+= 0 with (m_1, ..., m_p) the mean of these observations and
+coefficients a_i from the vector a <- c(0, 0, 0, 1)
+8: In covMcd(d.x) :
+  The 52-th order statistic of the absolute deviation of variable 4 is
+zero.
+There are 55 observations (in the entire dataset of 100 obs.) lying on
+the hyperplane with equation a_1*(x_i1 - m_1) + ... + a_p*(x_ip - m_p)
+= 0 with (m_1, ..., m_p) the mean of these observations and
+coefficients a_i from the vector a <- c(0, 0, 0, 1)
 > 
 > 
 > proc.time()
    user  system elapsed 
-  7.246   0.113   7.368 
+  8.109   0.140   8.828 
