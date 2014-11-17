@@ -214,11 +214,12 @@ c
       end
 c     ---------------------------------------------------------
 
-      double precision function rffindq(aw,ncas,k,index)
-cc
-cc  Finds the k-th order statistic of the array aw of length ncas.
-cc
-cc MM{FIXME}: "rather" use R's C API   rPsort (double* X, int N, int K)
+      double precision function rffindq(aw, ncas, k, index)
+c
+c     Finds the k-th order statistic of the array aw[1..ncas],
+c     sorting the array aw[.] until aw[k] is sure to contain the k-th value
+c
+c     MM{FIXME}: "rather" use R's C API   rPsort (double* X, int N, int K)
 
       implicit none
       integer ncas,k,index(ncas)
@@ -226,40 +227,47 @@ cc MM{FIXME}: "rather" use R's C API   rPsort (double* X, int N, int K)
 c
       double precision ax,wa
       integer i,j,l,lr,jnc
-cc
+c
       do j=1,ncas
-         index(j)=j
+        index(j)=j
       end do
+c     lower (= l) and upper ( =lr ) bounds:
       l=1
       lr=ncas
-c    while(l < lr)
- 20   if(l.ge.lr) goto 90
-      ax=aw(k)
-      jnc=l
-      j=lr
 
- 30   if(jnc.gt.j) goto 80
- 40   if(aw(jnc).ge.ax) goto 50
-      jnc=jnc+1
-      goto 40
- 50   if(aw(j).le.ax) goto 60
-      j=j-1
-      goto 50
- 60   if(jnc .le. j) then
-         i=index(jnc)
-         index(jnc)=index(j)
-         index(j)=i
-         wa=aw(jnc)
-         aw(jnc)=aw(j)
-         aw(j)=wa
-         jnc=jnc+1
-         j=j-1
-      endif
-      goto 30
- 80   if(j.lt.k) l=jnc
-      if(k.lt.jnc) lr=j
-      goto 20
- 90   rffindq=aw(k)
+c--- while(l < lr)
+ 20   if(l .lt. lr) then
+         ax=aw(k)
+         jnc=l
+         j=lr
+
+c---   while(jnc < j)
+ 30      if(jnc .le. j) then
+ 40         if(aw(jnc).ge.ax) goto 50
+            jnc=jnc+1
+            goto 40
+ 50         if(aw(j).le.ax) goto 60
+            j=j-1
+            goto 50
+ 60         if(jnc .le. j) then ! swap jnc <--> j
+               i=index(jnc)
+               index(jnc)=index(j)
+               index(j)=i
+               wa=aw(jnc)
+               aw(jnc)=aw(j)
+               aw(j)=wa
+               jnc=jnc+1
+               j=j-1
+            endif
+            goto 30
+         end if
+
+         if(j.lt.k) l=jnc
+         if(k.lt.jnc) lr=j
+         goto 20
+      end if
+
+      rffindq=aw(k)
       return
       end
 c     ---------------------------------------------------------
