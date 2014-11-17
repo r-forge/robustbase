@@ -102,10 +102,10 @@ c(-0.851594294907422, -0.0107066895370536, -0.226958540075445, 0.035590662533830
 
 (arch <- Sys.info()[["machine"]])
 
+dput(signif(unname(coef(m1)), 11)) ## -->
 ## Something strange going on: R CMD check is different from interactive R, here.
 ## ???? [I see that the byte compiler is not listed in sessionInfo]
 ## In any case, take the dput(.) output from the *.Rout[.fail] file
-dput(signif(unname(coef(m1)), 11)) ## -->
 beta1 <- list(i686 =
 c(-0.83715700394, 0.0085488694315, -0.16734609346, 0.040965601691, 
   0.042387113444, 0.063146240793, 0.018632137866, -0.0062886781262, 
@@ -117,6 +117,7 @@ c(-0.83723213945, 0.0085385261915, -0.16697112315, 0.040985126003,
 )
 ## just FYI: difference 32-bit vs 64-bit:
 assert.EQ(beta1[[1]], beta1[[2]], tol = 0.002, check.attributes=FALSE, giveRE=TRUE)
+## Mean relative difference: 0.001423656 [~ 2013-12]
 
 assert.EQ(coef(m1), beta1[[arch]], tol = 1e-10, check.attributes=FALSE, giveRE=TRUE)
 
@@ -149,6 +150,8 @@ c(-0.83687097624, 0.0085341676033, -0.1674299545, 0.040968820903,
 )
 ## just FYI: difference 32-bit vs 64-bit:
 assert.EQ(beta2[[1]], beta2[[2]], tol = 0.001, check.attributes=FALSE, giveRE=TRUE)
+## Mean relative difference:
+## 0.0009487 [2013-12 approx.]
 
 assert.EQ(coef(m2), beta2[[arch]], tol = 1e-10, check.attributes=FALSE, giveRE=TRUE)
 ## slight changes of algorithm often change the above by ~ 4e-4 !!!
