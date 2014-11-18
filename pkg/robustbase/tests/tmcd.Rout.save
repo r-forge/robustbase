@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2014-11-12 r66972) -- "Unsuffered Consequences"
+R Under development (unstable) (2014-11-17 r66993) -- "Unsuffered Consequences"
 Copyright (C) 2014 The R Foundation for Statistical Computing
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
@@ -2302,8 +2302,8 @@ $center
 
 $cov
          V1      V2       V3      V4      V5
-V1   376.67  280.03 -1628.02 -342.01 -285.07
-V2   280.03  236.42  -987.14 -188.82 -162.89
+V1   376.67  280.04 -1628.02 -342.01 -285.07
+V2   280.04  236.42  -987.14 -188.82 -162.89
 V3 -1628.02 -987.14 10203.64 2369.63 1917.58
 V4  -342.01 -188.82  2369.63  589.94  468.56
 V5  -285.07 -162.89  1917.58  468.56  375.19
@@ -3123,7 +3123,7 @@ Error in solve.default(cov, ...) :
   system is computationally singular: reciprocal condition number = 2.71945e-11
 > 
 > showProc.time()
-Time elapsed:  3.123 0.039 3.447 
+Time elapsed:  3.199 0.044 3.521 
 > 
 > ## "large" examples using different algo branches {seg.fault in version 0.4-4}:
 > 
@@ -3190,7 +3190,7 @@ Robustness weights:
 > stopifnot(cXo$raw.only, all.equal(cX[i], cXo[i], tol = 1e-15),
 +           c("best", "mah") %in% setdiff(names(cX), names(cXo)))
 > showProc.time()
-Time elapsed:  0.45 0.003 0.453 
+Time elapsed:  0.465 0 0.466 
 > 
 > ## Now, some small sample cases:
 > 
@@ -3360,16 +3360,16 @@ In covMcd(X, use.correction = FALSE) :
 +           all.equal(c(mcc$cov / cc$raw.cov), rep(0.7528695976179, p*p)))
 > 
 > showProc.time()
-Time elapsed:  0.028 0.001 0.03 
+Time elapsed:  0.029 0.002 0.031 
 > 
 > ## nsamp = "exact" -- here for p=7
 > coleman.x <- data.matrix(coleman[, 1:6])
 > showSys.time(CcX <- covMcd(coleman.x, nsamp= "exact"))
 Time    user  system elapsed 
-Time   1.750   0.000   1.753 
+Time   1.808   0.001   1.814 
 > showSys.time(Ccd <- covMcd(coleman.x, nsamp= "deterministic"))
 Time    user  system elapsed 
-Time   0.013   0.000   0.013 
+Time   0.012   0.000   0.013 
 > stopifnot(all.equal(CcX$best,
 + 		    c(2, 5:9, 11,13, 14:16, 19:20), tolerance=0),
 + 	  intersect(CcX$best, Ccd$best) == c(2,5,7,8,13,14,16,19,20),
@@ -4490,4 +4490,4 @@ coefficients a_i from the vector a <- c(0, 0, 0, 1)
 > 
 > proc.time()
    user  system elapsed 
-  6.422   0.069   6.931 
+  6.591   0.085   7.096 
