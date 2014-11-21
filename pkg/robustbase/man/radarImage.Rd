@@ -50,7 +50,7 @@ iiO <- as.integer(
    1347, 1357, 1375, 1411, 1419:1420, 1443, 1453, 1504, 1510:1512,
    1518:1521, 1525:1526, 1543:1544, 1546:1555, 1557:1558, 1561:1562, 1564:1566,
    1569:1571, 1573))
-length(iO) # 73 -- other seeds sometimes give 72, rarely 71 "outliers"
+length(iiO) # 73 -- other seeds sometimes give 72, rarely 71 "outliers"
 isO <- cc.ri$mcd.wt == 0
 stopifnot(identical(iiO, which(isO)),
           identical(ii8, which(cc.ri$mah > 100)),

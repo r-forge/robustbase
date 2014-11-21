@@ -46,10 +46,11 @@ covMcd(x, cor = FALSE, raw.only = FALSE,
     proposed by Hubert et al. (2012) it starts from the \eqn{h} most
     central observations of \emph{six} (deterministic) estimators.
   }
-  \item{nmini, kmini}{for \eqn{n > n_0}, \eqn{n_0 := \code{nmini}}, the
-    algorithm splits the data into maximally \code{kmini} (by default 5)
-    subsets, of size approximately \code{nmini}.  When \code{nmini*kmini < n},
-    the initial search uses only a subsample of size \code{nmini*kmini}.
+  \item{nmini, kmini}{for \eqn{n \ge 2 \times n_0}{n >= 2 n_0},
+    \eqn{n_0 := \code{nmini}}, the algorithm splits the data into
+    maximally \code{kmini} (by default 5) subsets, of size
+    approximately, but at least \code{nmini}.  When \code{nmini*kmini < n},
+    the initial search uses only a \emph{subsample} of size \code{nmini*kmini}.
     %% FIXME? -- more accurately ==> ../src/rffastmcd.f
     The original algorithm had \code{nmini = 300} and \code{kmini = 5}
     hard coded.}

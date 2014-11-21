@@ -348,7 +348,7 @@ c     partition the data into sub datasets?
       if(part) then
          kstep=k1
          ngroup = n / nmini ! =: k = n % nmini (integer division)
-         if(ngroup .le. kmini) then
+         if(ngroup .lt. kmini) then
 c          we distribute n evenly into ngroup subdatasets, of size
             mm = n / ngroup ! =: N =  n % k ==> rest r = n - k*N = n-k*mm
 c          The rest r in {0,..,k-1} gives one extra obs. in the last r groups, i.e.,
