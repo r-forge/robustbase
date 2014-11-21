@@ -176,10 +176,10 @@ covMcd(x, cor = FALSE, raw.only = FALSE,
   \item{call}{the call used (see \code{\link{match.call}}).}
 }
 \references{
-  P. J. Rousseeuw and A. M. Leroy (1987)
+  Rousseeuw, P. J. and Leroy, A. M. (1987)
   \emph{Robust Regression and Outlier Detection.} Wiley.
 
-  P. J. Rousseeuw and K. van Driessen (1999)
+  Rousseeuw, P. J. and van Driessen, K. (1999)
   A fast algorithm for the minimum covariance determinant estimator.
   \emph{Technometrics} \bold{41}, 212--223.
 
