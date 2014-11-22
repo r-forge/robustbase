@@ -1,6 +1,6 @@
 ###--- Makefile (adapted from pcalg package)
 
-DRIVERS = lmrob_simulation psi_functions
+DRIVERS = lmrob_simulation psi_functions fastMcd-kmini
 
 Extras = lmrob_simulation_gg2
 
