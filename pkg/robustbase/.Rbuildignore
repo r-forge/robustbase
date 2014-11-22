@@ -10,4 +10,5 @@ vignettes/.*\.(tex|toc|aux|log|bbl|blg)
 inst/doc/r.*\.Rdata
 tests/m-s-estimator.Rout.save
 tests/mc-etc.Rout.save
+tests/tmcd.Rout.save
 
