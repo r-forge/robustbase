@@ -15,6 +15,9 @@ all: $(DRIVERS:=.tex) $(DRIVERS:=.pdf)
 
 All: all $(Extras:=.pdf)
 
+## Recreate the figures by running ggplot2 functions
+## {MK gave up updating the ggplot2 function calls every few months
+##  when Hadley decided to "improve" ggplot2 in incompatible ways}
 lmrob_simulation_gg2.Rnw: lmrob_simulation.Rnw
 	sed '/^<</s/,eval=FALSE,/,eval=TRUE,/' $< > $@
 

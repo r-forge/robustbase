@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2014-11-17 r66993) -- "Unsuffered Consequences"
+R version 3.1.2 Patched (2014-11-16 r66993) -- "Pumpkin Helmet"
 Copyright (C) 2014 The R Foundation for Statistical Computing
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
@@ -2302,8 +2302,8 @@ $center
 
 $cov
          V1      V2       V3      V4      V5
-V1   376.67  280.04 -1628.02 -342.01 -285.07
-V2   280.04  236.42  -987.14 -188.82 -162.89
+V1   376.67  280.03 -1628.02 -342.01 -285.07
+V2   280.03  236.42  -987.14 -188.82 -162.89
 V3 -1628.02 -987.14 10203.64 2369.63 1917.58
 V4  -342.01 -188.82  2369.63  589.94  468.56
 V5  -285.07 -162.89  1917.58  468.56  375.19
@@ -3123,7 +3123,7 @@ Error in solve.default(cov, ...) :
   system is computationally singular: reciprocal condition number = 2.71945e-11
 > 
 > showProc.time()
-Time elapsed:  3.199 0.044 3.521 
+Time elapsed:  4.225 0.059 4.302 
 > 
 > ## "large" examples using different algo branches {seg.fault in version 0.4-4}:
 > 
@@ -3190,7 +3190,7 @@ Robustness weights:
 > stopifnot(cXo$raw.only, all.equal(cX[i], cXo[i], tol = 1e-15),
 +           c("best", "mah") %in% setdiff(names(cX), names(cXo)))
 > showProc.time()
-Time elapsed:  0.465 0 0.466 
+Time elapsed:  0.49 0 0.49 
 > 
 > ## Now, some small sample cases:
 > 
@@ -3360,16 +3360,16 @@ In covMcd(X, use.correction = FALSE) :
 +           all.equal(c(mcc$cov / cc$raw.cov), rep(0.7528695976179, p*p)))
 > 
 > showProc.time()
-Time elapsed:  0.029 0.002 0.031 
+Time elapsed:  0.048 0 0.047 
 > 
 > ## nsamp = "exact" -- here for p=7
 > coleman.x <- data.matrix(coleman[, 1:6])
 > showSys.time(CcX <- covMcd(coleman.x, nsamp= "exact"))
 Time    user  system elapsed 
-Time   1.808   0.001   1.814 
+Time   1.235   0.000   1.235 
 > showSys.time(Ccd <- covMcd(coleman.x, nsamp= "deterministic"))
 Time    user  system elapsed 
-Time   0.012   0.000   0.013 
+Time    0.02    0.00    0.02 
 > stopifnot(all.equal(CcX$best,
 + 		    c(2, 5:9, 11,13, 14:16, 19:20), tolerance=0),
 + 	  intersect(CcX$best, Ccd$best) == c(2,5,7,8,13,14,16,19,20),
@@ -3404,54 +3404,6 @@ Robust Distances:
 Robustness weights: 
  5 observations c(6,9,10,11,18) are outliers with |weight| = 0 ( < 0.005); 
  15 weights are ~= 1.
-> 
-> ##  (nmini, kmini) examples:
-> cat("doExtras:", doExtras <- robustbase:::doExtras(),"\n")
-doExtras: FALSE 
-> if(doExtras) {
-+  showProc.time()
-+  set.seed(7) ; X1 <- gendata(10000, p=13, eps = 0.30)
-+  showSys.time(c1 <- covMcd(X1$X)) # 0.87 sec
-+  chk.covMcd <- function(ans, ind) {
-+      stopifnot(inherits(ans, "mcd"))
-+      ## check that all outliers were detected:
-+      mod.outl <- which(ans$mcd.wt == 0)
-+      outl.detected <- (ind %in% mod.outl)
-+      if(!all(outl.detected)) {
-+ 	 cat("The following outliers are *not* detected:\n")
-+ 	 print(which(!outl.detected))
-+      }
-+      fp <- !(mod.outl %in% ind)
-+      if(any(fp)) {
-+ 	 cat(sprintf("False positive \"outliers\" (a few expected) %d of %d (= %.2f%%):\n",
-+ 		     sum(fp), nobs(ans), 100*sum(fp)/nobs(ans)))
-+ 	 print(which(fp))
-+      } else cat("** No ** false positive outliers -- exceptional!\n")
-+  }
-+  ##
-+  chk.covMcd(c1, X1$xind)
-+  cat("\ncovMcd(*, kmini=12, trace=2) ...\n------\n")
-+  showSys.time(c2 <- covMcd(X1$X, kmini=12, trace=2))# slower..
-+  chk.covMcd(c2, X1$xind)
-+  ## Comparing:
-+  ii <- !(names(c1) %in% c("call", "method"))
-+  cat("\ncovMcd(*, nsamp=\"deterministic\")\n")
-+  showSys.time(cD <- covMcd(X1$X, nsamp="deterministic"))# quite slower than FASTMCD
-+  chk.covMcd(cD, X1$xind)
-+  cat("<.>$crit = log(det(.)) [minimal = best] :\n")
-+  print(cbind(sort(c(default = c1$crit, kmini.12 = c2$crit, determin = cD$crit))))
-+  i2 <- names(c1)[ii]; i2 <- i2[i2 != "nsamp"]
-+  ## closer coincidence if "raw.*" are dropped:
-+  i3 <- i2; i3 <- i3[ - grep("^raw", i3) ]
-+  stopifnot(all.equal(c1[ii], c2[ii], tol= 0.02),
-+            all.equal(cD[i2], c1[i2], tol= 0.02),
-+            all.equal(cD[i3], c1[i3], tol= 6e-4), # 4.60e-4
-+            ## the 0/1 weights coincide :
-+            cD$mcd.wt == c1$mcd.wt,
-+            c2$mcd.wt == c1$mcd.wt)
-+ 
-+ }
-> 
 > 
 > 
 > demo(determinMCD)## ../demo/determinMCD.R
@@ -4487,7 +4439,9 @@ the hyperplane with equation a_1*(x_i1 - m_1) + ... + a_p*(x_ip - m_p)
 = 0 with (m_1, ..., m_p) the mean of these observations and
 coefficients a_i from the vector a <- c(0, 0, 0, 1)
 > 
-> 
+> showProc.time()
+Time elapsed:  2.326 0.032 2.36 
+> if(!robustbase:::doExtras()) quit()
 > proc.time()
    user  system elapsed 
-  6.591   0.085   7.096 
+  7.366   0.116   7.485 

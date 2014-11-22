@@ -112,7 +112,7 @@ covMcd(x, cor = FALSE, raw.only = FALSE,
   Based on these raw MCD estimates, (unless argument \code{raw.only} is
   true), a reweighting step is performed, i.e., \code{V <- \link{cov.wt}(x,w)},
   where \code{w} are weights determined by \dQuote{outlyingness} with
-  the respect to the scaled raw MCD.  Again, a consistency factor and
+  respect to the scaled raw MCD.  Again, a consistency factor and
   (if \code{use.correction} is true) a finite sample correction factor
   (\code{.MCDcnp2.rew(p, n, alpha)}) are applied.
   The reweighted covariance is typically considerably more efficient

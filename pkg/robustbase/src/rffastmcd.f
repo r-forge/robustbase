@@ -218,36 +218,16 @@ c km10, nmaxi: now *variable* as nmini
      *     subdat(2, nmini*kmini)
       double precision mcdndex(10,2,kmini)
 c     subndex: vector of indices;
-c     length(subndex) = maximal value of  n_j := mini(j) {j in 1:ngroup} below
-c     mini(j) = n1 or n1+1,  where  n0 <= n1 < n_max := max_j n_j, and
-c       n_max = max_k n_max(k), given k;  n_max(k) = floor(((k+1)n0 - 1) / k) = n0 + floor((n0-1)/k)
-c     & n_max = n_max(k = 2) = n0 + (n0-1) %/% 2 = (3 n0 - 1)/2 ==> n_max+1 = (3 n0 + 1)/2
-      integer subndex((nmini * 3 + 1)/ 2)
+c     length(subndex) = maximal value of n_j := mini(j) {j in 1:ngroup} below; n0 := nmini
+c     mini(j) = n1 or n1+1,  where  n0 <= n1 < n_max := max_j n_j <= n1+1 <= 1+ (3 n0 - 1)/2 = (3 n0 + 1)/2
+c     ==> see vignette ../vignettes/fastMcd-kmini.Rnw
+      integer subndex((3*nmini + 1)/ 2)
       double precision med1,med2, percen, pivot,rfmahad,medi2
       logical all,part,fine,final,class
 c     -Wall (false alarm):
       all = .true.
       part= .false.
-
-c  Median of the chi-squared distribution:
-c      data chimed/0.454937,1.38629,2.36597,3.35670,4.35146,
-c     *  5.34812,6.34581,7.34412,8.34283,9.34182,10.34,11.34,12.34,
-c     *  13.34,14.34,15.34,16.34,17.34,18.34,19.34,20.34,21.34,22.34,
-c     *  23.34,24.34,25.34,26.34,27.34,28.34,29.34,30.34,31.34,32.34,
-c     *  33.34,34.34,35.34,36.34,37.34,38.34,39.34,40.34,41.34,42.34,
-c     *  43.34,44.34,45.34,46.34,47.33,48.33,49.33/
-c  The 0.975 quantile of the chi-squared distribution:
-c      data chi2/5.02389,7.37776,9.34840,11.1433,12.8325,
-c     *  14.4494,16.0128,17.5346,19.0228,20.4831,21.920,23.337,
-c     *  24.736,26.119,27.488,28.845,30.191,31.526,32.852,34.170,
-c    *  35.479,36.781,38.076,39.364,40.646,41.923,43.194,44.461,
-c     *  45.722,46.979,48.232,49.481,50.725,51.966,53.203,54.437,
-c     *  55.668,56.896,58.120,59.342,60.561,61.777,62.990,64.201,
-c     *  65.410,66.617,67.821,69.022,70.222,71.420/
-c. consistency correction now happens in R code
-c       data faclts/2.6477,2.5092,2.3826,2.2662,2.1587,
-c.     *  2.0589,1.9660,1.879,1.7973,1.7203,1.6473/
-
+c     Consistency correction now happens in R
 
       if(i_trace .ge. 2) then
          call pr1mcd(i_trace, n, nvar, nhalff, krep, nmini, kmini)
