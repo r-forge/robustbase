@@ -39,7 +39,7 @@ covMcd <- function(x,
            nsamp = control$ nsamp,
            nmini = control$ nmini, kmini = control$ kmini,
            scalefn=control$scalefn, maxcsteps=control$maxcsteps,
-           initHsets = NULL, save.hsets = FALSE,
+           initHsets = NULL, save.hsets = FALSE, names = TRUE,
            seed  = control$ seed,
            tolSolve = control$ tolSolve, # had 1e-10 hardwired {now 1e-14 default}
            trace = control$ trace,
@@ -47,7 +47,7 @@ covMcd <- function(x,
            wgtFUN = control$ wgtFUN,
            control = rrcov.control())
 {
-    logdet.Lrg <- 50
+    logdet.Lrg <- 50 ## <-- FIXME add to  rrcov.control() and then use that
     ##   Analyze and validate the input parameters ...
     if(length(seed) > 0) {
 	if(length(seed) < 3 || seed[1L] < 100)
@@ -74,15 +74,16 @@ covMcd <- function(x,
 	x <- data.matrix(x, rownames.force=FALSE)
     else if (!is.matrix(x))
         x <- matrix(x, length(x), 1,
-                    dimnames = list(names(x), deparse(substitute(x))))
+                    dimnames = if(names) list(names(x), deparse(substitute(x))))
 
+    if(!names) dimnames(x) <- NULL # (speedup)
     ## drop all rows with missing values (!!) :
     ok <- is.finite(x %*% rep.int(1, ncol(x)))
     x <- x[ok, , drop = FALSE]
     if(!length(dx <- dim(x)))
         stop("All observations have missing values!")
     n <- dx[1]; p <- dx[2]
-    dimn <- dimnames(x)
+    if(names) dimn <- dimnames(x)
     ## h(alpha) , the size of the subsamples
     h <- h.alpha.n(alpha, n, p)
     if(n <= p + 1) # ==> floor((n+p+1)/2) > n - 1  -- not Ok
@@ -132,11 +133,11 @@ covMcd <- function(x,
         obj <- determinant(mcd, logarithm = TRUE)$modulus[1]
         if ( -obj/p > logdet.Lrg ) {
             ans$cov <- mcd
-            dimnames(ans$cov) <- list(dimn[[2]], dimn[[2]])
+	    if(names) dimnames(ans$cov) <- list(dimn[[2]], dimn[[2]])
             if (cor)
                 ans$cor <- cov2cor(ans$cov)
             ans$center <- loc
-            if(length(dimn[[2]]))
+            if(names && length(dimn[[2]]))
                 names(ans$center) <- dimn[[2]]
             ans$n.obs <- n
             ans$singularity <- list(kind = "classical")
@@ -168,7 +169,7 @@ covMcd <- function(x,
         ans$quan <- h
         ans$raw.cov <- mcd
         ans$raw.center <- loc
-        if(!is.null(nms <- dimn[[2]])) {
+        if(names && !is.null(nms <- dimn[[2]])) {
             names(ans$raw.center) <- nms
             dimnames(ans$raw.cov) <- list(nms,nms)
         }
@@ -178,27 +179,30 @@ covMcd <- function(x,
                             n, "observations \nare equal to the classical estimates.")
         ans$mcd.wt <- rep.int(NA, length(ok))
         ans$mcd.wt[ok] <- weights
-        if(length(dimn[[1]]))
+        if(names && length(dimn[[1]]))
             names(ans$mcd.wt) <- dimn[[1]]
         ans$wt <- NULL
         ans$X <- x
-        if(length(dimn[[1]]))
-            dimnames(ans$X)[[1]] <- names(ans$mcd.wt)[ok]
-        else
-            dimnames(ans$X) <- list(seq(along = ok)[ok], NULL)
+        if(names) {
+            if(length(dimn[[1]]))
+                dimnames(ans$X)[[1]] <- names(ans$mcd.wt)[ok]
+            else
+                dimnames(ans$X) <- list(seq(along = ok)[ok], NULL)
+        }
         if(trace)
             cat(ans$method, "\n")
         ans$raw.cnp2 <- raw.cnp2
         ans$cnp2 <- cnp2
         class(ans) <- "mcd"
         return(ans)
-    } ## end {alpha=1} --
+    } ## end { alpha = 1   <==>   h = n }
 
     mcd <- if(nsamp == "deterministic") {
 	ans$method <- paste("Deterministic", ans$method)
 	.detmcd (x, h, hsets.init = initHsets,
 		 save.hsets=save.hsets, # full.h=full.h,
-		 scalefn=scalefn, maxcsteps=maxcsteps, trace=as.integer(trace))
+		 scalefn=scalefn, maxcsteps=maxcsteps, trace=as.integer(trace),
+		 names=names)
     } else {
 	ans$method <- paste0("Fast ", ans$method, "; nsamp = ", nsamp,
 			     "; (n,k)mini = (", nmini,",",kmini,")")
@@ -223,7 +227,7 @@ covMcd <- function(x,
             ans$n.obs <- n
             ans$alpha <- alpha
             ans$quan <- h
-            if(!is.null(nms <- dimn[[2]][1])) {
+            if(names && !is.null(nms <- dimn[[2]][1])) {
                 names(ans$raw.center) <- names(ans$center) <- nms
                 dimnames(ans$raw.cov) <- dimnames(ans$cov) <- list(nms,nms)
             }
@@ -246,7 +250,7 @@ covMcd <- function(x,
             ans$quan <- h
             ans$raw.cov <- as.matrix(scale^2)
             ans$raw.center <- as.vector(center)
-            if(!is.null(nms <- dimn[[2]][1])) {
+            if(names && !is.null(nms <- dimn[[2]][1])) {
                 dimnames(ans$raw.cov) <- list(nms,nms)
                 names(ans$raw.center) <- nms
             }
@@ -273,7 +277,7 @@ covMcd <- function(x,
         ans$cov <- ans$raw.cov <- mcd$initcovariance
         ans$center <- ans$raw.center <- as.vector(mcd$initmean)
 
-        if(!is.null(nms <- dimn[[2]])) {
+        if(names && !is.null(nms <- dimn[[2]])) {
             dimnames(ans$cov) <- list(nms, nms)
             names(ans$center) <- nms
         }
@@ -299,7 +303,7 @@ covMcd <- function(x,
 	}
         ans$alpha <- alpha
         ans$quan <- h
-        if(!is.null(nms <- dimn[[2]])) {
+        if(names && !is.null(nms <- dimn[[2]])) {
             names(ans$raw.center) <- nms
             dimnames(ans$raw.cov) <- list(nms,nms)
         }
@@ -334,7 +338,7 @@ covMcd <- function(x,
         ans$quan <- h
         ans$raw.cov <- mcd$initcovariance
         ans$raw.center <- as.vector(mcd$initmean)
-        if(!is.null(nms <- dimn[[2]])) {
+        if(names && !is.null(nms <- dimn[[2]])) {
             names(ans$raw.center) <- nms
             dimnames(ans$raw.cov) <- list(nms,nms)
         }
@@ -359,14 +363,16 @@ covMcd <- function(x,
 
     ans$mcd.wt <- rep.int(NA, length(ok))
     ans$mcd.wt[ok] <- weights
-    if(length(dimn[[1]]))
-        names(ans$mcd.wt) <- dimn[[1]]
-    ans$wt <- NULL
-    if(length(dimn[[1]]))
-        dimnames(x)[[1]] <- names(ans$mcd.wt)[ok]
-    else
-        dimnames(x) <- list(seq(along = ok)[ok], NULL)
+    if(names) {
+	if(length(dimn[[1]]))
+	    names(ans$mcd.wt) <- dimn[[1]]
+	if(length(dimn[[1]]))
+	    dimnames(x)[[1]] <- names(ans$mcd.wt)[ok]
+	else
+	    dimnames(x) <- list(seq(along = ok)[ok], NULL)
+    }
     ans$X <- x
+    ans$wt <- NULL
     if(trace)
         cat(ans$method, "\n")
     ans$raw.cnp2 <- raw.cnp2
@@ -684,7 +690,7 @@ MCDcnp2.rew <- # <- *not* exported, but currently used in pkg rrcovNA
 
     ##   Allocate temporary storage for the Fortran implementation,
     ##   directly in the .Fortran() call.
-    ##    (if we used C, we'd rather allocate there, and be quite faster!)
+    ##    (if we used C + .Call() we would allocate all there, and be quite faster!)
 
     .Fortran(rffastmcd,
              x = if(is.double(x)) x else as.double(x),

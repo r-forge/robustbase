@@ -19,7 +19,7 @@
 covMcd(x, cor = FALSE, raw.only = FALSE,
        alpha =, nsamp =, nmini =, kmini =,
        scalefn =, maxcsteps =,
-       initHsets = NULL, save.hsets = FALSE, % full.h = save.hsets,
+       initHsets = NULL, save.hsets = FALSE, names = TRUE, % full.h = save.hsets,
        seed =, tolSolve =, trace =,
        use.correction =, wgtFUN =, control = rrcov.control())
 }
@@ -68,6 +68,9 @@ covMcd(x, cor = FALSE, raw.only = FALSE,
     \code{1:n}).}
   \item{save.hsets}{(for deterministic MCD) logical indicating if the
     initial subsets should be returned as \code{initHsets}.}
+  \item{names}{logical; if true (as by default), several parts of the
+    result have a \code{\link{names}} or \code{\link{dimnames}}
+    respectively, derived from data matrix \code{x}.}
   \item{seed}{initial seed for random generator, like
     \code{\link{.Random.seed}}, see \code{\link{rrcov.control}}.}
   \item{tolSolve}{numeric tolerance to be used for inversion
