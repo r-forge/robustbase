@@ -82,12 +82,10 @@ covComed <- function (X, n.iter = 2, reweight = FALSE,
 .wgtFUN.covComed <-
     list("01.original" = function(p) {
              cMah <- 1.4826 * qchisq(0.95,p) / qchisq(0.5,p)
-             function(d) as.numeric(d < median(d)*cMah) }
-        ,
+             function(d) as.numeric(d < median(d)*cMah) },
          "01.flex" = function(p, beta) {
              cMah <- 1.4826 * qchisq(beta, p) / qchisq(0.5, p)
              function(d) as.numeric(d < median(d)*cMah) },
-        ,
          "M1.flex" = function(p, beta) {
              cMah <- 1.4826 * qchisq(beta, p) / qchisq(0.5, p)
              function(d) as.numeric(d < median(d)*cMah) },
