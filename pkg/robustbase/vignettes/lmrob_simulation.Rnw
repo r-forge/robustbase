@@ -306,7 +306,7 @@ An example design is shown in Fig.~\ref{fig:example.design}.
 
 \begin{figure}
 \begin{center}
-<<fig-example-design,fig=TRUE,include=FALSE,eval=TRUE,echo=FALSE>>=
+<<fig-example-design, fig=TRUE, include=FALSE, eval=FALSE, echo=FALSE>>=
 colnames(rand_25_5) <- paste0("X", 1:5) # workaround new (2014-12) change in GGally
 print(ggpairs(rand_25_5, axisLabels="show", title = "rand_25_5: n=25, p=5"))
 @
