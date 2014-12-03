@@ -2,7 +2,8 @@ useDynLib(robustbase, .registration=TRUE)
 
 if(FALSE) {##MM
     stopifnot(require(codetoolsBioC), require(robustbase))
-    findExternalDeps("robustbase") }
+    findExternalDeps("robustbase")
+}
 importFrom("grDevices", dev.interactive)
 importFrom("graphics", abline, box, legend, lines, matplot, mtext,
            par, plot, points, text, title)
@@ -55,6 +56,7 @@ export(Sn, Qn, Qn.old,
        rrcov.control,##  << RENAME --- FIXME
        huberM,
        covOGK, covGK, hard.rejection, scaleTau2,
+       covComed, # comedian, COM -- not yet
        psiFunc, huberPsi, hampelPsi,
 ## Not yet:
 ##     tukeyPsi, # = biweight / bisquare

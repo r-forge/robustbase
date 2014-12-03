@@ -1,3 +1,18 @@
+2014-12-03  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.92-3
+
+	* R/comedian.R (covComed): new from Maria Anna, tweaked by Valentin
+	and modified considerably by MM.
+
+2014-11-22  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.92-2, released to CRAN on 2014-11-22
+
+2014-11-18  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.92-1, released to CRAN on 2014-11-18
+
 2014-10-24  Martin Maechler  <maechler@stat.math.ethz.ch>
 	and
 2014-10-19  Valentin Todorov  <valentin.todorov@chello.at>
@@ -15,7 +30,7 @@
 
 	* NAMESPACE: export the functions r6pack() and doScale() to
 	  be used in rrcov for the deterministic S- and MM-estimates
-    
+
     * src/rffastmcd and init.c, R/covMcd: fix a bug in nsamp="exact"
 
 2014-10-17  Martin Maechler  <maechler@stat.math.ethz.ch>
@@ -36,11 +51,11 @@
 
 2014-04-30  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 0.91-1, released to CRAN
+	* DESCRIPTION (Version): 0.91-1, released to CRAN on 2014-05-01
 
 2014-04-24  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version, Date): 0.91-0, released to CRAN
+	* DESCRIPTION (Version, Date): 0.91-0, released to CRAN 2014-04-24
 
 2014-01-30  Martin Maechler  <maechler@stat.math.ethz.ch>
 
