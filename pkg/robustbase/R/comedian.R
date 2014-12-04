@@ -1,18 +1,18 @@
 ### -*- mode: R ; delete-old-versions: never -*-
 
-### This program is free software; you can redistribute it and/or modify
-### it under the terms of the GNU General Public License as published by
-### the Free Software Foundation; either version 2 of the License, or
-### (at your option) any later version.
-###
-### This program is distributed in the hope that it will be useful,
-### but WITHOUT ANY WARRANTY; without even the implied warranty of
-### MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-### GNU General Public License for more details.
-###
-### You should have received a copy of the GNU General Public License
-### along with this program; if not, write to the Free Software
-### Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, a copy is available at
+## http://www.r-project.org/Licenses/
 
 
 ### Maria Anna di Palma, without consistency factor 15.11.2014
@@ -33,7 +33,7 @@ covComed <- function (X, n.iter = 2, reweight = FALSE,
     p <- d[2]
 
     if(is.character(wgtFUN))
-	wgtFUN <- .wgtFUN.covMcd[[wgtFUN]](p)
+	wgtFUN <- .wgtFUN.covComed[[wgtFUN]](p=p, n=n, control)
     if(!is.function(wgtFUN))
 	stop("'wgtFUN' must be a function or a string specifying such a function")
 
@@ -57,7 +57,7 @@ covComed <- function (X, n.iter = 2, reweight = FALSE,
         out <- comedian(out$S., out$Z, X)
 
     mm <- apply(out$Z, 2, median)
-    mx <- t(out$Q %*% mm)
+    mx <- drop(out$Q %*% mm)
     ## MM: These are "raw" distances compared to covMcd()
     mah <- mahalanobis(X, mx, out$S., tol = tolSolve)
 
@@ -80,15 +80,18 @@ covComed <- function (X, n.iter = 2, reweight = FALSE,
 
 ## Default wgtFUN() constructors for covComed():
 .wgtFUN.covComed <-
-    list("01.original" = function(p) {
+    list("01.original" = function(p, ...) {
              cMah <- 1.4826 * qchisq(0.95,p) / qchisq(0.5,p)
              function(d) as.numeric(d < median(d)*cMah) },
-         "01.flex" = function(p, beta) {
+         "01.flex" = function(p, n, control) { ## 'beta' instead of 0.95
+             ## FIXME: update rrcov.control() to accept 'beta'
+             stopifnot(is.1num(beta <- control$beta), 0 <= beta, beta <= 1)
              cMah <- 1.4826 * qchisq(beta, p) / qchisq(0.5, p)
              function(d) as.numeric(d < median(d)*cMah) },
-         "M1.flex" = function(p, beta) {
+         "sm.flex" = function(p, n, control) { ## 'beta' / smooth weight
+             stopifnot(is.1num(beta <- control$beta), 0 <= beta, beta <= 1)
              cMah <- 1.4826 * qchisq(beta, p) / qchisq(0.5, p)
-             function(d) as.numeric(d < median(d)*cMah) },
+             function(d) smoothWgt(d / median(d), c=cMah,) },
          NULL)
 
 
@@ -113,7 +116,7 @@ COM <- function(X)
 {
     ## Comedian *with* consistency factor.  Falk(1997) was without it.
 
-    stopifnot(length(p <- ncol(X)) == 1, p >= 1)
+    stopifnot(is.1num(p <- ncol(X)), p >= 1)
     med <- apply(X, 2L, median)
     Y <- sweep(X, 2L, med, `-`)
     COM <- matrix(0., p,p)

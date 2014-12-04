@@ -56,7 +56,9 @@ export(Sn, Qn, Qn.old,
        rrcov.control,##  << RENAME --- FIXME
        huberM,
        covOGK, covGK, hard.rejection, scaleTau2,
-       covComed, # comedian, COM -- not yet
+       covComed,
+       ## comedian, COM, -- not yet
+       smoothWgt, .wgtFUN.covMcd, .wgtFUN.covComed,
        psiFunc, huberPsi, hampelPsi,
 ## Not yet:
 ##     tukeyPsi, # = biweight / bisquare

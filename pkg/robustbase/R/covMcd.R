@@ -7,19 +7,19 @@
 ##  I would like to thank Peter Rousseeuw and Katrien van Driessen for
 ##  providing the initial code of this function.
 
-### This program is free software; you can redistribute it and/or modify
-### it under the terms of the GNU General Public License as published by
-### the Free Software Foundation; either version 2 of the License, or
-### (at your option) any later version.
-###
-### This program is distributed in the hope that it will be useful,
-### but WITHOUT ANY WARRANTY; without even the implied warranty of
-### MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-### GNU General Public License for more details.
-###
-### You should have received a copy of the GNU General Public License
-### along with this program; if not, write to the Free Software
-### Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, a copy is available at
+## http://www.r-project.org/Licenses/
 
 ## No longer hidden in namespace :
 ## easier to explain when user-available & documented if
@@ -106,15 +106,12 @@ covMcd <- function(x,
 	warning("subsample size	 h < n/2  may be too small")
 
     if(is.character(wgtFUN)) {
-	switch(wgtFUN,
-	       "01.original" = {
-		   cMah <- qchisq(0.975, p)
-		   wgtFUN <- function(d) as.numeric(d < cMah)
-	       },
-	       stop("unknown 'wgtFUN' specification: ", wgtFUN))
-    } else if(!is.function(wgtFUN))
-	stop("'wgtFUN' must be a function or a string specifying one")
-
+	if(is.function(mkWfun <- .wgtFUN.covMcd[[wgtFUN]]))
+            wgtFUN <- mkWfun(p=p, n=n, control)
+    }
+    if(!is.function(wgtFUN))
+	stop(gettextf("'wgtFUN' must be a function or one of the strings %s.",
+		      pasteK(paste0('"',names(.wgtFUN.covMcd),'"'))), domain=NA)
 
     ## vt::03.02.2006 - raw.cnp2 and cnp2 are vectors of size 2 and  will
     ##   contain the correction factors (concistency and finite sample)
@@ -150,7 +147,7 @@ covMcd <- function(x,
             sum.w <- sum(weights)
             ans <- c(ans, cov.wt(x, wt = weights, cor = cor))
             ## cov.wt() -> list("cov", "center", "n.obs", ["wt", "cor"])
-            ## Consistency factor for reweighted MCD
+            ## Consistency factor for reweighted MCD -- ok for default wgtFUN only: FIXME
             if(sum.w != n) {
                 cnp2[1] <- .MCDcons(p, sum.w/n)
                 ans$cov <- ans$cov * cnp2[1]
@@ -344,13 +341,13 @@ covMcd <- function(x,
         }
         ans$raw.weights <- weights
         ans$crit <- mcd$mcdestimate # now in log scale!
-        ans$raw.mah <- mahalanobis(x, ans$raw.center, ans$raw.cov, tol = tolSolve)
-
+        ## 'mah' already computed above
+        ans$raw.mah <- mah ## mahalanobis(x, ans$raw.center, ans$raw.cov, tol = tolSolve)
         ## Check if the reweighted scatter matrix is singular.
         if(sing.rewt || - determinant(ans$cov, logarithm = TRUE)$modulus[1]/p > logdet.Lrg) {
 	    ans$singularity <- list(kind = paste0("reweighted.MCD",
 				    if(sing.rewt)"(zero col.)"))
-            ans$mah <- ans$raw.mah
+	    ans$mah <- mah
         }
         else {
             mah <- mahalanobis(x, ans$center, ans$cov, tol = tolSolve)
@@ -387,6 +384,50 @@ covMcd <- function(x,
     ## return
     ans
 } ## {covMcd}
+
+smoothWgt <- function(x, c, h) {
+    ## currently drops all attributes, dim(), names(), etc
+    ## maybe add 'keep.attributes = FALSE' (and pass to C)
+    .Call(R_wgt_flex, x, c, h)
+}
+
+##' Martin Maechler's simple proposal for an *adaptive* cutoff
+##' i.e., one which does *not* reject outliers in good samples asymptotically
+.wgtAdaptiveCutoff <- function(n,p) {
+    eps <- 0.4 / n ^ 0.6 # => 1-eps(n=100) ~= 0.975; 1-eps(n=10) ~= 0.90
+    ## using upper tail:
+    qchisq(eps, p, lower.tail=FALSE)
+}
+
+
+## Default wgtFUN()s :
+.wgtFUN.covMcd <-
+    list("01.original" = function(p, ...) {
+             cMah <- qchisq(0.975, p)
+             function(d) as.numeric(d < cMah)
+         },
+         "01.flex" = function(p, n, control) { ## 'control$beta' instead of 0.975
+             ## FIXME: update rrcov.control() to accept 'beta'
+             stopifnot(is.1num(beta <- control$beta), 0 <= beta, beta <= 1)
+             cMah <- qchisq(beta, p)
+             function(d) as.numeric(d < cMah)
+         },
+         "01.adaptive" = function(p, n, ...) { ## 'beta_n' instead of 0.975
+             function(d) as.numeric(d < .wgtAdaptiveCutoff(n,p))
+         },
+         "sm1.adaptive" = function(p, n, ...) {
+             function(d) smoothWgt(d, c = .wgtAdaptiveCutoff(n,p), h = 1)
+         },
+         "sm2.adaptive" = function(p, n, ...) {
+             function(d) smoothWgt(d, c = .wgtAdaptiveCutoff(n,p), h = 2)
+         },
+         "smE.adaptive" = function(p, n, ...) {
+             cMah <- .wgtAdaptiveCutoff(n,p)
+             ## TODO: find "theory" for h = f(cMah), or better c=f1(n,p); h=f2(n,p)
+             function(d) smoothWgt(d, c = cMah, h = max(2, cMah/4))
+         }
+         )
+
 
 .MCDsingularityMsg <- function(singList, n.obs)
 {
@@ -634,7 +675,7 @@ MCDcnp2.rew <- # <- *not* exported, but currently used in pkg rrcovNA
     ## kmini <- 5
     ## nmini <- 300
     stopifnot(length(kmini <- as.integer(kmini)) == 1, kmini >= 2L,
-              length(nmini) == 1, is.finite(nmaxi <- as.double(nmini)*kmini),
+              is.1num(nmini), is.finite(nmaxi <- as.double(nmini)*kmini),
               nmaxi * p < .Machine$integer.max)
     nmaxi <- as.integer(nmaxi)
     km10 <- 10*kmini

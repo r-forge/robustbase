@@ -4,6 +4,7 @@
 %%TODO: these two are not yet imported and hence not yet documented below:
 \alias{comedian}
 \alias{COM}
+\alias{.wgtFUN.covComed}
 %
 \concept{Co-median}
 \concept{Comedian}
@@ -30,9 +31,10 @@ covComed(X, n.iter = 2, reweight = FALSE, tolSolve = control$tolSolve,
     should be printed; defaults to \code{FALSE}; values \eqn{\ge 2}{>= 2}
     also produce print from the internal (Fortran) code.}
   \item{wgtFUN}{a character string or \code{\link{function}}, specifying
-    how the weights for the reweighting step should be computed.  Up to
-    April 2013, the only option has been the original proposal in (1999),
-    now specified by \code{wgtFUN = "01.original"} (or via \code{control}).}
+    how the weights for the reweighting step should be computed.  The default,
+    \code{wgtFUN = "01.original"} corresponds to 0-1 weights as proposed
+    originally.  Other predefined string options are available, though
+    experimental, see the experimental \code{.wgtFUN.covComed} object.
   \item{control}{a list with estimation options - this includes those
     above provided in the function specification, see
     \code{\link{rrcov.control}} for the defaults.  If \code{control} is
@@ -78,4 +80,10 @@ stopifnot(all.equal(unclass(cc0), # here, the 0-1 weights don't change:
           which(ccW$weights == 0) == 1:14,
           which(cc0$weights == 0) == 1:14)
 %% TODO : more
+
+## Martin's smooth reweighting:
+
+## List of experimental pre-specified wgtFUN() creators:
+## Cutoffs may depend on  (n, p, control$beta) :
+str(.wgtFUN.covComed)
 }

@@ -1,13 +1,14 @@
 \newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 \name{covMcd}
+\title{Robust Location and Scatter Estimation via MCD}
 \alias{covMcd}
 \alias{print.mcd}
 \alias{.MCDcons}
 \alias{.MCDcnp2}
 \alias{.MCDcnp2.rew}
 \alias{.MCDsingularityMsg}
+\alias{.wgtFUN.covMcd}
 %
-\title{Robust Location and Scatter Estimation via MCD}
 \concept{High breakdown point}
 \description{
   Compute the Minimum Covariance Determinant (MCD) estimator,
@@ -83,7 +84,10 @@ covMcd(x, cor = FALSE, raw.only = FALSE,
   \item{wgtFUN}{a character string or \code{\link{function}}, specifying
     how the weights for the reweighting step should be computed.  Up to
     April 2013, the only option has been the original proposal in (1999),
-    now specified by \code{wgtFUN = "01.original"} (or via \code{control}).}
+    now specified by \code{wgtFUN = "01.original"} (or via
+    \code{control}).  Since \pkg{robustbase} version 0.92-3, Dec.2014,
+    other predefined string options are available, though experimental,
+    see the experimental \code{.wgtFUN.covMcd} object.}
   \item{control}{a list with estimation options - this includes those
     above provided in the function specification, see
     \code{\link{rrcov.control}} for the defaults.  If \code{control} is
@@ -162,8 +166,7 @@ covMcd(x, cor = FALSE, raw.only = FALSE,
     correction factor and the finite sample correction factor of
     the raw estimate of the covariance matrix.}
   \item{X}{the input data as numeric matrix, without \code{\link{NA}}s.}
-  \item{nobs}{% was 'n.obs' which still works but is deprecated (Nov.17, 2014)
-    total number of observations.}
+  \item{n.obs}{total number of observations.}
   \item{alpha}{the size of the subsets over which the determinant is
     minimized (the default is \eqn{(n+p+1)/2}).}
   \item{quan}{the number of observations, \eqn{h}, on which the MCD is
@@ -218,6 +221,14 @@ c2 <- covMcd(hbk.x, control = rrcov.control(alpha = 0.75))
 c3 <- covMcd(hbk.x, alpha = 0.75,
              control = rrcov.control(alpha=0.95))
 c1
+
+## Martin's smooth reweighting:
+
+## List of experimental pre-specified wgtFUN() creators:
+## Cutoffs may depend on  (n, p, control$beta) :
+str(.wgtFUN.covMcd)
+
+cMM <- covMcd(hbk.x, wgtFUN = "sm1.adaptive")
 }
 \keyword{robust}
 \keyword{multivariate}

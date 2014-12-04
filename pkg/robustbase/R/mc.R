@@ -53,8 +53,8 @@ mcComp <- function(x, doReflect, eps1 = 1e-13, eps2 = eps1, maxit = 1000,
 
 {
     stopifnot(is.logical(doReflect), length(doReflect) == 1,
-              is.numeric(eps1), length(eps1) == 1, eps1 >= 0,
-              is.numeric(eps2), length(eps2) == 1, eps2 >= 0,
+              is.1num(eps1), eps1 >= 0,
+              is.1num(eps2), eps2 >= 0,
               length(maxit     <- as.integer(maxit)) == 1,
               length(trace.lev <- as.integer(trace.lev)) == 1
               )
