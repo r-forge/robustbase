@@ -43,11 +43,11 @@ rbwheel <- function(n,		# observations
     stopifnot(is.numeric(frac), 0 <= frac, frac < 1,
 	      n >= 1, p >= 2)
     ## compatibility-warning -- at most once per session :
-    if(missing(scaleAfter) &&
-       (is.null(w <- getOption("rbwheel.warn.scaleA")) || isTRUE(w))) {
-	if(is.null(w)) options( rbwheel.warn.scaleA = FALSE)
-	warning("Note: rbwheel() now uses scaleAfter = TRUE  by default")
-    }
+    ## if(missing(scaleAfter) &&
+    ##    (is.null(w <- getOption("rbwheel.warn.scaleA")) || isTRUE(w))) {
+    ##     if(is.null(w)) options( rbwheel.warn.scaleA = FALSE)
+    ##     warning("Note: rbwheel() now uses scaleAfter = TRUE  by default")
+    ## }
 
     ## a simplified version of scale.default :
     scale.simply <- function(x) {
