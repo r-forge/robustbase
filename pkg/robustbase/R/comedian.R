@@ -78,21 +78,37 @@ covComed <- function (X, n.iter = 2, reweight = FALSE,
 }
 
 
+##' Martin Maechler's simple proposal for an *adaptive* cutoff
+##' i.e., one which does *not* reject outliers in good samples asymptotically
+.COM.adaptWgt.c <- function(n,p, eps = 0.2 / n^0.3) {
+    ## default eps ==>  1-eps(n=100) ~= 0.95; 1-eps(n=10) ~= 0.90
+    ## using upper tail:
+    1.4826 * qchisq(eps, p, lower.tail=FALSE) / qchisq(0.5, p)
+}
+
 ## Default wgtFUN() constructors for covComed():
 .wgtFUN.covComed <-
     list("01.original" = function(p, ...) {
-             cMah <- 1.4826 * qchisq(0.95,p) / qchisq(0.5,p)
-             function(d) as.numeric(d < median(d)*cMah) },
-         "01.flex" = function(p, n, control) { ## 'beta' instead of 0.95
-             ## FIXME: update rrcov.control() to accept 'beta'
-             stopifnot(is.1num(beta <- control$beta), 0 <= beta, beta <= 1)
-             cMah <- 1.4826 * qchisq(beta, p) / qchisq(0.5, p)
-             function(d) as.numeric(d < median(d)*cMah) },
-         "sm.flex" = function(p, n, control) { ## 'beta' / smooth weight
-             stopifnot(is.1num(beta <- control$beta), 0 <= beta, beta <= 1)
-             cMah <- 1.4826 * qchisq(beta, p) / qchisq(0.5, p)
-             function(d) smoothWgt(d / median(d), c=cMah,) },
-         NULL)
+	     cMah <- .COM.adaptWgt.c(p=p, eps = 0.05)# 1 - eps = 0.95
+	     function(d) as.numeric(d < median(d)*cMah) },
+	 "01.flex" = function(p, n, control) { ## 'beta' instead of 0.95
+	     stopifnot(is.1num(beta <- control$beta), 0 <= beta, beta <= 1)
+	     cMah <- 1.4826 * qchisq(beta, p) / qchisq(0.5, p)
+	     function(d) as.numeric(d < median(d)*cMah) },
+	 "01.adaptive" = function(p, n, ...) { ## 'beta_n' instead of 0.975
+	     cMah <- .COM.adaptWgt.c(n,p)
+	     function(d) as.numeric(d < cMah) },
+	 "sm1.flex" = function(p, n, control) { ## 'beta' / smooth weight
+	     stopifnot(is.1num(beta <- control$beta), 0 <= beta, beta <= 1)
+	     cMah <- 1.4826 * qchisq(beta, p) / qchisq(0.5, p)
+	     function(d) smoothWgt(d / median(d), c=cMah, h = 1) },
+	 "sm1.adaptive" = function(p, n, ...) {
+	     cMah <- .COM.adaptWgt.c(n=n, p=p)
+	     function(d) smoothWgt(d / median(d), c = cMah, h = 1) },
+	 "sm2.adaptive" = function(p, n, ...) {
+	     cMah <- .COM.adaptWgt.c(n=n, p=p)
+	     function(d) smoothWgt(d / median(d), c = cMah, h = 2) }
+	 )
 
 
 comedian <- function (rho, Z, X)

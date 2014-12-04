@@ -393,7 +393,7 @@ smoothWgt <- function(x, c, h) {
 
 ##' Martin Maechler's simple proposal for an *adaptive* cutoff
 ##' i.e., one which does *not* reject outliers in good samples asymptotically
-.wgtAdaptiveCutoff <- function(n,p) {
+.MCDadaptWgt.c <- function(n,p) {
     eps <- 0.4 / n ^ 0.6 # => 1-eps(n=100) ~= 0.975; 1-eps(n=10) ~= 0.90
     ## using upper tail:
     qchisq(eps, p, lower.tail=FALSE)
@@ -403,30 +403,41 @@ smoothWgt <- function(x, c, h) {
 ## Default wgtFUN()s :
 .wgtFUN.covMcd <-
     list("01.original" = function(p, ...) {
-             cMah <- qchisq(0.975, p)
-             function(d) as.numeric(d < cMah)
-         },
-         "01.flex" = function(p, n, control) { ## 'control$beta' instead of 0.975
-             ## FIXME: update rrcov.control() to accept 'beta'
-             stopifnot(is.1num(beta <- control$beta), 0 <= beta, beta <= 1)
-             cMah <- qchisq(beta, p)
-             function(d) as.numeric(d < cMah)
-         },
-         "01.adaptive" = function(p, n, ...) { ## 'beta_n' instead of 0.975
-             function(d) as.numeric(d < .wgtAdaptiveCutoff(n,p))
-         },
-         "sm1.adaptive" = function(p, n, ...) {
-             function(d) smoothWgt(d, c = .wgtAdaptiveCutoff(n,p), h = 1)
-         },
-         "sm2.adaptive" = function(p, n, ...) {
-             function(d) smoothWgt(d, c = .wgtAdaptiveCutoff(n,p), h = 2)
-         },
-         "smE.adaptive" = function(p, n, ...) {
-             cMah <- .wgtAdaptiveCutoff(n,p)
-             ## TODO: find "theory" for h = f(cMah), or better c=f1(n,p); h=f2(n,p)
-             function(d) smoothWgt(d, c = cMah, h = max(2, cMah/4))
-         }
-         )
+	     cMah <- qchisq(0.975, p)
+	     function(d) as.numeric(d < cMah)
+	 },
+	 "01.flex" = function(p, n, control) { ## 'control$beta' instead of 0.975
+	     ## FIXME: update rrcov.control() to accept 'beta'
+	     stopifnot(is.1num(beta <- control$beta), 0 <= beta, beta <= 1)
+	     cMah <- qchisq(beta, p)
+	     function(d) as.numeric(d < cMah)
+	 },
+	 "01.adaptive" = function(p, n, ...) { ## 'beta_n' instead of 0.975
+	     cMah <- .MCDadaptWgt.c(n,p)
+	     function(d) as.numeric(d < cMah)
+	 },
+	 "sm1.orig" = function(p, n, ...) {
+	     cMah <- qchisq(0.975, p)
+	     function(d) smoothWgt(d, c = cMah, h = 1)
+	 },
+	 "sm2.orig" = function(p, n, ...) {
+	     cMah <- qchisq(0.975, p)
+	     function(d) smoothWgt(d, c = cMah, h = 2)
+	 },
+	 "sm1.adaptive" = function(p, n, ...) {
+	     cMah <- .MCDadaptWgt.c(n,p)
+	     function(d) smoothWgt(d, c = cMah, h = 1)
+	 },
+	 "sm2.adaptive" = function(p, n, ...) {
+	     cMah <- .MCDadaptWgt.c(n,p)
+	     function(d) smoothWgt(d, c = cMah, h = 2)
+	 },
+	 "smE.adaptive" = function(p, n, ...) {
+	     cMah <- .MCDadaptWgt.c(n,p)
+	     ## TODO: find "theory" for h = f(cMah), or better c=f1(n,p); h=f2(n,p)
+	     function(d) smoothWgt(d, c = cMah, h = max(2, cMah/4))
+	 }
+	 )
 
 
 .MCDsingularityMsg <- function(singList, n.obs)

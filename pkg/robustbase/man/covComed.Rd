@@ -34,7 +34,7 @@ covComed(X, n.iter = 2, reweight = FALSE, tolSolve = control$tolSolve,
     how the weights for the reweighting step should be computed.  The default,
     \code{wgtFUN = "01.original"} corresponds to 0-1 weights as proposed
     originally.  Other predefined string options are available, though
-    experimental, see the experimental \code{.wgtFUN.covComed} object.
+    experimental, see the experimental \code{.wgtFUN.covComed} object.}
   \item{control}{a list with estimation options - this includes those
     above provided in the function specification, see
     \code{\link{rrcov.control}} for the defaults.  If \code{control} is
