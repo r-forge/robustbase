@@ -1,8 +1,8 @@
 Package: robustX
 Type: Package
 Title: eXtra / eXperimental Functionality for Robust Statistics
-Version: 1.2-0
-Date: 2014-10-07
+Version: 1.2-1
+Date: 2014-12-05
 Author: Werner Stahel, Martin Maechler and potentially others
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 Description: eXperimental, eXtraneous, or eXtraordinary Functionality for

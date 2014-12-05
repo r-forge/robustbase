@@ -1,3 +1,8 @@
+2014-12-05  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/rbwheel-fun.R (rbwheel): was wrong only for 'frac = 0', i.e.,
+	*no* outliers
+
 2014-09-25  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/reclas.R (reclas): recursive location and scale ("recursive	median")
