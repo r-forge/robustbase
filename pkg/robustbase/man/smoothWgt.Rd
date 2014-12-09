@@ -1,7 +1,8 @@
 \name{smoothWgt}
 \alias{smoothWgt}
-\title{Smooth Weighting Function - Generalized Biweight}
+\title{Smooth Weighting Function - Generalized Biweight}% The Biweight on a Stick
 \description{
+  \dQuote{The Biweight on a Stick} ---
   Compute a smooth (when \eqn{h > 0}) weight function typically for
   computing weights from large (robust) \dQuote{distances} using a
   piecewise polynomial function which in fact is a
