@@ -95,6 +95,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(R_chifun, 4),
     CALLDEF(R_wgtfun, 3),
     CALLDEF(R_wgt_flex, 3), // -> rob-utils.c
+    CALLDEF(R_rowMedians, 5),// -> rowMedians.c [Biobase also has rowQ for quantiles]
     {NULL, NULL, 0}
 };
 

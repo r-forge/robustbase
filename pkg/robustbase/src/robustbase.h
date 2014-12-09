@@ -108,6 +108,9 @@ void R_calc_fitted(double *XX, double *bbeta, double *RR, int *nn, int *pp, int 
 // ------- ./rob-utils.c ---------------
 SEXP R_wgt_flex(SEXP x_, SEXP c_, SEXP h_);
 
+// ------- ./rowMedians.c ---------------
+SEXP R_rowMedians(SEXP x, SEXP naRm, SEXP hasNA, SEXP byRow, SEXP keepNms);
+
 /* ------- ./rffastmcd.f ------------ */
 int F77_NAME(rffastmcd)(
     double *dat, int *n, int *nvar, int *nhalff, int *krep,

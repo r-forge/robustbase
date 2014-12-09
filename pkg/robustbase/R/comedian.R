@@ -14,6 +14,18 @@
 ## along with this program; if not, a copy is available at
 ## http://www.r-project.org/Licenses/
 
+### From package 'Biobase' (has only rowMedians + rowQ) / 'matrixStats'
+### MM: all type checking now in C
+## ---  TODO: implement  hasNA=NA ==> do check maybe differently than = TRUE
+##  --> ../src/rowMedians.c +  ../src/rowMedians_TYPE-template.h
+colMedians <- function(x, na.rm=FALSE, hasNA=TRUE, keep.names=TRUE)
+  .Call(R_rowMedians, x, na.rm, hasNA, FALSE, keep.names)
+
+rowMedians <- function(x, na.rm=FALSE, hasNA=TRUE, keep.names=TRUE)
+  .Call(R_rowMedians, x, na.rm, hasNA, TRUE, keep.names)
+
+
+
 
 ### Maria Anna di Palma, without consistency factor 15.11.2014
 ### Fixes by Valentin Todorov
@@ -56,7 +68,7 @@ covComed <- function (X, n.iter = 2, reweight = FALSE,
     for(it in seq_len(n.iter))# allow n.iter = 0
         out <- comedian(out$S., out$Z, X)
 
-    mm <- apply(out$Z, 2, median)
+    mm <- colMedians(out$Z)
     mx <- drop(out$Q %*% mm)
     ## MM: These are "raw" distances compared to covMcd()
     mah <- mahalanobis(X, mx, out$S., tol = tolSolve)
@@ -133,7 +145,7 @@ COM <- function(X)
     ## Comedian *with* consistency factor.  Falk(1997) was without it.
 
     stopifnot(is.1num(p <- ncol(X)), p >= 1)
-    med <- apply(X, 2L, median)
+    med <- colMedians(X)
     Y <- sweep(X, 2L, med, `-`)
     COM <- matrix(0., p,p)
     madY <- numeric(p)
