@@ -52,7 +52,7 @@
 ##' @param trace
 ##' @param names
 ##' @return
-##' @author Valentin Todorov;  tweaks by Martin Maechler
+##' @author Valentin Todorov;  many tweaks by Martin Maechler
 .detmcd <- function(x, h, hsets.init=NULL,
 		    save.hsets = missing(hsets.init), full.h = save.hsets,
 		    scalefn, maxcsteps = 200,
@@ -287,21 +287,15 @@ doScale <- function (x, center, scale)
     ## return
     list(x=x, center=center, scale=scale)
 }
-##'  Compute six initial (robust) estimators of location scale,
-##'  for each of them compute the distances and take the h (>= n/2)
-##'  observations with smallest dik. Then compute the statistical
-##'  distances based on these h0 observations. Return the indexes
-##'  of the observations sorted in accending order.
-##'
-##' @title
-##' @param x
-##' @param h
-##' @param hsets.init
-##' @param full.h
-##' @param scaled
-##' @param scalefn
-##' @return
-r6pack <- function(x, h, hsets.init, full.h, scaled=TRUE,
+
+##' @title Robust Distance based observation orderings based on robust "Six pack"
+##' @param x  n x p data matrix
+##' @param h  integer
+##' @param full.h full (length n) ordering or only the first h?
+##' @param scaled is 'x' is already scaled?  otherwise, apply doScale(x, median, scalefn)
+##' @param scalefn function to compute a robust univariate scale.
+##' @return a h' x 6 matrix of indices from 1:n; if(full.h) h' = n else h' = h
+r6pack <- function(x, h, full.h, scaled=TRUE,
                    scalefn = rrcov.control()$scalefn)
 {
     ## As the considered initial estimators Sk may have very
@@ -318,7 +312,7 @@ r6pack <- function(x, h, hsets.init, full.h, scaled=TRUE,
         lambda <- doScale(data %*% P, center=median, scale=scalefn)$scale
         sqrtcov    <- P %*% (lambda * t(P)) ## == P %*% diag(lambda) %*% t(P)
         sqrtinvcov <- P %*% (t(P) / lambda) ## == P %*% diag(1/lambda) %*% t(P)
-        estloc <- apply(data %*% sqrtinvcov, 2L, median) %*% sqrtcov
+	estloc <- colMedians(data %*% sqrtinvcov) %*% sqrtcov
         centeredx <- (data - rep(estloc, each=n)) %*% P
 	sort.list(mahalanobisD(centeredx, FALSE, lambda))[1:h]# , partial = 1:h
     }
@@ -367,7 +361,7 @@ r6pack <- function(x, h, hsets.init, full.h, scaled=TRUE,
 
     ## If the data was not scaled already (scaled=FALSE), center and scale using
     ## the median and the provided function 'scalefn'.
-    if(!scaled) { ## Center and scale the data
+    if(!scaled) { ## Center and scale the data to (0, 1) - robustly
         x <- doScale(x, center=median, scale=scalefn)$x
     }
 

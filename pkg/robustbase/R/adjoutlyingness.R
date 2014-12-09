@@ -82,7 +82,7 @@ adjOutlyingness <- function(x, ndir=250, clower=4, cupper=3,
     Y <- x %*% A # (n x p) %*% (p, ndir) == (n x ndir)
 
     ## Compute and sweep out the median
-    med <- apply(Y, MARGIN = 2, median)
+    med <- colMedians(Y)
     Y <- Y - rep(med, each=n)
     ## MM: mc() could be made faster if we could tell it that med(..) = 0
     tmc <- apply(Y, MARGIN = 2, mc) ## original Antwerpen *wrongly*: tmc <- mc(Y)
