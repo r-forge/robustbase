@@ -84,16 +84,21 @@ adjOutlyingness <- function(x, ndir=250, clower=4, cupper=3,
     ## Compute and sweep out the median
     med <- colMedians(Y)
     Y <- Y - rep(med, each=n)
-    ## MM: mc() could be made faster if we could tell it that med(..) = 0
-    tmc <- apply(Y, MARGIN = 2, mc) ## original Antwerpen *wrongly*: tmc <- mc(Y)
-    ##                          ==
+    ## central :<==> non-adjusted  <==> "classical" outlyingness
+    central <- clower == 0 && cupper == 0
+    if(!central)
+        ## MM: mc() could be made faster if we could tell it that med(..) = 0
+        tmc <- apply(Y, MARGIN = 2, mc) ## original Antwerpen *wrongly*: tmc <- mc(Y)
+    ##                              ==
     Q3 <-  apply(Y, MARGIN = 2, quantile, 0.75)
     Q1 <-  apply(Y, MARGIN = 2, quantile, 0.25)
     IQR <- Q3-Q1
     ## NOTA BENE(MM): simplified definition of tup/tlo here and below
     ## 2014-10-18: "flipped" sign (which Pieter Setaert (c/o Mia H) proposed, Jul.30,2014:
-    tup <- Q3 + coef*IQR*exp( cupper*tmc*(tmc >= 0) + clower*tmc*(tmc < 0))
-    tlo <- Q1 - coef*IQR*exp(-clower*tmc*(tmc >= 0) - cupper*tmc*(tmc < 0))
+    tup <- Q3 + coef*
+	(if(central) IQR else IQR*exp( cupper*tmc*(tmc >= 0) + clower*tmc*(tmc < 0)))
+    tlo <- Q1 - coef*
+	(if(central) IQR else IQR*exp(-clower*tmc*(tmc >= 0) - cupper*tmc*(tmc < 0)))
     ## Note: all(tlo < med & med < tup)
 
     ## Instead of the loop:
@@ -125,9 +130,9 @@ adjOutlyingness <- function(x, ndir=250, clower=4, cupper=3,
 	adjout
     else {
 	Qadj <- quantile(adjout, probs = c(1 - alpha.cutoff, alpha.cutoff))
-	mcadjout <- mc(adjout)
-	##	    ===
-	cutoff <- Qadj[2] + coef* (Qadj[2] - Qadj[1])*
+	mcadjout <- if(cupper != 0) mc(adjout) else 0
+	##			    ===
+	cutoff <- Qadj[2] + coef * (Qadj[2] - Qadj[1]) *
 	    (if(mcadjout > 0) exp(cupper*mcadjout) else 1)
 
 	list(adjout = adjout, iter = it,

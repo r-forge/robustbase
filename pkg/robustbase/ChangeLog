@@ -1,3 +1,9 @@
+2014-12-11  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* man/adjOutlyingness.Rd: fix another old FIXME:
+	* R/adjoutlyingness.R (adjOutlyingness): cupper=0, clower=0 now
+	computes the classical ("symmetric") outlyingness W/O mc() call.
+
 2014-12-03  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.92-3
