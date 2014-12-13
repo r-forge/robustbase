@@ -1,6 +1,7 @@
 \name{L1median}
 \title{Compute the Multivariate L1-Median}
-\Rdversion{1.1}
+\concept{Spatial Median}
+\concept{L1 Median}
 \alias{L1median}
 \alias{optimMethods}
 \alias{nlminbMethods}
@@ -14,10 +15,10 @@
   As a convex problem, there's always a global minimizer, computable not
   by a closed formula but rather an iterative search.  As the
   (partial) first derivatives of the objective function is
-  undefined the data points, the minimization is not entirely trivial.
+  undefined at the data points, the minimization is not entirely trivial.
 }
 \usage{
-L1median(X, m.init = apply(X, 2, median), weights = NULL,
+L1median(X, m.init = colMedians(X), weights = NULL,
 	method = c("nlm", "HoCrJo", "VardiZhang", optimMethods, nlminbMethods),
 	pscale = apply(abs(centr(X, m.init)), 2, mean, trim = 0.40),
 	tol = 1e-08, maxit = 200, trace = FALSE,
@@ -43,7 +44,7 @@ L1median(X, m.init = apply(X, 2, median), weights = NULL,
     iterations; \code{0} does no tracing}
   \item{zero.tol}{for method \code{"VardiZhang"}, a small positive
     number specifying the tolerance for determining that the iteration
-    is \sQuote{exactly} at a data point (which is singularity).}
+    is \sQuote{exactly} at a data point (which is a singularity).}
   \item{\dots}{optional arguments to \code{\link{nlm}()} or the
     \code{control} (list) arguments of \code{\link{optim}()}, or
     \code{\link{nlminb}()}, respectively.}
@@ -67,13 +68,21 @@ L1median(X, m.init = apply(X, 2, median), weights = NULL,
  Vardi, Y. and Zhang, C.-H. (2000).
  The multivariate \eqn{L_1}-median and associated data depth.
  \emph{Proc. National Academy of Science} \bold{97}(4), 1423--1426.
+
+ Fritz, H. and Filzmoser, P. and Croux, C. (2012)
+ A comparison of algorithms for the multivariate L1-median.
+ \emph{Computational Statistics} \bold{27}, 393--410.
 }
 \author{
   Martin Maechler.  Method \code{"HoCrJo"} is mostly based on Kristel
-  Joossens' function, implementing Hossjer and Croux (1995).
+  Joossens' \R function, implementing Hossjer and Croux (1995).
 }
 \seealso{
   \code{\link{median}}, \code{\link[robustbase]{covMcd}}
+
+  CRAN package \pkg{pcaPP} added more L1 median methods,
+  re-implementing our \R versions in C++, see Fritz et al.(2012) and
+  e.g., \code{\link[pcaPP{l1median_NLM}()}.
 }
 \examples{
 data(stackloss)

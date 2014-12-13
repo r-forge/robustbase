@@ -165,7 +165,7 @@ covNNC <- function(X, k = min(12, n-1), pnoise = 0.05,
     d <- ncol(X)
     stopifnot(n >= 3, d >= 1)
 
-    S.mean <- apply(X, 2, median)
+    S.mean <- colMedians(X)
     S.sd <- apply(X, 2, mad)
     my.scale <- function(x) {
         sweep(sweep(x, 2, S.mean, check.margin = FALSE),

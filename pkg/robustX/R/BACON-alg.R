@@ -136,7 +136,7 @@ mvBACON <-
                    c(man.sel, c(1:n)[-man.sel])
                },
                "dUniMedian" = {
-                   x.centr <- sweep(x, 2, apply(x, 2, median))
+                   x.centr <- sweep(x, 2, colMedians(x))
                    order(mahalanobis(x.centr, 0, cov(x.centr)))
                },
                ## otherwise:

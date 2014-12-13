@@ -1,5 +1,5 @@
 importFrom(stats, "prcomp")
-importFrom(robustbase, "Qn", "scaleTau2")
+importFrom(robustbase, "Qn", "scaleTau2", "colMedians")
 
 export(Qrot, rbwheel,
        mvBACON, BACON, # but not ".lmBACON"

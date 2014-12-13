@@ -10,7 +10,7 @@ nlminbMethods <- c("nlminb", "nlminb_1D","nlminb_2D")
 ### *) Hessian both for  nlm() and nlminb()
 
 
-L1median <- function(X, m.init = apply(X, 2, median), weights = NULL,
+L1median <- function(X, m.init = colMedians(X), weights = NULL,
 		     method = c("nlm", "HoCrJo", "VardiZhang",
 				optimMethods , nlminbMethods),
 		     pscale = apply(abs(centr(X, m.init)), 2, mean, trim = 0.40),
