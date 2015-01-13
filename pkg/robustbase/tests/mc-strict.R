@@ -164,4 +164,74 @@ if(identical(1L, grep("linux", R.version[["os"]]))) { ##----- Linux - only ----
     print(Smem[c("MemTotal", "SwapTotal")])
 }
 
+## Checking the breakdown point of mc() --- Hubert et al. theory said : 25%
+mcX <- function(x, Xfun, eps=0, NAiferror=FALSE, ...) {
+    stopifnot(is.numeric(x), is.function(Xfun), "eps" %in% names(formals(Xfun)))
+    myFun <-
+	if(NAiferror)
+	    function(u) tryCatch(mc(Xfun(u, eps=eps), doReflect=FALSE, ...),
+				 error = function(e) NaN)
+    else
+	    function(u) mc(Xfun(u, eps=eps), doReflect=FALSE, ...)
+    vapply(x, myFun, 1.)
+}
+
+X1. <- function(u, eps=0) c(1,2,3, 7+(-10:10)*eps, u + (-1:1)*eps)
+## ==> This *does* breakdown [but points are not "in general position"]:
+r.mc1 <- curve(mcX(x, X1.), 10, 1e35, log="x", n=1001)
+rt1 <- uniroot(function(x) mcX(exp(x), X1.) - 1/2, lower=0, upper=500)
+exp(rt1$root) #  4.056265e+31
+
+## eps > 0  ==> No duplicated points ==> theory says breakdown point = 0.25
+## -------  but get big numerical problems:
+if(FALSE) { # ==> convergence problem [also in maxit = 1e5] .. really an *inf* loop!
+r.mc1.1  <- curve(mcX(x, X1., eps= .1  ), 10, 1e35, log="x", n=1001)
+r.mc1.2  <- curve(mcX(x, X1., eps= .01 ), 10, 1e35, log="x", n=1001)
+r.mc1.3  <- curve(mcX(x, X1., eps= .001), 10, 1e35, log="x", n=1001)
+r.mc1.5  <- curve(mcX(x, X1., eps= 1e-5), 10, 1e35, log="x", n=1001)
+r.mc1.8  <- curve(mcX(x, X1., eps= 1e-8), 10, 1e35, log="x", n=1001)
+r.mc1.15 <- curve(mcX(x, X1., eps=1e-15), 10, 1e35, log="x", n=1001)# still!
+}
+## practically identical to  eps = 0 where we have breakdown (see above)
+r.mc1.16 <- curve(mcX(x, X1., eps=1e-16), 10, 1e35, log="x", n=1001)
+all.equal(r.mc1, r.mc1.16, tol=1e-15)#-> TRUE
+
+## Quite bad case: Non convergence
+X2. <- function(u) c(1:3, seq(6, 8, by = 1/8), u, u, u)
+try(mc(X2.(4.3e31)))## -> error: no convergence
+if(FALSE) # and the same here -- after longer waiting:
+    mc(X2.(4.3e31), eps1=1e-7, eps2=1e-100, maxit = 1e6)## -> error: no convergence
+
+## related, more direct:
+X3. <- function(u) c(10*(1:3), 60:80, (4:6)*u)
+mc(X3.(1e31), trace=5) # fine convergence in one iter.
+try(
+mc(X3.(1e32), trace=3) # no convergence...
+)# bad
+
+try(mc(X3.(1e32), trace=5, maxit=6)) # no convergence...
+
+### TODO : find example with *smaller* sample size -- with no convergence
+X4. <- function(u, eps, ...) c(10, 70:75, (2:3)*u)
+mc(X4.(1e34))# "fine"
+## whoa: jump down and up:
+r.mc4 <- curve(mcX(x, X4.), 100, 1e35, log="x", n=2^12)
+
+X5. <- function(u) c(10*(1:3), 70:78, (4:6)*u)
+try(mc(X5.(1e32), maxit=1000))
+
+X5. <- function(u, eps,...) c(5*(1:12), (4:6)*u)
+stopifnot(all.equal(1, mc(X5.(1e32), maxit=1000)))
+try(mc(X5.(4.280572e31), maxit=10000)) # no convergence..
+r.mc5Sml <- curve(mcX(x, X5.), 1,  100, log="x", n=1024) ## quite astonishing
+r.mc5Lrg <- curve(mcX(x, X5.), 1, 1e30, log="x", n=1024) ## ok..
+## but then going higher -- we have problems:
+r.mc5Big <- curve(mcX(x, X5., NAiferror=TRUE), 1, 1e38, log="x",
+                  n = 2^12, type = "o", cex = 1/4)
+warnings()
+summary(r.mc5Big$y)
+## 15 NA's at x :
+with(r.mc5Big, x[is.na(y)])
+
+
 c.time(proc.time())

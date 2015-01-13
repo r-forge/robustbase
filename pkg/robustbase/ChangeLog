@@ -1,3 +1,8 @@
+2014-12-12  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/mc.R (mc): fix for limit case where x[] contains +/-Inf: pass +/- Inf to C
+	* src/mc.c (mc_C_d): and replace them by 'Large' = +/- DBL_MAX/4
+
 2014-12-11  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* man/adjOutlyingness.Rd: fix another old FIXME:
