@@ -164,15 +164,26 @@ if(identical(1L, grep("linux", R.version[["os"]]))) { ##----- Linux - only ----
     print(Smem[c("MemTotal", "SwapTotal")])
 }
 
-## Checking the breakdown point of mc() --- Hubert et al. theory said : 25%
-mcX <- function(x, Xfun, eps=0, NAiferror=FALSE, ...) {
+##' Checking the breakdown point of mc() --- Hubert et al. theory said : 25%
+##' using non-default  doReflect=FALSE  as that corresponds to original Hubert et al.
+##'
+##' @title Medcouple mc() checking
+##' @param x
+##' @param Xfun
+##' @param eps
+##' @param NAiferror
+##' @param doReflect
+##' @param ...
+##' @return mc(*,..) or NaN in case mc() signals an error [non-convergence]
+##' @author Martin Maechler
+mcX <- function(x, Xfun, eps=0, NAiferror=FALSE, doReflect=FALSE, ...) {
     stopifnot(is.numeric(x), is.function(Xfun), "eps" %in% names(formals(Xfun)))
     myFun <-
 	if(NAiferror)
-	    function(u) tryCatch(mc(Xfun(u, eps=eps), doReflect=FALSE, ...),
+	    function(u) tryCatch(mc(Xfun(u, eps=eps), doReflect=doReflect, ...),
 				 error = function(e) NaN)
-    else
-	    function(u) mc(Xfun(u, eps=eps), doReflect=FALSE, ...)
+	else
+	    function(u) mc(Xfun(u, eps=eps), doReflect=doReflect, ...)
     vapply(x, myFun, 1.)
 }
 
@@ -221,8 +232,9 @@ X5. <- function(u) c(10*(1:3), 70:78, (4:6)*u)
 try(mc(X5.(1e32), maxit=1000))
 
 X5. <- function(u, eps,...) c(5*(1:12), (4:6)*u)
-stopifnot(all.equal(1, mc(X5.(1e32), maxit=1000)))
-try(mc(X5.(4.280572e31), maxit=10000)) # no convergence..
+stopifnot(all.equal(1, ## <- i.e. complete breakdown
+                    mc(X5.(1e32), doReflect=FALSE, maxit=1000)))
+try(mc(X5.(5e31), maxit=10000)) # no convergence..
 r.mc5Sml <- curve(mcX(x, X5.), 1,  100, log="x", n=1024) ## quite astonishing
 r.mc5Lrg <- curve(mcX(x, X5.), 1, 1e30, log="x", n=1024) ## ok..
 ## but then going higher -- we have problems:
@@ -232,6 +244,7 @@ warnings()
 summary(r.mc5Big$y)
 ## 15 NA's at x :
 with(r.mc5Big, x[is.na(y)])
+## ~= [4.3, 5.8] * 10^31
 
 
 c.time(proc.time())
