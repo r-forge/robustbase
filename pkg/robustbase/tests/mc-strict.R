@@ -6,8 +6,10 @@
 
 library(robustbase)
 source(system.file("xtraR/mcnaive.R", package = "robustbase"))# mcNaive()
-
-allEQ <- function(x,y) all.equal(x,y, tolerance = 1e-12)
+source(system.file("test-tools-1.R",  package="Matrix", mustWork=TRUE))
+assertEQm12 <- function(x,y, giveRE=TRUE, ...)
+    assert.EQ(x,y, tol = 1e-12, giveRE=giveRE, ...)
+## ^^ shows *any* difference ("tol = 0") unless there is no difference at all
 ##
 c.time <- function(...) cat('Time elapsed: ', ..., '\n')
 S.time <- function(expr) c.time(system.time(expr))
@@ -23,21 +25,21 @@ DO(0 == sapply(1:100, function(n) mcNaive(seq_len(n), "h.use" )))
 
 x1 <- c(1, 2, 7, 9, 10)
 mcNaive(x1) # = -1/3
-stopifnot(allEQ(-1/3, mcNaive(x1)),
-	  allEQ(-1/3, mcNaive(x1, "h.use")),
-	  allEQ(-1/3, mc(x1)))
+assertEQm12(-1/3, mcNaive(x1))
+assertEQm12(-1/3, mcNaive(x1, "h.use"))
+assertEQm12(-1/3, mc(x1))
 
 x2 <- c(-1, 0, 0, 0, 1, 2)
 mcNaive(x2, meth="simple") # = 0 - which is wrong
 mcNaive(x2, meth="h.use")  # = 1/6 = 0.16666
-stopifnot(allEQ(1/6, mc(x2)),
-	  allEQ(1/6, mcNaive(x2, "h.use")))
+assertEQm12(1/6, mc(x2))
+assertEQm12(1/6, mcNaive(x2, "h.use"))
 
 x4 <- c(1:5,7,10,15,25, 1e15) ## - bombed in orignal algo
 mcNaive(x4,"h.use") # 0.5833333
-stopifnot(allEQ( 7/12, mcNaive(x4, "h.use")),
-	  allEQ( 7/12, mc( x4, doRefl= FALSE)),
-	  allEQ(-7/12, mc(-x4, doRefl= FALSE)))
+assertEQm12( 7/12, mcNaive(x4, "h.use"))
+assertEQm12( 7/12, mc( x4, doRefl= FALSE))
+assertEQm12(-7/12, mc(-x4, doRefl= FALSE))
 
 
 set.seed(17)
@@ -232,8 +234,9 @@ X5. <- function(u) c(10*(1:3), 70:78, (4:6)*u)
 try(mc(X5.(1e32), maxit=1000))
 
 X5. <- function(u, eps,...) c(5*(1:12), (4:6)*u)
-stopifnot(all.equal(1, ## <- i.e. complete breakdown
-                    mc(X5.(1e32), doReflect=FALSE, maxit=1000)))
+(r.mc5 <- mc(X5.(1e32), doReflect=FALSE, maxit=1000))
+all.equal(1, ## <- i.e. complete breakdown
+          r.mc5) ## platform dependent! yes, on 64-bit
 try(mc(X5.(5e31), maxit=10000)) # no convergence..
 r.mc5Sml <- curve(mcX(x, X5.), 1,  100, log="x", n=1024) ## quite astonishing
 r.mc5Lrg <- curve(mcX(x, X5.), 1, 1e30, log="x", n=1024) ## ok..
