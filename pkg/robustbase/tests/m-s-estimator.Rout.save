@@ -1,6 +1,6 @@
 
-R version 3.1.2 Patched (2014-11-12 r66972) -- "Pumpkin Helmet"
-Copyright (C) 2014 The R Foundation for Statistical Computing
+R version 3.1.2 Patched (2015-01-12 r67440) -- "Pumpkin Helmet"
+Copyright (C) 2015 The R Foundation for Statistical Computing
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -20,6 +20,8 @@ Type 'q()' to quit R.
 Loading required package: robustbase
 > source(system.file("xtraR/m-s_fns.R", package = "robustbase", mustWork=TRUE))
 > source(system.file("xtraR/ex-funs.R", package = "robustbase", mustWork=TRUE))
+> source(system.file("test-tools-1.R",  package = "Matrix",     mustWork=TRUE))# assert.EQ
+Loading required package: tools
 > 
 > ## dataset with factors and continuous variables:
 > data(education)
@@ -87,7 +89,7 @@ Loading required package: robustbase
 +     res[[i]] <- unlist(within(tmp, b1 <- drop(t1 + b1 - T2 %*% b2)))
 + })
 > cat('Time elapsed in subsampling: ', time,'\n')
-Time elapsed in subsampling:  0.52 0 0.52 0 0 
+Time elapsed in subsampling:  0.487 0.002 0.49 0 0 
 > ## show a summary of the results  {"FIXME": output is platform dependent}
 > summary(res1 <- do.call(rbind, res))
       b11               b12              b13                b14       
@@ -132,7 +134,7 @@ Time elapsed in subsampling:  0.52 0 0.52 0 0
 + 				    ri[1:4], ri[5:7], ri[8]))
 + })
 > cat('Time elapsed in descent proc: ', time,'\n')
-Time elapsed in descent proc:  0.108 0 0.107 0 0 
+Time elapsed in descent proc:  0.076 0 0.076 0 0 
 > 
 > ## show a summary of the results   {"FIXME": output is platform dependent}
 > res4 <- do.call(rbind, res3)
@@ -393,4 +395,4 @@ In lmrob.M.S(x, y, control, mf) :
 > 
 > proc.time()
    user  system elapsed 
-  1.276   0.067   1.428 
+  1.050   0.037   1.154 
