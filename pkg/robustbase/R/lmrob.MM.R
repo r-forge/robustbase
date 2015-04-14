@@ -1260,35 +1260,38 @@ outlierStats <- function(object, x = object$x,
     ##    ^^^^^^^^^^^^^^^ not weights(..., type="robustness") as we
     ##                    don't want naresid() padding here.
     if (is.function(epsw)) epsw <- epsw(nobs(object))
-    if (!is.numeric(epsw) | length(epsw) != 1)
-        stop("'epsw' needs to be numeric(1) or a functon of nobs(object) with a numeric(1) return value.")
+    if (!is.numeric(epsw) || length(epsw) != 1)
+        stop("'epsw' must be numeric(1) or a function of nobs(obj.) which returns a numeric(1)")
     rj <- abs(rw) < epsw
     if (NROW(x) != length(rw))
-        stop("number of rows in 'x' and length of 'object$rweights' must be the same.")
+        stop("number of rows in 'x' and length of 'object$rweights' must be the same")
     if (is.function(epsx)) epsx <- epsx(max(abs(x)))
-    if (!is.numeric(epsx) | length(epsx) != 1)
-        stop("'epsx' needs to be numeric(1) or a functon of max(abs(object$x)) with a numeric(1) return value.")
+    if (!is.numeric(epsx) || length(epsx) != 1)
+        stop("'epsx' must be numeric(1) or a function of max(abs(x)) which returns a numeric(1)")
     xnz <- abs(x) > epsx
-    
+
     cc <- function(idx) {
-        nnz <- sum(idx)
+        nnz <- sum(idx) ## <- if this is zero, 'Ratio' and 'Mean.RobWeight' will be NaN
         Fr <- sum(rj[idx])
-        return(c(N.nonzero = nnz,
-                 N.rejected = Fr,
-                 Ratio = Fr / nnz,
-                 Mean.RobWeight = mean(rw[idx])))
+	c(N.nonzero = nnz,
+	  N.rejected = Fr,
+	  Ratio = Fr / nnz,
+	  Mean.RobWeight = mean(rw[idx]))
     }
-    
+
     report <- t(apply(cbind(Overall=TRUE, xnz[, colSums(xnz) < NROW(xnz)]), 2, cc))
 
-    st <- FALSE
+    shout <- FALSE # should we "shout"? -- scalar logical, never NA
     lbr <- rep.int(FALSE, nrow(report))
-    if (!is.null(warn.limit.reject))
-        st <- any(lbr <- report[, "Ratio"] >= warn.limit.reject)
-    if (!is.null(warn.limit.meanrw))
-        st <- st | any(lbr <- lbr | report[, "Mean.RobWeight"] <= warn.limit.meanrw)
-    
-    if (any(st)) {
+    if (!is.null(warn.limit.reject)) {
+	lbr <- report[, "Ratio"] >= warn.limit.reject
+	shout <- any(lbr & !is.na(lbr))
+    }
+    if (!is.null(warn.limit.meanrw)) {
+	lbr <- lbr | report[, "Mean.RobWeight"] <= warn.limit.meanrw
+	shout <- shout || any(lbr & !is.na(lbr))
+    }
+    if (shout) {
         nbr <- rownames(report)[lbr]
         attr(report, "warning") <- paste("Possible local breakdown of",
                                          paste0("'", nbr, "'", collapse=", "))
