@@ -76,7 +76,8 @@ function (x, which = 1:5,
 	    if(id.n > 0) ylim <- extendrange(r = ylim, f = 0.08)
 	    plot(xD, xlab = "Robust Distances",
 		 sr, ylab = "Robust Standardized residuals", ylim=ylim,
-		 main = main, type = "p", ...)
+		 main = main, type = "n", ...)
+            panel(xD, sr, ...)
             mtext(caption[1], 3, 0.25)
             if (one.fig)
                 title(sub = sub.caption, ...)
@@ -103,7 +104,8 @@ function (x, which = 1:5,
         m1 <- min(yh,y)
         m2 <- max(yh,y)
         plot(yh, y, xlab = "Fitted Values", ylab = "Response",
-             xlim = c(m1,m2), ylim = c(m1,m2), main = main, ...)
+             xlim = c(m1,m2), ylim = c(m1,m2), main = main, type = "n", ...)
+        panel(yh, y, ...)
         mtext(caption[3], 3, 0.25)
         if (one.fig)
             title(sub = sub.caption, ...)
@@ -112,7 +114,9 @@ function (x, which = 1:5,
         abline(a = 0,b = 1)
     }
     if (show[4]) {
-        plot(yh, r, xlab = "Fitted Values", ylab = "Residuals", main = main, ...)
+        plot(yh, r, xlab = "Fitted Values", ylab = "Residuals",
+             main = main, type = "n", ...)
+        panel(yh, r, ...)
         mtext(caption[4], 3, 0.25)
         if (one.fig)
             title(sub = sub.caption, ...)
@@ -126,7 +130,8 @@ function (x, which = 1:5,
     if (show[5]) {
         sqrtabsr <- sqrt(abs(r))
         plot(yh, sqrtabsr, xlab = "Fitted Values", ylab = "Sqrt of abs(Residuals)",
-             main = main, ...)
+             main = main, type = "n", ...)
+        panel(yh, sqrtabsr, ...)
         mtext(caption[5], 3, 0.25)
         if (one.fig)
             title(sub = sub.caption, ...)
