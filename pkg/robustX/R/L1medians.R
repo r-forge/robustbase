@@ -1,7 +1,9 @@
 optimMethods <- eval(formals(optim)$method)
-## nlminb(): "direct", using "gradient", also using "Hessian"
-nlminbMethods <- c("nlminb", "nlminb_1D","nlminb_2D")
-
+## nlminb(): 1) "direct",  2) using "gradient",  3) also using "Hessian"
+nlminbMethods <- c("nlminb"
+		   ## FIXME (below "not yet implemented"):
+		   ## , "nlminb_1D","nlminb_2D")
+		   )
 
 ### TODO:
 ###
@@ -18,7 +20,7 @@ L1median <- function(X, m.init = colMedians(X), weights = NULL,
 		     zero.tol = 1e-15, ...)
 {
     ## Purpose: Compute the multivariate L1-median,  by different algorithms,
-    ## -------  notably using an R-builtin optimizer such as nlms(), optim(),
+    ## -------  notably using an R-builtin optimizer such as nlm(), optim(),
     ##  or  nlminb() [not yet]
     ## ----------------------------------------------------------------------
     ## Arguments: X  : [n x p] data matrix
@@ -32,6 +34,7 @@ L1median <- function(X, m.init = colMedians(X), weights = NULL,
     ## Author: Martin Maechler, 5 Dec 2005
     ##         For method = "HoCrJo": originally Kristel Joossens, see below
 
+    if(is.data.frame(X)) X <- data.matrix(X)
     ## slightly faster version of 'sweep(x, 2, m)':
     centr <- function(X,m) X - rep(m, each = n)
 
@@ -209,6 +212,7 @@ L1median <- function(X, m.init = colMedians(X), weights = NULL,
         ## TODO: weights == 0 --> leave away those weights and observations
         wts <- if(is.null(weights)) 1 else weights
 
+        if(FALSE) # not really used
         T.t <- function(y) { ## T~() - the original iterator function  [2.3]
             Id <- wts/sqrt(rowSums(centr(X, y) ^ 2))
             Id[!is.finite(Id)] <- 0     # where denominator was 0

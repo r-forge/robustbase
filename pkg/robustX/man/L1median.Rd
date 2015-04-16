@@ -82,13 +82,21 @@ L1median(X, m.init = colMedians(X), weights = NULL,
 
   CRAN package \pkg{pcaPP} added more L1 median methods,
   re-implementing our \R versions in C++, see Fritz et al.(2012) and
-  e.g., \code{\link[pcaPP{l1median_NLM}()}.
+  e.g., \code{\link[pcaPP]{l1median_NLM}()}.
 }
 \examples{
 data(stackloss)
 L1median(stackloss)
 L1median(stackloss, method = "HoCrJo")
 %% more interesting stuff --> ../tests/L1med-tst.R
+
+## Explore all methods:
+m <- eval(formals(L1median)$method); allMeths <- m[m != "Brent"]
+L1m <- sapply(allMeths, function(meth) L1median(stackloss, method = meth))
+## --> with a warning for L-BFGS-B
+str(L1m)
+pm <- sapply(L1m, function(.) if(is.numeric(.)) . else .$par)
+t(pm) # SANN differs a bit; same objective ?
 }
 \keyword{robust}
 \keyword{multivariate}

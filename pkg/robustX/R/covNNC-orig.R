@@ -104,65 +104,65 @@ covNNC1 <- function(datamat, k = 12, pnoise = 0.05, emconv = 0.001, bound = 1.5,
                               dDk(kthNND, lambda2, k = k, d = d, alpha.d =
                                   alpha.d))
             ## M - step
-            p <- sum(delta)/n
-            lambda1 <- (k * sum(delta))/(alpha.d * sum((kthNND^
-                                                        d) * delta))
-            lambda2 <- (k * sum((1 - delta)))/(alpha.d * sum((
-                kthNND^d) * (1 - delta)))
-            loglik.old <- loglik.new
-            loglik.new <- sum( - p * lambda1 * alpha.d * ((kthNND^
-                                                           d) * delta) - (1 - p) * lambda2 * alpha.d *
-                              ((kthNND^d) * (1 - delta)) + delta * k * log(
-                                  lambda1 * alpha.d) + (1 - delta) * k * log(
-                                      lambda2 * alpha.d))
-        }
-        ##
-        ## z will be the classifications. 1= in cluster. 0= in noise.
-        ##
-        probs <- dDk(kthNND, lambda1, k = k, d = d, alpha.d = alpha.d)/
-            (dDk(kthNND, lambda1, k = k, d = d, alpha.d = alpha.d) +
-             dDk(kthNND, lambda2, k = k, d = d, alpha.d = alpha.d))
-        mprob <- 1. - probs
-        mu1 <- apply((probs * datamat), 2, sum)/sum(probs)
-        mu2 <- apply((mprob * datamat), 2, sum)/sum(mprob)
-        tpsig1 <- t(datamat) - mu1
-        tpsig2 <- t(datamat) - mu2
-        Sig1 <- tpsig1 %*% (probs * t(tpsig1))/sum(probs)
-        Sig2 <- tpsig2 %*% (mprob * t(tpsig2))/sum(mprob)
-        sd1 <- sqrt(diag(Sig1))
-        sd2 <- sqrt(diag(Sig2))
-        ans <- rbind(mu1, sd1, mu2, sd2)
-        zz <- list(z = round(probs), kthNND = kthNND, probs = probs,
-                   p = p, mu1 = mu1, mu2 = mu2, sd1 = sd1, sd2 = sd2,
-                   lambda1 = lambda1, lambda2 = lambda2, Sig1 = Sig1,
-                   Sig2 = Sig2, ans = ans)
-        return(zz)
+	    p <- sum(delta)/n
+	    lambda1 <- (k * sum(delta))/(alpha.d * sum((kthNND^
+							d) * delta))
+	    lambda2 <- (k * sum((1 - delta)))/(alpha.d * sum((
+		kthNND^d) * (1 - delta)))
+	    loglik.old <- loglik.new
+	    loglik.new <- sum( - p * lambda1 * alpha.d * ((kthNND^
+							   d) * delta) - (1 - p) * lambda2 * alpha.d *
+			      ((kthNND^d) * (1 - delta)) + delta * k * log(
+				  lambda1 * alpha.d) + (1 - delta) * k * log(
+				      lambda2 * alpha.d))
+	}
+	##
+	## z will be the classifications. 1= in cluster. 0= in noise.
+	##
+	probs <- dDk(kthNND, lambda1, k = k, d = d, alpha.d = alpha.d)/
+	    (dDk(kthNND, lambda1, k = k, d = d, alpha.d = alpha.d) +
+	     dDk(kthNND, lambda2, k = k, d = d, alpha.d = alpha.d))
+	mprob <- 1. - probs
+	mu1 <- apply((probs * datamat), 2, sum)/sum(probs)
+	mu2 <- apply((mprob * datamat), 2, sum)/sum(mprob)
+	tpsig1 <- t(datamat) - mu1
+	tpsig2 <- t(datamat) - mu2
+	Sig1 <- tpsig1 %*% (probs * t(tpsig1))/sum(probs)
+	Sig2 <- tpsig2 %*% (mprob * t(tpsig2))/sum(mprob)
+	sd1 <- sqrt(diag(Sig1))
+	sd2 <- sqrt(diag(Sig2))
+	ans <- rbind(mu1, sd1, mu2, sd2)
+	zz <- list(z = round(probs), kthNND = kthNND, probs = probs,
+		   p = p, mu1 = mu1, mu2 = mu2, sd1 = sd1, sd2 = sd2,
+		   lambda1 = lambda1, lambda2 = lambda2, Sig1 = Sig1,
+		   Sig2 = Sig2, ans = ans)
+	return(zz)
     }
     ##----- end of nclean.sub-----------------------------------------------
     ##
-    ##    Two procedures to link between a symmetric matrix and its vec(.)
+    ##	  Two procedures to link between a symmetric matrix and its vec(.)
     ##
     ##
     Mtovec <- function(M)
     {
-        n <- dim(M)[1]
-        d <- dim(M)[2]
-        if(abs(n - d) > 0.01) {
-            cat("The input has to be a square matrix")
-        }
-        else {
-            vec <- rep(0, 0)
-            for(i in (1:n)) {
-                for(j in (i:d)) {
-                    vec <- c(vec, M[i, j])
-                }
-            }
-            vec
-        }
+	n <- dim(M)[1]
+	d <- dim(M)[2]
+	if(abs(n - d) > 0.01) {
+	    cat("The input has to be a square matrix")
+	}
+	else {
+	    vec <- rep(0, 0)
+	    for(i in (1:n)) {
+		for(j in (i:d)) {
+		    vec <- c(vec, M[i, j])
+		}
+	    }
+	    vec
+	}
     }
     vectoM <- function(vec, d)
     {
-        n <- length(vec)
+        ## unused, now warning: n <- length(vec)
         M <- matrix(rep(0, d * d), d, d)
         L <- 1
         for(i in 1:d) {

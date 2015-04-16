@@ -81,14 +81,13 @@ system.time(rr1 <- L1median(stackloss, method="Nelder-M", tol = 1e-14))
 system.time(rr2 <- L1median(stackloss, method="BFGS", tol = 1e-14))
 ## MM: Hmm, this ("CG") now takes MUCH longer (factor 5 - 10 !):
 system.time(rr3 <- L1median(stackloss, method="CG", tol = 1e-14))
-
+## takes even longer:
 system.time(rr3.2 <- L1median(stackloss, method="CG", tol = 1e-14, type = 2))
-
+## (fastest):
 system.time(rr3.3 <- L1median(stackloss, method="CG", tol = 1e-14, type = 3))
 
 ## nlm with gradient:
 system.time(rr4 <- L1median(stackloss, method="nlm", tol = 1e-16))
-
 ##--> fastest! {faster than rr0 by almost factor of two!}
 system.time(rr4 <- L1median(stackloss, method="nlm", tol = 1e-16, trace = 2))
 

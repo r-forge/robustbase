@@ -52,6 +52,7 @@ covNNC <- function(X, k = min(12, n-1), pnoise = 0.05,
         ## Function to perform the Nearest Neighbour cleaning of
         ##--------------------------------------------------------------
 
+	if(FALSE) # unused now
         dDk <- function(x, lambda, k, d, alpha.d) {
             ## find the density of D_k
             exp( - lambda * alpha.d * x^d + log(2) +
