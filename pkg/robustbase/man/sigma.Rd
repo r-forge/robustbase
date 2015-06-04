@@ -1,13 +1,15 @@
 \name{sigma}
-\alias{sigma}
 \title{Extract 'Sigma' - Standard Deviation of Errors for Robust Models}
+\alias{sigma}
+\alias{sigma.lmrob}
 \description{
   Extract the estimated standard deviation of the errors, the
   \dQuote{residual standard deviation} (misnomed also
   \dQuote{residual standard error}) from a fitted model.
 }
 \usage{
-sigma(object, \dots)
+% Declare S3 method as the generic is no longer in lme4 for R (>= 2015-06-01):
+\S3method{sigma}{lmrob}(object, \dots)
 }
 \arguments{
   \item{object}{a fitted model.}
