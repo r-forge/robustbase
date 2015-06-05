@@ -494,7 +494,7 @@ EpsiGamma <- expression( tcc*(1-pPtc-pMtc) + GLtcc - GUtcc )
 EpsiSGamma <- expression( ((GLtcc - GUtcc) + snu*(pPtc-pMtc))/mu )
 
 Epsi2Gamma <- expression({
-    (tcc^2*(pMtc+1-pPtc)+ (pPtc-pMtc) +
+    (tcc^2*(pMtc+1-pPtc) + (pPtc-pMtc) +
      (GLtcc*(1-aux2) - GUtcc*(1+aux2))/snu )
 })
 
@@ -508,33 +508,24 @@ phiGammaEst.cl <- expression(
 phiGammaEst <- expression(
 {
     ## robust estimation of the dispersion parameter by
-    ## Huber's porposal 2
+    ## Huber's proposal 2
     sphi <- uniroot(Huberprop2, interval=Rphi,
                     ns.resid=residP, mu=mu, Vmu=Vmu, tcc=tcc)$root
 })
 
-if(FALSE) ## ...  (MM ?? FIXME : use  EpsiGamma.init(), Epsi2Gamma() !! )
-Huberprop2.gehtnicht <- function(phi, ns.resid, mu, Vmu, tcc)
-{
-    sV <- sqrt(Vmu*phi)
-    H <- floor(mu - tcc* sV)
-    K <- floor(mu + tcc* sV)
-    nobs <- length(mu)
-    ##
-    eval(Epsi.init)
-    compEpsi2 <- eval(Epsi2)
-    ##
-    ## return h :=
-    sum(pmax.int(-tcc,pmin.int(ns.resid*snu,tcc))^2) -  nobs*compEpsi2
-}
-
 Huberprop2 <- function(phi, ns.resid, mu, Vmu, tcc)
 {
-    sV <- sqrt(Vmu*phi)
-    H <- floor(mu - tcc* sV)
-    K <- floor(mu + tcc* sV)
+    eval(EpsiGamma.init)
+    compEpsi2 <- eval(Epsi2Gamma)
     nobs <- length(mu)
+    ## return h :=
+    sum(pmax.int(-tcc, pmin.int(ns.resid*snu, tcc))^2) -  nobs*compEpsi2
+}
 
+if(FALSE) ## no-eval version
+Huberprop2 <- function(phi, ns.resid, mu, Vmu, tcc)
+{
+    nobs <- length(mu)
     nu <- 1/phi         ## form parameter  nu
     snu <- 1/sqrt(phi)  ## sqrt (nu)
     pPtc <- pgamma(snu + c(-tcc,tcc), shape=nu, rate=snu)
@@ -547,5 +538,5 @@ Huberprop2 <- function(phi, ns.resid, mu, Vmu, tcc)
     ##
     compEpsi2 <- tcc^2 + (pPtc - pMtc)*(1-tcc^2) + GLtcc - GUtcc
     ## return h :=
-    sum(pmax.int(-tcc,pmin.int(ns.resid*snu,tcc))^2) -  nobs*compEpsi2
+    sum(pmax.int(-tcc, pmin.int(ns.resid*snu, tcc))^2) -  nobs*compEpsi2
 }
