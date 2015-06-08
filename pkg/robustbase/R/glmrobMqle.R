@@ -1,7 +1,10 @@
 #### Mallows quasi-likelihood estimator of E. Cantoni and E. Ronchetti (2001)
 #### based originally on Eva Cantoni's S-plus code "robGLM"
 
-globalVariables(c("residP", "residPS", "dmu.deta"), add=TRUE)
+## FIXME{MM}: All these expression()s  and  eval()s -- once were really slick and fast.
+## -----  Nowadays, with 'codetools' and the byte-compiler, they "just don't fit anymore"
+## including those globalVariables() {also in other places!}:
+globalVariables(c("residP", "residPS", "dmu.deta", "snu"), add=TRUE)
 
 ##' @title
 ##' @param wts a character string \dQuote{weights.on.x} specifying how weights should be computed
@@ -478,7 +481,7 @@ Gmn <- function(t, nu) {
 EpsiGamma.init <- expression({
 
     nu <- 1/phi      ## form parameter nu
-    snu <- 1/sqrt(phi) ## sqrt (nu)
+    snu <- 1/sqrt(phi) ## == sqrt (nu)
 
     pPtc <- pgamma(snu + c(-tcc,tcc), shape=nu, rate=snu)
     pMtc <- pPtc[1]
