@@ -159,6 +159,9 @@ where the \dQuote{best} individual \eqn{x_\mathrm{best}}{x[best]} is the \emph{f
 }
 \examples{
 \donttest{
+# NOTE: Examples were excluded from testing
+#       to reduce package check time.
+
 # Use a preset seed so test values are reproducible.
 set.seed(1234)
 
