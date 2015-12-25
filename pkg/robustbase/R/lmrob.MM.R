@@ -1256,7 +1256,7 @@ outlierStats <- function(object, x = object$x,
     rw <- object$rweights
     ##    ^^^^^^^^^^^^^^^ not weights(..., type="robustness") as we
     ##                    don't want naresid() padding here.
-    if (is.function(epsw)) epsw <- epsw(nobs(object))
+    if (is.function(epsw)) epsw <- epsw(nobs(object, use.fallback = TRUE))
     if (!is.numeric(epsw) || length(epsw) != 1)
         stop("'epsw' must be numeric(1) or a function of nobs(obj.) which returns a numeric(1)")
     rj <- abs(rw) < epsw
