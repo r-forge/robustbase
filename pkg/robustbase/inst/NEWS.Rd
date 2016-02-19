@@ -4,6 +4,13 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
+\section{CHANGES in robustbase VERSION 0.92-6 (2016-..-.., svn r..)}{
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item \code{classPC(m)} now also works for a 1-column matrix.
+    }
+}
+
 \section{CHANGES in robustbase VERSION 0.92-5 (2015-07-21, svn r698)}{
   \subsection{NEW FEATURES}{
     \itemize{
