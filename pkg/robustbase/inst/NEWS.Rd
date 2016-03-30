@@ -5,10 +5,18 @@
 \encoding{UTF-8}
 
 \section{CHANGES in robustbase VERSION 0.92-6 (2016-..-.., svn r..)}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item exporting lmrob.leverages <<<<< FIXME rename, document ---
+       NB: WSt's e-mail: R has  stats :: hatvalues() & hatvalues.lm --> should write
+       S3 methods for that; or use it ?
+    }
+  }
   \subsection{BUG FIXES}{
     \itemize{
       \item \code{classPC(m)} now also works for a 1-column matrix.
     }
+  }
 }
 
 \section{CHANGES in robustbase VERSION 0.92-5 (2015-07-21, svn r698)}{
