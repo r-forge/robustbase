@@ -38,7 +38,7 @@ adjOutlyingness(x, ndir = 250, clower = 4, cupper = 3,
     observations.}
   \item{keep.tol}{positive tolerance to determine which of the sample
     direction should be kept, namely only those for which
-    \eqn{{\|x\| \cdot \|B\|}{||x|| * ||B||} is larger than \code{keep.tol}.}
+    \eqn{\|x\| \cdot \|B\|}{||x|| * ||B||} is larger than \code{keep.tol}.}
   \item{only.outlyingness}{logical indicating if the final outlier
     determination should be skipped.  In that case, a vector is
     returned, see \sQuote{Value:} below.}
