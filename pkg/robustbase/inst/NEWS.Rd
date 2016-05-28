@@ -4,12 +4,12 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.92-6 (2016-..-.., svn r..)}{
+\section{CHANGES in robustbase VERSION 0.92-6 (2016-05-28, svn r..)}{
   \subsection{NEW FEATURES}{
     \itemize{
-      \item exporting lmrob.leverages <<<<< FIXME rename, document ---
-       NB: WSt's e-mail: R has  stats :: hatvalues() & hatvalues.lm --> should write
-       S3 methods for that; or use it ?
+      \item Now provide an \code{"lmrob"} method for the standard \R
+      generic function \code{hatvalues()}, and also export its lower
+      level workhorse \code{.lmrob.hat()} (formerly hidden \code{lmrob.leverages()}).
     }
   }
   \subsection{BUG FIXES}{

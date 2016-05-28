@@ -84,13 +84,16 @@ anova(rm1, rm0, test="Deviance")
 #dfbetas(rm1)
 #effects(rm1) ## fails
 #extractAIC(rm1)
-#stopifnot(all.equal(hatvalues(rm1), robustbase:::lmrob.leverages(wqr=rm1$qr))) ## fails
 #influence(rm1)
+stopifnot(all.equal(hv1 <- hatvalues(rm1), .lmrob.hat(wqr=rm1$qr)))
+## But these differ (why ?)
+all.equal(hv1, unname(stats:::hatvalues.lm(rm1)))
+## whereas these *are* the same :
+stopifnot(ALL.equal(hv1c <- hatvalues(rm1c), .lmrob.hat(wqr=rm1c$qr)))
+## kappa() & labels() :
 stopifnot(is.infinite(kr1 <- kappa(rm1)), kr1 == kappa(cm1), # = +Inf both
           identical(labels(rm1), labels(cm1)))
-
 logLik(rm1)# well, and what does it mean?
-
 ## plot(rm1, which=1) ## plot.lmrob() fails "singular covariance" .. FIXME!
 par(mfrow=c(2,2))
 plot(rm1, which=2:4)

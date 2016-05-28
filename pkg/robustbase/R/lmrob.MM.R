@@ -776,9 +776,9 @@ lmrob.tau <- function(obj, x=obj$x, control = obj$control, h, fast = TRUE)
     if(is.null(control)) stop("'control' is missing")
     if(missing(h))
 	h <- if (is.null(obj$qr))
-	    lmrob.leverages(x, obj$rweights)
+	    .lmrob.hat(x, obj$rweights)
 	else
-	    lmrob.leverages(wqr = obj$qr)
+	    .lmrob.hat(wqr = obj$qr)
 
     ## speed up: use approximation if possible
     if (fast && !control$method %in% c('S', 'SD')) {
@@ -901,13 +901,22 @@ lmrob.hatmatrix <- function(x, w = rep(1, NROW(x)), wqr = qr(sqrt(w) * x))
     tcrossprod(qr.Q(wqr))
 }
 
-lmrob.leverages <- function(x, w = rep(1, NROW(x)), wqr = qr(sqrt(w) * x))
+.lmrob.hat <- function(x, w = rep(1, NROW(x)), wqr = qr(sqrt(w) * x))
 {
     if (missing(wqr) && !is.matrix(x)) x <- as.matrix(x)
     ## Faster than computing the whole hat matrix, and then diag(.) :
     ## == diag(lmrob.hatmatrix(x, w, ...))
     pmin(1, rowSums(qr.Q(wqr)^2))
 }
+
+hatvalues.lmrob <- function(model, ...)
+{
+    if (is.null(wqr <- model$qr))
+	.lmrob.hat(model$x, model$rweights)
+    else
+	.lmrob.hat(wqr = wqr)
+}
+
 
 ##' psi |--> ipsi \in \{0,1,...6} : integer codes used in C
 .psi2ipsi <- function(psi)

@@ -266,9 +266,10 @@ robMD <- function(x, intercept, wqr, ...) {
                         class="try-error", condition = e))
 	if (inherits(rob, "try-error")) {
             warning("Failed to compute robust Mahalanobis distances, reverting to robust leverages.")
-            return(lmrob.leverages(wqr = wqr))
-        }
-	sqrt( mahalanobis(x, rob$center, rob$cov) )
+	    .lmrob.hat(wqr = wqr)
+	}
+	else
+	    sqrt( mahalanobis(x, rob$center, rob$cov) )
     } ## else NULL
 }
 
