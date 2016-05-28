@@ -71,8 +71,8 @@ source(file.path(robustDoc, 'graphics.functions.R'))
 
 ## set ggplot theme
 theme <- theme_bw(base_size = 10)
-theme$legend.key.size <- unit(0.9, "lines")
-theme$plot.margin <- unit(c(1/2, 0, 0, 0), "lines")
+theme$legend.key.size <- unit(1, "lines")# was 0.9 in pre-v.3 ggplot2
+theme$plot.margin <- unit(c(1/2, 1/8, 1/8, 1/8), "lines")# was (1/2, 0,0,0)
 theme_set(theme)
 ## set default sizes for lines and points
 update_geom_defaults("point",  list(size = 4/3))
@@ -117,10 +117,10 @@ if (packageVersion("ggplot2") <= "0.9.1") {
 legend.mod <- list(`SMD.Wtau` = quote('SMD.W'~tau),
                    `SMDM.Wtau` = quote('SMDM.W'~tau),
                    `MM.Avar1` = quote('MM.'~Avar[1]),
-                   `MMqT` = quote('MM'~q[T]),
-                   `MMqT.Wssc` = quote('MM'~q[T]*'.Wssc'),
-                   `MMqE` = quote('MM'~q[E]),
-                   `MMqE.Wssc` = quote('MM'~q[E]*'.Wssc'),
+                   `MMqT` = quote('MM'~~q[T]),
+                   `MMqT.Wssc` = quote('MM'~~q[T]*'.Wssc'),
+                   `MMqE` = quote('MM'~~q[E]),
+                   `MMqE.Wssc` = quote('MM'~~q[E]*'.Wssc'),
                    `sigma_S` = quote(hat(sigma)[S]),
                    `sigma_D` = quote(hat(sigma)[D]),
                    `sigma_S*qE` = quote(q[E]*hat(sigma)[S]),
