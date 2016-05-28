@@ -896,17 +896,23 @@ lmrob.tau.fast.coefs <- function(cc, psi) {
     c(tfact = tfact, tcorr = tcorr)
 }
 
-lmrob.hatmatrix <- function(x, w = rep(1, NROW(x)), wqr = qr(sqrt(w) * x))
+lmrob.hatmatrix <- function(x, w = rep(1, NROW(x)), wqr = qr(sqrt(w) * x), names = FALSE)
 {
-    tcrossprod(qr.Q(wqr))
+    H <- tcrossprod(qr.qy(wqr, diag(1, NROW(x), x$rank)))
+    if(names && !is.null(rnms <- dimnames(wqr$qr)[[1L]]))
+	dimnames(H) <- list(rnms,rnms)
+    H
 }
 
-.lmrob.hat <- function(x, w = rep(1, NROW(x)), wqr = qr(sqrt(w) * x))
+.lmrob.hat <- function(x, w = rep(1, NROW(x)), wqr = qr(sqrt(w) * x), names = TRUE)
 {
     if (missing(wqr) && !is.matrix(x)) x <- as.matrix(x)
     ## Faster than computing the whole hat matrix, and then diag(.) :
     ## == diag(lmrob.hatmatrix(x, w, ...))
-    pmin(1, rowSums(qr.Q(wqr)^2))
+    h <- pmin(1, rowSums(qr.qy(wqr, diag(1, NROW(wqr$qr), wqr$rank))^2))
+    if(names && !is.null(rnms <- dimnames(wqr$qr)[[1L]]))
+	names(h) <- rnms
+    h
 }
 
 hatvalues.lmrob <- function(model, ...)
