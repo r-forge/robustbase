@@ -47,7 +47,7 @@ setClass("functionXal1", contains = "functionXal",
          })
 
 setClass("psi_func",
-         representation(rho = "functionX",
+         slots = c(rho = "functionX",
                         psi = "functionX", ## psi(x) == d/dx rho(x) = x * wgt(x)
                         wgt = "functionX", ## wgt(x) == psi(x) / x
                         Dpsi = "functionX",## psi'(x) == d/dx psi(x) = rho''(x)
