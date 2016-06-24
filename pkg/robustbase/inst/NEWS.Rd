@@ -4,6 +4,19 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
+\section{CHANGES in robustbase VERSION 0.92-7 (2016-..-.., svn r...)}{
+  %% \subsection{NEW FEATURES}{
+  %%   \itemize{
+  %%     \item
+  %%   }
+  %% }
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item \code{summary(nlrob(*, method = "CM"))} now works.
+    }
+  }
+}
+
 \section{CHANGES in robustbase VERSION 0.92-6 (2016-05-28, svn r717)}{
   \subsection{NEW FEATURES}{
     \itemize{

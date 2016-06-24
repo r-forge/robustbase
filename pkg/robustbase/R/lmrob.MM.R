@@ -601,6 +601,7 @@ lmrob..M..fit <- function (x=obj$x, y=obj$y, beta.initial=obj$coef,
 }
 
 
+##' Compute  S-estimator for linear model -- using  "fast S" algorithm --> ../man/lmrob.S.Rd
 lmrob.S <- function (x, y, control, trace.lev = control$trace.lev, mf = NULL)
 {
     if (!is.matrix(x)) x <- as.matrix(x)
