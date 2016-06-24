@@ -365,7 +365,8 @@ summary.nlrob <- function (object, correlation = FALSE, symbolic.cor = FALSE, ..
                      "call", "status", "counts", "iter", "control", "ctrl"), no, 0L)]
     ans <- object[no]
     conv <- ans$status == "converged"
-    sc   <- sigma(ans)# = ans$Scale but not always
+    if(is.null(sc <- ans$Scale))
+	ans$Scale <- sc <- sigma(object)
     if(conv && !is.matrix(ans$cov))
 	ans$cov <- .vcov.m(object, Scale = sc,
 			   resid.sc = as.vector(object$residuals) / sc)
@@ -454,7 +455,8 @@ print.summary.nlrob <-
 	    else ## length(it) >= 2 :
 		cat("Convergence\n\n")
 	}
-	summarizeRobWeights(x$rweights, digits = digits, ...)
+	if(!is.null(x$rweights))
+	    summarizeRobWeights(x$rweights, digits = digits, ...)
     }
     else if(meth == "M")
 	cat("** IRWLS iterations did *not* converge!\n\n")
