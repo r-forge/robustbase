@@ -1,8 +1,8 @@
 Package: DEoptimR
-Version: 1.0-5
-Date: 2016-07-01
+Version: 1.0-6
+Date: 2016-07-07
 Title: Differential Evolution Optimization in Pure R
-Author: Eduardo L. T. Conceicao and Martin Maechler [ctb]
+Author: Eduardo L. T. Conceicao [aut, cre] and Martin Maechler [ctb]
 Maintainer: Eduardo L. T. Conceicao <mail@eduardoconceicao.org>
 Description: An implementation of a bespoke jDE variant of the
   Differential Evolution stochastic algorithm for global optimization of
