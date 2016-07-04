@@ -11,8 +11,10 @@ lmrob <-
     if (miss.ctrl <- missing(control))
 	control <- if (missing(method))
 	    lmrob.control(...) else lmrob.control(method = method, ...)
-    else ## check dots
-	chk.s(...)
+    else if (length(list(...))) ## "sophisticated version" of chk.s(...)
+	warning("arguments .. in ",
+		sub(")$", "", sub("^list\\(", "", deparse(list(...), control = c()))), "  are disregarded.\n",
+		"  Maybe use  lmrob(*, control=lmrob.control(....) with all these.")
     ret.x <- x
     ret.y <- y
     cl <- match.call()

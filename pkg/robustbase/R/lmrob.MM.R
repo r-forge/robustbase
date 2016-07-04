@@ -221,9 +221,13 @@ lmrob.fit <- function(x, y, control, init=NULL, mf=NULL) {
 	".vcov.avar1 can only be used when initial estimator is S; using .vcov.w instead")
         control$cov <- ".vcov.w"
     }
+    trace.lev <- control$trace.lev
     if (init$converged) {
         ## --- loop through the other estimators; build up 'est' string
         method <- sub(paste0("^", est), '', control$method)
+	if(trace.lev) {
+	    cat(sprintf("init converged (remaining method = \"%s\") -> coef=\n", method))
+	    print(init$coef) }
         for (step in strsplit(method,'')[[1]]) {
             ## now we have either M or D steps
             est <- paste0(est, step)
@@ -233,6 +237,7 @@ lmrob.fit <- function(x, y, control, init=NULL, mf=NULL) {
                            ## M-Step
                            M = lmrob..M..fit(x = x, y = y, obj = init, mf = mf),
                            stop('only M and D are steps supported after "init" computation'))
+	    if(trace.lev) { cat(sprintf("step \"%s\" -> new coef=\n", step)); print(init$coef) }
             ## break if an estimator did not converge
             if (!init$converged) {
 		warning(gettextf(
@@ -666,6 +671,7 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev, mf = NULL)
     if (scale == 0)
 	warning("S-estimated scale == 0:  Probably exact fit; check your data")
     ## FIXME: get 'res'iduals from C
+    if(trace.lev)
 
     b$fitted.values <- x %*% b$coefficients
     b$residuals <- drop(y - b$fitted.values)
