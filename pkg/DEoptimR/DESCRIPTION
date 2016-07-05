@@ -1,6 +1,6 @@
 Package: DEoptimR
 Version: 1.0-6
-Date: 2016-07-07
+Date: 2016-07-05
 Title: Differential Evolution Optimization in Pure R
 Author: Eduardo L. T. Conceicao [aut, cre] and Martin Maechler [ctb]
 Maintainer: Eduardo L. T. Conceicao <mail@eduardoconceicao.org>
