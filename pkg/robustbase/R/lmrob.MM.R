@@ -231,11 +231,11 @@ lmrob.fit <- function(x, y, control, init=NULL, mf=NULL) {
         for (step in strsplit(method,'')[[1]]) {
             ## now we have either M or D steps
             est <- paste0(est, step)
-            init <- switch(step,
+            init <- switch(step, ## Note that 'control' may differ from 'init$control'
                            ## D(AS)-Step
-                           D = lmrob..D..fit(init, x, mf = mf),
+                           D = lmrob..D..fit(init, x, mf = mf, control=control),
                            ## M-Step
-                           M = lmrob..M..fit(x = x, y = y, obj = init, mf = mf),
+                           M = lmrob..M..fit(x = x, y = y, obj = init, mf = mf, control=control),
                            stop('only M and D are steps supported after "init" computation'))
 	    if(trace.lev) { cat(sprintf("step \"%s\" -> new coef=\n", step)); print(init$coef) }
             ## break if an estimator did not converge
@@ -671,12 +671,11 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev, mf = NULL)
     if (scale == 0)
 	warning("S-estimated scale == 0:  Probably exact fit; check your data")
     ## FIXME: get 'res'iduals from C
-    if(trace.lev)
-
+    if(trace.lev) {
+	cat(sprintf("lmrob.S(): scale = %g; coeff.=\n", scale)); print(b$coefficients) }
     b$fitted.values <- x %*% b$coefficients
-    b$residuals <- drop(y - b$fitted.values)
+    b$residuals <- setNames(drop(y - b$fitted.values), rownames(x))
     names(b$coefficients) <- colnames(x)
-    names(b$residuals) <- rownames(x)
     ## robustness weights
     b$rweights <- lmrob.rweights(b$residuals, scale, control$tuning.chi, control$psi)
     ## set method argument in control
