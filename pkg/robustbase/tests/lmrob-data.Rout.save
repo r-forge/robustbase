@@ -1,7 +1,7 @@
 
-R Under development (unstable) (2014-07-10 r66124) -- "Unsuffered Consequences"
-Copyright (C) 2014 The R Foundation for Statistical Computing
-Platform: x86_64-apple-darwin13.1.0 (64-bit)
+R Under development (unstable) (2016-06-30 r70858) -- "Unsuffered Consequences"
+Copyright (C) 2016 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -187,11 +187,32 @@ compute.outlier.stats
 seed : int(0) 
 > stopifnot(c(3,18) == which(m1$w < 0.2))
 > 
+> if(FALSE) # to find out *why setting = "KS201x" fails
++ trace(lmrob.S, exit = quote({cat("coef:\n"); print(b$coefficients)}))
+> if(FALSE) # to find out via  setting = "KS201x" fails here in the *initial* estimate
++ debug(lmrob.S)
+> 
 > data(starsCYG)
-> (RlmST <- lmrob(log.light ~ log.Te, data = starsCYG))
+>   lmST <-    lm(log.light ~ log.Te, data = starsCYG)
+> (RlmST <- lmrob(log.light ~ log.Te, data = starsCYG, control=lmrob.control(trace = 1)))
+lmrob_S(n = 47, nRes = 500): fast_s() [non-large n]:
+ Subsampling to find candidate betas:
+ Now refine() to convergence for 2 very best ones:
+  Best[0]: convergence (63 iter.): -> improved scale to 0.471457903157203
+  Best[1]: convergence (63 iter.)
+lmrob.S(): scale = 0.471458; coeff.=
+[1] -9.570840  3.290363
+init converged (remaining method = "M") -> coef=
+(Intercept)      log.Te 
+  -9.570840    3.290363 
+lmrob_MM(): rwls():
+ rwls() used 15 it.; last ||b0 - b1||_1 = 6.47021e-07; convergence
+step "M" -> new coef=
+(Intercept)      log.Te 
+  -4.969388    2.253161 
 
 Call:
-lmrob(formula = log.light ~ log.Te, data = starsCYG)
+lmrob(formula = log.light ~ log.Te, data = starsCYG, control = lmrob.control(trace = 1))
  \--> method = "MM"
 Coefficients:
 (Intercept)       log.Te  
@@ -200,7 +221,7 @@ Coefficients:
 > summary(RlmST)
 
 Call:
-lmrob(formula = log.light ~ log.Te, data = starsCYG)
+lmrob(formula = log.light ~ log.Te, data = starsCYG, control = lmrob.control(trace = 1))
  \--> method = "MM"
 Residuals:
      Min       1Q   Median       3Q      Max 
@@ -232,13 +253,620 @@ warn.limit.reject warn.limit.meanrw
      nResample         max.it       best.r.s       k.fast.s          k.max 
            500             50              2              1            200 
    maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
-           200              0           1000              0           2000 
+           200              1           1000              0           2000 
                   psi           subsampling                   cov 
            "bisquare"         "nonsingular"         ".vcov.avar1" 
 compute.outlier.stats 
                  "SM" 
 seed : int(0) 
-> stopifnot(c(11,20,30,34) == which(RlmST$w < 0.01))
+> ## Least Sq. w/ negative slope, where robust has slope ~= 2.2 :
+> stopifnot(coef(lmST)[["log.Te"]] < 0,
++           all.equal(coef(RlmST), c("(Intercept)" = -4.969, log.Te=2.253), tol = 1e-3),
++           c(11,20,30,34) == which(RlmST$w < 0.01))
+> ## ==> Now see that  "KS2011" and "KS2014" both break down -- and it is the fault of "lqq" *only* :
+> (RlmST.11 <- update(RlmST, control = lmrob.control("KS2011",                             trace= 1)))
+lmrob_S(n = 47, nRes = 500): fast_s() [non-large n]:
+ Subsampling to find candidate betas:
+ Now refine() to convergence for 2 very best ones:
+  Best[0]: convergence (43 iter.): -> improved scale to 0.481444964842138
+  Best[1]: convergence (42 iter.)
+lmrob.S(): scale = 0.481445; coeff.=
+[1] -10.291890   3.453736
+init converged (remaining method = "MDM") -> coef=
+(Intercept)      log.Te 
+ -10.291890    3.453736 
+lmrob_MM(): rwls():
+ rwls() used 30 it.; last ||b0 - b1||_1 = 7.23254e-07; convergence
+step "M" -> new coef=
+(Intercept)      log.Te 
+   6.918146   -0.437092 
+step "D" -> new coef=
+(Intercept)      log.Te 
+   6.918146   -0.437092 
+lmrob_MM(): rwls():
+ rwls() used 8 it.; last ||b0 - b1||_1 = 6.55954e-07; convergence
+step "M" -> new coef=
+(Intercept)      log.Te 
+  6.8435082  -0.4226776 
+
+Call:
+lmrob(formula = log.light ~ log.Te, data = starsCYG, control = lmrob.control("KS2011",     trace = 1))
+ \--> method = "SMDM"
+Coefficients:
+(Intercept)       log.Te  
+     6.8435      -0.4227  
+
+> (RlmST.14 <- update(RlmST, control = lmrob.control("KS2014",                             trace= 1)))
+lmrob_S(n = 47, nRes = 1000): fast_s() [non-large n]:
+ Subsampling to find candidate betas:
+ Now refine() to convergence for 20 very best ones:
+  Best[0]: convergence (38 iter.): -> improved scale to 0.481444964846042
+  Best[1]: convergence (46 iter.): -> improved scale to 0.481444964841469
+  Best[2]: convergence (42 iter.)
+  Best[3]: convergence (38 iter.)
+  Best[4]: convergence (43 iter.)
+  Best[5]: convergence (42 iter.)
+  Best[6]: convergence (45 iter.)
+  Best[7]: convergence (38 iter.)
+  Best[8]: convergence (41 iter.)
+  Best[9]: convergence (42 iter.)
+  Best[10]: convergence (42 iter.)
+  Best[11]: convergence (46 iter.)
+  Best[12]: convergence (38 iter.)
+  Best[13]: convergence (38 iter.)
+  Best[14]: convergence (42 iter.)
+  Best[15]: convergence (40 iter.)
+  Best[16]: convergence (36 iter.): -> improved scale to 0.481444964841311
+  Best[17]: convergence (37 iter.)
+  Best[18]: convergence (41 iter.)
+  Best[19]: convergence (39 iter.)
+lmrob.S(): scale = 0.481445; coeff.=
+[1] -10.291884   3.453735
+init converged (remaining method = "MDM") -> coef=
+(Intercept)      log.Te 
+ -10.291884    3.453735 
+lmrob_MM(): rwls():
+ rwls() used 30 it.; last ||b0 - b1||_1 = 7.23253e-07; convergence
+step "M" -> new coef=
+(Intercept)      log.Te 
+   6.918146   -0.437092 
+step "D" -> new coef=
+(Intercept)      log.Te 
+   6.918146   -0.437092 
+lmrob_MM(): rwls():
+ rwls() used 8 it.; last ||b0 - b1||_1 = 6.55954e-07; convergence
+step "M" -> new coef=
+(Intercept)      log.Te 
+  6.8435082  -0.4226776 
+
+Call:
+lmrob(formula = log.light ~ log.Te, data = starsCYG, control = lmrob.control("KS2014",     trace = 1))
+ \--> method = "SMDM"
+Coefficients:
+(Intercept)       log.Te  
+     6.8435      -0.4227  
+
+> (RlmSTM11 <- update(RlmST, control = lmrob.control("KS2011", method="MM",                trace= 1)))
+lmrob_S(n = 47, nRes = 500): fast_s() [non-large n]:
+ Subsampling to find candidate betas:
+ Now refine() to convergence for 2 very best ones:
+  Best[0]: convergence (39 iter.): -> improved scale to 0.481444964843829
+  Best[1]: convergence (39 iter.)
+lmrob.S(): scale = 0.481445; coeff.=
+[1] -10.291884   3.453735
+init converged (remaining method = "M") -> coef=
+(Intercept)      log.Te 
+ -10.291884    3.453735 
+lmrob_MM(): rwls():
+ rwls() used 30 it.; last ||b0 - b1||_1 = 7.23253e-07; convergence
+step "M" -> new coef=
+(Intercept)      log.Te 
+   6.918146   -0.437092 
+
+Call:
+lmrob(formula = log.light ~ log.Te, data = starsCYG, control = lmrob.control("KS2011",     method = "MM", trace = 1))
+
+Coefficients:
+(Intercept)       log.Te  
+     6.9181      -0.4371  
+
+> (RlmSTM14 <- update(RlmST, control = lmrob.control("KS2014", method="MM",                trace= 1)))
+lmrob_S(n = 47, nRes = 1000): fast_s() [non-large n]:
+ Subsampling to find candidate betas:
+ Now refine() to convergence for 20 very best ones:
+  Best[0]: convergence (39 iter.): -> improved scale to 0.481444964844002
+  Best[1]: convergence (42 iter.): -> improved scale to 0.481444964841884
+  Best[2]: convergence (46 iter.): -> improved scale to 0.481444964841469
+  Best[3]: convergence (42 iter.)
+  Best[4]: convergence (40 iter.)
+  Best[5]: convergence (43 iter.)
+  Best[6]: convergence (45 iter.)
+  Best[7]: convergence (36 iter.): -> improved scale to 0.481444964841311
+  Best[8]: convergence (38 iter.)
+  Best[9]: convergence (43 iter.)
+  Best[10]: convergence (45 iter.)
+  Best[11]: convergence (46 iter.)
+  Best[12]: convergence (39 iter.)
+  Best[13]: convergence (41 iter.)
+  Best[14]: convergence (46 iter.)
+  Best[15]: convergence (41 iter.)
+  Best[16]: convergence (38 iter.)
+  Best[17]: convergence (41 iter.)
+  Best[18]: convergence (36 iter.)
+  Best[19]: convergence (38 iter.)
+lmrob.S(): scale = 0.481445; coeff.=
+[1] -10.291884   3.453735
+init converged (remaining method = "M") -> coef=
+(Intercept)      log.Te 
+ -10.291884    3.453735 
+lmrob_MM(): rwls():
+ rwls() used 30 it.; last ||b0 - b1||_1 = 7.23253e-07; convergence
+step "M" -> new coef=
+(Intercept)      log.Te 
+   6.918146   -0.437092 
+
+Call:
+lmrob(formula = log.light ~ log.Te, data = starsCYG, control = lmrob.control("KS2014",     method = "MM", trace = 1))
+
+Coefficients:
+(Intercept)       log.Te  
+     6.9181      -0.4371  
+
+> ## using "biweight" instead of "lqq"  fixes the problem :
+> (RlmSTbM11 <- update(RlmST,control = lmrob.control("KS2011", method="MM", psi="biweight",trace= 1)))
+lmrob_S(n = 47, nRes = 500): fast_s() [non-large n]:
+ Subsampling to find candidate betas:
+ Now refine() to convergence for 2 very best ones:
+  Best[0]: convergence (64 iter.): -> improved scale to 0.471457903157194
+  Best[1]: convergence (62 iter.): -> improved scale to 0.471457903157193
+lmrob.S(): scale = 0.471458; coeff.=
+[1] -9.570830  3.290361
+init converged (remaining method = "M") -> coef=
+(Intercept)      log.Te 
+  -9.570830    3.290361 
+lmrob_MM(): rwls():
+ rwls() used 15 it.; last ||b0 - b1||_1 = 6.47019e-07; convergence
+step "M" -> new coef=
+(Intercept)      log.Te 
+  -4.969388    2.253161 
+
+Call:
+lmrob(formula = log.light ~ log.Te, data = starsCYG, control = lmrob.control("KS2011",     method = "MM", psi = "biweight", trace = 1))
+
+Coefficients:
+(Intercept)       log.Te  
+     -4.969        2.253  
+
+> (RlmSTbM14 <- update(RlmST,control = lmrob.control("KS2014", method="MM", psi="biweight",trace= 1)))
+lmrob_S(n = 47, nRes = 1000): fast_s() [non-large n]:
+ Subsampling to find candidate betas:
+ Now refine() to convergence for 20 very best ones:
+  Best[0]: convergence (66 iter.): -> improved scale to 0.471457903157196
+  Best[1]: convergence (69 iter.)
+  Best[2]: convergence (72 iter.)
+  Best[3]: convergence (66 iter.): -> improved scale to 0.471457903157196
+  Best[4]: convergence (69 iter.)
+  Best[5]: convergence (59 iter.)
+  Best[6]: convergence (69 iter.)
+  Best[7]: convergence (64 iter.)
+  Best[8]: convergence (63 iter.)
+  Best[9]: convergence (60 iter.): -> improved scale to 0.471457903157194
+  Best[10]: convergence (72 iter.)
+  Best[11]: convergence (73 iter.)
+  Best[12]: convergence (60 iter.)
+  Best[13]: convergence (69 iter.)
+  Best[14]: convergence (73 iter.)
+  Best[15]: convergence (67 iter.)
+  Best[16]: convergence (69 iter.)
+  Best[17]: convergence (73 iter.)
+  Best[18]: convergence (66 iter.): -> improved scale to 0.471457903157193
+  Best[19]: convergence (65 iter.)
+lmrob.S(): scale = 0.471458; coeff.=
+[1] -9.570839  3.290363
+init converged (remaining method = "M") -> coef=
+(Intercept)      log.Te 
+  -9.570839    3.290363 
+lmrob_MM(): rwls():
+ rwls() used 15 it.; last ||b0 - b1||_1 = 6.47021e-07; convergence
+step "M" -> new coef=
+(Intercept)      log.Te 
+  -4.969388    2.253161 
+
+Call:
+lmrob(formula = log.light ~ log.Te, data = starsCYG, control = lmrob.control("KS2014",     method = "MM", psi = "biweight", trace = 1))
+
+Coefficients:
+(Intercept)       log.Te  
+     -4.969        2.253  
+
+> (RlmSTb.11 <- update(RlmST,control = lmrob.control("KS2011",              psi="biweight",trace= 1)))
+lmrob_S(n = 47, nRes = 500): fast_s() [non-large n]:
+ Subsampling to find candidate betas:
+ Now refine() to convergence for 2 very best ones:
+  Best[0]: convergence (62 iter.): -> improved scale to 0.471457903157193
+  Best[1]: convergence (60 iter.)
+lmrob.S(): scale = 0.471458; coeff.=
+[1] -9.570830  3.290361
+init converged (remaining method = "MDM") -> coef=
+(Intercept)      log.Te 
+  -9.570830    3.290361 
+lmrob_MM(): rwls():
+ rwls() used 15 it.; last ||b0 - b1||_1 = 6.47019e-07; convergence
+step "M" -> new coef=
+(Intercept)      log.Te 
+  -4.969388    2.253161 
+step "D" -> new coef=
+(Intercept)      log.Te 
+  -4.969388    2.253161 
+lmrob_MM(): rwls():
+ rwls() used 18 it.; last ||b0 - b1||_1 = 5.34262e-07; convergence
+step "M" -> new coef=
+(Intercept)      log.Te 
+  -5.519602    2.377363 
+
+Call:
+lmrob(formula = log.light ~ log.Te, data = starsCYG, control = lmrob.control("KS2011",     psi = "biweight", trace = 1))
+ \--> method = "SMDM"
+Coefficients:
+(Intercept)       log.Te  
+     -5.520        2.377  
+
+> (RlmSTb.14 <- update(RlmST,control = lmrob.control("KS2014",              psi="biweight",trace= 1)))
+lmrob_S(n = 47, nRes = 1000): fast_s() [non-large n]:
+ Subsampling to find candidate betas:
+ Now refine() to convergence for 20 very best ones:
+  Best[0]: convergence (69 iter.): -> improved scale to 0.471457903157197
+  Best[1]: convergence (65 iter.)
+  Best[2]: convergence (59 iter.)
+  Best[3]: convergence (64 iter.)
+  Best[4]: convergence (65 iter.)
+  Best[5]: convergence (69 iter.): -> improved scale to 0.471457903157196
+  Best[6]: convergence (69 iter.)
+  Best[7]: convergence (63 iter.)
+  Best[8]: convergence (54 iter.): -> improved scale to 0.471457903157194
+  Best[9]: convergence (63 iter.)
+  Best[10]: convergence (69 iter.)
+  Best[11]: convergence (63 iter.)
+  Best[12]: convergence (69 iter.)
+  Best[13]: convergence (63 iter.)
+  Best[14]: convergence (72 iter.)
+  Best[15]: convergence (72 iter.)
+  Best[16]: convergence (59 iter.)
+  Best[17]: convergence (62 iter.)
+  Best[18]: convergence (65 iter.)
+  Best[19]: convergence (69 iter.)
+lmrob.S(): scale = 0.471458; coeff.=
+[1] -9.570839  3.290363
+init converged (remaining method = "MDM") -> coef=
+(Intercept)      log.Te 
+  -9.570839    3.290363 
+lmrob_MM(): rwls():
+ rwls() used 15 it.; last ||b0 - b1||_1 = 6.47021e-07; convergence
+step "M" -> new coef=
+(Intercept)      log.Te 
+  -4.969388    2.253161 
+step "D" -> new coef=
+(Intercept)      log.Te 
+  -4.969388    2.253161 
+lmrob_MM(): rwls():
+ rwls() used 18 it.; last ||b0 - b1||_1 = 5.34262e-07; convergence
+step "M" -> new coef=
+(Intercept)      log.Te 
+  -5.519602    2.377363 
+
+Call:
+lmrob(formula = log.light ~ log.Te, data = starsCYG, control = lmrob.control("KS2014",     psi = "biweight", trace = 1))
+ \--> method = "SMDM"
+Coefficients:
+(Intercept)       log.Te  
+     -5.520        2.377  
+
+> ## NB: RlmST has component 'init.S' the others have "init" -- documented in ?lmrob.fit == ../man/lmrob.fit.Rd
+> R.ini.cf <- t(sapply(mget(ls(patt = "^RlmST")), function(OB) OB$init$coef))
+> R..cf    <- t(sapply(mget(ls(patt = "^RlmST")), coef))
+> cbind(R.ini.cf, R..cf) ##---> "lqq" is *NOT* robust enough here -- but "biweight" is !!
+          (Intercept)    log.Te (Intercept)     log.Te
+RlmST       -9.570840  3.290363   -4.969388  2.2531613
+RlmST.11     6.918146 -0.437092    6.843508 -0.4226776
+RlmST.14     6.918146 -0.437092    6.843508 -0.4226776
+RlmSTM11   -10.291884  3.453735    6.918146 -0.4370920
+RlmSTM14   -10.291884  3.453735    6.918146 -0.4370920
+RlmSTb.11   -4.969388  2.253161   -5.519602  2.3773625
+RlmSTb.14   -4.969388  2.253161   -5.519602  2.3773625
+RlmSTbM11   -9.570830  3.290361   -4.969388  2.2531613
+RlmSTbM14   -9.570839  3.290363   -4.969388  2.2531613
+> 
+> ## Directly look at init.S():
+> x.s <- model.matrix(~ log.Te, data = starsCYG)
+> y.s <- model.response(model.frame(log.light ~ log.Te, data = starsCYG))
+> ini.df <- lmrob.S(x.s, y.s, control=lmrob.control())
+> ini.11 <- lmrob.S(x.s, y.s, control=lmrob.control("KS2011"))
+> ini.14 <- lmrob.S(x.s, y.s, control=lmrob.control("KS2014"))
+> ## but these are fine !! :
+> rbind(deflt = ini.df$coef,
++       KS.11 = ini.11$coef,
++       KS.14 = ini.14$coef)
+      (Intercept)   log.Te
+deflt   -9.570839 3.290363
+KS.11  -10.291884 3.453735
+KS.14  -10.291884 3.453735
+> ##==> No, it is *not* the init.S()
+> ini.14$scale #  0.48144
+[1] 0.481445
+> 
+> ## More clearly shows how M-estimate is converging to *WRONG* solution:
+> (RlmST.lqq <- update(RlmST, init=ini.14, control = lmrob.control(method="MM", psi="lqq", trace= 4)))
+init converged (remaining method = "M") -> coef=
+(Intercept)      log.Te 
+ -10.291884    3.453735 
+lmrob_MM(): rwls():
+ Optimal block size for DGELS: 66
+  it    1: L(b1) = 0.14768161207 
+  b1 = (-6.6618819441, 2.6340639721); ||b0 - b1||_1 = 4.44967
+  it    2: L(b1) = 0.146209615268 
+  b1 = (-5.2419919965, 2.3137920346); ||b0 - b1||_1 = 1.74016
+  it    3: L(b1) = 0.145362365803 
+  b1 = (-4.2304448192, 2.0852075731); ||b0 - b1||_1 = 1.24013
+  it    4: L(b1) = 0.144759412628 
+  b1 = (-3.4189833736, 1.9016903202); ||b0 - b1||_1 = 0.994979
+  it    5: L(b1) = 0.144270875555 
+  b1 = (-2.7192461869, 1.7433707239); ||b0 - b1||_1 = 0.858057
+  it    6: L(b1) = 0.143836413178 
+  b1 = (-2.083891596, 1.5995645304); ||b0 - b1||_1 = 0.779161
+  it    7: L(b1) = 0.14342106514 
+  b1 = (-1.484116341, 1.4637740506); ||b0 - b1||_1 = 0.735566
+  it    8: L(b1) = 0.142999928159 
+  b1 = (-0.90016329109, 1.3315377372); ||b0 - b1||_1 = 0.716189
+  it    9: L(b1) = 0.142541799392 
+  b1 = (-0.31491445522, 1.1989856438); ||b0 - b1||_1 = 0.717801
+  it   10: L(b1) = 0.141991304907 
+  b1 = (0.29914863174, 1.059900841); ||b0 - b1||_1 = 0.753148
+  it   11: L(b1) = 0.141266096396 
+  b1 = (0.96971969106, 0.90801782273); ||b0 - b1||_1 = 0.822454
+  it   12: L(b1) = 0.140223222362 
+  b1 = (1.7294218328, 0.73597001412); ||b0 - b1||_1 = 0.93175
+  it   13: L(b1) = 0.13861856338 
+  b1 = (2.6105562366, 0.53646574797); ||b0 - b1||_1 = 1.08064
+  it   14: L(b1) = 0.136078690971 
+  b1 = (3.6365718171, 0.30421279471); ||b0 - b1||_1 = 1.25827
+  it   15: L(b1) = 0.132631773958 
+  b1 = (4.7681381638, 0.048163485577); ||b0 - b1||_1 = 1.38762
+  it   16: L(b1) = 0.129745947851 
+  b1 = (5.7817645731, -0.18101446876); ||b0 - b1||_1 = 1.2428
+  it   17: L(b1) = 0.128528515295 
+  b1 = (6.4416421441, -0.32998499917); ||b0 - b1||_1 = 0.808848
+  it   18: L(b1) = 0.12827038702 
+  b1 = (6.7460179801, -0.39851949385); ||b0 - b1||_1 = 0.37291
+  it   19: L(b1) = 0.128233471976 
+  b1 = (6.8598550009, -0.42406393099); ||b0 - b1||_1 = 0.139381
+  it   20: L(b1) = 0.128229020225 
+  b1 = (6.8988565082, -0.43278895803); ||b0 - b1||_1 = 0.0477265
+  it   21: L(b1) = 0.128228518572 
+  b1 = (6.9117980391, -0.4356776381); ||b0 - b1||_1 = 0.0158302
+  it   22: L(b1) = 0.128228463365 
+  b1 = (6.916057447, -0.43662703665); ||b0 - b1||_1 = 0.00520881
+  it   23: L(b1) = 0.128228457337 
+  b1 = (6.9174582498, -0.4369390136); ||b0 - b1||_1 = 0.00171278
+  it   24: L(b1) = 0.128228456681 
+  b1 = (6.9179193017, -0.43704165039); ||b0 - b1||_1 = 0.000563689
+  it   25: L(b1) = 0.128228456609 
+  b1 = (6.9180711702, -0.43707545063); ||b0 - b1||_1 = 0.000185669
+  it   26: L(b1) = 0.128228456601 
+  b1 = (6.9181212213, -0.43708658881); ||b0 - b1||_1 = 6.11893e-05
+  it   27: L(b1) = 0.1282284566 
+  b1 = (6.9181377216, -0.43709026051); ||b0 - b1||_1 = 2.0172e-05
+  it   28: L(b1) = 0.1282284566 
+  b1 = (6.9181431621, -0.43709147111); ||b0 - b1||_1 = 6.65115e-06
+  it   29: L(b1) = 0.1282284566 
+  b1 = (6.9181449562, -0.43709187031); ||b0 - b1||_1 = 2.19323e-06
+  it   30: L(b1) = 0.1282284566 
+  b1 = (6.9181455478, -0.43709200195); ||b0 - b1||_1 = 7.23253e-07
+ rwls() used 30 it.; last ||b0 - b1||_1 = 7.23253e-07; convergence
+step "M" -> new coef=
+(Intercept)      log.Te 
+   6.918146   -0.437092 
+
+Call:
+lmrob(formula = log.light ~ log.Te, data = starsCYG, control = lmrob.control(method = "MM",     psi = "lqq", trace = 4), init = ini.14)
+
+Coefficients:
+(Intercept)       log.Te  
+     6.9181      -0.4371  
+
+> ## --> break down
+> ## The 10 largest residuals from the robust init. S-estim:
+> (i10 <- head(order(abs(residuals(ini.14)), decreasing=TRUE), 10))
+ [1] 34 30 20 11  7  9 18  5 40 23
+> residuals(ini.14)[i10]
+        34         30         20         11          7          9         18 
+ 4.5283499  4.3228873  4.1283499  3.9683499  1.6795428  1.1489742 -0.7936234 
+         5         40         23 
+ 0.6308248  0.5618393 -0.5536234 
+> ## ==> and their weights for the different  psi() and their default (95% efficiency) tuning:
+> PSIs <- names(.Mchi.tuning.defaults)
+> sapply(PSIs, function(PSI)
++     Mwgt(residuals(ini.14)[i10], cc = .Mpsi.tuning.defaults[[PSI]], psi=PSI))
+      bisquare      welsh        ggw       lqq optimal    hampel
+34 0.004326925 0.09996323 0.09773569 0.1133043       0 0.1976083
+30 0.022091473 0.12261421 0.11981988 0.1337887       0 0.2228434
+20 0.049967403 0.14747874 0.14446760 0.1559353       0 0.2490517
+11 0.079836576 0.17057482 0.16776052 0.1764389       0 0.2725329
+7  0.759487234 0.72847534 0.83986237 0.8526493       1 0.8052267
+9  0.883329891 0.86220643 0.99095364 0.9876883       1 1.0000000
+18 0.943434409 0.93170882 1.00000000 1.0000000       1 1.0000000
+5  0.964069582 0.95629268 1.00000000 1.0000000       1 1.0000000
+40 0.971444512 0.96516996 1.00000000 1.0000000       1 1.0000000
+23 0.972267723 0.96616386 1.00000000 1.0000000       1 1.0000000
+> ## All MM:
+> RlmST.MM <- lapply(setNames(,PSIs), function(PSI)
++     update(RlmST, init=ini.14, control = lmrob.control(method="MM", psi = PSI)))
+> cf.MM <- t(sapply(RlmST.MM, coef))
+> cf.MM[order(cf.MM[,1], cf.MM[,2]),] ## only 'bisquare' and 'optimal' are robust enough
+         (Intercept)     log.Te
+bisquare   -4.914470  2.2407563
+optimal    -4.056524  2.0466574
+welsh       6.906911 -0.4332566
+ggw         6.916796 -0.4366176
+lqq         6.918146 -0.4370920
+hampel      6.928889 -0.4390525
+> 
+> 
+> 
+> ##=== Werner's analysis: Sensitivity curves for the most-left obs  =========================================
+> dd <- starsCYG
+> dd <- dd[order(dd[,"log.Te"]),] # ==> leverage points come first (and easier plotting)
+> (rr <- lmrob(log.light ~ log.Te, data = dd))
+
+Call:
+lmrob(formula = log.light ~ log.Te, data = dd)
+ \--> method = "MM"
+Coefficients:
+(Intercept)       log.Te  
+     -4.969        2.253  
+
+> (rr14 <- update(rr, control = lmrob.control("KS2014")))
+
+Call:
+lmrob(formula = log.light ~ log.Te, data = dd, control = lmrob.control("KS2014"))
+ \--> method = "SMDM"
+Coefficients:
+(Intercept)       log.Te  
+     6.8435      -0.4227  
+
+> 
+> dd[1,2] # 6.05  will be replaced for sensitivity curve
+[1] 6.05
+> 
+> leg.s <- c("default, biweight"
++            ,"KS14, lqq"
++            ,"KS14, biweight"
++            ,"KS14, optimal"
++            ,"KS14, Hampel"
++            ,"KS14, GGW"
++            ,"KS14, Welsh"
++            )
+> nEst <- length(leg.s) # == number of estimators used belw
+> nn <- length(y1 <- c(NA, seq(2,9, length=64)))
+> nCf <- length(coef(rr)) + 1 # +1: sigma
+> r.coef <- matrix(NA, length(y1), nEst*nCf)
+> t.d <- dd
+> oo <- options(warn = 1)
+> ## vary the left-most observation and fit all three
+> for (i in seq_along(y1)) {
++   cat(sprintf("%3d: %11.6g -- ", i, y1[i]))
++   t.d[1,2] <- y1[i]
++   ## the (old) default does not converge in 4 cases
++   lr    <- update(rr,   data=t.d, control = lmrob.control(maxit=500))                 ; cat("1")
++   lr14  <- update(rr14, data=t.d, control = lmrob.control("KS2014", psi="lqq") )      ; cat("2")
++   lr14b <- update(rr14, data=t.d, control = lmrob.control("KS2014", psi="biweight") ) ; cat("3")
++   lr14o <- update(rr14, data=t.d, control = lmrob.control("KS2014", psi="optimal" ) ) ; cat("4")
++   lr14h <- update(rr14, data=t.d, control = lmrob.control("KS2014", psi="hampel"  ) ) ; cat("5")
++   lr14g <- update(rr14, data=t.d, control = lmrob.control("KS2014", psi="ggw"     ) ) ; cat("6")
++   lr14a <- update(rr14, data=t.d, control = lmrob.control("KS2014", psi="welsh"   ) ) ; cat("7")
++   r.coef[i,] <- c(coef(lr   ), sigma(lr),
++                   coef(lr14 ), sigma(lr14),
++                   coef(lr14b), sigma(lr14b),
++                   coef(lr14o), sigma(lr14o),
++                   coef(lr14h), sigma(lr14h),
++                   coef(lr14g), sigma(lr14g),
++                   coef(lr14a), sigma(lr14a))
++   cat("\n")
++ }
+  1:          NA -- 1234567
+  2:           2 -- 1234567
+  3:     2.11111 -- 1234567
+  4:     2.22222 -- 1234567
+  5:     2.33333 -- 1234567
+  6:     2.44444 -- 1234567
+  7:     2.55556 -- 1234567
+  8:     2.66667 -- 1234567
+  9:     2.77778 -- 1234567
+ 10:     2.88889 -- 1234567
+ 11:           3 -- 1234567
+ 12:     3.11111 -- 1234567
+ 13:     3.22222 -- 1234567
+ 14:     3.33333 -- 1234567
+ 15:     3.44444 -- 1234567
+ 16:     3.55556 -- 1234567
+ 17:     3.66667 -- 1234567
+ 18:     3.77778 -- 1234567
+ 19:     3.88889 -- 1234567
+ 20:           4 -- 1234567
+ 21:     4.11111 -- 1234567
+ 22:     4.22222 -- 1234567
+ 23:     4.33333 -- 1234567
+ 24:     4.44444 -- 1234567
+ 25:     4.55556 -- Warning in lmrob.fit(x, y, control, init = init, mf = mf) :
+  M-step did NOT converge. Returning unconverged SM-estimate
+1234567
+ 26:     4.66667 -- Warning in lmrob.fit(x, y, control, init = init, mf = mf) :
+  M-step did NOT converge. Returning unconverged SM-estimate
+1234567
+ 27:     4.77778 -- Warning in lmrob.fit(x, y, control, init = init, mf = mf) :
+  M-step did NOT converge. Returning unconverged SM-estimate
+1234567
+ 28:     4.88889 -- Warning in lmrob.fit(x, y, control, init = init, mf = mf) :
+  M-step did NOT converge. Returning unconverged SM-estimate
+1234567
+ 29:           5 -- 1234567
+ 30:     5.11111 -- 1234567
+ 31:     5.22222 -- 1234567
+ 32:     5.33333 -- 1234567
+ 33:     5.44444 -- 1234567
+ 34:     5.55556 -- 1234567
+ 35:     5.66667 -- 1234567
+ 36:     5.77778 -- 1234567
+ 37:     5.88889 -- 1234567
+ 38:           6 -- 1234567
+ 39:     6.11111 -- 1234567
+ 40:     6.22222 -- 1234567
+ 41:     6.33333 -- 1234567
+ 42:     6.44444 -- 1234567
+ 43:     6.55556 -- 1234567
+ 44:     6.66667 -- 1234567
+ 45:     6.77778 -- 1234567
+ 46:     6.88889 -- 1234567
+ 47:           7 -- 1234567
+ 48:     7.11111 -- 1234567
+ 49:     7.22222 -- 1234567
+ 50:     7.33333 -- 1234567
+ 51:     7.44444 -- 1234567
+ 52:     7.55556 -- 1234567
+ 53:     7.66667 -- 1234567
+ 54:     7.77778 -- 1234567
+ 55:     7.88889 -- 1234567
+ 56:           8 -- 1234567
+ 57:     8.11111 -- 1234567
+ 58:     8.22222 -- 1234567
+ 59:     8.33333 -- 1234567
+ 60:     8.44444 -- 1234567
+ 61:     8.55556 -- 1234567
+ 62:     8.66667 -- 1234567
+ 63:     8.77778 -- 1234567
+ 64:     8.88889 -- 1234567
+ 65:           9 -- 1234567
+> options(oo)
+> 
+> ## cbind(y=y.1, r.coef)
+> ## y1[1] = where the NA is
+> pMat <- function(j, main, x.legend, col = 1:8, lty=1:6, lwd = 2, ylab=NA, ...) {
++     stopifnot(j %in% seq_len(ncol(r.coef)))
++     matplot(y1, r.coef[, j], type="l", xlab = quote("varying obs." ~ ~ y[1]),
++             ylab=ylab, main=main, col=col, lty=lty, lwd=lwd, ...)
++     xx <- par("usr")[1:2]; yL <- .99* xx[1] + .01*xx[2]
++     matpoints(yL, r.coef[1, j, drop=FALSE], pch = 20, col=col, lwd=lwd)
++     abline(h =    r.coef[1, j, drop=FALSE], col = col, lwd=1, lty=3)
++     legend(x.legend, leg.s, lty=lty, col=col, lwd=lwd, bty = "n")
++     abline(v = dd[1,2], col=adjustcolor("tomato", 1/4)) # true y value
++ }
+> 
+> (jj0 <- nCf*(seq_len(nEst)-1L))
+[1]  0  3  6  9 12 15 18
+> sfsmisc::mult.fig(2)$old.par -> op
+> pMat(j = 2+jj0, main = quote("slope" ~~ hat(beta[2])), "bottomleft")
+> pMat(j = 3+jj0, main = quote(hat(sigma)), "topleft")
+> par(op)
+> ## --------------------------------
 > 
 > set.seed(47)
 > data(hbk)
@@ -384,8 +1012,8 @@ seed : int(0)
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # "stats"
-Time elapsed:  0.431 0.026 0.451 0.002 0.003 
+Time elapsed:  8.756 0.165 8.912 0 0.002 
 > 
 > proc.time()
    user  system elapsed 
-  0.433   0.029   0.451 
+  8.756   0.167   8.912 
