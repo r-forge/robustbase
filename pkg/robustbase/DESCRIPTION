@@ -3,14 +3,23 @@ Version: 0.92-7
 VersionNote: 0.92-6 on 2016-05-28 on CRAN
 Date: 2016-07-.....
 Title: Basic Robust Statistics
-Author: Original code by many authors, notably
-	Peter Rousseeuw and Christophe Croux, see file 'Copyrights';
- Valentin Todorov <valentin.todorov@chello.at>,
- Andreas Ruckstuhl <andreas.ruckstuhl@zhaw.ch>,
- Matias Salibian-Barrera <matias@stat.ubc.ca>,
- Tobias Verbeke <tobias.verbeke@openanalytics.eu>,
- Manuel Koller <mkoller@ispm.unibe.ch>,
- Martin Maechler
+Authors@R: c(person("Martin","Maechler", role=c("aut","cre"), email="maechler@stat.math.ethz.ch")
+         , person("Peter", "Rousseeuw", role="ctb", comment = "Qn and Sn")
+         , person("Christophe", "Croux", role="ctb", comment = "Qn and Sn")
+         , person("Valentin", "Todorov", role = "aut", email = "valentin.todorov@chello.at",
+                  comment = "most robust Cov")
+         , person("Andreas", "Ruckstuhl", role = "aut", email = "andreas.ruckstuhl@zhaw.ch",
+                  comment = "nlrob, anova, glmrob")
+         , person("Matias", "Salibian-Barrera", role = "aut", email = "matias@stat.ubc.ca",
+                  comment = "lmrob orig.")
+         , person("Tobias", "Verbeke", role = "ctb", email = "tobias.verbeke@openanalytics.eu",
+                  comment = "mc, adjbox")
+         , person("Manuel", "Koller", role = "aut", email = "koller.manuel@gmail.com",
+                  comment = "lmrob, psi-func.")
+         , person("Eduardo L. T.", "Conceicao", role = "aut", email = "mail@eduardoconceicao.org",
+                  comment = "MM-, tau-, CM-, and MTL- nlrob")
+         , person("Maria", "Anna di Palma", role = "ctb", comment = "initial version of Comedian")
+          )
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 URL: http://robustbase.r-forge.r-project.org/
 Description: "Essential" Robust Statistics.
