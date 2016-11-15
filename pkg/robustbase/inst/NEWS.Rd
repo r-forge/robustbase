@@ -5,11 +5,11 @@
 \encoding{UTF-8}
 
 \section{CHANGES in robustbase VERSION 0.92-7 (2016-..-.., svn r...)}{
-  %% \subsection{NEW FEATURES}{
-  %%   \itemize{
-  %%     \item
-  %%   }
-  %% }
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item \code{vignette(psi_functions)}
+    }
+  }
   \subsection{BUG FIXES}{
     \itemize{
       \item \code{summary(nlrob(*, method = "CM"))} now works.

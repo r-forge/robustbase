@@ -118,7 +118,7 @@ $\rho(\infty)$, and we \emph{can} use it in
 %% t_1 (=Cauchy) has been propagated as "Lorentzian merit function"
 %% regression for outlier detection
 
-\paragraph{Weakly redescending $\psi$ functions}.\
+\paragraph{Weakly redescending $\psi$ functions.}\
 Note that the above definition does require a finite rejection point $x_r$. Consequently,
 e.g., the score function $s(x) = -f'(x)/f(x)$ for the Cauchy ($= t_1$)
 distribution, which is $s(x) = 2x/(1+x^2)$ and hence non-monotone and ``re
@@ -295,14 +295,14 @@ p.psiFun(x., "Hampel", par = ## Default, but rounded:
 \clearpage
 \subsection{GGW}\label{ssec:ggw}
 The Generalized Gauss-Weight function, or \emph{ggw} for short, is a
-generalization of the Welsh $\psi$-function (subsection \ref{ssec:Welsh}). In \citet{ks2011} it is
-defined as,
+generalization of the Welsh $\psi$-function (subsection
+\ref{ssec:Welsh}). In \citet{ks2011} it is defined as,
 \begin{equation*}
   %% \label{eq:ggw}
   \psi_{a, b, c}(x) = \left\{
     \begin{array}{ll}
                       x                                       & \abs{x} \leq c \\
-      \exp\left(-\frac{1}{2}\frac{(\abs{x} - c)^b}{a}\right)x & \abs{x} > c,
+      \exp\left(-\frac{1}{2}\frac{(\abs{x} - c)^b}{a}\right)x & \abs{x} > c
     \end{array} \right. \;.
 \end{equation*}
 Our constants, fixing $b=1.5$, and minimial slope at $- \frac 1 2$,

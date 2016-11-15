@@ -226,7 +226,7 @@ lmrob.control(setting, seed = NULL, nResample = 500,
   Koller, M. and Stahel, W.A. (2014)
   Nonsingular subsampling for regression S~estimators with categorical
   predictors. Under review.
-  (2012 version available from \url{http://arxiv.org/abs/1208.5595})
+  (2012 version available from \url{https://arxiv.org/abs/1208.5595})
 }
 \author{ Matias Salibian-Barrera, Martin Maechler and Manuel Koller}
 \seealso{  \code{\link{Mpsi}}, etc, for the (fast!) psi function computations;

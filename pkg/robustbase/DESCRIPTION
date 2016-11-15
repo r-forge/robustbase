@@ -1,7 +1,7 @@
 Package: robustbase
 Version: 0.92-7
 VersionNote: 0.92-6 on 2016-05-28 on CRAN
-Date: 2016-07-.....
+Date: 2016-11-15
 Title: Basic Robust Statistics
 Authors@R: c(person("Martin","Maechler", role=c("aut","cre"), email="maechler@stat.math.ethz.ch")
          , person("Peter", "Rousseeuw", role="ctb", comment = "Qn and Sn")
@@ -36,4 +36,3 @@ SuggestsNote: mostly only because of vignette graphics
 LazyData: yes
 License: GPL (>= 2)
 ByteCompile: yes
-
