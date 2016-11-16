@@ -29,7 +29,7 @@ JDEoptim(lower, upper, fn,
     the value of the function at that point.}
   \item{constr}{an optional \code{\link{function}} for specifying the
     nonlinear constraints under which we want to minimize \code{fn}.
-    They should be given in the form \eqn{h_i(X) = 0, g_i(X) \le 0}.
+    They should be given in the form \eqn{h_j(X) = 0, g_i(X) \le 0}.
     This function takes the vector of parameters as its first argument
     and returns a real vector with the length of the total number of
     constraints.  It defaults to \code{NULL}, meaning that
@@ -37,7 +37,7 @@ JDEoptim(lower, upper, fn,
 
   \item{meq}{an optional positive integer specifying that the first \code{meq} constraints are treated as \emph{equality} constraints, all the remaining as \emph{inequality} constraints. Defaults to \code{0} (inequality constraints only).}
 
-  \item{eps}{maximal admissible constraint violation for equality constraints. An optional real vector of small positive tolerance values with length \code{meq} used in the transformation of equalities into inequalities of the form \eqn{|h_i(X)| - \epsilon \le 0}. A scalar value is expanded to apply to all equality constraints. Default is \code{1e-5}.}
+  \item{eps}{maximal admissible constraint violation for equality constraints. An optional real vector of small positive tolerance values with length \code{meq} used in the transformation of equalities into inequalities of the form \eqn{|h_j(X)| - \epsilon \le 0}. A scalar value is expanded to apply to all equality constraints. Default is \code{1e-5}.}
 
   \item{NP}{an optional positive integer giving the number of candidate solutions in the randomly distributed initial population. Defaults to \code{10*length(lower)}.}
 
@@ -79,8 +79,8 @@ JDEoptim(lower, upper, fn,
 
   Constraint handling is done using the approach described in Zhang and Rangaiah (2012), but with a \emph{different reduction updating scheme} for the constraint relaxation value (\eqn{\mu}). Instead of doing it once for every generation or iteration, the reduction is triggered for two cases when the \emph{constraints only contain inequalities}. Firstly, every time a feasible solution is selected for replacement in the next generation by a new feasible trial candidate solution with a better objective function value. Secondly, whenever a current infeasible solution gets replaced by a feasible one. If the constraints \emph{include equalities}, then the reduction is not triggered in this last case. This constitutes an original feature of the implementation.
 
-  The performance of the constraint handling technique is severely impaired by a small feasible region. Therefore, equality constraints are particularly difficult to handle due to the tiny feasible region they define. So, instead of explicitely including all equality constraints in the formulation of the optimization problem, it might prove advantageous to eliminate some of them. This is done by expressing one variable \eqn{x_k} in terms of the remaining others for an equality constraint \eqn{h_i(X) = 0} where \eqn{X = (x_1,\ldots, x_\mathrm{npop})}{X = (x_1,\ldots, x_npop)} is the vector of solutions, thereby obtaining a relationship as \eqn{x_k = R_{k, i}(x_l, l \neq k)}. But this means that both the variable \eqn{x_k} and the equality constraint \eqn{h_i(X) = 0} can be removed altogether from the original optimization formulation, since the value of \eqn{x_k} can be calculated during the search process by the relationship \eqn{R_{k, i}}. Notice, however, that two additional inequalities
-  \deqn{l_k \le R_{k, i}(x_l, l \neq k) \le u_k,}
+  The performance of the constraint handling technique is severely impaired by a small feasible region. Therefore, equality constraints are particularly difficult to handle due to the tiny feasible region they define. So, instead of explicitly including all equality constraints in the formulation of the optimization problem, it might prove advantageous to eliminate some of them. This is done by expressing one variable \eqn{x_k} in terms of the remaining others for an equality constraint \eqn{h_j(X) = 0} where \eqn{X = [x_1,\ldots,x_k,\ldots,x_D]} is the vector of solutions, thereby obtaining a relationship as \eqn{x_k = R_{k,j}([x_1,\ldots,x_{k-1},x_{k+1},\ldots,x_D])}. But this means that both the variable \eqn{x_k} and the equality constraint \eqn{h_j(X) = 0} can be removed altogether from the original optimization formulation, since the value of \eqn{x_k} can be calculated during the search process by the relationship \eqn{R_{k,j}}. Notice, however, that two additional inequalities
+  \deqn{l_k \le R_{k,j}([x_1,\ldots,x_{k-1},x_{k+1},\ldots,x_D]) \le u_k,}
 where the values \eqn{l_k} and \eqn{u_k} are the lower and upper bounds of \eqn{x_k}, respectively, must be provided in order to obtain an equivalent formulation of the problem. For guidance and examples on applying this approach see Wu \emph{et al.} (2015).
 
   Any DE variant is easily extended to deal with \emph{mixed integer nonlinear programming} problems using a small variation of the technique presented by Lampinen and Zelinka (1999). Integer values are obtained by means of the \code{floor()} function \emph{only} for the evaluation of the objective function. This is because DE itself works with continuous variables. Additionally, each upper bound of the integer variables should be added by \code{1}.
@@ -88,9 +88,9 @@ where the values \eqn{l_k} and \eqn{u_k} are the lower and upper bounds of \eqn{
   Notice that the final solution needs to be \emph{converted with \code{floor()}} to obtain its \emph{integer} elements.
 
   The algorithm is stopped if
-  \deqn{\frac{\mathrm{compare\_to}\{[\mathrm{fn}(x_1),\ldots,\mathrm{fn}(x_\mathrm{npop})]\} - \mathrm{fn}(x_\mathrm{best})}{\mathrm{fnscale}} \le \mathrm{tol}}{%
-    ( compare_to{ [fn(x[1]),\ldots,fn(x[npop])] } - fn(x[best]) )/fnscale <= tol,}
-where the \dQuote{best} individual \eqn{x_\mathrm{best}}{x[best]} is the \emph{feasible} solution with the lowest objective function value in the population and the total number of elements in the population, \code{npop}, is \code{NP+NCOL(add_to_init_pop)}. This is a variant of the \emph{Diff} criterion studied by Zielinski and Laur (2008), which was found to yield the best results.
+  \deqn{\frac{\mathrm{compare\_to}\{[\mathrm{fn}(X_1),\ldots,\mathrm{fn}(X_\mathrm{npop})]\} - \mathrm{fn}(X_\mathrm{best})}{\mathrm{fnscale}} \le \mathrm{tol}}{%
+    ( compare_to{ [fn(X_1),\ldots,fn(X_npop)] } - fn(X_best) )/fnscale <= tol,}
+where the \dQuote{best} individual \eqn{X_\mathrm{best}}{X_best} is the \emph{feasible} solution with the lowest objective function value in the population and the total number of elements in the population, \code{npop}, is \code{NP+NCOL(add_to_init_pop)}. This is a variant of the \emph{Diff} criterion studied by Zielinski and Laur (2008), which was found to yield the best results.
 }
 \value{
   A list with the following components:
