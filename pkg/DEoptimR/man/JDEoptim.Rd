@@ -1,10 +1,9 @@
 \name{JDEoptim}
 \alias{JDEoptim}
-\title{Nonlinear Constrained Optimization via Differential Evolution}
+\title{Nonlinear Constrained and Unconstrained Optimization via Differential Evolution}
 \description{
-  An implementation of a bespoke jDE variant of the Differential Evolution
-  stochastic algorithm for global optimization of nonlinear programming
-  problems.
+  An bespoke implementation of the \sQuote{jDE} variant by
+  Brest \emph{et al.} (2006) \doi{10.1109/TEVC.2006.872133}.
 }
 \usage{
 JDEoptim(lower, upper, fn,
@@ -31,7 +30,9 @@ JDEoptim(lower, upper, fn,
 
   \item{constr}{an optional \code{\link{function}} for specifying the
     nonlinear constraints under which we want to minimize \code{fn}.
-    They should be given in the form \eqn{h_j(X) = 0, g_i(X) \le 0}.
+    Nonlinear equalities should be given first and defined to equal zero
+    (\eqn{h_j(X) = 0}), followed by nonlinear inequalities defined as
+    lesser than zero (\eqn{g_i(X) \le 0}).
     This function takes the vector of parameters as its first argument
     and returns a real vector with the length of the total number of
     constraints.  It defaults to \code{NULL}, meaning that
@@ -129,9 +130,10 @@ JDEoptim(lower, upper, fn,
       This implementation differs from the original description, most notably
       in the use of the \emph{DE/rand/1/either-or} mutation strategy
       (Price \emph{et al.}, 2005), combination of \emph{jitter with dither}
-      (Storn 2008), and its use of only a \emph{single population}
-      (Babu and Angira 2006) instead of separate current and child populations
-      as in classical DE.
+      (Storn 2008), and for \emph{immediately replacing} each worse parent
+      in the current population by its newly generated better or equal offspring
+      (Babu and Angira 2006) instead of updating the current population with
+      all the new solutions at the same time as in classical DE.
     }
     \item{Constraint Handling:}{
       Constraint handling is done using the approach described in
