@@ -130,9 +130,9 @@ JDEoptim(lower, upper, fn,
       This implementation differs from the original description, most notably
       in the use of the \emph{DE/rand/1/either-or} mutation strategy
       (Price \emph{et al.}, 2005), combination of \emph{jitter with dither}
-      (Storn 2008), and for \emph{immediately replacing} each worse parent
+      (Storn, 2008), and for \emph{immediately replacing} each worse parent
       in the current population by its newly generated better or equal offspring
-      (Babu and Angira 2006) instead of updating the current population with
+      (Babu and Angira, 2006) instead of updating the current population with
       all the new solutions at the same time as in classical DE.
     }
     \item{Constraint Handling:}{
