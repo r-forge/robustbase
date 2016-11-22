@@ -59,6 +59,11 @@ m0 <- ltsReg(X[,-1], y)
 ## 2) M-estimate started from LTS:
 m1 <- lmrob..M..fit(X, y, beta.initial = coef(m0), scale = m0$scale, method = "SM",
                     control = lmrob.control(tuning.psi = 1.6, psi = 'bisquare'))
+## no 'method' (nor 'obj'):
+m1. <- lmrob..M..fit(X, y, beta.initial = coef(m0), scale = m0$scale,
+                     control = m1$control)
+stopifnot(all.equal(m1, m1., tol = 1e-15)) # identical {call *not* stored!}
+
 cbind(m0$coef, m1$coef)
 ## the scale is kept fixed:
 stopifnot(identical(unname(m0$scale), m1$scale))

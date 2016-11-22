@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.92-7 (2016-..-.., svn r...)}{
+\section{CHANGES in robustbase VERSION 0.92-7 (2016-11-23, svn r742)}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item \code{vignette(psi_functions)}
@@ -13,6 +13,8 @@
   \subsection{BUG FIXES}{
     \itemize{
       \item \code{summary(nlrob(*, method = "CM"))} now works.
+      \item \code{lmrob..MM..fit()} now works again when \code{x} and
+      \code{y} are specified, but neither \code{method} nor \code{obj} is.
     }
   }
 }

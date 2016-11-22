@@ -564,12 +564,12 @@ lmrob..M..fit <- function (x = obj$x, y = obj$y, beta.initial = obj$coef,
     names(ret$coefficients) <- colnames(x)
     names(ret$residuals) <- rownames(x)
     ret$rweights <- lmrob.rweights(ret$residuals, scale, control$tuning.psi, control$psi)
-    if (!grepl('M$', method)) {
-        ## update method if it's not there already
-        method <- paste0(method, 'M')
-    }
     ret$control <- control
     if (!missing(obj)) {
+	if (!grepl('M$', method)) {
+	    ## update method if it's not there already
+	    method <- paste0(method, 'M')
+	}
         if (!is.null(obj$call)) {
             ret$call <- obj$call
             ret$call$method <- method
@@ -602,10 +602,10 @@ lmrob..M..fit <- function (x = obj$x, y = obj$y, beta.initial = obj$coef,
 	    ret$cov <- lf.cov(ret, x)
 	}
         if (!is.null(obj$assign)) ret$assign <- obj$assign
+        if (method %in% control$compute.outlier.stats)
+            ret$ostats <- outlierStats(ret, x, control)
     }
     class(ret) <- "lmrob"
-    if (method %in% control$compute.outlier.stats & !missing(obj))
-        ret$ostats <- outlierStats(ret, x, control)
     ret
 }
 
