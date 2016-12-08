@@ -8,6 +8,8 @@
   \subsection{NEW FEATURES}{
     \itemize{
       \item \code{vignette(psi_functions)}
+
+      \item \code{adjOutlyingness(..., maxit.mult = 1000)} new option, may
     }
   }
   \subsection{BUG FIXES}{
