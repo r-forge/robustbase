@@ -91,7 +91,7 @@ export(Sn, Qn, Qn.old,
        adjbox,
        adjboxStats,
        adjOutlyingness,
-
+       fullRank,
        glmrob,
        nlrob, nlrob.control
        , glmrobMqle.control, glmrobBY.control, glmrobMT.control

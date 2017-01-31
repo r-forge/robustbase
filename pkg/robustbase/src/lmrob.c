@@ -327,8 +327,6 @@ void R_lmrob_S(double *X, double *y, int *n, int *P,
      *        =  2, by default
      */
 
-    /* Rprintf("R_lmrob_s %d\n", *iipsi); */
-
     if (*nRes > 0) {
 	if (*n > *cutoff) {
 	    if(*trace_lev > 0)
@@ -345,6 +343,8 @@ void R_lmrob_S(double *X, double *y, int *n, int *P,
 		   best_r, bb, rrhoc, iipsi, beta_s, scale, *trace_lev, *mts, *ss);
 	}
     } else {
+	if(*trace_lev > 0)
+	    Rprintf("lmrob_S(nRes = 0, n = %d): --> find_scale() only:\n", *n);
 	*scale = find_scale(y, *bb, rrhoc, *iipsi, *scale, *n, *P,
 			    *max_it_scale);
     }

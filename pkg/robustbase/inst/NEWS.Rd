@@ -4,12 +4,30 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
+\section{CHANGES in robustbase VERSION 0.92-8 (2017-0_-___, svn r___)}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item \code{fullRank()} utility for
+      \item \code{adjOutlyingness()}, gets new options \code{p.samp} and
+      \code{trace.lev}, and when it fails to find enough good
+      directions, now checks the rank and mentions \code{fullRank()} in
+      case the matrix is (QR-)rank deficient.
+    }
+  }
+  %% \subsection{BUG FIXES}{
+  %%   \itemize{
+  %%     \item
+  %%   }
+  %% }
+}
+
 \section{CHANGES in robustbase VERSION 0.92-7 (2016-11-23, svn r742)}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item \code{vignette(psi_functions)}
 
-      \item \code{adjOutlyingness(..., maxit.mult = 1000)} new option, may
+      \item \code{adjOutlyingness(..., maxit.mult = max(100, p))} new option,
+      allowing more iterations for finding \dQuote{good} projection directions.
     }
   }
   \subsection{BUG FIXES}{
