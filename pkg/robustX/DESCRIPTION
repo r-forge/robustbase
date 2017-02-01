@@ -5,9 +5,9 @@ Version: 1.2-2
 Date: 2017-02-01
 Author: Werner Stahel, Martin Maechler and potentially others
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
-Description: Robustness -- eXperimental, eXtraneous, or eXtraordinary Functionality for
-  Robust Statistics.  In other words, methods which are not yet well
-  established, often related to methods in package 'robustbase'.
+Description: Robustness -- 'eXperimental', 'eXtraneous', or 'eXtraordinary'
+  Functionality for Robust Statistics.  In other words, methods which are not
+  yet well established, often related to methods in package 'robustbase'.
 Imports: grDevices, graphics, stats, utils, robustbase (>= 0.92-3)
 Suggests: MASS, lattice
 Enhances: ICS
