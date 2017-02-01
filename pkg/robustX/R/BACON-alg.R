@@ -260,20 +260,13 @@ mvBACON <-
 	n <- nrow(x)
 	p <- ncol(x)
 
-	if(check.rank)
-	{
-	    while (
-		   m < n
-		   &&
-		   p > qr(crossprod(ordered.x[1:m,,drop = FALSE]))$rank
-		   )
+	if(check.rank) {
+	    while (m < n && p > qr(crossprod(ordered.x[1:m,,drop = FALSE]))$rank)
 		m <- m + 1
 
 	    xm <- ordered.x[1:m,, drop = FALSE]
 	    ym <- ordered.y[1:m]
-	}
-	else
-	{
+	} else {
 	    xm <- ordered.x
 	    ym <- ordered.y
 	}
@@ -288,14 +281,12 @@ mvBACON <-
 
 	em <- fit.m$residuals
 	sigmahatm <- sqrt(sum(em * em) / (nm - p))
+	hiim  <- hatvalues(fit.m)# = lm.influence(fit.m, do.coef=FALSE) $ hat
 
-	hiim  <- hatvalues(fit.m)
-
-	sqroot <- 1 + ifelse(subset, -1, 1) * hiim
-
-	tis <- resid / (rep(sigmahatm, n) * sqrt(sqroot))
+	sqroot <- 1 + (1 - 2*subset) * hiim # = (1 - Hii) iff subset; (1 + Hii) otherwise
+	tis <- resid / (sigmahatm * sqrt(sqroot))
 	list(m = m, tis = tis)
-    }
+    }## end{ GiveTis }
 
 
 ########## BEGIN .lmBACON
@@ -311,8 +302,7 @@ mvBACON <-
     ordered.y <- y[ordered.indices]
     if(init.fraction > sqrt(.Machine$double.eps)) {
 	m <- round(init.fraction * n)
-
-	tis <- GiveTis(x, y, subset, ordered.x, ordered.y, m, TRUE)
+	## tis <- GiveTis(x, y, subset, ordered.x, ordered.y, m, TRUE)
 	subset <- is.element(1:n, ordered.indices[1:m])
 	tis <- GiveTis(x, y, subset, ordered.x, ordered.y, m, TRUE)
 	m <- tis$m
@@ -351,9 +341,8 @@ mvBACON <-
     }
 
     subset <- is.element(1:n, ordered.indices[1:r])
-    presubset <- rep(FALSE, n)
-    pre.r <- sum(presubset)
-    prepre.r <- pre.r
+    presubset <- FALSE # rep(FALSE, n)
+    prepre.r <- pre.r <- 0L # == sum(presubset)
     steps <- 0
     while(steps <= maxsteps &&
           !(pre.r == r && (!any(xor(presubset, subset)) || prepre.r == r))) {

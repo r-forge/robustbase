@@ -107,7 +107,7 @@ L1median <- function(X, m.init = colMedians(X), weights = NULL,
             ## similarly efficient as nlm() !
 
             stop("nlminb with Gradient -- not yet implemented")
-### FIXME
+if(FALSE) {### FIXME
             Fenv <- new.env()
             L1f <- function(m) {
                 X. <- centr(X,m)
@@ -116,7 +116,7 @@ L1median <- function(X, m.init = colMedians(X), weights = NULL,
                 ## attr(f, "gradient") <- - colSums(X. / d.i)
                 ##  f
             }
-
+}
             nlminb(..., ..., ...)
         }
 
@@ -212,12 +212,11 @@ L1median <- function(X, m.init = colMedians(X), weights = NULL,
         ## TODO: weights == 0 --> leave away those weights and observations
         wts <- if(is.null(weights)) 1 else weights
 
-        if(FALSE) # not really used
-        T.t <- function(y) { ## T~() - the original iterator function  [2.3]
-            Id <- wts/sqrt(rowSums(centr(X, y) ^ 2))
-            Id[!is.finite(Id)] <- 0     # where denominator was 0
-            colSums(X * Id) / sum(Id)
-        }
+        ## T.t <- function(y) { ## T~() - the original iterator function  [2.3]
+        ##     Id <- wts/sqrt(rowSums(centr(X, y) ^ 2))
+        ##     Id[!is.finite(Id)] <- 0     # where denominator was 0
+        ##     colSums(X * Id) / sum(Id)
+        ## }
 
         Tnew <- function(y) { ## T() - the new iterator function      [2.6]
             X. <- centr(X, y)

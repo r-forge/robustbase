@@ -267,7 +267,7 @@ covNNC1 <- function(datamat, k = 12, pnoise = 0.05, emconv = 0.001, bound = 1.5,
     if(all(stopv < (1 + bound) * initv)) {
         dSaveM <- dim(SaveM)[1]
         ans <- SaveM[dSaveM,  ]
-        sdb <- SaveM[dSaveM,  ]
+        ## sdb <- SaveM[dSaveM,  ]
         NewP <- SaveP[2,  ]
         ##
         ##  adding extension
@@ -314,7 +314,7 @@ covNNC1 <- function(datamat, k = 12, pnoise = 0.05, emconv = 0.001, bound = 1.5,
     else {
         dSaveM <- dim(SaveM)[1]
         ans <- SaveM[dSaveM - 1,  ]
-        sdb <- ans[-1]
+        ## sdb <- ans[-1]
         NewP <- SaveP[1,  ]
     }
     nncvar <- vectoM(ans[ - (1:(1 + pd))], pd)

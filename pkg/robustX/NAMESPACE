@@ -1,5 +1,12 @@
-importFrom(stats, "prcomp")
-importFrom(robustbase, "Qn", "scaleTau2", "colMedians")
+importFrom("grDevices", adjustcolor)
+importFrom("graphics", abline, lines, plot)
+importFrom("stats", cov, dist, hatvalues, lm, mad,
+           mahalanobis, median, nlm, nlminb, optim, prcomp,
+           qchisq, qt, rchisq, rnorm, runif, var)
+importFrom("utils", tail)
+
+importFrom("robustbase", Qn, scaleTau2, colMedians)
+
 
 export(Qrot, rbwheel,
        mvBACON, BACON, # but not ".lmBACON"

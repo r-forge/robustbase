@@ -49,9 +49,10 @@ try( # testing
 )
 ## need extended precision (typically *includes* 64-bit):
 doCheck <- (.Machine$sizeof.longdouble >= 16)
-cat("doCheck:", doCheck,"\n")
+cat("doCheck (= have long double):", doCheck,"\n")
 
-if(doCheck) chk.NN.new.old(cN, cN1)
+## This fails (interestingly) when we use R's instead of BLAS matrix products:
+if(doCheck) try( chk.NN.new.old(cN, cN1) )
 
 
 
@@ -61,9 +62,10 @@ set.seed(12)
 X <- rbwheel(n, 7, spherize=TRUE)
 
 lattice::splom(X, cex=.1)
-system.time(cNX1 <- covNN.1(X))# 0.82
-system.time(cNX  <- covNNC (X))# 0.66
-system.time(cM   <- covMcd (X))# 0.151 - !
+system.time(cNX1 <- covNN.1(X))# 0.82  0.273
+system.time(cNX  <- covNNC (X))# 0.66  0.163
+system.time(cM   <- covMcd (X))# 0.151 0.097  <- !
+# NB: *slower* times above, when using R's instead of BLAS matrix prod
 
 try( # testing
     chk.NN.new.old(cNX, cNX1, tol=0)
