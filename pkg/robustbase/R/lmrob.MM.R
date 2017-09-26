@@ -1264,12 +1264,13 @@ ghq <- function(n = 1, modify = TRUE) {
     list(nodes=x, weights= if (modify) w*exp(x^2) else w)
 }
 
+##' (non)singular subsampling - code to be passed to C, as `ss` in ../src/lmrob.c
 .convSs <- function(ss)
     switch(ss,
            "simple"= 0L,
            "nonsingular"= 1L,
-           stop("unknown setting for parameter ss"))
-
+           stop(gettextf("unknown setting for 'subsampling': %s", ss),
+                domain=NA))
 
 outlierStats <- function(object, x = object$x,
                          control = object$control,

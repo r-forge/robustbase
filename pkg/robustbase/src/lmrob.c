@@ -2357,7 +2357,7 @@ Rboolean m_s_descent(double *X1, double *X2, double *y,
  * starting value for S estimates                                       *
  * uses a custom LU decomposition, which acts on the transposed design  *
  * matrix. In case of a singular subsample, the subsample is modified   *
- * until it is non-singular (for ss == 1).                              *
+ * until it is non-singular (for ss == TRUE (== 1)).                    *
  *                                                                      *
  * Parts of the algorithm are based on the Gaxpy version of the LU      *
  * decomposition with partial pivoting by                               *
@@ -2391,8 +2391,8 @@ Rboolean subsample(const double x[], const double y[], int n, int m,
        mts:       the number of singular samples allowed before
                   giving up (Max Try Samples)
        ss:        type of subsampling to be used:
-                  0: simple subsampling
-                  1: nonsingular subsampling
+                  0 (FALSE): simple subsampling
+                  1  (TRUE): nonsingular subsampling
        tol_inv:   tolerance for declaring a matrix singular
        solve:     solve the least squares problem on the subsample?
                   (0: no, 1: yes)
