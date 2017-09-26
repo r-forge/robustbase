@@ -30,7 +30,7 @@ lmrob.control(setting, seed = NULL, nResample = 500,
               compute.rd = FALSE, method = "MM", psi = "bisquare",
               numpoints = 10, cov = NULL,
               split.type = c("f", "fi", "fii"), fast.s.large.n = 2000,
-	      eps.outlier = function(nobs) 0.1 / nobs,
+              eps.outlier = function(nobs) 0.1 / nobs,
               eps.x = function(maxx) .Machine$double.eps^(.75)*maxx,
               compute.outlier.stats = method,
               warn.limit.reject = 0.5,
@@ -44,7 +44,7 @@ lmrob.control(setting, seed = NULL, nResample = 500,
 \arguments{
   \item{setting}{a string specifying alternative default values.  Leave
     empty for the defaults or use \code{"KS2011"} or \code{"KS2014"}
-    for the defaults suggested by Koller and Stahel (2011, 2014).
+    for the defaults suggested by Koller and Stahel (2011, 2017).
     See \emph{Details}.}
   \item{seed}{\code{NULL} or an integer vector compatible with
     \code{\link{.Random.seed}}: the seed to be used for random
@@ -174,7 +174,7 @@ lmrob.control(setting, seed = NULL, nResample = 500,
 
   By default, and in \code{.Mpsi.tuning.default()} and \code{.Mchi.tuning.default()},
   \code{tuning.chi} and \code{tuning.psi} are set to yield an
-  MM-estimate with break-down point \eqn{0.5} and efficiency of 95\% at
+  MM-estimate with breakdown point \eqn{0.5} and efficiency of 95\% at
   the normal.
 
   To get these defaults, e.g., \code{.Mpsi.tuning.default(psi)} is
@@ -194,7 +194,7 @@ lmrob.control(setting, seed = NULL, nResample = 500,
   The values for the tuning constant for the \code{ggw} psi function are
   hard coded.  The constants vector has four elements: minimal slope, b
   (controlling the bend at the maximum of the curve), efficiency,
-  break-down point.  Use \code{NA} for an unspecified value, see examples
+  breakdown point.  Use \code{NA} for an unspecified value, see examples
   in the tables.
 
   The constants for the \code{"hampel"} psi function are chosen to have a
@@ -223,12 +223,13 @@ lmrob.control(setting, seed = NULL, nResample = 500,
   Sharpening Wald-type inference in robust regression for small samples.
   \emph{Computational Statistics & Data Analysis} \bold{55}(8), 2504--2515.
 
-  Koller, M. and Stahel, W.A. (2014)
-  Nonsingular subsampling for regression S~estimators with categorical
-  predictors. Under review.
-  (2012 version available from \url{https://arxiv.org/abs/1208.5595})
+  Koller, M. and Stahel, W.A. (2017) % originally listed as  (2014)
+  Nonsingular subsampling for regression {S}~estimators with categorical predictors,
+  \emph{Computational Statistics} \bold{32}(2): 631--646.
+  \doi{10.1007/s00180-016-0679-x}
+  % (2012 version available from \url{https://arxiv.org/abs/1208.5595})
 }
-\author{ Matias Salibian-Barrera, Martin Maechler and Manuel Koller}
+\author{Matias Salibian-Barrera, Martin Maechler and Manuel Koller}
 \seealso{  \code{\link{Mpsi}}, etc, for the (fast!) psi function computations;
   \code{\link{lmrob}}, also for references and examples.
 }
