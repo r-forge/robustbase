@@ -1,7 +1,7 @@
 
-R version 3.0.2 Patched (2014-01-26 r64896) -- "Frisbee Sailing"
-Copyright (C) 2014 The R Foundation for Statistical Computing
-Platform: x86_64-unknown-linux-gnu (64-bit)
+R version 3.4.2 RC (2017-09-21 r73342) -- "Short Summer"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -636,9 +636,9 @@ mc_C_d(z[1:16], trace_lev=3): Median = 0 (not at the border)
 'median-x' {x | -eps < x_i <= eps} has 6 (= 'k') entries
   now allocating 2+5 work arrays of size (1+) h2=11 each:
  (h1,h2, nr, knew) = (11,11, 121, 61)
-   it= 1, whimed(*, n=    11)=        0 sum_(p,q)= (67,76); sum_p >= kn
-   it= 2, whimed(*, n=    11)=        1 sum_(p,q)= (0,45); s_p < kn ?<=? s_q: no
-   it= 3, whimed(*, n=     5)= 0.333333 sum_(p,q)= (53,66); s_p < kn ?<=? s_q: TRUE
+   it= 1, whimed(*, n=    11)=          0 sum_(p,q)= (67,76); sum_p >= kn
+   it= 2, whimed(*, n=    11)=          1 sum_(p,q)= (0,45); s_p < kn ?<=? s_q: no
+   it= 3, whimed(*, n=     5)=    0.33333 sum_(p,q)= (53,66); s_p < kn ?<=? s_q: TRUE
 converged in 3 iterations
 [1] 0.3333333
 > str(robustbase:::mcComp(-x3, doRefl = FALSE, maxit = 15, trace = 4))
@@ -651,21 +651,21 @@ mc_C_d(z[1:16], trace_lev=4): Median = -0 (not at the border)
  before whimed(): work and iwt, each [0:(11-1)]:
         1        1        1        1        1        0       -1       -1       -1       -1       -1
        11       11       11       11       11       11       11       11       11       11       11
-   it= 1, whimed(*, n=    11)=        0 
+   it= 1, whimed(*, n=    11)=          0 
     p[1:11]: 10  9  8  7  6  5  0  0  0  0  0 sum=  45
     q[1:11]: 12 11 10  9  8  7  2  2  2  1  1 sum=  54
 ; s_p < kn ?<=? s_q: no
  before whimed(): work and iwt, each [0:(10-1)]:
        -1       -1       -1       -1       -1       -1       -1       -1       -1       -1
         1        2        3        4        5       10       10       10       11       11
-   it= 2, whimed(*, n=    10)=       -1 
+   it= 2, whimed(*, n=    10)=         -1 
     p[1:11]: 11 10  9  8  7  6  5  5  5  5  5 sum=  76
     q[1:11]: 12 12 12 12 12 12 12 12 12 12 12 sum= 121
 ; sum_p >= kn
  before whimed(): work and iwt, each [0:(5-1)]:
  -0.333333 -0.333333 -0.333333     -0.5     -0.6
         4        4        4        5        5
-   it= 3, whimed(*, n=     5)= -0.333333 
+   it= 3, whimed(*, n=     5)=   -0.33333 
     p[1:11]: 11 10  9  8  7  6  1  1  1  1  0 sum=  55
     q[1:11]: 12 11 10  9  8  7  6  6  6  2  2 sum=  68
 ; s_p < kn ?<=? s_q: TRUE
@@ -692,7 +692,7 @@ mc_C_d(z[1:10], trace_lev=3): Median = 6 (not at the border)
 'median-x' {x | -eps < x_i <= eps} has 0 (= 'k') entries
   now allocating 2+5 work arrays of size (1+) h2=5 each:
  (h1,h2, nr, knew) = (5,5, 25, 13)
-   it= 1, whimed(*, n=     5)=        0 sum_(p,q)= (11,15); s_p < kn ?<=? s_q: TRUE
+   it= 1, whimed(*, n=     5)=          0 sum_(p,q)= (11,15); s_p < kn ?<=? s_q: TRUE
 converged in 1 iterations
 List of 4
  $ medc     : num 0
@@ -706,7 +706,7 @@ mc_C_d(z[1:10], trace_lev=3): Median = -6 (not at the border)
 'median-x' {x | -eps < x_i <= eps} has 0 (= 'k') entries
   now allocating 2+5 work arrays of size (1+) h2=5 each:
  (h1,h2, nr, knew) = (5,5, 25, 13)
-   it= 1, whimed(*, n=     5)=        0 sum_(p,q)= (10,14); s_p < kn ?<=? s_q: TRUE
+   it= 1, whimed(*, n=     5)=          0 sum_(p,q)= (10,14); s_p < kn ?<=? s_q: TRUE
 converged in 1 iterations
 List of 4
  $ medc     : num 0
@@ -771,9 +771,9 @@ numeric
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  0.693 0.065 0.812 0 0.003 
+Time elapsed:  0.269 0.051 0.39 0.001 0.002 
 > 
 > quit('no')
 > proc.time()
    user  system elapsed 
-  0.695   0.068   0.814 
+  0.270   0.053   0.390 

@@ -253,6 +253,19 @@ stopifnot(identical(.Mpsi.tuning.defaults,
                           .Mpsi.tuning.default)))
 ## Containing (names!) all our (pre-defined) redescenders:
 str(.Mchi.tuning.defaults)
+
+## Difference between settings:
+C11 <- lmrob.control("KS2011")
+C14 <- lmrob.control("KS2014")
+str(C14)
+## Apart from `setting` itself, they only differ in three places:
+diffC <- names(which(!mapply(identical, C11,C14, ignore.environment=TRUE)))
+cbind(KS11 = unlist(C11[diffC[-1]]),
+      KS14 = unlist(C14[diffC[-1]]))
+##           KS11 KS14
+## nResample  500 1000
+## best.r.s     2   20
+## k.fast.s     1    2
 }
 \keyword{robust}
 \keyword{regression}

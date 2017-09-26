@@ -41,5 +41,6 @@ doLTSdata(nrep = 12, time = FALSE, method = "MASS")
 test_rsquared()
 test_location()
 
+if(length(W <- warnings())) print(summary(W))
 
 cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''

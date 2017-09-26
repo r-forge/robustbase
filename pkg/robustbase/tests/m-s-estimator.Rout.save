@@ -1,7 +1,7 @@
 
-R version 3.1.2 Patched (2015-01-12 r67440) -- "Pumpkin Helmet"
-Copyright (C) 2015 The R Foundation for Statistical Computing
-Platform: x86_64-unknown-linux-gnu (64-bit)
+R Under development (unstable) (2017-05-19 r72698) -- "Unsuffered Consequences"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -229,8 +229,16 @@ lmrob_M_S(n = 50, nRes = 500, (p1,p2)=(4,3), (orth,subs,desc)=(1,1,1))
  Descent procedure: not converged (best scale: 30.888, last step: 31.134)
   The procedure stopped after 25 steps because there was no improvement in the last 20 steps.
   To increase this number, use the control parameter 'k.m_s'.
+init converged (remaining method = "M") -> coef=
+[1] -236.33813174  -22.50174637   -7.69929975   25.25388208    0.05220654
+[6]    0.04769691    0.78984802
 lmrob_MM(): rwls():
  rwls() used 19 it.; last ||b0 - b1||_1 = 1.76872e-05; convergence
+step "M" -> new coef=
+  (Intercept)       Region2       Region3       Region4            X1 
+-150.21716170  -12.68711627  -10.64944153   21.92534635    0.04153037 
+           X2            X3 
+   0.04337025    0.61139401 
 > 
 > set.seed(13)
 > fiMS <- lmrob(Y ~ Region + X1 + X2 + X3, education, init = "M-S")
@@ -304,8 +312,13 @@ seed : int(0)
 lmrob_M_S(n = 30, nRes = 500, (p1,p2)=(3,2), (orth,subs,desc)=(1,1,1))
  Finished M-S subsampling with scale = 0.93330
  Descent procedure: converged (best scale: 0.92746, last step: 0.92746)
+init converged (remaining method = "M") -> coef=
+[1]  0.14412998 -0.16709564 -0.01045825 -0.18551426  0.25915102
 lmrob_MM(): rwls():
  rwls() used 12 it.; last ||b0 - b1||_1 = 4.61816e-08; convergence
+step "M" -> new coef=
+(Intercept)      groupb      groupc          X1          X2 
+ 0.41147162 -0.74117537 -0.36321634  0.02379646  0.51727653 
 Warning message:
 In lmrob.M.S(x, y, control, mf) :
    Skipping design matrix equilibration (DGEEQU): row 23 is exactly zero.
@@ -380,8 +393,18 @@ In lmrob.M.S(x, y, control, mf) :
 > d.AOV <- data.frame(y = round(100*rnorm(64)),
 + 		    A=gl(4,n/4), B=gl(2,8, n), C=gl(2,4,n))
 > fm <- lmrob(y ~ A*B*C, data = d.AOV, init = "M-S", trace.lev=2)
+init converged (remaining method = "M") -> coef=
+ [1]   19    6   58 -161   91  -30 -121 -176    1   45  -75  113 -111  132  187
+[16]    0
 lmrob_MM(): rwls():
  rwls() used 30 it.; last ||b0 - b1||_1 = 5.76455e-05; convergence
+step "M" -> new coef=
+(Intercept)          A2          A3          A4          B2          C2 
+  6.3072125 -12.1364596  69.2442724 -71.0775753  35.0078234  19.5279997 
+      A2:B2       A3:B2       A4:B2       A2:C2       A3:C2       A4:C2 
+-24.1727568 -87.0419714  -0.7811905  73.9279841 -77.3141570  28.1145939 
+      B2:C2    A2:B2:C2    A3:B2:C2    A4:B2:C2 
+-74.7935878  46.9640876  66.0934400  -7.4911099 
 Warning message:
 In lmrob.M.S(x, y, control, mf) :
   No continuous variables found in model. Reverting to L1-estimator.

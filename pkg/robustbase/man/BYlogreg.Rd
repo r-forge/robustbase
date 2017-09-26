@@ -11,6 +11,8 @@
 
   Note: This function is for \dQuote{back-compatibility} with the
   \code{BYlogreg()} code web-published at
+  %% moved to ? -- but NA (404) on 2017-09-26:
+  %% \url{http://feb.kuleuven.be/public/NDBAE06/programs/roblog/};
   \url{http://www.econ.kuleuven.be/public/NDBAE06/programs/roblog/};
   instead, the recommended interface is \code{\link{glmrob}(*, method =
   "BY")} or \code{... method = "WBY" ..}, see \code{\link{glmrob}}.
