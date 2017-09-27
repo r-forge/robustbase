@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.92-8 (2017-0_-___, svn r___)}{
+\section{CHANGES in robustbase VERSION 0.92-8 (2017-09-26, svn r761)}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item \code{fullRank()} utility for
@@ -14,11 +14,16 @@
       case the matrix is (QR-)rank deficient.
     }
   }
-  %% \subsection{BUG FIXES}{
-  %%   \itemize{
-  %%     \item
-  %%   }
-  %% }
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item loosened some regression test tolerances (for alternatives
+      to BLAS) in \file{tests/(mc-strict|poisson-ex)}.
+
+      \item \code{scaleTau2(x, *)} gains an optional \code{sigma0}
+      argument and now returns zero instead of \code{NaN} when
+      \code{sigma0 == 0}.
+    }
+  }
 }
 
 \section{CHANGES in robustbase VERSION 0.92-7 (2016-11-23, svn r742)}{
