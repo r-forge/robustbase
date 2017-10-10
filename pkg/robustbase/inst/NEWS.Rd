@@ -4,14 +4,19 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.92-8 (2017-09-26, svn r761)}{
+\section{CHANGES in robustbase VERSION 0.92-8 (2017-10-10, svn r768)}{
   \subsection{NEW FEATURES}{
     \itemize{
-      \item \code{fullRank()} utility for
+      \item \code{fullRank()} utility for \code{adjOutlyingness}:
+
       \item \code{adjOutlyingness()}, gets new options \code{p.samp} and
       \code{trace.lev}, and when it fails to find enough good
       directions, now checks the rank and mentions \code{fullRank()} in
       case the matrix is (QR-)rank deficient.
+
+      \item The \code{"lmrob"} method for \code{vcov()} gets optional
+      argument \code{complete = TRUE}, where only \emph{complete =
+      FALSE} is back compatible.
     }
   }
   \subsection{BUG FIXES}{

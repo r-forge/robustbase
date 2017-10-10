@@ -610,14 +610,14 @@ variable.names.lmrob <- function(object, full = FALSE, ...)
     else character()
 }
 
-vcov.lmrob <- function (object, cov = object$control$cov, ...) {
+vcov.lmrob <- function (object, cov = object$control$cov, complete = TRUE, ...) {
     if (!is.null(object$cov) && (missing(cov) ||
 				 identical(cov, object$control$cov)))
 	object$cov
     else {
 	## cov is typically = ".vcov.w" or ".vcov.avar1", but can be *any* user func.
 	lf.cov <- if (!is.function(cov)) get(cov, mode = "function") else cov
-	lf.cov(object, ...)
+	lf.cov(object, complete=complete, ...)
     }
 }
 

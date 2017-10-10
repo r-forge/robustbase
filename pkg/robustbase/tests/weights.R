@@ -102,7 +102,6 @@ for (meth in meths2) {
                         do.call(meth, list(rm1))),
               all.equal(do.call(meth, list(cm2)),
 		   .SW.(do.call(meth, list(rm2)))))
-
     cat("\n")
 }
 options(op)# reverting
@@ -136,6 +135,7 @@ stopifnot(all.equal(predict(cm0, nd, interval="prediction"),
           all.equal(predict(cm2, nd, interval="prediction", weights=wts),
                     predict(rm2, nd, interval="prediction", weights=wts),
                     tolerance=1e-7))
+if(length(W <- warnings())) print(if(getRversion() >= "3.5") summary(W) else W)
 
 ## Padding can lead to differing values here
 ## so test only full rank part
@@ -160,6 +160,7 @@ stopifnot(all.equal(residuals(cm0),                      residuals(rm0)),
           all.equal(resid(cm1, type="pearson"),          resid(rm1, type="pearson")),
           all.equal(unclass(resid(cm2, type="pearson")), resid(rm2, type="pearson")))
 
+if(is.na(match("complete", names(formals(stats:::vcov.lm))))) ## temporary _FIXME_
 stopifnot(all.equal(vcov(cm0), vcov(rm0), check.attributes=FALSE),
           all.equal(vcov(cm1), vcov(rm1), check.attributes=FALSE),
           all.equal(vcov(cm2), vcov(rm2), check.attributes=FALSE))
@@ -168,3 +169,5 @@ stopifnot(all.equal(vcov(cm0), vcov(rm0), check.attributes=FALSE),
 
 ## testing weight=0 bug
 lmrob(y ~ x3, data, weights=weights)
+
+if(length(W <- warnings())) print(if(getRversion() >= "3.5") summary(W) else W)
