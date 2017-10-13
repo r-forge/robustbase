@@ -154,17 +154,16 @@ adjOutlyingness <- function(x, ndir = 250, p.samp = p, clower=4, cupper=3,
 
 ##' Compute a "full rank" version of matrix x,
 ##' by removing columns (or rows when nrow(x) < ncol(x)), using qr() and it's pivots
-fullRank <- function(x, tol = 1e-7) {
+fullRank <- function(x, tol = 1e-7, qrx = qr(x, tol=tol)) {
     d <- dim(x)
     n <- d[[1L]]; p <- d[[2L]]
     if(n < p)
         return( t(fullRank(t(x), tol=tol)) )
     ## else n >= p >= rank(.)
-    qx <- qr(x, tol = tol)
-    rnk <- qx$rank
+    rnk <- qrx$rank
     if(rnk == p)
         x
     else
-        x[, qx$pivot[seq_len(rnk)], drop=FALSE]
+        x[, qrx$pivot[seq_len(rnk)], drop=FALSE]
 }
 

@@ -7,14 +7,16 @@
   the matrix is not of full rank, the corresponding columns (\eqn{n \ge
     p}{n >= p}) or rows (\eqn{n < p}) are omitted to form a full rank matrix.
 }
-\usage{
-fullRank(x, tol = 1e-7)
+\usage{% -> ../R/adjoutlyingness.R
+fullRank(x, tol = 1e-7, qrx = qr(x, tol=tol))
 }
 \arguments{
   \item{x}{a numeric matrix of dimension \eqn{n \times p}{n * p}, or a
     similar object for which \code{\link{qr}()} works.}
   \item{tol}{tolerance for determining rank (deficiency).  Currently is
     simply passed to \code{\link{qr}}.}
+  \item{qrx}{optionally may be used to pass a \code{\link{qr}(x, ..)};
+    only used when \code{p <= n}.}
 }
 \value{
   a version of the matrix \code{x}, with less columns or rows if
