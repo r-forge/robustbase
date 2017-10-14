@@ -155,6 +155,7 @@ lmrob <-
 		    control$cov <- ".vcov.w"
 	    }
 	    z <- lmrob.fit(x, y, control, init=init, mf = mf) #-> ./lmrob.MM.R
+	    ##   ---------
             if(is.character(ini) && !grepl(paste0("^", ini), control$method))
                 control$method <- paste0(ini, control$method)
 	    if (singular.fit) {
@@ -190,10 +191,11 @@ lmrob <-
 	    z$residuals <- z$residuals/wts
 	    z$fitted.values <- save.y - z$residuals
 	    z$weights <- w
-	    if (zero.weights) {
+	    if (zero.weights) { # compute residuals, fitted, wts...  also for the 0-weight obs
                 coef <- z$coefficients
 		coef[is.na(coef)] <- 0
 		f0 <- x0 %*% coef
+                ## above  ok := (w != 0);  nok := (w == 0)
 		if (ny > 1) {
 		    save.r[ok, ] <- z$residuals
 		    save.r[nok, ] <- y0 - f0
@@ -611,9 +613,10 @@ variable.names.lmrob <- function(object, full = FALSE, ...)
 }
 
 vcov.lmrob <- function (object, cov = object$control$cov, complete = TRUE, ...) {
-    if (!is.null(object$cov) && (missing(cov) ||
-				 identical(cov, object$control$cov)))
-	object$cov
+    if(!is.null(object$cov) && (missing(cov) ||
+				identical(cov, object$control$cov)))
+	.vcov.aliased(aliased = is.na(coef(object)), object$cov,
+		      complete= if(is.na(complete)) FALSE else complete)
     else {
 	## cov is typically = ".vcov.w" or ".vcov.avar1", but can be *any* user func.
 	lf.cov <- if (!is.function(cov)) get(cov, mode = "function") else cov

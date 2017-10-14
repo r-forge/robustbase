@@ -137,8 +137,8 @@ is.1num <- function(x) is.numeric(x) && length(x) == 1L
     asNamespace("stats")$.vcov.aliased %||%
     function(aliased, vc, complete = TRUE) {
         ## Checking for "NA coef": "same" code as in print.summary.lm() in ./lm.R :
-        if(complete && any(aliased)) { ## --> add NA rows and columns in vcov
-            P <- length(aliased)
+        if(complete && nrow(vc) < (P <- length(aliased)) && any(aliased)) {
+            ## add NA rows and columns in vcov
             cn <- names(aliased)
             VC <- matrix(NA_real_, P, P, dimnames = list(cn,cn))
             j <- which(!aliased)

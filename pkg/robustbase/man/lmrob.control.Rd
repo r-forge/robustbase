@@ -223,11 +223,12 @@ lmrob.control(setting, seed = NULL, nResample = 500,
   Sharpening Wald-type inference in robust regression for small samples.
   \emph{Computational Statistics & Data Analysis} \bold{55}(8), 2504--2515.
 
-  Koller, M. and Stahel, W.A. (2017) % originally listed as  (2014)
+  Koller, M. and Stahel, W.A. (2017)
   Nonsingular subsampling for regression {S}~estimators with categorical predictors,
   \emph{Computational Statistics} \bold{32}(2): 631--646.
-  \doi{10.1007/s00180-016-0679-x}
-  % (2012 version available from \url{https://arxiv.org/abs/1208.5595})
+  \doi{10.1007/s00180-016-0679-x}.
+  Referred as \code{"KS2014"} everywhere in \pkg{robustbase};  A shorter first
+  version, Koller (2012) has been available from \url{https://arxiv.org/abs/1208.5595}.
 }
 \author{Matias Salibian-Barrera, Martin Maechler and Manuel Koller}
 \seealso{  \code{\link{Mpsi}}, etc, for the (fast!) psi function computations;

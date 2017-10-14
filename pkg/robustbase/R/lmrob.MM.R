@@ -267,17 +267,19 @@ lmrob.fit <- function(x, y, control, init=NULL, mf=NULL) {
 	    else {
 		lf.cov <- if (!is.function(control$cov))
 		    get(control$cov, mode='function') else control$cov
-		lf.cov(init, x)
+		lf.cov(init, x=x)
 	    }
 	}
     df <- NROW(y) - init$rank ## sum(init$r?weights)-init$rank
     init$degree.freedom <- init$df.residual <- df
     init
-}
+}## end{lmrob.fit}
 
 globalVariables("r", add=TRUE) ## below and in other lmrob.E() expressions
 
-.vcov.w <- function(obj, x=obj$x, scale=obj$scale, cov.hubercorr=ctrl$cov.hubercorr,
+.vcov.w <- function(obj, x=obj$x,
+		    complete = FALSE, # <- differing from vcov.lmrob()s default
+                    scale=obj$scale, cov.hubercorr=ctrl$cov.hubercorr,
                     cov.dfcorr=ctrl$cov.dfcorr, cov.resid=ctrl$cov.resid,
                     cov.corrfact=ctrl$cov.corrfact,
                     cov.xwx=ctrl$cov.xwx)
@@ -304,7 +306,7 @@ globalVariables("r", add=TRUE) ## below and in other lmrob.E() expressions
     if (is.null(cov.resid)) cov.resid <- 'final'
     else if (length(cov.resid) != 1 || is.na(match(cov.resid, valid.cov.resid)))
 	stop(":.vcov.w: cov.resid must be one of ", pasteK(dQuote(valid.cov.resid)))
-    if (is.null(cov.xwx)) cov.xwx <- TRUE
+    if (is.null(cov.xwx)) cov.xwx <- TRUE # == _THE_ typical case: not part of 'obj$control'
     else if (!is.logical(cov.xwx))
 	stop(':.vcov.w: cov.xwx must be logical (or NULL)')
     if (is.null(x))  x <- model.matrix(obj)
@@ -421,15 +423,18 @@ globalVariables("r", add=TRUE) ## below and in other lmrob.E() expressions
                      "mn.df" = mean(w)^2 / (1 - p / sum(w)), # 3
                      stop("invalid 'cov.dfcorr': ", cov.dfcorr))
 
-    structure(scale^2 * sscorr * corrfact * cinv,
+    structure(scale^2 * sscorr * corrfact *
+	      .vcov.aliased(aliased = is.na(coef(obj)), vc=cinv, complete=complete),
 	      ## scale^2 * a/b2 * Huber's correction * Cinv  -- with attributes
 	      weights = w,
 	      scale = scale,
 	      scorr = sscorr,
 	      corrfact = corrfact)
-}
+}## end{.vcov.w}
 
-.vcov.avar1 <- function(obj, x=obj$x, posdef.meth = c("posdefify", "orig"))
+.vcov.avar1 <- function(obj, x=obj$x,
+			complete = FALSE, # <- differing from vcov.lmrob()s default
+			posdef.meth = c("posdefify", "orig"))
 { ## was .vcov.MM
     stopifnot(is.list(ctrl <- obj$control))
     ## works only for MM & SM estimates:
@@ -450,17 +455,32 @@ globalVariables("r", add=TRUE) ## below and in other lmrob.E() expressions
 ### --- start code from .vcov.MM ---
     ## scaled residuals
     n <- length(r)
-    stopifnot(n == length(r0), is.matrix(x), n == nrow(x))
-    p <- ncol(x)
-    r.s	 <- r / scale # final   scaled residuals
+    stopifnot(is.matrix(x), n == nrow(x))
+    if(n != length(r0))
+        stop("initial estimate residuals length differs from final ones.  Typically must refit w/ lmrob()")
+    r.s  <-  r / scale # final   scaled residuals
     r0.s <- r0 / scale # initial scaled residuals
     w  <- Mpsi(r.s,  cc = c.psi, psi = psi, deriv = 1)
     w0 <- Mchi(r0.s, cc = c.chi, psi = chi, deriv = 1)
+    p <- ncol(x) # possibly p > rankMatrix(x) in singular/aliased case
+    ## 'complete' handling for singular/aliased case
+    if(is.na(complete)) {
+	## previous default: work with full rank-deficient 'x'
+    } else {
+	aliased <- is.na(coef(obj))
+	if(any(aliased))
+	    x <- x[, !aliased]
+	if(isTRUE(complete)) {
+	    ## nothing
+	} else { ## isFALSE(complete) :
+	    p <- obj$rank
+	}
+    }
     ## FIXME for multivariate y :
     x.wx <- crossprod(x, x * w)
     if(inherits(A <- tryCatch(solve(x.wx) * scale,
 			      error=function(e)e), "error")) {
-	warning("X'WX is almost singular. Consider rather using cov = \".vcov.w\"")
+	warning("X'WX is almost singular. Consider using cov = \".vcov.w\"")
 	A <- tryCatch(solve(x.wx, tol = 0) * scale, error=function(e)e)
 	if(inherits(A, "error"))
 	    stop("X'WX is singular. Rather use cov = \".vcov.w\"")
@@ -469,8 +489,8 @@ globalVariables("r", add=TRUE) ## below and in other lmrob.E() expressions
     w <- Mpsi( r.s, cc = c.psi, psi = psi)
 
     ## 3) now the standard part  (w, x, r0.s,  n, A,a, c.chi, bb)
-    w0 <- Mchi(r0.s, cc = c.chi, psi = chi)
-    Xww <- crossprod(x, w*w0)
+    w0 <- Mchi(r0.s, cc = c.chi, psi = chi) # rho()
+    Xww <- crossprod(x, w * w0)
     u1 <- A %*% crossprod(x, x * w^2) %*% (n * A)
     u2 <- a %*% crossprod(Xww, A)
     u3 <- A %*% tcrossprod(Xww, a)
@@ -508,17 +528,23 @@ globalVariables("r", add=TRUE) ## below and in other lmrob.E() expressions
 		   lam <- ev$values
 		   lam[neg.ev] <- 0
 		   o.diag <- diag(ret)# original one - for rescaling
+                   dn <- dimnames(ret)# to preserve
 		   ret <- Q %*% (lam * t(Q)) ## == Q %*% diag(lam) %*% t(Q)
 		   ## rescale to the original diagonal values
-		   ## D <- sqrt(o.diag/diag(ret))
-		   ## where they are >= 0 :
+		   ##  D <- sqrt(o.diag/diag(ret))    where they are >= 0 :
+		   if(any(o.diag < 0))
+		       warning(".vcov.avar1: negative diag(<vcov>) fixed up; consider 'cov=\".vcov.w.\"' instead")
 		   D <- sqrt(pmax.int(0, o.diag)/diag(ret))
-		   ret[] <- D * ret * rep(D, each = p) ## == diag(D) %*% m %*% diag(D)
+		   ret <- D * ret * rep(D, each = nrow(Q)) ## == diag(D) %*% ret %*% diag(D)
+                   if(!is.null(dn)) dimnames(ret) <- dn
 	       },
 	       stop("invalid 'posdef.meth': ", posdef.meth))
     }
+    if(isTRUE(complete))
+	ret <- .vcov.aliased(aliased, ret)
     attr(ret,"weights") <- w / r.s
-    attr(ret,"eigen") <- ev
+    if(!any(neg.ev))
+	attr(ret,"eigen") <- ev
     ret
 }## end{.vcov.avar1}
 
@@ -599,7 +625,7 @@ lmrob..M..fit <- function (x = obj$x, y = obj$y, beta.initial = obj$coef,
 		ret$control$cov <- '.vcov.w'
 	    lf.cov <- if (!is.function(ret$control$cov))
 		get(ret$control$cov, mode='function') else ret$control$cov
-	    ret$cov <- lf.cov(ret, x)
+	    ret$cov <- lf.cov(ret, x=x)
 	}
         if (!is.null(obj$assign)) ret$assign <- obj$assign
         if (method %in% control$compute.outlier.stats)
@@ -760,7 +786,7 @@ lmrob..D..fit <- function(obj, x=obj$x, control = obj$control, mf = obj$model,
 
         lf.cov <- if (!is.function(control$cov))
             get(control$cov, mode='function') else control$cov
-        obj$cov <- lf.cov(obj, x)
+        obj$cov <- lf.cov(obj, x=x)
     }
     if (method %in% control$compute.outlier.stats)
         obj$ostats <- outlierStats(obj, x, control)
