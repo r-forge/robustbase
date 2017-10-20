@@ -41,7 +41,8 @@
   constants for \code{"lqq"} psi functions: \eqn{(b, c, s) = (b/c * c, c, s = 1 - min_slope)}
 }
 \seealso{\code{\link{Mpsi}()} etc for the psi function definitions;
-  \code{\link{.Mpsi.tuning.defaults}}, etc, for tuning constants' efaults for\code{\link{lmrob}()}.
+  \code{\link{.Mpsi.tuning.defaults}}, etc, for tuning constants'
+  defaults for \code{\link{lmrob}()}.
 }
 \author{Manuel Koller (original) and Martin Maechler (arguments, export,
   docs).

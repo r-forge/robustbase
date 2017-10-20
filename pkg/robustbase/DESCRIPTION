@@ -12,11 +12,11 @@ Authors@R: c(person("Martin","Maechler", role=c("aut","cre"), email="maechler@st
                   comment = "nlrob, anova, glmrob")
          , person("Matias", "Salibian-Barrera", role = "aut", email = "matias@stat.ubc.ca",
                   comment = "lmrob orig.")
-         , person("Tobias", "Verbeke", role = "ctb", email = "tobias.verbeke@openanalytics.eu",
+         , person("Tobias", "Verbeke", role = c("ctb","fnd"), email = "tobias.verbeke@openanalytics.eu",
                   comment = "mc, adjbox")
          , person("Manuel", "Koller", role = "aut", email = "koller.manuel@gmail.com",
                   comment = "lmrob, psi-func.")
-         , person("Eduardo L. T.", "Conceicao", role = "aut", email = "mail@eduardoconceicao.org",
+         , person(c("Eduardo, "L. T."), "Conceicao", role = "aut", email = "mail@eduardoconceicao.org",
                   comment = "MM-, tau-, CM-, and MTL- nlrob")
          , person("Maria", "Anna di Palma", role = "ctb", comment = "initial version of Comedian")
           )
