@@ -13,7 +13,8 @@ lmrob <-
 	    lmrob.control(...) else lmrob.control(method = method, ...)
     else if (length(list(...))) ## "sophisticated version" of chk.s(...)
 	warning("arguments .. in ",
-		sub(")$", "", sub("^list\\(", "", deparse(list(...), control = c()))), "  are disregarded.\n",
+		sub(")$", "", sub("^list\\(", "", deparse(list(...), control = c()))),
+		"  are disregarded.\n",
 		"  Maybe use  lmrob(*, control=lmrob.control(....) with all these.")
     ret.x <- x
     ret.y <- y
@@ -36,7 +37,7 @@ lmrob <-
 	stop(gettextf("number of offsets is %d, should equal %d (number of observations)",
 		      length(offset), NROW(y)), domain = NA)
     if (!miss.ctrl && !missing(method) && method != control$method) {
-	warning("Methods argument set by method is different from method in control\n",
+	warning("The 'method' argument is different from 'control$method'\n",
 		"Using the former, method = ", method)
 	control$method <- method
     }
