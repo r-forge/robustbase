@@ -218,6 +218,12 @@ lmrob(formula, data, subset, weights, na.action, method = "MM",
   Yohai, V.J. (1987)
   High breakdown-point and high efficiency estimates for regression.
   \emph{The Annals of Statistics} \bold{15}, 642--65.
+
+  Yohai, V., Stahel, W.~A. and Zamar, R. (1991)
+  A procedure for robust estimation and inference in linear regression;
+  in Stahel and Weisberg (eds), \emph{Directions in Robust Statistics
+    and Diagnostics}, Part II, Springer, New York, 365--374;
+  \doi{10.1007/978-1-4612-4444-8_20}.
 }
 \author{(mainly:) Matias Salibian-Barrera and Manuel Koller}
 \seealso{
