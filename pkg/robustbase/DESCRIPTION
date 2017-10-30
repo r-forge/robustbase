@@ -1,7 +1,7 @@
 Package: robustbase
 Version: 0.92-8
 VersionNote: 0.92-7 on 2016-11-30 on CRAN
-Date: 2017-10-14
+Date: 2017-10-30
 Title: Basic Robust Statistics
 Authors@R: c(person("Martin","Maechler", role=c("aut","cre"), email="maechler@stat.math.ethz.ch")
          , person("Peter", "Rousseeuw", role="ctb", comment = "Qn and Sn")
@@ -20,7 +20,6 @@ Authors@R: c(person("Martin","Maechler", role=c("aut","cre"), email="maechler@st
                   comment = "MM-, tau-, CM-, and MTL- nlrob")
          , person("Maria", "Anna di Palma", role = "ctb", comment = "initial version of Comedian")
           )
-Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 URL: http://robustbase.r-forge.r-project.org/
 Description: "Essential" Robust Statistics.
  Tools allowing to analyze data with robust methods.  This includes

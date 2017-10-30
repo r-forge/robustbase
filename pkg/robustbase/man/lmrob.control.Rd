@@ -177,7 +177,11 @@ lmrob.control(setting, seed = NULL, nResample = 500,
   MM-estimate with breakdown point \eqn{0.5} and efficiency of 95\% at
   the normal.
 
-  To get these defaults, e.g., \code{.Mpsi.tuning.default(psi)} is
+  If numeric \code{tuning.chi} or \code{tuning.psi} are specified, say
+  \code{cc}, for \code{psi = "ggw"} or \code{"lqq"},
+  \code{\link{.psi.const}(cc, psi)} is used, see its help page.
+
+  To get the defaults, e.g., \code{.Mpsi.tuning.default(psi)} is
   equivalent to but more efficient than the formerly widely used
   \code{lmrob.control(psi = psi)$tuning.psi}.
 

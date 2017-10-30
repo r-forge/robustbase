@@ -975,7 +975,13 @@ hatvalues.lmrob <- function(model, ...)
 }
 
 ##' Given psi() fn (as string), possibly convert the tuning-constant vector cc
-##' such that it "fits" to psi()
+##' such that it "fits" to psi().
+##'
+##' @param psi a string such as \code{"lqq"}.
+##' @param cc numeric tuning-constant vector, for "ggw" and "lqq", ideally
+##'     with an \code{\link{attr}}ibute \code{"constants"} as from
+##'     \code{\link{lmrob.control}(.)$tuning.psi} or from
+##'     \code{\link{.psi.const}(psi, *)}.
 .psi.conv.cc <- function(psi, cc)
 {
     if (!is.character(psi) || length(psi) != 1)
@@ -1000,7 +1006,8 @@ hatvalues.lmrob <- function(model, ...)
                         (length(cc <- attr(cc, 'constants')) == 5 && cc[1] == 0))
                    return(cc)
                else stop('Coefficients for ',psi,' function incorrectly specified.\n',
-			 'Use c(minimal slope, b, efficiency, breakdown point) or c(0, a,b,c, max_rho).')
+	'Use c(minimal slope, b, efficiency, breakdown point) [6 hard-coded special cases]\n',
+	' or  c(0, a,b,c, max_rho)  as from .psi.const(',psi,', cc).')
            },
            'lqq' = {
                ## Input: 4 parameters, (minimal slope, b/c, efficiency, breakdown point) _or_ (b, c, s) [length 3]
@@ -1012,7 +1019,8 @@ hatvalues.lmrob <- function(model, ...)
                else if (length(cc) == 3 || length(cc <- attr(cc, 'constants')) == 3)
                    return(cc)
                else stop('Coefficients for ',psi,' function incorrectly specified.\n',
-                         'Use c(minimal slope, b, efficiency, breakdown point) [2 cases only] or  c(b, c, s)')
+	'Use c(minimal slope, b, efficiency, breakdown point) [2 special cases]\n',
+	' or  c(b, c, s)  as from .psi.const(',psi,', cc).')
            },
            'hampel' = {
                ## just check length of coefficients
@@ -1075,7 +1083,7 @@ hatvalues.lmrob <- function(model, ...)
     c. <- if (!is.na(eff)) {
         if (!is.na(bp))
             warning('tuning constants for ggw psi: both eff and bp specified, ignoring bp')
-        ## find c by eff
+        ## find c by matching eff
         tryCatch(uniroot(function(x) .psi.ggw.eff(.psi.ggw.finda(ms, b, x, ms.tol=ms.tol),
                                                   b, x) - eff,
                          c(0.15, if (b > 1.61) 1.4 else 1.9), tol=tol, maxiter=maxiter)$root,
@@ -1083,7 +1091,7 @@ hatvalues.lmrob <- function(model, ...)
     } else {
         if (is.na(bp))
 	    stop("neither breakdown point 'bp' nor efficiency 'eff' specified")
-        ## find c by bp
+        ## find c by matching  bp
         tryCatch(uniroot(function(x) .psi.ggw.bp(.psi.ggw.finda(ms, b, x, ms.tol=ms.tol),
                                                  b, x) - bp,
                 c(0.08, if (ms < -0.4) 0.6 else 0.4), tol=tol, maxiter=maxiter)$root,
@@ -1154,22 +1162,24 @@ lmrob.bp <- function(psi, cc, ...)
 {
     switch(psi,
            "ggw" = { ## only calculate for non-standard coefficients
-               if (!(isTRUE(all.equal(cc, c(-.5, 1,   0.95, NA))) ||
-                     isTRUE(all.equal(cc, c(-.5, 1,   0.85, NA))) ||
-                     isTRUE(all.equal(cc, c(-.5, 1,   NA,  0.5))) ||
-                     isTRUE(all.equal(cc, c(-.5, 1.5, 0.95, NA))) ||
-                     isTRUE(all.equal(cc, c(-.5, 1.5, 0.85, NA))) ||
-                     isTRUE(all.equal(cc, c(-.5, 1.5, NA, 0.5))))) {
+               if (isTRUE(all.equal(cc, c(-.5, 1,   0.95, NA))) ||
+                   isTRUE(all.equal(cc, c(-.5, 1,   0.85, NA))) ||
+                   isTRUE(all.equal(cc, c(-.5, 1,   NA,  0.5))) ||
+                   isTRUE(all.equal(cc, c(-.5, 1.5, 0.95, NA))) ||
+                   isTRUE(all.equal(cc, c(-.5, 1.5, 0.85, NA))) ||
+                   isTRUE(all.equal(cc, c(-.5, 1.5, NA, 0.5)))) {
+                   ## treated in .psi.conv.cc(), -> actually in C code
+               } else
 		   attr(cc, 'constants') <-
 			.psi.ggw.findc(ms=cc[[1]], b=cc[[2]], eff=cc[[3]], bp=cc[[4]])
-               }
            },
            "lqq" = { ## only calculate for non-standard coefficients
-               if (!(isTRUE(all.equal(cc, c(-.5, 1.5, 0.95, NA))) ||
-                     isTRUE(all.equal(cc, c(-.5, 1.5, NA, 0.5))))) {
+               if (isTRUE(all.equal(cc, c(-.5, 1.5, 0.95, NA))) ||
+                   isTRUE(all.equal(cc, c(-.5, 1.5, NA, 0.5)))) {
+                   ## will be treated in .psi.conv.cc()
+               } else
 		   attr(cc, 'constants') <-   ##  b.c :== b/c
 		       .psi.lqq.findc(ms=cc[[1]], b.c=cc[[2]], eff=cc[[3]], bp=cc[[4]])
-               }
            },
            stop("method for psi function ", psi, " not implemented"))
     cc

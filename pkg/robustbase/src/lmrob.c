@@ -1283,7 +1283,7 @@ double wgt_ggw(double x, const double k[])
 // k[0:2] == (b, c, s) :
 // k[0]= b = bend adjustment
 // k[1]= c = cutoff of central linear part
-// k[2]= s : "slope of descending": 1 - s = min_x psi'(x)
+// k[2]= s : "slope of descending": 1 - s = min_x psi'(x) =: ms
 
 // "lin psip" := piecewise linear psi'() :
 double psip_lqq (double x, const double k[])
@@ -1465,8 +1465,9 @@ static void sample_noreplace(int *x, int n, int k, int *ind_space)
 }
 
 /* RWLS iterations starting from i_estimate,
- * ---- the workhorse of the "lmrob_MM" algorithm;
- * in itself,  ``just'' an M-estimator :
+ * ---- the workhorse of the "lmrob_MM" algorithm, called only from R_lmrob_MM(),
+ * which itself is called only from R's  lmrob..M..fit().
+ * In itself,  ``just'' an M-estimator :
  */
 Rboolean rwls(const double X[], const double y[], int n, int p,
 	 double *estimate, double *i_estimate,
