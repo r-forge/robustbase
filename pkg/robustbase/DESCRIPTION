@@ -16,7 +16,7 @@ Authors@R: c(person("Martin","Maechler", role=c("aut","cre"), email="maechler@st
                   comment = "mc, adjbox")
          , person("Manuel", "Koller", role = "aut", email = "koller.manuel@gmail.com",
                   comment = "lmrob, psi-func.")
-         , person(c("Eduardo, "L. T."), "Conceicao", role = "aut", email = "mail@eduardoconceicao.org",
+         , person(c("Eduardo", "L. T."), "Conceicao", role = "aut", email = "mail@eduardoconceicao.org",
                   comment = "MM-, tau-, CM-, and MTL- nlrob")
          , person("Maria", "Anna di Palma", role = "ctb", comment = "initial version of Comedian")
           )

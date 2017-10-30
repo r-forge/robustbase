@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.92-8 (2017-10-30, svn r774)}{
+\section{CHANGES in robustbase VERSION 0.92-8 (2017-10-30, svn r778)}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item \code{fullRank()} utility for \code{adjOutlyingness}:
