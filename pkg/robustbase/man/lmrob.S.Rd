@@ -6,21 +6,28 @@
   using the \dQuote{fast S} algorithm.% of Matias Salibian & Victor Yohai ...
 }
 \usage{
-lmrob.S(x, y, control, trace.lev = control$trace.lev, mf = NULL)
+lmrob.S(x, y, control,
+        trace.lev = control$trace.lev,
+        only.scale = FALSE, mf = NULL)
 }
 \arguments{
-  \item{x}{ design matrix }
-  \item{y}{ response vector }
+  \item{x}{design matrix (\eqn{n \times p}{n * p})}
+  \item{y}{numeric vector of responses (or residuals for \code{only.scale=TRUE}).}
   \item{control}{ list as returned by \code{\link{lmrob.control}} }
   \item{trace.lev}{integer indicating if the progress of the algorithm
     should be traced (increasingly); default \code{trace.lev = 0} does
     no tracing.}
-  \item{mf}{(optional) a model frame as returned by \code{\link{model.frame}}, 
+  \item{only.scale}{\code{\link{logical}} indicating if only the scale
+    of \code{y} should be computed.  In this case, \coode{y} should
+    typically contain \emph{residuals}.}%% FIXME
+  %% fulfilling the \sum_i chi(i) = 1/2  equation.
+  %% FIXME what scale exactly?
+  \item{mf}{(optional) a model frame as returned by \code{\link{model.frame}},
     used only to compute outlier statistics, see \code{\link{outlierStats}}.}
 }
 \details{
-  This function is used by \code{\link{lmrob.fit}} and not
-  intended to be used on its own (because an S-estimator has too low
+  This function is used by \code{\link{lmrob.fit}} and typically not
+  to be used on its own (because an S-estimator has too low
   efficiency \sQuote{on its own}).
 
   By default, the subsampling algorithm uses a customized LU
@@ -48,8 +55,8 @@ lmrob.S(x, y, control, trace.lev = control$trace.lev, mf = NULL)
 }
 \seealso{\code{\link{lmrob}}, also for references.
 }
-\author{ Matias Salibian-Barrera and Manuel Koller (and Martin Maechler
-  for minor details)
+\author{ Matias Salibian-Barrera and Manuel Koller; Martin Maechler for
+  minor new options and more documentation.
 }
 \examples{
 set.seed(33)

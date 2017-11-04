@@ -125,7 +125,7 @@ lmrob.M.S <- function(x, y, control, mf, split) {
     storage.mode(y) <- "double"
     c.chi <- .psi.conv.cc(control$psi, control$tuning.chi)
     traceLev <- as.integer(control$trace.lev)
-    z <- .C(R_lmrob_M_S,
+    z <- .C(R_lmrob_M_S, ## NB: If you change this, adapt ../inst/xtraR/m-s_fns.R
 	    x1,
 	    x2,
 	    y,
@@ -133,7 +133,7 @@ lmrob.M.S <- function(x, y, control, mf, split) {
             n=length(y),
             p1=ncol(x1),
             p2=ncol(x2),
-            nResample=as.integer(control$nResample),
+            nResample = as.integer(control$nResample),
             max_it_scale=as.integer(control$maxit.scale),
             scale=double(1),
             b1=double(ncol(x1)),
@@ -145,6 +145,7 @@ lmrob.M.S <- function(x, y, control, mf, split) {
             max_k=as.integer(control$k.max),
             rel_tol=as.double(control$rel.tol),
 	    inv_tol=as.double(control$solve.tol),
+	    scale_tol=as.double(control$scale.tol),
             converged = logical(1),
             trace_lev = traceLev,
             orthogonalize=TRUE,
@@ -155,7 +156,8 @@ lmrob.M.S <- function(x, y, control, mf, split) {
             )[c("b1","b2", "res","scale", "converged")]
 
     conv <- z$converged
-    ## coefficients
+    ## FIXME? warning if 'conv' is not ok ??
+    ## coefficients :
     idx <- split$x1.idx
     cf <- numeric(length(idx))
     cf[ idx] <- z$b1

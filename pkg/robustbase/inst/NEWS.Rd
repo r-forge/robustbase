@@ -4,6 +4,33 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
+\section{CHANGES in robustbase VERSION 0.93-0 (2017-xx-yy, svn r...)}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item \code{.psi.const(*, "lqq")} now also gives a \code{"constants"} attribute.
+
+      \item more examples and help on Mpsi() etc functions and tuning constants.
+
+      \item The S estimator \code{lmrob.S()} and M-S estimator now both
+      make use of the new \code{lmrob.control()} argument
+      \code{scale.tol} which defaults to \code{1e-10}, its formerly
+      hardwired value.
+
+      \item \code{lmrob.S()} further gets a new option \code{only.scale = FALSE},
+      which when true allows to only compute the S scale estimate.
+
+      \item There's now a small C API to call our \code{Mpsi()} etc from
+      C code in other packages, as \code{C_psi()}, etc; using new
+      \file{../inst/include/robustbase.h}.
+    }
+  }
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item (place holder)
+    }
+  }
+}
+
 \section{CHANGES in robustbase VERSION 0.92-8 (2017-10-30, svn r778)}{
   \subsection{NEW FEATURES}{
     \itemize{
