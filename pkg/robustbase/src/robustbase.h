@@ -97,6 +97,14 @@ SEXP R_psifun(SEXP x_, SEXP c_, SEXP ipsi_, SEXP deriv_);
 SEXP R_chifun(SEXP x_, SEXP c_, SEXP ipsi_, SEXP deriv_);
 SEXP R_wgtfun(SEXP x_, SEXP c_, SEXP ipsi_);
 
+double rho(double x, const double c[], int ipsi);
+double psi(double x, const double c[], int ipsi);
+double psip(double x, const double c[], int ipsi);// psi'
+double psi2(double x, const double c[], int ipsi);// psi''
+double wgt(double x, const double c[], int ipsi);
+double rho_inf (const double c[], int ipsi); // == \rho(\infty)
+double normcnst(const double c[], int ipsi); // == 1 / \rho(\infty) ==  1 / rho_inf()
+
 
 void R_find_D_scale(double *rr, double *kkappa, double *ttau, int *llength,
 		    double *sscale, double *cc, int *iipsi, int *ttype, double *rel_tol,
