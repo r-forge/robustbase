@@ -18,7 +18,7 @@ lmrob.S(x, y, control,
     should be traced (increasingly); default \code{trace.lev = 0} does
     no tracing.}
   \item{only.scale}{\code{\link{logical}} indicating if only the scale
-    of \code{y} should be computed.  In this case, \coode{y} should
+    of \code{y} should be computed.  In this case, \code{y} will
     typically contain \emph{residuals}.}%% FIXME
   %% fulfilling the \sum_i chi(i) = 1/2  equation.
   %% FIXME what scale exactly?
