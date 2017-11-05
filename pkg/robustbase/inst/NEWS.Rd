@@ -22,6 +22,10 @@
       \item There's now a small C API to call our \code{Mpsi()} etc from
       C code in other packages, as \code{C_psi()}, etc; using new
       \file{../inst/include/robustbase.h}.
+
+      \item \code{nlrob()$call$algorithm} now always contains the
+      algorithm used as a \code{\link{character}} string, compatibly
+      with \code{\link{nls}()}.
     }
   }
   \subsection{BUG FIXES}{
