@@ -222,7 +222,6 @@ nlrob <-
 	tau <- mean(rw^2) / mean(psi(res.sc, d=TRUE))^2
 	AtWAinv * Scale^2 * tau
     }
-
     if(is.null(call$algorithm)) call$algorithm <- algorithm
     ## returned object:	 ==  out$m$fitted()  [FIXME?]
     fit <- setNames(eval(formula[[3]], c(data, start)), obsNames)

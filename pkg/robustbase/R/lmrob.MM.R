@@ -709,6 +709,7 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev,
 	cat(sprintf("lmrob.S(): scale = %g; coeff.=\n", scale)); print(b$coefficients) }
     b$residuals <- setNames(b$y, rownames(x))
     b$fitted.values <- y - b$y # y = fitted + res
+    b$y <- NULL # rm'it
     names(b$coefficients) <- colnames(x)
     ## robustness weights
     b$rweights <- lmrob.rweights(b$residuals, scale, control$tuning.chi, control$psi)
