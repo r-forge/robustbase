@@ -36,7 +36,7 @@ lmrob_simulation_gg2.Rnw: lmrob_simulation.Rnw
 purge:
 	$(RM) Rplots.pdf $(DRIVERS:=.out) *.aux *.log *.blg
 clean: purge
-	$(RM) $(DRIVERS:=.tex) $(DRIVERS:=.bbl) $(DRIVERS:=-*.pdf)
+	$(RM) psi-*.pdf $(DRIVERS:=.tex) $(DRIVERS:=.bbl) $(DRIVERS:=-*.pdf)
 
 realclean: clean
 	$(RM) $(DRIVERS:=.pdf)
