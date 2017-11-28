@@ -1,12 +1,13 @@
 \name{L1median}
-\title{Compute the Multivariate L1-Median}
+\title{Compute the Multivariate L1-Median aka 'Spatial Median'}
 \concept{Spatial Median}
 \concept{L1 Median}
 \alias{L1median}
 \alias{optimMethods}
 \alias{nlminbMethods}
 \description{
-  Compute the multivariate \eqn{L_1}{L1}-median \eqn{m}, i.e., the
+  Compute the multivariate \eqn{L_1}{L1}-median \eqn{m}, also called
+  \dQuote{Spatial Median}, i.e., the
   minimizer of
   \deqn{\sum_{i=1}^n \| x_i - m \|,}{sum(i = 1:n; || x[i] - m ||),}
   where \eqn{\|u\| = \sqrt{\sum_{j=1}^p u_j^2}}{%
@@ -72,6 +73,13 @@ L1median(X, m.init = colMedians(X), weights = NULL,
  Fritz, H. and Filzmoser, P. and Croux, C. (2012)
  A comparison of algorithms for the multivariate L1-median.
  \emph{Computational Statistics} \bold{27}, 393--410.
+
+ Kent, J. T., Er, F. and Constable, P. D. L. (2015)
+ Algorithms for the spatial median;, in K. Nordhausen and
+  S. Taskinen (eds), \emph{Modern Nonparametric, Robust and Multivariate
+    Methods: Festschrift in Honour of Hannu Oja},
+  Springer International Publishing, chapter 12, pp. 205--224.
+  \doi{10.1007/978-3-319-22404-6_12}% ~/save/papers/robust-diverse/Kent_etal_SpatialMedian_2015.pdf
 }
 \author{
   Martin Maechler.  Method \code{"HoCrJo"} is mostly based on Kristel
