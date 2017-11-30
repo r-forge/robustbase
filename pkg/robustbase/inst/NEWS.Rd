@@ -7,7 +7,8 @@
 \section{CHANGES in robustbase VERSION 0.93-0 (2017-xx-yy, svn r...)}{
   \subsection{NEW FEATURES}{
     \itemize{
-      \item \code{.psi.const(*, "lqq")} now also gives a \code{"constants"} attribute.
+      \item \code{.psi.const(*, "lqq")} now also gives a
+      \code{"constants"} attribute.
 
       \item more examples and help on Mpsi() etc functions and tuning constants.
 
@@ -17,11 +18,13 @@
       hardwired value.
 
       \item \code{lmrob.S()} further gets a new option \code{only.scale = FALSE},
-      which when true allows to only compute the S scale estimate.
+      which when true allows to only compute the S scale estimate.  In
+      that case, but also generally, \code{trace.lev = 3} or larger also
+      produces output showing the C level \code{find_scale()} iterations.
 
-      \item There's now a small C API to call our \code{Mpsi()} etc from
-      C code in other packages, as \code{C_psi()}, etc; using new
-      \file{../inst/include/robustbase.h}.
+      \item (By Manuel Koller) There's now a small C API to call our
+      \code{Mpsi()} etc from C code in other packages, as
+      \code{C_psi()}, etc; using new \file{../inst/include/robustbase.h}.
 
       \item \code{nlrob()$call$algorithm} now always contains the
       algorithm used as a \code{\link{character}} string, compatibly
@@ -30,7 +33,8 @@
   }
   \subsection{BUG FIXES}{
     \itemize{
-      \item (place holder)
+      \item \code{lmrob(..., method = "S")} no longer necessarily
+      produces a warning in \code{.vcov.w()}.
     }
   }
 }

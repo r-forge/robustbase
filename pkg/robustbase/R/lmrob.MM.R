@@ -305,9 +305,11 @@ globalVariables("r", add=TRUE) ## below and in other lmrob.E() expressions
         stop(":.vcov.w: cov.dfcorr must be one of ", pasteK(dQuote(valid.dfcorr)))
 
     valid.cov.resid <- c('final', 'initial', 'trick')
-    if (is.null(cov.resid)) cov.resid <- 'final'
-    else if (length(cov.resid) != 1 || is.na(match(cov.resid, valid.cov.resid)))
-	stop(":.vcov.w: cov.resid must be one of ", pasteK(dQuote(valid.cov.resid)))
+    if (is.null(cov.resid)) cov.resid <- 'final' ## do warn only for *specified* cov.resid:
+    else if (cov.resid == 'final' && (class(obj)[1] == 'lmrob.S'))
+        warning("ignoring cov.resid == 'final' since est != final")
+    else if (length(cov.resid) != 1L || is.na(match(cov.resid, valid.cov.resid)))
+	stop("cov.resid must be one of ", pasteK(dQuote(valid.cov.resid)))
     if (is.null(cov.xwx)) cov.xwx <- TRUE # == _THE_ typical case: not part of 'obj$control'
     else if (!is.logical(cov.xwx))
 	stop(':.vcov.w: cov.xwx must be logical (or NULL)')
@@ -321,8 +323,7 @@ globalVariables("r", add=TRUE) ## below and in other lmrob.E() expressions
                  ctrl$tuning.chi
              else ctrl$tuning.psi
     if (!is.numeric(c.psi)) stop("parameter 'tuning.psi' is not numeric")
-    if (cov.resid == 'final' && (class(obj)[1] == 'lmrob.S'))
-        warning(":.vcov.w: ignoring cov.resid == final since est != final")
+    ## MM: lmrob(..., method = "S")  triggers this wrongly
     if (is.null(scale)) {
         warning(":.vcov.w: scale missing, using D scale")
         scale <- lmrob..D..fit(obj)$scale
@@ -678,7 +679,8 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev,
             n = as.integer(n),
             p = as.integer(p),
             nResample = nResample,
-            scale = double(1),
+	    scale = if(only.scale) mad(y, center=0) # initial scale
+		    else double(1),
             coefficients = double(p),
             as.double(c.chi),
             .psi2ipsi(control$psi),
@@ -698,15 +700,21 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev,
             ss = .convSs(control$subsampling),
             fast.s.large.n = as.integer(if (large_n) control$fast.s.large.n else n+1L)
             ## avoids the use of NAOK = TRUE for control$fast.s.large.n == Inf
-            )[c(if(!only.scale) "y", # the residuals (on return aka "output")
+            )[if(only.scale) "scale" else c("y", # the residuals (on return)
                 "coefficients", "scale", "k.iter", "converged")]
     scale <- b$scale
     if (scale < 0)
 	stop("C function R_lmrob_S() exited prematurely")
     if (scale == 0)
 	warning("S-estimated scale == 0:  Probably exact fit; check your data")
-    if(trace.lev) {
-	cat(sprintf("lmrob.S(): scale = %g; coeff.=\n", scale)); print(b$coefficients) }
+    if(trace.lev)
+	if(only.scale)
+	    cat(sprintf("lmrob.S(): scale = %g\n", scale))
+	else {
+	    cat(sprintf("lmrob.S(): scale = %g; coeff.=\n", scale)); print(b$coefficients)
+	}
+    if(only.scale) return(scale)
+    ##    ---             -----
     b$residuals <- setNames(b$y, rownames(x))
     b$fitted.values <- y - b$y # y = fitted + res
     b$y <- NULL # rm'it

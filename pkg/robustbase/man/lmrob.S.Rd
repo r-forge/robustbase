@@ -4,6 +4,7 @@
 \description{
   Computes an S-estimator for linear regression,
   using the \dQuote{fast S} algorithm.% of Matias Salibian & Victor Yohai ...
+
 }
 \usage{
 lmrob.S(x, y, control,
@@ -19,9 +20,8 @@ lmrob.S(x, y, control,
     no tracing.}
   \item{only.scale}{\code{\link{logical}} indicating if only the scale
     of \code{y} should be computed.  In this case, \code{y} will
-    typically contain \emph{residuals}.}%% FIXME
-  %% fulfilling the \sum_i chi(i) = 1/2  equation.
-  %% FIXME what scale exactly?
+    typically contain \emph{residuals}.}%% FIXME: explain
+  %% namely, s, fulfilling the \sum_i chi(i) = 1/2  equation.
   \item{mf}{(optional) a model frame as returned by \code{\link{model.frame}},
     used only to compute outlier statistics, see \code{\link{outlierStats}}.}
 }
@@ -39,7 +39,7 @@ lmrob.S(x, y, control,
   \code{subsampling} in \code{control} to \code{"simple"}.
 }
 \value{
-  A list with components
+  By default (when \code{only.scale} is false), a list with components
   \item{coefficients}{numeric vector (length \eqn{p}) of S-regression coefficient estimates.}
   \item{scale}{the S-scale residual estimate}% 'residual estimate' ?? % resid. VAR !?
   % \item{cov}{covariance matrix (\eqn{p \times p}{p x p}) of the
@@ -52,6 +52,8 @@ lmrob.S(x, y, control,
   \item{converged}{logical indicating if \bold{all} refinement
     iterations had converged.}
   \item{control}{the same list as the \code{control} argument.}
+
+  If \code{only.scale} is true, the computed scale (a number) is returned.
 }
 \seealso{\code{\link{lmrob}}, also for references.
 }
@@ -75,6 +77,11 @@ m.lmS[c("coefficients","scale")]
 all.equal(unname(m.lmS$coef), 10 * (1:4), tolerance = 0.005)
 stopifnot(all.equal(unname(m.lmS$coef), 10 * (1:4), tolerance = 0.005),
           all.equal(m.lmS$scale, 1/10, tolerance = 0.09))
+
+## only.scale = TRUE:  Compute the S scale, given residuals;
+s.lmS <- lmrob.S(X1, y=residuals(m.lmS), only.scale = TRUE,
+                 control = lmrob.control(trace.lev = 3))
+all.equal(s.lmS, m.lmS$scale) # close: 1.89e-6 [64b Lnx]
 }
 \keyword{robust}
 \keyword{regression}
