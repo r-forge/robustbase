@@ -1,5 +1,5 @@
 
-R version 3.4.2 Patched (2017-11-09 r73697) -- "Short Summer"
+R version 3.4.3 RC (2017-11-23 r73789) -- "Kite-Eating Tree"
 Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -206,7 +206,7 @@ init converged (remaining method = "M") -> coef=
 (Intercept)      log.Te 
   -9.570840    3.290363 
 lmrob_MM(): rwls():
- rwls() used 15 it.; last ||b0 - b1||_1 = 6.47021e-07; convergence
+ rwls() used 15 it.; last ||b0 - b1||_1 = 6.47021e-07, L(b1) = 0.166430436662; convergence
 step "M" -> new coef=
 (Intercept)      log.Te 
   -4.969388    2.253161 
@@ -276,7 +276,7 @@ init converged (remaining method = "MDM") -> coef=
 (Intercept)      log.Te 
  -10.291890    3.453736 
 lmrob_MM(): rwls():
- rwls() used 30 it.; last ||b0 - b1||_1 = 7.23254e-07; convergence
+ rwls() used 30 it.; last ||b0 - b1||_1 = 7.23254e-07, L(b1) = 0.1282284566; convergence
 step "M" -> new coef=
 (Intercept)      log.Te 
    6.918146   -0.437092 
@@ -284,7 +284,7 @@ step "D" -> new coef=
 (Intercept)      log.Te 
    6.918146   -0.437092 
 lmrob_MM(): rwls():
- rwls() used 8 it.; last ||b0 - b1||_1 = 6.55954e-07; convergence
+ rwls() used  8 it.; last ||b0 - b1||_1 = 6.55954e-07, L(b1) = 0.0864138839064; convergence
 step "M" -> new coef=
 (Intercept)      log.Te 
   6.8435082  -0.4226776 
@@ -326,7 +326,7 @@ init converged (remaining method = "MDM") -> coef=
 (Intercept)      log.Te 
  -10.291884    3.453735 
 lmrob_MM(): rwls():
- rwls() used 30 it.; last ||b0 - b1||_1 = 7.23253e-07; convergence
+ rwls() used 30 it.; last ||b0 - b1||_1 = 7.23253e-07, L(b1) = 0.128228456601; convergence
 step "M" -> new coef=
 (Intercept)      log.Te 
    6.918146   -0.437092 
@@ -334,7 +334,7 @@ step "D" -> new coef=
 (Intercept)      log.Te 
    6.918146   -0.437092 
 lmrob_MM(): rwls():
- rwls() used 8 it.; last ||b0 - b1||_1 = 6.55954e-07; convergence
+ rwls() used  8 it.; last ||b0 - b1||_1 = 6.55954e-07, L(b1) = 0.0864138839064; convergence
 step "M" -> new coef=
 (Intercept)      log.Te 
   6.8435082  -0.4226776 
@@ -358,7 +358,7 @@ init converged (remaining method = "M") -> coef=
 (Intercept)      log.Te 
  -10.291884    3.453735 
 lmrob_MM(): rwls():
- rwls() used 30 it.; last ||b0 - b1||_1 = 7.23253e-07; convergence
+ rwls() used 30 it.; last ||b0 - b1||_1 = 7.23253e-07, L(b1) = 0.128228456599; convergence
 step "M" -> new coef=
 (Intercept)      log.Te 
    6.918146   -0.437092 
@@ -400,7 +400,7 @@ init converged (remaining method = "M") -> coef=
 (Intercept)      log.Te 
  -10.291884    3.453735 
 lmrob_MM(): rwls():
- rwls() used 30 it.; last ||b0 - b1||_1 = 7.23253e-07; convergence
+ rwls() used 30 it.; last ||b0 - b1||_1 = 7.23253e-07, L(b1) = 0.128228456601; convergence
 step "M" -> new coef=
 (Intercept)      log.Te 
    6.918146   -0.437092 
@@ -425,7 +425,7 @@ init converged (remaining method = "M") -> coef=
 (Intercept)      log.Te 
   -9.570830    3.290361 
 lmrob_MM(): rwls():
- rwls() used 15 it.; last ||b0 - b1||_1 = 6.47019e-07; convergence
+ rwls() used 15 it.; last ||b0 - b1||_1 = 6.47019e-07, L(b1) = 0.166430436662; convergence
 step "M" -> new coef=
 (Intercept)      log.Te 
   -4.969388    2.253161 
@@ -467,7 +467,7 @@ init converged (remaining method = "M") -> coef=
 (Intercept)      log.Te 
   -9.570839    3.290363 
 lmrob_MM(): rwls():
- rwls() used 15 it.; last ||b0 - b1||_1 = 6.47021e-07; convergence
+ rwls() used 15 it.; last ||b0 - b1||_1 = 6.47021e-07, L(b1) = 0.166430436662; convergence
 step "M" -> new coef=
 (Intercept)      log.Te 
   -4.969388    2.253161 
@@ -491,7 +491,7 @@ init converged (remaining method = "MDM") -> coef=
 (Intercept)      log.Te 
   -9.570830    3.290361 
 lmrob_MM(): rwls():
- rwls() used 15 it.; last ||b0 - b1||_1 = 6.47019e-07; convergence
+ rwls() used 15 it.; last ||b0 - b1||_1 = 6.47019e-07, L(b1) = 0.166430436662; convergence
 step "M" -> new coef=
 (Intercept)      log.Te 
   -4.969388    2.253161 
@@ -499,7 +499,7 @@ step "D" -> new coef=
 (Intercept)      log.Te 
   -4.969388    2.253161 
 lmrob_MM(): rwls():
- rwls() used 18 it.; last ||b0 - b1||_1 = 5.34262e-07; convergence
+ rwls() used 18 it.; last ||b0 - b1||_1 = 5.34262e-07, L(b1) = 0.19002394737; convergence
 step "M" -> new coef=
 (Intercept)      log.Te 
   -5.519602    2.377363 
@@ -541,7 +541,7 @@ init converged (remaining method = "MDM") -> coef=
 (Intercept)      log.Te 
   -9.570839    3.290363 
 lmrob_MM(): rwls():
- rwls() used 15 it.; last ||b0 - b1||_1 = 6.47021e-07; convergence
+ rwls() used 15 it.; last ||b0 - b1||_1 = 6.47021e-07, L(b1) = 0.166430436662; convergence
 step "M" -> new coef=
 (Intercept)      log.Te 
   -4.969388    2.253161 
@@ -549,7 +549,7 @@ step "D" -> new coef=
 (Intercept)      log.Te 
   -4.969388    2.253161 
 lmrob_MM(): rwls():
- rwls() used 18 it.; last ||b0 - b1||_1 = 5.34262e-07; convergence
+ rwls() used 18 it.; last ||b0 - b1||_1 = 5.34262e-07, L(b1) = 0.19002394737; convergence
 step "M" -> new coef=
 (Intercept)      log.Te 
   -5.519602    2.377363 
@@ -602,7 +602,7 @@ init converged (remaining method = "M") -> coef=
    -10.2919      3.4537 
 lmrob_MM(): rwls():
  Optimal block size for DGELS: 66
-  it    1: L(b1) = 0.14768161207 
+  it    1: L(b1) = 0.147681612070 
   b1 = (-6.6618819441, 2.6340639721); ||b0 - b1||_1 = 4.44967
   it    2: L(b1) = 0.146209615268 
   b1 = (-5.2419919965, 2.3137920346); ||b0 - b1||_1 = 1.74016
@@ -614,7 +614,7 @@ lmrob_MM(): rwls():
   b1 = (-2.7192461869, 1.7433707239); ||b0 - b1||_1 = 0.858057
   it    6: L(b1) = 0.143836413178 
   b1 = (-2.083891596, 1.5995645304); ||b0 - b1||_1 = 0.779161
-  it    7: L(b1) = 0.14342106514 
+  it    7: L(b1) = 0.143421065140 
   b1 = (-1.484116341, 1.4637740506); ||b0 - b1||_1 = 0.735566
   it    8: L(b1) = 0.142999928159 
   b1 = (-0.90016329109, 1.3315377372); ||b0 - b1||_1 = 0.716189
@@ -626,7 +626,7 @@ lmrob_MM(): rwls():
   b1 = (0.96971969106, 0.90801782273); ||b0 - b1||_1 = 0.822454
   it   12: L(b1) = 0.140223222362 
   b1 = (1.7294218328, 0.73597001412); ||b0 - b1||_1 = 0.93175
-  it   13: L(b1) = 0.13861856338 
+  it   13: L(b1) = 0.138618563380 
   b1 = (2.6105562366, 0.53646574797); ||b0 - b1||_1 = 1.08064
   it   14: L(b1) = 0.136078690971 
   b1 = (3.6365718171, 0.30421279471); ||b0 - b1||_1 = 1.25827
@@ -636,7 +636,7 @@ lmrob_MM(): rwls():
   b1 = (5.7817645731, -0.18101446876); ||b0 - b1||_1 = 1.2428
   it   17: L(b1) = 0.128528515295 
   b1 = (6.4416421441, -0.32998499917); ||b0 - b1||_1 = 0.808848
-  it   18: L(b1) = 0.12827038702 
+  it   18: L(b1) = 0.128270387020 
   b1 = (6.7460179801, -0.39851949385); ||b0 - b1||_1 = 0.37291
   it   19: L(b1) = 0.128233471976 
   b1 = (6.8598550009, -0.42406393099); ||b0 - b1||_1 = 0.139381
@@ -654,15 +654,15 @@ lmrob_MM(): rwls():
   b1 = (6.9180711702, -0.43707545063); ||b0 - b1||_1 = 0.000185669
   it   26: L(b1) = 0.128228456601 
   b1 = (6.9181212213, -0.43708658881); ||b0 - b1||_1 = 6.11893e-05
-  it   27: L(b1) = 0.1282284566 
+  it   27: L(b1) = 0.128228456600 
   b1 = (6.9181377216, -0.43709026051); ||b0 - b1||_1 = 2.0172e-05
-  it   28: L(b1) = 0.1282284566 
+  it   28: L(b1) = 0.128228456600 
   b1 = (6.9181431621, -0.43709147111); ||b0 - b1||_1 = 6.65115e-06
-  it   29: L(b1) = 0.1282284566 
+  it   29: L(b1) = 0.128228456600 
   b1 = (6.9181449562, -0.43709187031); ||b0 - b1||_1 = 2.19323e-06
-  it   30: L(b1) = 0.1282284566 
+  it   30: L(b1) = 0.128228456600 
   b1 = (6.9181455478, -0.43709200195); ||b0 - b1||_1 = 7.23253e-07
- rwls() used 30 it.; last ||b0 - b1||_1 = 7.23253e-07; convergence
+ rwls() used 30 it.; last ||b0 - b1||_1 = 7.23253e-07, L(b1) = 0.1282284566; convergence
 step "M" -> new coef=
 (Intercept)      log.Te 
     6.91815    -0.43709 
@@ -1013,8 +1013,8 @@ seed : int(0)
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # "stats"
-Time elapsed:  12.787 0.33 13.423 0.001 0.002 
+Time elapsed:  10.873 0.166 11.146 0.002 0.001 
 > 
 > proc.time()
    user  system elapsed 
- 12.788   0.332  13.423 
+ 10.875   0.167  11.146 

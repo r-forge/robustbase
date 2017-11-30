@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2017-05-19 r72698) -- "Unsuffered Consequences"
+R version 3.4.3 RC (2017-11-23 r73789) -- "Kite-Eating Tree"
 Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -89,7 +89,7 @@ Loading required package: tools
 +     res[[i]] <- unlist(within(tmp, b1 <- drop(t1 + b1 - T2 %*% b2)))
 + })
 > cat('Time elapsed in subsampling: ', time,'\n')
-Time elapsed in subsampling:  0.487 0.002 0.49 0 0 
+Time elapsed in subsampling:  0.394 0.001 0.395 0 0 
 > ## show a summary of the results  {"FIXME": output is platform dependent}
 > summary(res1 <- do.call(rbind, res))
       b11               b12              b13                b14       
@@ -199,7 +199,7 @@ lmrob_M_S(n = 50, nRes = 500, (p1,p2)=(4,3), (orth,subs,desc)=(1,1,1))
   Refinement step  19: no improvement, scale:     31.607
   Refinement step  20: no improvement, scale:     31.637
   Refinement step  21: no improvement, scale:     31.668
-  Refinement step  22: no improvement, scale:       31.7
+  Refinement step  22: no improvement, scale:     31.700
   Refinement step  23: no improvement, scale:     31.734
   Refinement step  24: no improvement, scale:     31.768
   Refinement step  25: no improvement, scale:     31.804
@@ -233,7 +233,7 @@ init converged (remaining method = "M") -> coef=
 [1] -236.33813174  -22.50174637   -7.69929975   25.25388208    0.05220654
 [6]    0.04769691    0.78984802
 lmrob_MM(): rwls():
- rwls() used 19 it.; last ||b0 - b1||_1 = 1.76872e-05; convergence
+ rwls() used 19 it.; last ||b0 - b1||_1 = 1.76872e-05, L(b1) = 0.146343135734; convergence
 step "M" -> new coef=
   (Intercept)       Region2       Region3       Region4            X1 
 -150.21716170  -12.68711627  -10.64944153   21.92534635    0.04153037 
@@ -315,7 +315,7 @@ lmrob_M_S(n = 30, nRes = 500, (p1,p2)=(3,2), (orth,subs,desc)=(1,1,1))
 init converged (remaining method = "M") -> coef=
 [1]  0.14412998 -0.16709564 -0.01045825 -0.18551426  0.25915102
 lmrob_MM(): rwls():
- rwls() used 12 it.; last ||b0 - b1||_1 = 4.61816e-08; convergence
+ rwls() used 12 it.; last ||b0 - b1||_1 = 4.61816e-08, L(b1) = 0.0907731911388; convergence
 step "M" -> new coef=
 (Intercept)      groupb      groupc          X1          X2 
  0.41147162 -0.74117537 -0.36321634  0.02379646  0.51727653 
@@ -397,7 +397,7 @@ init converged (remaining method = "M") -> coef=
  [1]   19    6   58 -161   91  -30 -121 -176    1   45  -75  113 -111  132  187
 [16]    0
 lmrob_MM(): rwls():
- rwls() used 30 it.; last ||b0 - b1||_1 = 5.76455e-05; convergence
+ rwls() used 30 it.; last ||b0 - b1||_1 = 5.76455e-05, L(b1) = 0.173788300102; convergence
 step "M" -> new coef=
 (Intercept)          A2          A3          A4          B2          C2 
   6.3072125 -12.1364596  69.2442724 -71.0775753  35.0078234  19.5279997 

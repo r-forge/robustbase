@@ -193,7 +193,8 @@ double kthplace(double *, int, int);
 int find_max(double *a, int n);
 
 double find_scale(const double r[], double b, const double rrhoc[], int ipsi,
-		  double initial_scale, int n, int p, int max_iter, double scale_tol);
+		  double initial_scale, int n, int p, int max_iter, double scale_tol,
+		  Rboolean trace);
 
 double median_abs(double *, int, double *);
 double MAD(double *a, int n, double center, double *tmp, double *tmp2);
@@ -355,9 +356,10 @@ void R_lmrob_S(double *X, double *y, int *n, int *P,
 	COPY(res, y, *n); // return the 'residuals' in 'y'
     } else { // nRes[] <= 0   <==>   'only.scale = TRUE'
 	if(*trace_lev > 0)
-	    Rprintf("lmrob_S(nRes = 0, n = %d): --> find_scale() only:\n", *n);
+	    Rprintf("lmrob_S(nRes = 0, n = %d): --> find_scale(*, scale=%g) only:\n",
+		    *n, *scale);
 	*scale = find_scale(y, *bb, rrhoc, *iipsi, *scale, *n, *P,
-			    *max_it_scale, *scale_tol);
+			    *max_it_scale, *scale_tol, *trace_lev >= 3);
     }
 }
 
@@ -1516,14 +1518,11 @@ Rboolean rwls(const double X[], const double y[], int n, int p,
 	/* calculate residuals */
 	COPY(y, resid, n);
 	F77_CALL(dgemv)("N", &n, &p, &dmone, X, &n, estimate, &one, &done, resid, &one);
-	if(trace_lev >= 3) {
-	    /* get the residuals and loss for the new estimate */
-	    *loss = sum_rho_sc(resid,scale,n,0,rho_c,ipsi);
-	    Rprintf("  it %4d: L(b1) = %.12g ", iterations, *loss);
-	}
-	/* check for convergence */
 	d_beta = norm1_diff(beta0,estimate, p);
 	if(trace_lev >= 3) {
+	    /* get the loss for the new estimate */
+	    *loss = sum_rho_sc(resid,scale,n,0,rho_c,ipsi);
+	    Rprintf("  it %4d: L(b1) = %#.12g ", iterations, *loss);
 	    if(trace_lev >= 4) {
 		Rprintf("\n  b1 = (");
 		for(j=0; j < p; j++)
@@ -1532,17 +1531,16 @@ Rboolean rwls(const double X[], const double y[], int n, int p,
 	    }
 	    Rprintf(" ||b0 - b1||_1 = %g\n", d_beta);
 	}
+	/* check for convergence */
 	converged = d_beta <= epsilon * fmax2(epsilon, norm1(estimate, p));
 	COPY(estimate, beta0, p);
     } /* end while(!converged & iter <=...) */
 
-    if (trace_lev < 3)
-	/* get the residuals and loss for the new estimate */
-	*loss = sum_rho_sc(resid,scale,n,0,rho_c,ipsi);
-
-    if(trace_lev)
-	Rprintf(" rwls() used %d it.; last ||b0 - b1||_1 = %g;%sconvergence\n",
-		iterations, d_beta, (converged ? " " : " NON-"));
+    if(0 < trace_lev) {
+	if(trace_lev < 3) *loss = sum_rho_sc(resid,scale,n,0,rho_c,ipsi);
+	Rprintf(" rwls() used %2d it.; last ||b0 - b1||_1 = %#g, L(b1) = %.12g; %sconvergence\n",
+		iterations, d_beta, *loss, (converged ? "" : "NON-"));
+    }
 
     *max_it = iterations;
 
@@ -1589,6 +1587,11 @@ void fast_s_large_n(double *X, double *y,
  * *nn =: n = the length of y
  * *pp =: p = the number of columns in X
  * *nRes  = number of re-sampling candidates to be used in each partition
+
+ * *ggroups = number of groups in which to split the
+ *	      random subsample
+ * *nn_group = size of each of the (*ggroups) groups
+ *	       to use in the random subsample
  * *K     = number of refining steps for each candidate (typically 1 or 2)
  * *max_k = number of refining steps for each candidate (typically 1 or 2)
              [used to be hard coded to MAX_ITER_REFINE_S = 50 ]
@@ -1596,10 +1599,6 @@ void fast_s_large_n(double *X, double *y,
              [used to be hard coded to EPS = 1e-7 ]
  * *converged: will become 0(FALSE)  iff at least one of the best_r iterations
  *             did not converge (in max_k steps to rel_tol precision)
- * *ggroups = number of groups in which to split the
- *	      random subsample
- * *nn_group = size of each of the (*ggroups) groups
- *	       to use in the random subsample
  * *best_r = no. of best candidates to be iterated further ("refined")
  * *bb	   = right-hand side of S-equation (typically 1/2)
  * *rrhoc  = tuning constant for loss function
@@ -1727,7 +1726,7 @@ void fast_s_large_n(double *X, double *y,
 	}
 	if ( sum_rho_sc(res, worst_sc, sg, p, rrhoc, ipsi) < b ) {
 	    /* scale will be better */
-	    sc = find_scale(res, b, rrhoc, ipsi, sc, sg, p, *max_it_scale, scale_tol);
+	    sc = find_scale(res, b, rrhoc, ipsi, sc, sg, p, *max_it_scale, scale_tol, trace_lev >= 3);
 	    k2 = pos_worst_scale;
 	    final_best_scales[ k2 ] = sc;
 	    COPY(beta_ref, final_best_betas[k2], p);
@@ -1871,7 +1870,8 @@ int fast_s_with_memory(double *X, double *y, double *res,
 
 	if ( sum_rho_sc(res, worst_sc, n, p, rrhoc, ipsi) < b )	{
 	    /* scale will be better */
-	    sc = find_scale(res, b, rrhoc, ipsi, sc, n, p, *max_it_scale, scale_tol);
+	    sc = find_scale(res, b, rrhoc, ipsi, sc, n, p,
+			    *max_it_scale, scale_tol, trace_lev >= 3);
 	    k = pos_worst_scale;
 	    best_scales[ k ] = sc;
 	    for(j=0; j < p; j++)
@@ -2002,7 +2002,8 @@ void fast_s(double *X, double *y,
 	}
 	if ( sum_rho_sc(res, worst_sc, n, p, rrhoc, ipsi) < b )	{
 	    /* scale will be better */
-	    sc = find_scale(res, b, rrhoc, ipsi, sc, n, p, *max_it_scale, scale_tol);
+	    sc = find_scale(res, b, rrhoc, ipsi, sc, n, p,
+			    *max_it_scale, scale_tol, trace_lev >= 3);
 	    k = pos_worst_scale;
 	    best_scales[ k ] = sc;
 	    COPY(beta_ref, best_betas[k], p);
@@ -2133,7 +2134,7 @@ int refine_fast_s(const double X[], double *wx, const double y[], double *wy,
 	    double del = norm_diff(beta_cand, beta_ref, p);
 	    double nrmB= norm(beta_cand, p);
 	    if(trace_lev >= 4)
-		Rprintf("   it %4d, ||b[i]||= %.12g, ||b[i] - b[i-1]|| = %.15g\n",
+		Rprintf("   it %4d, ||b[i]||= %#.12g, ||b[i] - b[i-1]|| = %#.15g\n",
 			i, nrmB, del);
 	    converged = (del <= rel_tol * fmax2(rel_tol, nrmB));
 	    if(converged)
@@ -2211,9 +2212,10 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 	if (sum_rho_sc(res, *sscale, n, p, rrhoc, ipsi) < b) {
 	    /* scale will be better */
 	    /* STEP 5: Solve for sc */
-	    sc = find_scale(res, b, rrhoc, ipsi, sc, n, p, max_it_scale, scale_tol);
+	    sc = find_scale(res, b, rrhoc, ipsi, sc, n, p, max_it_scale,
+			    scale_tol, trace_lev >= 4);
 	    if(trace_lev >= 2)
-		Rprintf("  Sample[%3d]: new candidate with sc = %10.5g\n",i,sc);
+		Rprintf("  Sample[%3d]: new candidate with sc = %#10.5g\n",i,sc);
 	    /* STEP 6: Update best fit */
 	    *sscale = sc;
 	    COPY(t1, b1, p1);
@@ -2308,7 +2310,8 @@ Rboolean m_s_descent(double *X1, double *X2, double *y,
 		  *KODE);
 	}
 	/* STEP 3: Compute the scale estimate */
-	sc = find_scale(res2, b, rrhoc, ipsi, sc, n, p, max_it_scale, scale_tol);
+	sc = find_scale(res2, b, rrhoc, ipsi, sc, n, p, max_it_scale, scale_tol,
+			trace_lev >= 4); // <- here only if higher trace_lev
 	/* STEP 4: Check for convergence */
 	/* FIXME: check convergence using scale ? */
 	double del = sqrt(norm_diff2(b1, t1, p1) + norm_diff2(b2, t2, p2));
@@ -2334,12 +2337,12 @@ Rboolean m_s_descent(double *X1, double *X2, double *y,
 	    COPY(res2, res, n);
 	    *sscale = sc;
 	    if (trace_lev >= 2)
-		Rprintf("  Refinement step %3d: better fit, scale: %10.5g\n",
+		Rprintf("  Refinement step %3d: better fit, scale: %#10.5g\n",
 			nref, sc);
 	    nnoimpr = 0;
 	} else {
 	    if (trace_lev >= 3)
-		Rprintf("  Refinement step %3d: no improvement, scale: %10.5g\n",
+		Rprintf("  Refinement step %3d: no improvement, scale: %#10.5g\n",
 			nref, sc);
 	    nnoimpr++;
 	}
@@ -2537,12 +2540,20 @@ void get_weights_rhop(const double r[], double s, int n, const double rrhoc[], i
 }
 
 double find_scale(const double r[], double b, const double rrhoc[], int ipsi,
-		  double initial_scale, int n, int p, int max_iter, double scale_tol)
+		  double initial_scale, int n, int p, int max_iter, double scale_tol,
+		  Rboolean trace)
 {
+    if(initial_scale <= 0.) {
+	warning("find_scale(*, initial_scale = %g)  -> final scale = 0", initial_scale);
+	return 0.;
+    }
+    // else
     double scale = initial_scale;
+    if(trace) Rprintf("find_scale(*, ini.scale =%#15.11g):\nit | new scale\n", scale);
     for(int it = 0; it < max_iter; it++) {
 	scale = initial_scale *
 	    sqrt( sum_rho_sc(r, initial_scale, n, p, rrhoc, ipsi) / b ) ;
+	if(trace) Rprintf("%2d | %#12.9g\n", it, scale);
 	if(fabs(scale - initial_scale) <= scale_tol*initial_scale) // converged:
 	    return(scale);
 	initial_scale = scale;
@@ -2646,8 +2657,7 @@ double MAD(double *a, int n, double center, double *b,
 double median(double *x, int n, double *aux)
 {
     double t;
-    int i;
-    for(i=0; i < n; i++) aux[i]=x[i];
+    for(int i=0; i < n; i++) aux[i]=x[i];
     if ( (n/2) == (double) n / 2 )
 	t = ( kthplace(aux,n,n/2) + kthplace(aux,n,n/2+1) ) / 2.0 ;
     else t = kthplace(aux,n, n/2+1 ) ;
@@ -2657,8 +2667,7 @@ double median(double *x, int n, double *aux)
 double median_abs(double *x, int n, double *aux)
 {
     double t;
-    int i;
-    for(i=0; i < n; i++) aux[i]=fabs(x[i]);
+    for(int i=0; i < n; i++) aux[i]=fabs(x[i]);
     if ( (n/2) == (double) n / 2 )
 	t = ( kthplace(aux,n,n/2) + kthplace(aux,n,n/2+1) ) / 2.0 ;
     else	t = kthplace(aux,n, n/2+1 ) ;
@@ -2667,24 +2676,21 @@ double median_abs(double *x, int n, double *aux)
 
 void disp_vec(double *a, int n)
 {
-    int i;
-    for(i=0; i < n; i++) Rprintf("%lf ",a[i]);
+    for(int i=0; i < n; i++) Rprintf("%lf ",a[i]);
     Rprintf("\n");
 }
 
 void disp_veci(int *a, int n)
 {
-    int i;
-    for(i=0; i < n; i++) Rprintf("%d ",a[i]);
+    for(int i=0; i < n; i++) Rprintf("%d ",a[i]);
     Rprintf("\n");
 }
 
 void disp_mat(double **a, int n, int m)
 {
-    int i,j;
-    for(i=0; i < n; i++) {
+    for(int i=0; i < n; i++) {
 	Rprintf("\n");
-	for(j=0; j < m; j++) Rprintf("%10.8f ",a[i][j]);
+	for(int j=0; j < m; j++) Rprintf("%10.8f ",a[i][j]);
     }
     Rprintf("\n");
 }

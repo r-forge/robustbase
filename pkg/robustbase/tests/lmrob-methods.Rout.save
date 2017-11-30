@@ -67,9 +67,6 @@ Algorithmic parameters:
 compute.outlier.stats 
                   "S" 
 seed : int(0) 
-Warning message:
-In lf.cov(init, x = x) :
-  :.vcov.w: ignoring cov.resid == final since est != final
 > set.seed(0)
 > m0a <- lmrob.S(m0$x, stack.loss, lmrob.control())
 > 
