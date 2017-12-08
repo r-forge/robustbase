@@ -29,6 +29,9 @@
       \item \code{nlrob()$call$algorithm} now always contains the
       algorithm used as a \code{\link{character}} string, compatibly
       with \code{\link{nls}()}.
+
+      \item new data set \code{steamUse}.
+      %% which also depicts the \dQuote{non-robust} behavior of \code{lmrob(setting="KS2014")}
     }
   }
   \subsection{BUG FIXES}{
