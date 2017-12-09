@@ -124,8 +124,8 @@ lmrob <-
 	    if (!is.null(ini <- init)) {
 		if (is.character(init)) {
 		    init <- switch(init,
-				   "M-S" = lmrob.M.S(x, y, control, mf),
-				   "S"   = lmrob.S  (x, y, control, mf=mf),
+				   "M-S" = lmrob.M.S(x, y, control, mf=mf),
+				   "S"   = lmrob.S  (x, y, control),
 				   stop('init must be "S", "M-S", function or list'))
 		    if(ini == "M-S") { ## "M-S" sometimes reverts to "S":
 			ini <- init$control$method
@@ -155,7 +155,7 @@ lmrob <-
 		if (class(init)[1] != "lmrob.S" && control$cov == '.vcov.avar1')
 		    control$cov <- ".vcov.w"
 	    }
-	    z <- lmrob.fit(x, y, control, init=init, mf = mf) #-> ./lmrob.MM.R
+	    z <- lmrob.fit(x, y, control, init=init) #-> ./lmrob.MM.R
 	    ##   ---------
             if(is.character(ini) && !grepl(paste0("^", ini), control$method))
                 control$method <- paste0(ini, control$method)

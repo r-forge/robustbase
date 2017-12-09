@@ -1,5 +1,5 @@
 
-R version 3.4.2 Patched (2017-11-09 r73697) -- "Short Summer"
+R Under development (unstable) (2017-12-08 r73869) -- "Unsuffered Consequences"
 Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -362,7 +362,7 @@ Coefficients:
     -0.2185           NA      -1.8957           NA      -0.8698           NA  
 
 Warning message:
-In lmrob.M.S(x, y, control, mf) :
+In lmrob.M.S(x, y, control, mf = mf) :
    Skipping design matrix equilibration (DGEEQU): row 12 is exactly zero.
 > lmrob(y ~ x1*x2 + x3 + x4 + x5, data, init=lmrob.lar)
 
@@ -479,4 +479,4 @@ seed : int(0)
 > 
 > proc.time()
    user  system elapsed 
-  0.673   0.081   0.752 
+  0.631   0.094   0.721 

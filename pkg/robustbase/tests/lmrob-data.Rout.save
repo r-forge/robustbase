@@ -1,5 +1,5 @@
 
-R version 3.4.3 RC (2017-11-23 r73789) -- "Kite-Eating Tree"
+R version 3.4.3 Patched (2017-12-07 r73868) -- "Kite-Eating Tree"
 Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -797,16 +797,16 @@ Coefficients:
  22:     4.22222 -- 1234567
  23:     4.33333 -- 1234567
  24:     4.44444 -- 1234567
- 25:     4.55556 -- Warning in lmrob.fit(x, y, control, init = init, mf = mf) :
+ 25:     4.55556 -- Warning in lmrob.fit(x, y, control, init = init) :
   M-step did NOT converge. Returning unconverged SM-estimate
 1234567
- 26:     4.66667 -- Warning in lmrob.fit(x, y, control, init = init, mf = mf) :
+ 26:     4.66667 -- Warning in lmrob.fit(x, y, control, init = init) :
   M-step did NOT converge. Returning unconverged SM-estimate
 1234567
- 27:     4.77778 -- Warning in lmrob.fit(x, y, control, init = init, mf = mf) :
+ 27:     4.77778 -- Warning in lmrob.fit(x, y, control, init = init) :
   M-step did NOT converge. Returning unconverged SM-estimate
 1234567
- 28:     4.88889 -- Warning in lmrob.fit(x, y, control, init = init, mf = mf) :
+ 28:     4.88889 -- Warning in lmrob.fit(x, y, control, init = init) :
   M-step did NOT converge. Returning unconverged SM-estimate
 1234567
  29:           5 -- 1234567
@@ -959,7 +959,7 @@ compute.outlier.stats
                  "SM" 
 seed : int(0) 
 Warning message:
-In lmrob.S(x, y, control = control, mf = mf) :
+In lmrob.S(x, y, control = control) :
   find_scale() did not converge in 'maxit.scale' (= 200) iterations with tol=1e-10, last rel.diff=0
 > stopifnot(8  == which(mhrt$w < 0.15),
 +           11 == which(0.61 < mhrt$w & mhrt$w < 0.62),
@@ -1013,8 +1013,8 @@ seed : int(0)
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # "stats"
-Time elapsed:  10.873 0.166 11.146 0.002 0.001 
+Time elapsed:  9.254 0.203 9.478 0.002 0.001 
 > 
 > proc.time()
    user  system elapsed 
- 10.875   0.167  11.146 
+  9.256   0.204   9.478 

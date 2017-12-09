@@ -1,7 +1,7 @@
 
-R version 3.1.2 Patched (2014-11-16 r66993) -- "Pumpkin Helmet"
-Copyright (C) 2014 The R Foundation for Statistical Computing
-Platform: x86_64-unknown-linux-gnu (64-bit)
+R Under development (unstable) (2017-11-29 r73795) -- "Unsuffered Consequences"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -1156,7 +1156,6 @@ DEP        -0.103     0.1142    -0.200
 SCHOOL     -0.600    -0.1996     1.509
 --------------------------------------------------------
 ========================================================
-NULL
 > ##                        vvvv no timing for 'R CMD Rdiff' outputs
 > doMCDdata(nrep = 12, time=FALSE)
 
@@ -2285,7 +2284,6 @@ DEP        -0.103     0.1142    -0.200
 SCHOOL     -0.600    -0.1996     1.509
 --------------------------------------------------------
 ========================================================
-NULL
 > doMCDdata(nrep = 12, time=FALSE, method = "MASS")
 
 Call:  doMCDdata(nrep = 12, time = FALSE, method = "MASS") 

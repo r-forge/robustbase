@@ -1,5 +1,5 @@
 
-R version 3.4.2 Patched (2017-11-09 r73697) -- "Short Summer"
+R version 3.4.3 Patched (2017-12-07 r73868) -- "Kite-Eating Tree"
 Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -61,7 +61,7 @@ Loading required package: tools
 +                   lmrob.control(psi = "ggw", tuning.psi = cc)$tuning.psi)
 + )
 > cat('Time for constants computation of tuning.psi: ', st,'\n')
-Time for constants computation of tuning.psi:  0.274 0 0.275 0 0 
+Time for constants computation of tuning.psi:  0.16 0.001 0.161 0 0 
 > cGct <- t(sapply(cG.cnst, attr, "constants"))[,-1]
 > colnames(cGct) <- c("a","b","c", "rhoInf")
 > signif(cGct, 4)
@@ -618,7 +618,7 @@ compute.outlier.stats
                  "SM" 
 seed : int(0) 
 Warning message:
-In lmrob.S(x, y, control = control, mf = mf) :
+In lmrob.S(x, y, control = control) :
   S refinements did not converge (to refine.tol=1e-07) in 200 (= k.max) steps
 > 
 > set.seed(9)
@@ -753,8 +753,8 @@ seed : int(0)
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # for ``statistical reasons''
-Time elapsed:  2.328 0.137 2.47 0.002 0.001 
+Time elapsed:  1.616 0.136 1.756 0.001 0.001 
 > 
 > proc.time()
    user  system elapsed 
-  2.330   0.138   2.470 
+  1.617   0.137   1.756 

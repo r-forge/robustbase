@@ -191,6 +191,7 @@ lmrob.fit.MM <- function(x, y, control) ## defunct
 
 lmrob.fit <- function(x, y, control, init=NULL, mf=NULL) {
     if(!is.matrix(x)) x <- as.matrix(x)
+    if(!missing(mf)) warning("'mf' is unused and deprecated")
     ## old notation: MM -> SM
     if (control$method == "MM") control$method <- "SM"
     ## Assumption:  if(is.null(init))  method = "S..."   else  method = "..."
@@ -202,7 +203,7 @@ lmrob.fit <- function(x, y, control, init=NULL, mf=NULL) {
 			     M1), domain = NA)
             substr(control$method,1,1) <- 'S'
         }
-        init <- lmrob.S(x, y, control = control, mf = mf)
+        init <- lmrob.S(x, y, control = control)
         'S'
     } else {
 	stopifnot(is.list(init))
@@ -233,10 +234,10 @@ lmrob.fit <- function(x, y, control, init=NULL, mf=NULL) {
             est <- paste0(est, step)
             init <- switch(step, ## 'control' may differ from 'init$control' when both (init, control) are spec.
                            ## D(AS)-Step
-			   D = lmrob..D..fit(init, x, mf = mf,
+			   D = lmrob..D..fit(init, x,
 					     control=control, method = init$control$method),
 			   ## M-Step
-			   M = lmrob..M..fit(x = x, y = y, obj = init, mf = mf,
+			   M = lmrob..M..fit(x = x, y = y, obj = init,
 					     control=control, method = init$control$method),
                            stop('only M and D are steps supported after "init" computation'))
 	    if(trace.lev) { cat(sprintf("step \"%s\" -> new coef=\n", step)); print(init$coef) }
@@ -555,12 +556,12 @@ lmrob..M..fit <- function (x = obj$x, y = obj$y, beta.initial = obj$coef,
                            scale = obj$scale, control = obj$control,
                            obj,
                            mf = obj$model,
-                           ##   ^^^^^^^^^ not model.frame(obj) to avoid errors.
 			   method = obj$control$method) #<- also when 'control' is not obj$control
 {
     c.psi <- .psi.conv.cc(control$psi, control$tuning.psi)
     ipsi <- .psi2ipsi(control$psi)
     stopifnot(is.matrix(x))
+    if(!missing(mf)) warning("'mf' is unused and deprecated")
     n <- nrow(x)
     p <- ncol(x)
     if (is.null(y) && !is.null(obj$model))
@@ -646,6 +647,7 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev,
     if (!is.matrix(x)) x <- as.matrix(x)
     n <- nrow(x)
     p <- ncol(x)
+    if(!missing(mf)) warning("'mf' is unused and deprecated")
     nResample <- if(only.scale) 0L else as.integer(control$nResample)
     groups <- as.integer(control$groups)
     nGr <- as.integer(control$n.group)
@@ -739,6 +741,7 @@ lmrob..D..fit <- function(obj, x=obj$x, control = obj$control, mf = obj$model,
     if (is.null(control)) stop('lmrob..D..fit: control is missing')
     if (!obj$converged)
         stop('lmrob..D..fit: prior estimator did not converge, stopping')
+    if(!missing(mf)) warning("'mf' is unused and deprecated")
     if (is.null(x)) x <- model.matrix(obj)
     w <- obj$rweights
     if (is.null(w)) stop('lmrob..D..fit: robustness weights undefined')

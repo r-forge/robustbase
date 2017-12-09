@@ -6,7 +6,8 @@
   \dQuote{M-S} algorithm.
 }
 \usage{
-lmrob.M.S(x, y, control, mf, split)
+lmrob.M.S(x, y, control, mf,
+          split = splitFrame(mf, x, control$split.type))
 }
 \arguments{
   \item{x}{numeric matrix (a \code{\link{model.matrix}}) of the

@@ -1,15 +1,16 @@
-lmrob.lar <- function(x, y, control = lmrob.control(), mf = NULL)
+lmrob.lar <- function(x, y, control = lmrob.control(), ...)
 {
   ## LAR : Least Absolute Residuals -- i.e. L_1  M-estimate
   ## this function is identical to lmRob.lar of the robust package
 
+  ## '...': to be called as  'init(**, mf)' from lmrob()
   x <- as.matrix(x)
   p <- ncol(x)
   n <- nrow(x)
   stopifnot(p > 0, n >= p, length(y) == n, is.numeric(control$rel.tol))
   storage.mode(x) <- "double"
   storage.mode(y) <- "double"
-  bet0 <- 0.773372647623  ## bet0 = pnorm(0.75)
+  bet0 <- 0.773372647623  ## bet0 = pnorm(0.75); only for normalizing scale=SIGMA
   tmpn <- double(n)
   tmpp <- double(p)
 
@@ -31,8 +32,7 @@ lmrob.lar <- function(x, y, control = lmrob.control(), mf = NULL)
                  SC2=tmpp,
                  SC3=tmpp,
                  SC4=tmpp,
-                 BET0=as.double(bet0),
-                 PACKAGE = "robustbase")[c("THETA","SIGMA","RS","NIT","KODE")]
+                 BET0=as.double(bet0))[c("THETA","SIGMA","RS","NIT","KODE")]
   if (z1[5] > 1)
       stop("calculations stopped prematurely in rllarsbi\n",
            "(probably because of rounding errors).")
@@ -98,12 +98,10 @@ splitFrame <- function(mf, x = model.matrix(mt, mf),
 }
 
 ##' Compute M-S-estimator for linear regression ---> ../man/lmrob.M.S.Rd
-lmrob.M.S <- function(x, y, control, mf, split) {
-    if (missing(split))
-        split <- splitFrame(mf, x, control$split.type)
+lmrob.M.S <- function(x, y, control, mf, split = splitFrame(mf, x, control$split.type)) {
     if (ncol(split$x1) == 0) {
       warning("No categorical variables found in model. Reverting to S-estimator.")
-      return(lmrob.S(x, y, control, mf=mf))
+      return(lmrob.S(x, y, control))
     }
     if (ncol(split$x2) == 0) {
         warning("No continuous variables found in model. Reverting to L1-estimator.")

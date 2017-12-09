@@ -22,8 +22,7 @@ lmrob.S(x, y, control,
     of \code{y} should be computed.  In this case, \code{y} will
     typically contain \emph{residuals}.}%% FIXME: explain
   %% namely, s, fulfilling the \sum_i chi(i) = 1/2  equation.
-  \item{mf}{(optional) a model frame as returned by \code{\link{model.frame}},
-    used only to compute outlier statistics, see \code{\link{outlierStats}}.}
+  \item{mf}{unused and deprecated.}
 }
 \details{
   This function is used by \code{\link{lmrob.fit}} and typically not
