@@ -269,7 +269,7 @@ set.seed(0)
 m3 <- lmrob(Y ~ ., data=coleman, init = "S")
 stopifnot(all.equal(m1[-18], m3[-18]))
 ## 2) function
-initFun <- function(x, y, control, mf) {
+initFun <- function(x, y, control, ...) { # no 'mf' needed
     init.S <- lmrob.S(x, y, control)
     list(coefficients=init.S$coef, scale = init.S$scale)
 }

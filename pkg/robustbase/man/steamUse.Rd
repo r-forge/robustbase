@@ -1,7 +1,8 @@
 \name{steamUse}
+\title{Steam Usage Data (Excerpt)}
 \alias{steamUse}
 \docType{data}
-\title{Steam Usage Data (Excerpt)}
+\encoding{utf8}
 \description{
   The monthly use of steam (\code{Steam}) in a factory may be
   modeled and described as function of the
@@ -12,24 +13,27 @@
 \format{
   A data frame with 25 observations on the following 9 variables.
   \describe{
-    \item{\code{Steam}}{regression response \eqn{Y}, the poinds of
+    \item{\code{Steam}:}{regression response \eqn{Y}, the poinds of
       steam used monthly.}
-    \item{\code{fattyAcid}}{pounds of Real Fatty Acid in storage per month.}
-    \item{\code{glycerine}}{pounds of crude glycerine made.}
-    \item{\code{wind}}{average wind velocity in miles per hour (a numeric vector).}
-    \item{\code{days}}{an integer vector with number of days of that
+    \item{\code{fattyAcid}:}{pounds of Real Fatty Acid in storage per month.}
+    \item{\code{glycerine}:}{pounds of crude glycerine made.}
+    \item{\code{wind}:}{average wind velocity in miles per hour (a numeric vector).}
+    \item{\code{days}:}{an integer vector with number of days of that
       month, i.e., in \eqn{28..31}.}
-    \item{\code{op.days}}{the number of operating days for the given
+    \item{\code{op.days}:}{the number of operating days for the given
       month (integer).}
-    \item{\code{freeze.d}}{the number of days below \eqn{32^{o}F} (integer).}
-    \item{\code{temperature}}{a numeric vector of average outside temperature in
+    \item{\code{freeze.d}:}{the number of days below
+      32 degrees Fahrenheit (\eqn{= 0}\enc{°C}{'C} (C=Celsius) \eqn{=}
+      freezing temperature of water).}
+    \item{\code{temperature}:}{a numeric vector of average outside temperature in
       Fahrenheit (F).}
-    \item{\code{startups}}{the number of startups (of production in that
-      month).}
+    \item{\code{startups}:}{the number of startups (of production in that month).}
   }
 }
 \details{
- ...
+  Nor further information is given in Draper and Smith, about the place
+  and exacts years of the measurements, though some educated guesses
+  should be possible, see the examples.
 }
 \source{
   Data from Draper and Smith, 1st ed, 1966; appendix A.
@@ -66,5 +70,13 @@ cbind(M=rep_len(month.abb, 25), steamUse[,5:8, drop=FALSE])
 ## starting in a leap year (perhaps 1960 ?).
 
 plot(steamUse)
+
+summary(fm1 <- lmrob(Steam ~ temperature + op.days, data=steamUse))
+## diagnoses 2 outliers: month of July, maybe company-wide summer vacations
+%% no longer visible: summary(fmF <- lmrob(Steam ~ ., data=steamUse))
+## KS2014 alone seems not robust enough:
+summary(fm.14 <- lmrob(Steam ~ temperature + op.days, data=steamUse,
+         setting="KS2014"))
+pairs(Steam ~ temperature+op.days, steamUse)
 }
 \keyword{datasets}
