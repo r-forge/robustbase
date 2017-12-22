@@ -32,6 +32,10 @@
 
       \item new data set \code{steamUse}.
       %% which also depicts the \dQuote{non-robust} behavior of \code{lmrob(setting="KS2014")}
+
+      \item Vignette \file{lmrob_simulation.Rnw}: fixed the wrong
+      \dQuote{emprical power} plots; with faster \pkg{ggplot2}, remove
+      all \code{eval=FALSE} for plots and longer store the \file{*.pdf}s.
     }
   }
   \subsection{BUG FIXES}{
