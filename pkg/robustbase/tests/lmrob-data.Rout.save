@@ -1,5 +1,5 @@
 
-R version 3.4.3 Patched (2017-12-07 r73868) -- "Kite-Eating Tree"
+R version 3.4.3 Patched (2017-12-19 r73933) -- "Kite-Eating Tree"
 Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -207,6 +207,7 @@ init converged (remaining method = "M") -> coef=
   -9.570840    3.290363 
 lmrob_MM(): rwls():
  rwls() used 15 it.; last ||b0 - b1||_1 = 6.47021e-07, L(b1) = 0.166430436662; convergence
+lmrob..MM..fit(*, obj) --> updating ..  qr(x * rweights) -> rank= 2, outlierStats() 
 step "M" -> new coef=
 (Intercept)      log.Te 
   -4.969388    2.253161 
@@ -277,6 +278,7 @@ init converged (remaining method = "MDM") -> coef=
  -10.291890    3.453736 
 lmrob_MM(): rwls():
  rwls() used 30 it.; last ||b0 - b1||_1 = 7.23254e-07, L(b1) = 0.1282284566; convergence
+lmrob..MM..fit(*, obj) --> updating ..  qr(x * rweights) -> rank= 2
 step "M" -> new coef=
 (Intercept)      log.Te 
    6.918146   -0.437092 
@@ -285,6 +287,7 @@ step "D" -> new coef=
    6.918146   -0.437092 
 lmrob_MM(): rwls():
  rwls() used  8 it.; last ||b0 - b1||_1 = 6.55954e-07, L(b1) = 0.0864138839064; convergence
+lmrob..MM..fit(*, obj) --> updating ..  qr(x * rweights) -> rank= 2, outlierStats() 
 step "M" -> new coef=
 (Intercept)      log.Te 
   6.8435082  -0.4226776 
@@ -327,6 +330,7 @@ init converged (remaining method = "MDM") -> coef=
  -10.291884    3.453735 
 lmrob_MM(): rwls():
  rwls() used 30 it.; last ||b0 - b1||_1 = 7.23253e-07, L(b1) = 0.128228456601; convergence
+lmrob..MM..fit(*, obj) --> updating ..  qr(x * rweights) -> rank= 2
 step "M" -> new coef=
 (Intercept)      log.Te 
    6.918146   -0.437092 
@@ -335,6 +339,7 @@ step "D" -> new coef=
    6.918146   -0.437092 
 lmrob_MM(): rwls():
  rwls() used  8 it.; last ||b0 - b1||_1 = 6.55954e-07, L(b1) = 0.0864138839064; convergence
+lmrob..MM..fit(*, obj) --> updating ..  qr(x * rweights) -> rank= 2, outlierStats() 
 step "M" -> new coef=
 (Intercept)      log.Te 
   6.8435082  -0.4226776 
@@ -359,6 +364,7 @@ init converged (remaining method = "M") -> coef=
  -10.291884    3.453735 
 lmrob_MM(): rwls():
  rwls() used 30 it.; last ||b0 - b1||_1 = 7.23253e-07, L(b1) = 0.128228456599; convergence
+lmrob..MM..fit(*, obj) --> updating ..  qr(x * rweights) -> rank= 2, outlierStats() 
 step "M" -> new coef=
 (Intercept)      log.Te 
    6.918146   -0.437092 
@@ -401,6 +407,7 @@ init converged (remaining method = "M") -> coef=
  -10.291884    3.453735 
 lmrob_MM(): rwls():
  rwls() used 30 it.; last ||b0 - b1||_1 = 7.23253e-07, L(b1) = 0.128228456601; convergence
+lmrob..MM..fit(*, obj) --> updating ..  qr(x * rweights) -> rank= 2, outlierStats() 
 step "M" -> new coef=
 (Intercept)      log.Te 
    6.918146   -0.437092 
@@ -426,6 +433,7 @@ init converged (remaining method = "M") -> coef=
   -9.570830    3.290361 
 lmrob_MM(): rwls():
  rwls() used 15 it.; last ||b0 - b1||_1 = 6.47019e-07, L(b1) = 0.166430436662; convergence
+lmrob..MM..fit(*, obj) --> updating ..  qr(x * rweights) -> rank= 2, outlierStats() 
 step "M" -> new coef=
 (Intercept)      log.Te 
   -4.969388    2.253161 
@@ -468,6 +476,7 @@ init converged (remaining method = "M") -> coef=
   -9.570839    3.290363 
 lmrob_MM(): rwls():
  rwls() used 15 it.; last ||b0 - b1||_1 = 6.47021e-07, L(b1) = 0.166430436662; convergence
+lmrob..MM..fit(*, obj) --> updating ..  qr(x * rweights) -> rank= 2, outlierStats() 
 step "M" -> new coef=
 (Intercept)      log.Te 
   -4.969388    2.253161 
@@ -492,6 +501,7 @@ init converged (remaining method = "MDM") -> coef=
   -9.570830    3.290361 
 lmrob_MM(): rwls():
  rwls() used 15 it.; last ||b0 - b1||_1 = 6.47019e-07, L(b1) = 0.166430436662; convergence
+lmrob..MM..fit(*, obj) --> updating ..  qr(x * rweights) -> rank= 2
 step "M" -> new coef=
 (Intercept)      log.Te 
   -4.969388    2.253161 
@@ -500,6 +510,7 @@ step "D" -> new coef=
   -4.969388    2.253161 
 lmrob_MM(): rwls():
  rwls() used 18 it.; last ||b0 - b1||_1 = 5.34262e-07, L(b1) = 0.19002394737; convergence
+lmrob..MM..fit(*, obj) --> updating ..  qr(x * rweights) -> rank= 2, outlierStats() 
 step "M" -> new coef=
 (Intercept)      log.Te 
   -5.519602    2.377363 
@@ -542,6 +553,7 @@ init converged (remaining method = "MDM") -> coef=
   -9.570839    3.290363 
 lmrob_MM(): rwls():
  rwls() used 15 it.; last ||b0 - b1||_1 = 6.47021e-07, L(b1) = 0.166430436662; convergence
+lmrob..MM..fit(*, obj) --> updating ..  qr(x * rweights) -> rank= 2
 step "M" -> new coef=
 (Intercept)      log.Te 
   -4.969388    2.253161 
@@ -550,6 +562,7 @@ step "D" -> new coef=
   -4.969388    2.253161 
 lmrob_MM(): rwls():
  rwls() used 18 it.; last ||b0 - b1||_1 = 5.34262e-07, L(b1) = 0.19002394737; convergence
+lmrob..MM..fit(*, obj) --> updating ..  qr(x * rweights) -> rank= 2, outlierStats() 
 step "M" -> new coef=
 (Intercept)      log.Te 
   -5.519602    2.377363 
@@ -663,6 +676,7 @@ lmrob_MM(): rwls():
   it   30: L(b1) = 0.128228456600 
   b1 = (6.9181455478, -0.43709200195); ||b0 - b1||_1 = 7.23253e-07
  rwls() used 30 it.; last ||b0 - b1||_1 = 7.23253e-07, L(b1) = 0.1282284566; convergence
+lmrob..MM..fit(*, obj) --> updating ..  qr(x * rweights) -> rank= 2, outlierStats() 
 step "M" -> new coef=
 (Intercept)      log.Te 
     6.91815    -0.43709 

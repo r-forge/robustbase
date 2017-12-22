@@ -110,12 +110,14 @@ lmrob.control <-
 
     if(is.null(tuning.chi))
 	tuning.chi <- .Mchi.tuning.default(psi)
-    else if(compute.const)
+    else ## wd like to compute.const *always* -- but slightly changes KS2011/14 !!
+    if(compute.const)
 	tuning.chi <- .psi.const(tuning.chi, psi)
 
     if(is.null(tuning.psi))
 	tuning.psi <- .Mpsi.tuning.default(psi)
-    else if(compute.const)
+    else ## wd like to compute.const *always* -- but slightly changes KS2011/14 !!
+    if(compute.const)
 	tuning.psi <- .psi.const(tuning.psi, psi)
 
     c(list(setting = if (missing(setting)) NULL else setting,
@@ -569,7 +571,7 @@ lmrob..M..fit <- function (x = obj$x, y = obj$y, beta.initial = obj$coef,
     stopifnot(length(y) == n,
               length(c.psi) > 0, c.psi >= 0,
               scale >= 0, length(beta.initial) == p)
-
+    trace.lev <- as.integer(control$trace.lev)
     ret <- .C(R_lmrob_MM,
               x = as.double(x),
               y = as.double(y),
@@ -585,7 +587,7 @@ lmrob..M..fit <- function (x = obj$x, y = obj$y, beta.initial = obj$coef,
               loss = double(1),
               rel.tol = as.double(control$rel.tol),
               converged = logical(1),
-              trace.lev = as.integer(control$trace.lev),
+              trace.lev = trace.lev,
               mts = as.integer(control$mts),
               ss =  .convSs(control$subsampling)
               )[c("coefficients",  "scale", "residuals", "loss", "converged", "iter")]
@@ -595,7 +597,8 @@ lmrob..M..fit <- function (x = obj$x, y = obj$y, beta.initial = obj$coef,
     names(ret$residuals) <- rownames(x)
     ret$rweights <- lmrob.rweights(ret$residuals, scale, control$tuning.psi, control$psi)
     ret$control <- control
-    if (!missing(obj)) {
+    if (!missing(obj)) { ## "copy" from 'obj' to the return value 'ret' :
+        if(trace.lev) cat("lmrob..MM..fit(*, obj) --> updating .. ")
 	if (!grepl('M$', method)) {
 	    ## update method if it's not there already
 	    method <- paste0(method, 'M')
@@ -621,6 +624,7 @@ lmrob..M..fit <- function (x = obj$x, y = obj$y, beta.initial = obj$coef,
         }
         ret$qr <- qr(x * sqrt(ret$rweights))
         ret$rank <- ret$qr$rank
+        if(trace.lev) cat(" qr(x * rweights) -> rank=", ret$rank)
         ## if there is a covariance matrix estimate available in obj
         ## update it, if possible, else replace it by the default .vcov.w
 	if (!is.null(obj$cov)) {
@@ -629,15 +633,19 @@ lmrob..M..fit <- function (x = obj$x, y = obj$y, beta.initial = obj$coef,
 		ret$control$cov <- '.vcov.w'
 	    lf.cov <- if (!is.function(ret$control$cov))
 		get(ret$control$cov, mode='function') else ret$control$cov
+            if(trace.lev) cat(", cov() matrix ")
 	    ret$cov <- lf.cov(ret, x=x)
 	}
         if (!is.null(obj$assign)) ret$assign <- obj$assign
-        if (method %in% control$compute.outlier.stats)
+        if (method %in% control$compute.outlier.stats) { ## only true for last step in lmrob.fit()
+            if(trace.lev) cat(", outlierStats() ")
             ret$ostats <- outlierStats(ret, x, control)
+        }
+        if(trace.lev) cat("\n")
     }
     class(ret) <- "lmrob"
     ret
-}
+}## --- lmrob..M..fit
 
 
 ##' Compute  S-estimator for linear model -- using  "fast S" algorithm --> ../man/lmrob.S.Rd
@@ -733,7 +741,7 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev,
     if ("S" %in% control$compute.outlier.stats)
         b$ostats <- outlierStats(b, x, control)
     b
-}
+}## --- lmrob.S()
 
 lmrob..D..fit <- function(obj, x=obj$x, control = obj$control, mf = obj$model,
 			  method = obj$control$method) #<- also when 'control' is not obj$control
@@ -807,7 +815,7 @@ lmrob..D..fit <- function(obj, x=obj$x, control = obj$control, mf = obj$model,
     if (method %in% control$compute.outlier.stats)
         obj$ostats <- outlierStats(obj, x, control)
     obj
-}
+}## --- lmrob..D..fit
 
 globalVariables(c("psi", "wgt", "r"), add=TRUE) ## <- lmrob.E( <expr> )
 

@@ -1,5 +1,5 @@
 
-R version 3.4.3 Patched (2017-12-07 r73868) -- "Kite-Eating Tree"
+R version 3.4.3 Patched (2017-12-19 r73933) -- "Kite-Eating Tree"
 Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -234,6 +234,7 @@ init converged (remaining method = "M") -> coef=
 [6]    0.04769691    0.78984802
 lmrob_MM(): rwls():
  rwls() used 19 it.; last ||b0 - b1||_1 = 1.76872e-05, L(b1) = 0.146343135734; convergence
+lmrob..MM..fit(*, obj) --> updating ..  qr(x * rweights) -> rank= 7
 step "M" -> new coef=
   (Intercept)       Region2       Region3       Region4            X1 
 -150.21716170  -12.68711627  -10.64944153   21.92534635    0.04153037 
@@ -316,6 +317,7 @@ init converged (remaining method = "M") -> coef=
 [1]  0.14412998 -0.16709564 -0.01045825 -0.18551426  0.25915102
 lmrob_MM(): rwls():
  rwls() used 12 it.; last ||b0 - b1||_1 = 4.61816e-08, L(b1) = 0.0907731911388; convergence
+lmrob..MM..fit(*, obj) --> updating ..  qr(x * rweights) -> rank= 5
 step "M" -> new coef=
 (Intercept)      groupb      groupc          X1          X2 
  0.41147162 -0.74117537 -0.36321634  0.02379646  0.51727653 
@@ -398,6 +400,7 @@ init converged (remaining method = "M") -> coef=
 [16]    0
 lmrob_MM(): rwls():
  rwls() used 30 it.; last ||b0 - b1||_1 = 5.76455e-05, L(b1) = 0.173788300102; convergence
+lmrob..MM..fit(*, obj) --> updating ..  qr(x * rweights) -> rank= 16
 step "M" -> new coef=
 (Intercept)          A2          A3          A4          B2          C2 
   6.3072125 -12.1364596  69.2442724 -71.0775753  35.0078234  19.5279997 
