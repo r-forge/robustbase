@@ -934,7 +934,7 @@ print(ggplot(test.3, aes(p/n, sdlogsigma.1*sqrt(n), color = Est.Scale)) +
 
 \begin{figure}
 \begin{center}
-<<fig-sdscale-all,fig=TRUE,include=FALSE,echo=FALSE>>=
+<<fig-sdscale-all, fig=TRUE, echo=FALSE>>=
 print(ggplot(test.4,
              aes(p/n, sdlogsigma.1*sqrt(n), color = Est.Scale)) +
       ylim(with(test.4, range(sdlogsigma.1*sqrt(n)))) +
