@@ -122,8 +122,8 @@ lines(x, predict(nlFH), col=6)
 
 stopifnot(nlR1$status == "converged", nlbi$status == "converged",
 	  nlFH$status == "converged")
-assert.EQ(coef(nlR1), c(a=9.914874,    b=3.98612416,  c=0.250896252),  tol = 1e-9)
-assert.EQ(coef(nlbi), c(a=9.947458207, b=3.954210623, c=0.2535835248), tol = 1e-9)
+assert.EQ(coef(nlR1), c(a=9.914874,    b=3.98612416,  c=0.250896252),  tol = 4e-9)
+assert.EQ(coef(nlbi), c(a=9.947458207, b=3.954210623, c=0.2535835248), tol = 4e-9)
 ## This is suddently quite different :  ???!?!??
 ## assert.EQ(coef(nlFH), c(a=9.94242831, b=3.97370746, c=0.252907618))
 assert.EQ(coef(nlFH),    c(a=9.952893755,b=3.949047387,c=0.2536216541), tol = 1e-7)
