@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.93-0 (2017-xx-yy, svn r...)}{
+\section{CHANGES in robustbase VERSION 0.93-0 (2018-03-25, svn r799)}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item \code{.psi.const(*, "lqq")} now also gives a
