@@ -44,6 +44,12 @@
       produces a warning in \code{.vcov.w()}.
     }
   }
+  \subsection{Tests Tweaks}{
+    \itemize{
+      \item For use in non-R-internal BLAS/Lapack libraries, several
+      \file{tests/*.R} examples have been tweaked.
+    }
+  }
 }
 
 \section{CHANGES in robustbase VERSION 0.92-8 (2017-10-30, svn r778)}{

@@ -103,7 +103,9 @@ showProc.time()
 d.exp40out <- within(d.exp30, y[15:27] <- y[15:27] + 100)
 Cfit.40out  <- update(Cfit, data = d.exp40out,
                       control = nls.control(tol = Cfit$control$tol))
-Cfit.no.out <- update(Cfit.40out, subset = -(15:27))
+if(FALSE) ## this fails for "bad" non-R BLAS/LAPACK
+    Cfit.no.out <- update(Cfit.40out, subset = -(15:27))
+Cfit.no.out <- update(Cfit.40out, subset = -(15:27), start = c(a = 1, b = 0.2))
 
 if(doExtras) {
 Rf.out.MM.S.bisquare   <- update(Rfit.MM.S.bisquare, data=d.exp40out)
@@ -142,7 +144,9 @@ d.exp.Hlev <- within(d.exp40out, {
     y <- Expo(x, 1, 0.2) + err
     y[28:30] <- y[28:30] + 500
 })
-Cfit.Hlev <- update(Cfit.40out, data = d.exp.Hlev)
+if(FALSE) ## this fails for "bad" non-R BLAS/LAPACK
+    Cfit.Hlev <- update(Cfit.40out, data = d.exp.Hlev)
+Cfit.Hlev <- update(Cfit.40out, data = d.exp.Hlev, start = c(a = 1, b = 0.2))
 Cfit.no.Hlev <- update(Cfit.Hlev, subset = -(28:30))
 showProc.time()
 
