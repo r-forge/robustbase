@@ -322,7 +322,8 @@ family.lmrob <- function(object, ...) gaussian() ## == stats:::family.lm
 
 ## fitted.default works for "lmrob"
 
-kappa.lmrob <- function(z, ...) kappa.lm(z, ...)
+## base::kappa.lm() is "doomed"; call what kappa.lm() has been calling for years:
+kappa.lmrob <- function(z, ...) kappa.qr(z$qr, ...) ## == kappa.lm(z, ...)
 
 ## instead of  stats:::qr.lm()
 qrLmr <- function(x) {
