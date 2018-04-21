@@ -1,6 +1,6 @@
 
-R version 3.4.3 Patched (2017-12-19 r73933) -- "Kite-Eating Tree"
-Copyright (C) 2017 The R Foundation for Statistical Computing
+R version 3.5.0 RC (2018-04-16 r74618) -- "Joy in Playing"
+Copyright (C) 2018 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -89,7 +89,7 @@ Loading required package: tools
 +     res[[i]] <- unlist(within(tmp, b1 <- drop(t1 + b1 - T2 %*% b2)))
 + })
 > cat('Time elapsed in subsampling: ', time,'\n')
-Time elapsed in subsampling:  0.362 0.001 0.363 0 0 
+Time elapsed in subsampling:  0.401 0 0.402 0 0 
 > ## show a summary of the results  {"FIXME": output is platform dependent}
 > summary(res1 <- do.call(rbind, res))
       b11               b12              b13                b14       
@@ -124,7 +124,8 @@ Time elapsed in subsampling:  0.362 0.001 0.363 0 0
 > mC <- m_s_descent      (x1, x2, y, ctrl, mss2$b1, mss2$b2, mss2$scale+10)
 > mR <- m_s_descent_Ronly(x1, x2, y, ctrl, mss2$b1, mss2$b2, mss2$scale+10)
 > nm <- c("b1","b2", "scale", "res")
-> stopifnot(all.equal(mC[nm], mR[nm], check.attributes = FALSE, tolerance=5e-15))
+> stopifnot(all.equal(mC[nm], mR[nm], check.attributes = FALSE, tolerance = 4e-14))
+>                                         # seen 5.567e-15 in OpenBLAS      ^^^^^
 > 
 > ## control$k.m_s <- 100
 > res3 <- vector("list", 100)
@@ -134,7 +135,7 @@ Time elapsed in subsampling:  0.362 0.001 0.363 0 0
 + 				    ri[1:4], ri[5:7], ri[8]))
 + })
 > cat('Time elapsed in descent proc: ', time,'\n')
-Time elapsed in descent proc:  0.051 0 0.05 0 0 
+Time elapsed in descent proc:  0.055 0 0.056 0 0 
 > 
 > ## show a summary of the results   {"FIXME": output is platform dependent}
 > res4 <- do.call(rbind, res3)
@@ -421,4 +422,4 @@ In lmrob.M.S(x, y, control, mf = mf) :
 > 
 > proc.time()
    user  system elapsed 
-  1.236   0.104   1.339 
+  1.498   0.096   1.594 
