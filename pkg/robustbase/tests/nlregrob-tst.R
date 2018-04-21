@@ -281,14 +281,9 @@ DNase1 <- DNase[DNase$Run == 1,]
 form <- density ~ Asym/(1 + exp(( xmid -log(conc) )/scal ))
 pnms <- c("Asym", "xmid", "scal")
 psNms <- c(pnms, "sigma")
-set.seed(47) # as these by default use randomized optimization:
 
-fMM <- robustbase:::nlrob.MM(form, data = DNase1,
-           lower = setNames(c(0,0,0), pnms), upper = 3,
-           ## call to nlrob.control to pass 'optim.control':
-           ctrl = nlrob.control("MM", optim.control = list(trace = 1),
-                                optArgs = list(trace = TRUE)))
-showProc.time()
+##' a version that recycles x:
+setNames. <- function(x, nm) setNames(rep_len(x, length(nm)), nm)
 
 ## for comparisons, later:
 all.eq.mod <- function(m1, m2, sub=FALSE, excl = c("call", "ctrl"), ...) {
@@ -299,22 +294,25 @@ all.eq.mod <- function(m1, m2, sub=FALSE, excl = c("call", "ctrl"), ...) {
 	  else is.na(match(names(m1), excl))## <<- all but those with names in 'excl'
     all.equal(m1[ni], m2[ni], ...)
 }
-if(doExtras) {## the same, with 'pnames' and unnamed 'lower':
-    set.seed(47)
-    tools::assertWarning(
-        fM2 <- robustbase:::nlrob.MM(form, data = DNase1, pnames = pnms,
-                                     lower = 0, upper = 3))
-    stopifnot(all.eq.mod(fMM, fM2, tol=1e-15))
 
+set.seed(47) # as these by default use randomized optimization:
+fMM <- robustbase:::nlrob.MM(form, data = DNase1,
+           lower = setNames.(0, pnms), upper = 3,
+           ## call to nlrob.control to pass 'optim.control':
+           ctrl = nlrob.control("MM", optim.control = list(trace = 1),
+                                optArgs = list(trace = TRUE)))
+showProc.time()
+
+if(doExtras) {
     ftau <- robustbase:::nlrob.tau(form, data = DNase1,
-                                   lower= setNames(c(0,0,0), pnms), upper= 3,  trace=TRUE)
-
+                                   lower= setNames.(0, pnms), upper= 3,  trace=TRUE)
+    ##
     fCM  <- robustbase:::nlrob.CM (form, data = DNase1,
-                                   lower= setNames(c(0,0,0,0), psNms), upper= 3, trace=TRUE)
-
+                                   lower= setNames.(0, psNms), upper= 3, trace=TRUE)
+    ##
     fmtl <- robustbase:::nlrob.mtl(form, data = DNase1,
-                                   lower= setNames(c(0,0,0,0), psNms), upper= 3, trace=TRUE)
-
+                                   lower= setNames.(0, psNms), upper= 3, trace=TRUE)
+    ##
     mods <- list(MM=fMM, tau=ftau, CM=fCM, MTL=fmtl)
     print(sts <- sapply(mods, `[[`, "status"))
     stopifnot(sts == "converged")
