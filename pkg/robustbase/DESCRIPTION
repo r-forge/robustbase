@@ -1,7 +1,7 @@
 Package: robustbase
 Version: 0.93-0
 VersionNote: 0.92-8 on 2017-11-01 on CRAN
-Date: 2018-03-25
+Date: 2018-04-21
 Title: Basic Robust Statistics
 Authors@R: c(person("Martin","Maechler", role=c("aut","cre"), email="maechler@stat.math.ethz.ch")
          , person("Peter", "Rousseeuw", role="ctb", comment = "Qn and Sn")
@@ -20,6 +20,7 @@ Authors@R: c(person("Martin","Maechler", role=c("aut","cre"), email="maechler@st
                   comment = "MM-, tau-, CM-, and MTL- nlrob")
          , person("Maria", "Anna di Palma", role = "ctb", comment = "initial version of Comedian")
           )
+Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 URL: http://robustbase.r-forge.r-project.org/
 Description: "Essential" Robust Statistics.
  Tools allowing to analyze data with robust methods.  This includes
@@ -35,3 +36,13 @@ SuggestsNote: mostly only because of vignette graphics and simulation
 LazyData: yes
 License: GPL (>= 2)
 ByteCompile: yes
+Author: Martin Maechler [aut, cre],
+  Peter Rousseeuw [ctb] (Qn and Sn),
+  Christophe Croux [ctb] (Qn and Sn),
+  Valentin Todorov [aut] (most robust Cov),
+  Andreas Ruckstuhl [aut] (nlrob, anova, glmrob),
+  Matias Salibian-Barrera [aut] (lmrob orig.),
+  Tobias Verbeke [ctb, fnd] (mc, adjbox),
+  Manuel Koller [aut] (lmrob, psi-func.),
+  Eduardo L. T. Conceicao [aut] (MM-, tau-, CM-, and MTL- nlrob),
+  Maria Anna di Palma [ctb] (initial version of Comedian)

@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.93-0 (2018-03-25, svn r799)}{
+\section{CHANGES in robustbase VERSION 0.93-0 (2018-04-21, svn r805)}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item \code{.psi.const(*, "lqq")} now also gives a
@@ -35,13 +35,19 @@
 
       \item Vignette \file{lmrob_simulation.Rnw}: fixed the wrong
       \dQuote{emprical power} plots; with faster \pkg{ggplot2}, remove
-      all \code{eval=FALSE} for plots and longer store the \file{*.pdf}s.
+      all \code{eval=FALSE} for plots and longer store the
+      \file{*.pdf}s.
+
+      \code{nlrob()} gets \code{model} option to ask for the
+      \code{model.frame} to be returned.
     }
   }
   \subsection{BUG FIXES}{
     \itemize{
       \item \code{lmrob(..., method = "S")} no longer necessarily
       produces a warning in \code{.vcov.w()}.
+
+      \item \code{nlrob()} returns a correct \code{dataClasses} component.
     }
   }
   \subsection{Tests Tweaks}{

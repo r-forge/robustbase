@@ -79,10 +79,17 @@ d <- data.frame(x = -6:9,
 nlr1 <- nlrob(y ~ a*(x + b*exp(-c*x)), start=list(a= 4, b= 1, c= 1.2),
               data = d,
               maxit = 50, # default 20 is *not* sufficient
+              model = TRUE,
               trace=TRUE)
 ## These failed in robustbase version 0.8-0 and earlier
 nlr2  <- update(nlr1, psi = psiTuk) # now *does* converge...
-## 'port' ditto
+## check 'model' and dataClasses
+stopifnot(is.list(mod <- nlr2$model), is.data.frame(mod),
+          inherits(attr(mod, "terms"), "terms"),
+          identical(dCl <- attr(attr(mod, "terms"),"dataClasses"),
+                    nlr2$dataClasses),
+          identical(dCl, c(y = "numeric", x = "numeric")))
+## 'port' ditto:
 nlr2. <- update(nlr2, algorithm= "port")
 nlr3  <- update(nlr1, psi = psiHamp)   # *does* converge, too...
 nlr3. <- update(nlr3, algorithm= "port")
@@ -95,7 +102,6 @@ stopifnot(all.equal(nlr2[i.], nlr2.[i.], tolerance = 2e-5),
 	  identical(which(abs(nlr2$rweights) < 1e-9), c(1L, 10 :12)),
 	  identical(which(abs(nlr3$rweights) < 1e-9), c(1L, 10L,12L))
 	  )
-
 
 ## Different example with more data:
 pp <- list(a=10, b=4, c=1/4)
@@ -204,6 +210,8 @@ m.c2
 ## Robust: not converging in 20 steps (only warning)
 mrob <- nlrob(Biomass ~ Wm[Tillage] * (-expm1(-(DVS/a[Tillage])^b[Tillage])),
               data = biomassTill, start = m00st, trace=TRUE)
+stopifnot(identical(mrob$dataClasses,
+                    c(Biomass = "numeric", Tillage = "factor", DVS = "numeric")))
 try(## now: singular gradient in nls
 mr.2 <- nlrob(Biom.2  ~ Wm[Tillage] * (-expm1(-(DVS/a[Tillage])^b[Tillage])),
               data = biomassTill, start = m00st, trace=TRUE)
