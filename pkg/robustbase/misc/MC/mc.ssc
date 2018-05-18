@@ -1,0 +1,12 @@
+mc <-
+function(x,subset=0)
+{			
+	medc <- 0		
+	s <- .C("spmc",
+		medc=as.double(medc),
+		as.double(x),
+		as.integer(length(x))
+		)
+	s$medc
+}
+

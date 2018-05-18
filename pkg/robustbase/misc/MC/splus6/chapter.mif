@@ -1,0 +1,7 @@
+# makefile for local CHAPTER
+
+SHOME = E:\splus6
+SRC = spmc.c spqn.c
+OBJ = spmc.obj spqn.obj
+RES =
+

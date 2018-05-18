@@ -1,0 +1,220 @@
+mcplus <- function(z)
+{
+	n_length(z)
+	y1_c(0)
+	y2_c(0)
+	left_c(0)
+	right_c(0)
+	q_c(0)
+	p_c(0)
+	eps_0.0000000000001
+	z_-z
+	xmed_pull(z,n,floor(n/2)+1)
+	if (n%%2 == 0)
+	{
+		xmed_(xmed+pull(z,n,floor(n/2)))/2
+	}
+	z_z-xmed
+	y_-sort(z)
+
+	y1_y[y>-eps]
+	y2_y[y<=eps]
+	h1_length(y1)
+	h2_length(y2)
+	
+	left[1:h2]_1
+	right[1:h2]_h1
+	nl_0
+	nr_h1*h2
+	knew_floor(nr/2)+1
+	IsFound_0
+	while ((nr-nl>n) & (IsFound==0))
+	{
+		weight_c(0)
+		work_c(0)
+		j_1
+		for (i in 1:h2)
+		{
+			if (left[i]<=right[i])
+			{
+				weight[j]_right[i]-left[i]+1
+				k_left[i]+floor(weight[j]/2)
+				work[j]_calwork(y1[k],y2[i],k,i,h1+1,eps)
+				j_j+1
+			}
+		}
+		trial_whimed(work,weight,j-1)
+		j_1
+		for (i in h2:1)
+		{
+			while ((j<=h1)&(calwork(y1[min(j,h1)],y2[i],j,i,h1+1,eps)>trial))
+			{
+				j_j+1
+			}
+			p[i]_j-1
+		}
+		j_h1
+		for (i in 1:h2)
+		{
+			while ((j>=1)&(calwork(y1[max(j,1)],y2[i],j,i,h1+1,eps)<trial))
+			{
+				j_j-1
+			}
+			q[i]_j+1
+		}
+		sump_sum(p[1:h2])
+		sumq_sum(q[1:h2])-h2
+		if (knew<=sump)
+		{
+			right[1:h2]_p[1:h2]
+			nr_sump
+		}
+		else
+		{
+			if (knew>sumq)
+			{
+				left[1:h2]_q[1:h2]
+				nl_sumq
+			}
+			else
+			{
+				medc_trial
+				IsFound_1
+			}
+		}
+	}
+	if (IsFound==0)
+	{
+		j_1
+		for (i in 1:h2)
+		{
+			if (left[i]<=right[i])
+			{
+				for (jj in left[i]:right[i])
+				{
+					work[j]_-calwork(y1[jj],y2[i],jj,i,h1+1,eps)
+					j_j+1
+				}
+			}
+		}
+		medc_-pull(work,j-1,knew-nl)
+	}
+	medc
+}
+
+pull <- function(a,n,k)
+{
+	b_c(0)
+	b_a
+	l_1
+	lr_n
+	while (l<lr)
+	{
+		ax_b[k]
+		jnc_l
+		j_lr
+		while (jnc<=j)
+		{
+			while (b[jnc]<ax)
+			{
+				jnc_jnc+1
+			}
+			while (b[j]>ax)
+			{
+				j_j-1
+			}
+			if (jnc<=j)
+			{
+				buffer_b[jnc]
+				b[jnc]_b[j]
+				b[j]_buffer
+				jnc_jnc+1
+				j_j-1
+			}
+		}
+		if (j<k)
+		{
+			l_jnc
+		}
+		if (k<jnc)
+		{
+			lr_j
+		}
+	}
+	outp_b[k]
+	outp
+}
+
+whimed <- function(a,iw,n)
+{
+	acand_c(0)
+	iwcand_c(0)
+	nn_n
+	wtotal_sum(iw[1:nn])
+	wrest_0
+	IsFound_0
+	while (IsFound==0)
+	{
+		trial_pull(a,nn,floor(nn/2)+1)
+
+		wleft_sum(iw[c(a[1:nn]<trial,rep(F,n-nn))])
+		wright_sum(iw[c(a[1:nn]>trial,rep(F,n-nn))])
+		wmid_sum(iw[c(a[1:nn]==trial,rep(F,n-nn))])
+		
+		if ((2*wrest+2*wleft)>wtotal)
+		{
+			i_c(a[1:nn]<trial,rep(F,n-nn))
+			acand_a[i]
+			iwcand_iw[i]
+			nn_kcand_length(acand)
+			
+		}
+		else
+		{
+			if ((2*wrest+2*wleft+2*wmid)>wtotal)
+			{
+				whmed_trial
+				IsFound_1
+			}
+			else
+			{
+				i_c(a[1:nn]>trial,rep(F,n-nn))
+				acand_a[i]
+				iwcand_iw[i]
+				nn_kcand_length(acand)
+				wrest_wrest+wleft+wmid
+			}
+		}
+		a[1:nn]_acand[1:nn]
+		iw[1:nn]_iwcand[1:nn]
+	}
+	whmed
+}
+
+calwork <- function(a,b,ai,bi,ab,eps)
+{
+	if (abs(a-b) < 2.0*eps)
+	{
+		if (ai+bi==ab)
+		{
+			cwork_0
+		}
+		else
+		{
+			if (ai+bi<ab)
+			{
+				cwork_1
+			}
+			else
+			{
+				cwork_-1
+			}
+		}
+	}
+	else
+	{
+		cwork_(a+b)/(a-b)
+	}
+	cwork
+}
+
