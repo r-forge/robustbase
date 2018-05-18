@@ -77,10 +77,10 @@ double mc_C_d(double *z, int n, double *eps, int *iter)
     R_rsort(&x[1], n); /* full sort */
 
     double xmed; // := median( x[1:n] ) = - median( z[0:(n-1)] ):
-    if (n%2) { /* n even */
+    if (n%2) { // n odd
 	xmed = x[(n/2)+1];
     }
-    else { /* n  odd */
+    else { // n even
 	int ind = (n/2);
 	xmed = (x[ind] + x[ind+1])/2;
     }
