@@ -47,7 +47,11 @@
       \item \code{lmrob(..., method = "S")} no longer necessarily
       produces a warning in \code{.vcov.w()}.
 
-      \item \code{nlrob()} returns a correct \code{dataClasses} component.
+      \item \code{nlrob()} returns a correct \code{dataClasses}
+      component.
+
+      \item \code{Mpsi(x, c, psi="huber", deriv=-1)} now gives rho(x)
+      instead of mostly \code{Inf}.
     }
   }
   \subsection{Tests Tweaks}{
