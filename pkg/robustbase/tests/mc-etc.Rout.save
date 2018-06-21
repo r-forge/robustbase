@@ -1,6 +1,6 @@
 
-R version 3.4.2 RC (2017-09-21 r73342) -- "Short Summer"
-Copyright (C) 2017 The R Foundation for Statistical Computing
+R version 3.5.0 Patched (2018-06-19 r74919) -- "Joy in Playing"
+Copyright (C) 2018 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -683,7 +683,7 @@ List of 4
 [1] 0.5833333
 > mcNaive(x4,"simple")# == " == 7/12
 [1] 0.5833333
-> try( mc(x4) )# not converged  !!
+> mc(x4) # now ok, == 7/12
 [1] 0.5833333
 > str(robustbase:::mcComp( x4, doRefl= FALSE, maxit = 15, trace= 3))## = 0: conv.quickly
 mc_C_d(z[1:10], trace_lev=3): Median = 6 (not at the border)
