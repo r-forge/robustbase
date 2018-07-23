@@ -45,10 +45,12 @@ lmrob <-
     if (is.empty.model(mt)) {
 	x <- NULL
 	singular.fit <- FALSE ## to avoid problems below
-	z <- list(coefficients = if (is.matrix(y)) matrix(,0,3) else numeric(0),
+	z <- list(coefficients = if(is.matrix(y)) matrix(NA_real_, 0, ncol(y))
+				 else numeric(),
 		  residuals = y, scale = NA, fitted.values = 0 * y,
-		  cov = matrix(,0,0), weights = w, rank = 0,
-		  df.residual = NROW(y), converged = TRUE, iter = 0)
+		  cov = matrix(NA_real_,0,0), weights = w, rank = 0,
+		  df.residual = if(!is.null(w)) sum(w != 0) else NROW(y),
+                  converged = TRUE, iter = 0)
 	if(!is.null(offset)) {
 	    z$fitted.values <- offset
 	    z$residuals <- y - offset
