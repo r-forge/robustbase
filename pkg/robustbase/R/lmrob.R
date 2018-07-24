@@ -180,10 +180,10 @@ lmrob <-
 			 piv)
 	    }
 	} else { ## rank 0
-	    z <- list(coefficients = if (is.matrix(y)) matrix(NA,p,ncol(y))
-				     else rep.int(as.numeric(NA), p),
+	    z <- list(coefficients = if (is.matrix(y)) matrix(NA_real_,p,ncol(y))
+				     else rep.int(NA_real_, p),
 		      residuals = y, scale = NA, fitted.values = 0 * y,
-		      cov = matrix(,0,0), rweights = rep.int(as.numeric(NA), NROW(y)),
+		      cov = matrix(NA_real_,0,0), rweights = rep.int(NA_real_, NROW(y)),
 		      weights = w, rank = 0, df.residual = NROW(y),
 		      converged = TRUE, iter = 0, control=control)
 	    if (is.matrix(y)) colnames(z$coefficients) <- colnames(x)
@@ -591,7 +591,7 @@ summary.lmrob <- function(object, correlation = FALSE, symbolic.cor = FALSE, ...
     } else { ## p = 0: "null model"
 	ans <- object
 	ans$df <- c(0L, df, length(aliased))
-	ans$coefficients <- matrix(NA, 0L, 4L, dimnames = list(NULL, cf.nms))
+	ans$coefficients <- matrix(ans$coefficients[0L], 0L, 4L, dimnames = list(NULL, cf.nms))
         ans$r.squared <- ans$adj.r.squared <- 0
 	ans$cov <- object$cov
     }

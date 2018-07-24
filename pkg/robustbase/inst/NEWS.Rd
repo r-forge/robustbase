@@ -4,6 +4,19 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
+\section{CHANGES in robustbase VERSION 0.93-2 (2018-07-24)}{
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item Update \code{lmrob(<empty multivariate>)} to the change in R
+      (incl 3.5.1 patched).
+
+      \item \code{mc()} gets new optional \code{doScale} argument, and
+      \emph{increased} defaults for the tolerances \preformatted{    eps1 = 1e-14, eps2 = 1e-15}
+      such that it should converge by default in more cases.
+    }
+  }
+}
+
 \section{CHANGES in robustbase VERSION 0.93-1-1 (2018-07-18)}{
   \subsection{BUG FIXES}{
     \itemize{
