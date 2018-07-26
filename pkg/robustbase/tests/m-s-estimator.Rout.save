@@ -1,5 +1,5 @@
 
-R version 3.5.0 RC (2018-04-16 r74618) -- "Joy in Playing"
+R version 3.5.1 Patched (2018-07-24 r75005) -- "Feather Spray"
 Copyright (C) 2018 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -169,11 +169,11 @@ Time elapsed in descent proc:  0.055 0 0.056 0 0
 > fMS <- lmrob.M.S(x, y, control, fmS$model)
 lmrob_M_S(n = 50, nRes = 500, (p1,p2)=(4,3), (orth,subs,desc)=(1,1,1))
  Starting subsampling procedure..  [setup Ok]
-  Sample[  0]: new candidate with sc =     43.227
-  Sample[  1]: new candidate with sc =     33.125
-  Sample[ 18]: new candidate with sc =     31.856
-  Sample[136]: new candidate with sc =     31.741
-  Sample[338]: new candidate with sc =     31.512
+  Sample[  0]: new candidate with sc =     43.227 in 46 iter
+  Sample[  1]: new candidate with sc =     33.125 in 49 iter
+  Sample[ 18]: new candidate with sc =     31.856 in 42 iter
+  Sample[136]: new candidate with sc =     31.741 in 35 iter
+  Sample[338]: new candidate with sc =     31.512 in 37 iter
  Finished M-S subsampling with scale = 31.51188
   b1: -5.445072 7.825257 1.756708 7.656800 
   b2: 0.048442 0.037633 0.591759 
@@ -219,10 +219,10 @@ lmrob_M_S(n = 50, nRes = 500, (p1,p2)=(4,3), (orth,subs,desc)=(1,1,1))
 > fMS <- lmrob(Y ~ Region + X1 + X2 + X3, education, init = "M-S", trace.lev=2)
 lmrob_M_S(n = 50, nRes = 500, (p1,p2)=(4,3), (orth,subs,desc)=(1,1,1))
  Starting subsampling procedure..  [setup Ok]
-  Sample[  0]: new candidate with sc =     720.84
-  Sample[  1]: new candidate with sc =     32.106
-  Sample[ 69]: new candidate with sc =     31.856
-  Sample[128]: new candidate with sc =     31.122
+  Sample[  0]: new candidate with sc =     720.84 in 42 iter
+  Sample[  1]: new candidate with sc =     32.106 in 48 iter
+  Sample[ 69]: new candidate with sc =     31.856 in 40 iter
+  Sample[128]: new candidate with sc =     31.122 in 47 iter
  Finished M-S subsampling with scale = 31.12236
  Starting descent procedure...
   Refinement step   1: better fit, scale:     30.963

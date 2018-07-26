@@ -1,6 +1,6 @@
 
-R version 3.4.3 Patched (2017-12-19 r73933) -- "Kite-Eating Tree"
-Copyright (C) 2017 The R Foundation for Statistical Computing
+R version 3.5.1 Patched (2018-07-24 r75005) -- "Feather Spray"
+Copyright (C) 2018 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -933,7 +933,7 @@ seed : int(0)
 > stopifnot(1:10 == which(m.hbk$w < 0.01))
 > 
 > data(heart)
-> summary(mhrt <- lmrob(clength ~ ., data = heart))
+> summary(mhrt <- lmrob(clength ~ ., data = heart)) # -> warning 'maxit.scale=200' too small
 
 Call:
 lmrob(formula = clength ~ ., data = heart)
@@ -978,6 +978,102 @@ In lmrob.S(x, y, control = control) :
 > stopifnot(8  == which(mhrt$w < 0.15),
 +           11 == which(0.61 < mhrt$w & mhrt$w < 0.62),
 +           c(1:7,9:10,12) == which(mhrt$w > 0.90))
+> 
+> iN <- c(3,5,7,11)
+> heartN <- heart; heartN[iN, "clength"] <- NA
+> lmN <- lm   (clength ~ ., data = heartN) # default na.action=na.omit
+> mhN <- lmrob(clength ~ ., data = heartN) # default na.action=na.omit
+>  # ==> everything just uses the n=8 complete obs
+> summary(mhN) # now *does* note the 4 omitted obs.
+
+Call:
+lmrob(formula = clength ~ ., data = heartN)
+ \--> method = "MM"
+Residuals:
+     1      2      4      6      8      9     10     12 
+ 0.699 -0.654  2.465 -1.460 -9.031 -0.873  0.790  0.252 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)   29.549     28.825    1.03     0.35
+height        -0.146      0.997   -0.15     0.89
+weight         0.325      0.358    0.91     0.41
+
+Robust residual standard error: 2.37 
+  (4 observations deleted due to missingness)
+Multiple R-squared:  0.947,	Adjusted R-squared:  0.926 
+Convergence in 40 IRWLS iterations
+
+Robustness weights: 
+    1     2     4     6     8     9    10    12 
+0.992 0.993 0.904 0.966 0.114 0.988 0.990 0.999 
+Algorithmic parameters: 
+       tuning.chi                bb        tuning.psi        refine.tol 
+         1.55e+00          5.00e-01          4.69e+00          1.00e-07 
+          rel.tol         scale.tol         solve.tol       eps.outlier 
+         1.00e-07          1.00e-10          1.00e-07          1.25e-02 
+            eps.x warn.limit.reject warn.limit.meanrw 
+         1.70e-10          5.00e-01          5.00e-01 
+     nResample         max.it       best.r.s       k.fast.s          k.max 
+           500             50              2              1            200 
+   maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
+           200              0           1000              0           2000 
+                  psi           subsampling                   cov 
+           "bisquare"         "nonsingular"         ".vcov.avar1" 
+compute.outlier.stats 
+                 "SM" 
+seed : int(0) 
+> mhNex <- lmrob(clength ~ ., data = heartN, na.action=na.exclude)
+> summary(mhNex)
+
+Call:
+lmrob(formula = clength ~ ., data = heartN, na.action = na.exclude)
+ \--> method = "MM"
+Residuals:
+     1      2      4      6      8      9     10     12 
+ 0.699 -0.654  2.465 -1.460 -9.031 -0.873  0.790  0.252 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)   29.549     28.825    1.03     0.35
+height        -0.146      0.997   -0.15     0.89
+weight         0.325      0.358    0.91     0.41
+
+Robust residual standard error: 2.37 
+  (4 observations deleted due to missingness)
+Multiple R-squared:  0.947,	Adjusted R-squared:  0.926 
+Convergence in 40 IRWLS iterations
+
+Robustness weights: 
+    1     2     4     6     8     9    10    12 
+0.992 0.993 0.904 0.966 0.114 0.988 0.990 0.999 
+Algorithmic parameters: 
+       tuning.chi                bb        tuning.psi        refine.tol 
+         1.55e+00          5.00e-01          4.69e+00          1.00e-07 
+          rel.tol         scale.tol         solve.tol       eps.outlier 
+         1.00e-07          1.00e-10          1.00e-07          1.25e-02 
+            eps.x warn.limit.reject warn.limit.meanrw 
+         1.70e-10          5.00e-01          5.00e-01 
+     nResample         max.it       best.r.s       k.fast.s          k.max 
+           500             50              2              1            200 
+   maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
+           200              0           1000              0           2000 
+                  psi           subsampling                   cov 
+           "bisquare"         "nonsingular"         ".vcov.avar1" 
+compute.outlier.stats 
+                 "SM" 
+seed : int(0) 
+> mhNx1 <- update(mhNex, ~ . - weight)
+> mhNx0 <- update(mhNex, ~ 1)
+> stopifnot(
++     length(r.mNex <- resid(mhNex)) == nrow(heartN)
++    ,
++     iN == which(iNAr <- is.na(r.mNex))
++    ,
++     identical(iNAr, is.na(r.mN1 <- residuals(mhNx1)))
++    ,
++     identical(iNAr, is.na(r.mN0 <- residuals(mhNx0)))
++ )
 > 
 > data(stackloss)
 > mSL <- lmrob(stack.loss ~ ., data = stackloss)

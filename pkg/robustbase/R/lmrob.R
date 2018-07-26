@@ -416,12 +416,13 @@ print.summary.lmrob <-
 			 na.print="NA", ...)
 	    cat("\nRobust residual standard error:",
 		format(signif(x$scale, digits)),"\n")
-          if (!is.null(x$r.squared) && x$df[1] != attr(x$terms, "intercept")) {
+	    if(nzchar(mess <- naprint(x$na.action)))
+		cat("  (",mess,")\n", sep = "")
+            if(!is.null(x$r.squared) && x$df[1] != attr(x$terms, "intercept")) {
                 cat("Multiple R-squared: ", formatC(x$r.squared, digits = digits))
                 cat(",\tAdjusted R-squared: ", formatC(x$adj.r.squared, digits = digits),
                     "\n")
             }
-	    ## FIXME: use naprint() here to list observations deleted due to missingness?
 	    correl <- x$correlation
 	    if (!is.null(correl)) {
 		p <- NCOL(correl)
@@ -533,7 +534,7 @@ summary.lmrob <- function(object, correlation = FALSE, symbolic.cor = FALSE, ...
 	se <- sqrt(if(length(object$cov) == 1L) object$cov else diag(object$cov))
 	est <- object$coefficients[object$qr$pivot[p1]]
 	tval <- est/se
-	ans <- object[c("call", "terms", "residuals", "scale", "rweights",
+	ans <- object[c("call", "terms", "residuals", "scale", "rweights", "na.action",
 			"converged", "iter", "control")]
 	if (!is.null(ans$weights))
 	    ans$residuals <- ans$residuals * sqrt(object$weights)
