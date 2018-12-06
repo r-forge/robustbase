@@ -270,6 +270,7 @@ mvBACON <-
 	    xm <- ordered.x
 	    ym <- ordered.y
 	}
+	force(ym)# "fix" codetools
 	nm <- nrow(xm)
 
 	xm  <- as.matrix(xm)
