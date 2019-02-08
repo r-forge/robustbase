@@ -52,6 +52,7 @@ doCheck <- (.Machine$sizeof.longdouble >= 16)
 cat("doCheck (= have long double):", doCheck,"\n")
 
 ## This fails (interestingly) when we use R's instead of BLAS matrix products:
+'MM:  no it now works ! ??'
 if(doCheck) try( chk.NN.new.old(cN, cN1) )
 
 
@@ -73,7 +74,7 @@ try( # testing
 if(doCheck)
     chk.NN.new.old(cNX, cNX1)
 
-kappa(cM $cov)# 1990.8..
+kappa(cM $cov)# 1990.8.. then  1900.421
 kappa(cNX$cov)#    4.4858
 kappa(cov(X)) #    1.0478
 
@@ -90,17 +91,21 @@ covNNC(X1)$cov ## -- really not at all robust:
 ##          [,1]
 ## [1,] 121595.8
 
-covMcd(X1)$cov
+C.mcd <- covMcd(X1)$cov
 ##          [,1]
 ## [1,] 7.790004
+all.equal(C.mcd, as.matrix(7.79), tol=0)
+stopifnot(all.equal(C.mcd, as.matrix(7.79), tol = 1e-6))
+
 
 MASS::cov.rob(X1)$cov
 ##      [,1]
 ## [1,]  3.5
-BACON(X1)$cov
+(C.B <- BACON(X1)$cov)
 ##      [,1]
 ## [1,]  3.5
+all.equal(C.B, as.matrix(3.5), tol=0)
+stopifnot(all.equal(C.B, as.matrix(3.5)))
 
-
-if(FALSE) ## FIXME (in robustbase!)
+if(FALSE) ## FIXME (in robustbase!): should work for  p=1
     covOGK(X1)$cov

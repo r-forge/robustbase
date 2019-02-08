@@ -1,3 +1,10 @@
+2019-02-08  Martin Mächler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 1.2-3
+
+	* R/BACON-alg.R (GiveTis, .lmBACON): speed up, using .lm.fit() and
+	hat(), fixing wrong Hii computation, thanks to  Daniel Weeks at pitt dot edu.
+
 2014-12-05  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/rbwheel-fun.R (rbwheel): was wrong only for 'frac = 0', i.e.,

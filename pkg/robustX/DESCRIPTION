@@ -2,7 +2,7 @@ Package: robustX
 Type: Package
 Title: 'eXtra' / 'eXperimental' Functionality for Robust Statistics
 Version: 1.2-3
-Date: 2018-12-06
+Date: 2019-02-08
 Author: Werner Stahel,
 	Martin Maechler [aut, cre] (<https://orcid.org/0000-0002-8685-9910>)
 	and potentially others
@@ -15,4 +15,3 @@ Suggests: MASS, lattice
 Enhances: ICS
 License: GPL (>= 2)
 Encoding: UTF-8
-

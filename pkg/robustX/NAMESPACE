@@ -1,6 +1,7 @@
 importFrom("grDevices", adjustcolor)
 importFrom("graphics", abline, lines, plot)
-importFrom("stats", cov, dist, hatvalues, lm, mad,
+importFrom("stats", cov, dist, mad,
+           .lm.fit, # was lm, hatvalues
            mahalanobis, median, nlm, nlminb, optim, prcomp,
            qchisq, qt, rchisq, rnorm, runif, var)
 importFrom("utils", tail)
