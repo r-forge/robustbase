@@ -1,6 +1,8 @@
 library(robustX)
 library(robustbase)
 
+if(!dev.interactive(orNone=TRUE)) pdf("cov-ex.pdf")
+
 covNN.1 <- robustX:::covNNC1  ## the original definition (2003)
 
 data(iris)
@@ -39,6 +41,9 @@ summ.NN <- function(cNN, digits = 3) {
           incc.p= round(cNN$innc$postprob, digits))
 }
 
+sessionInfo()
+packageDescription("robustX")
+
 s1 <- summ.NN(cN1)
 ss <- summ.NN(cN)
 if(isTRUE(all.equal(ss, s1))) ss else cbind(ss, s1)
@@ -52,8 +57,7 @@ doCheck <- (.Machine$sizeof.longdouble >= 16)
 cat("doCheck (= have long double):", doCheck,"\n")
 
 ## This fails (interestingly) when we use R's instead of BLAS matrix products:
-'MM:  no it now works ! ??'
-if(doCheck) try( chk.NN.new.old(cN, cN1) )
+if(doCheck) try( chk.NN.new.old(cN, cN1) ) # seems to work now (?)
 
 
 
@@ -109,3 +113,52 @@ stopifnot(all.equal(C.B, as.matrix(3.5)))
 
 if(FALSE) ## FIXME (in robustbase!): should work for  p=1
     covOGK(X1)$cov
+
+
+## Less trivial data  --- also used in ../man/BACON.Rd
+data(starsCYG, package = "robustbase")
+
+op <- options(warn = 2)# no warnings allowed
+str(B.ST <- with(starsCYG, BACON(x = log.Te, y = log.light)))
+(Bgood <- which(B.ST$subset))
+.Platform$r_arch
+(Platf_arch <- .Platform$r_arch) # maybe distinguish more, e.g. "no-ldouble", "BLAS" version ,  ??
+knownPl <- Platf_arch %in% c("x64", "i386") # update!
+stopifnot(exprs = {
+    switch(
+        Platf_arch,
+        "x64"  = identical(Bgood, c(25L, 27:29, 33L,        38L,      43L, 45L)),
+        "i386" = identical(Bgood, c(25L, 27:29, 33L, 35:36, 38L, 42L, 43L, 45L)),
+                                        # Platform: i386-w64-mingw32/i386 (32-bit);
+                                        # Running under: Windows Server x64 (build 14393)
+        ## other platforms:
+        {
+            message("Platform architecture (see above) not yet tested for BACON result")
+            TRUE
+        })
+})
+
+
+plot(starsCYG)
+lmST <- lm(log.light ~ log.Te, data = starsCYG)
+abline(lmST, col = "gray") # least squares line
+## 'subset': A good set of of points (to determine regression):
+colB <- adjustcolor(2, 1/2)
+points(log.light ~ log.Te, data = starsCYG, subset = B.ST$subset,
+       pch = 19, cex = 1.5, col = colB)
+## A BACON-derived line:
+lmB <- lm(log.light ~ log.Te, data = starsCYG, subset = B.ST$subset)
+abline(lmB, col = colB, lwd = 2)
+cfT <- switch(Platf_arch # use lm(..., subset = sfsmisc::inverseWhich(Bgood))
+            , "x64"  = c(-10.130429, 3.4450151)
+            , "i386" = c(-9.5759001, 3.3109007)
+             ## otherwise:
+            , NULL)
+cf <- unname(coef(lmB))
+dput(signif(cf, 8))
+if(!is.null(cfT)) withAutoprint({
+    all.equal(cf, cfT, tol=0)# 64b: 6.4e-10
+    stopifnot(all.equal(cf, cfT))
+})
+
+options(op)

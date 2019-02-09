@@ -16,20 +16,24 @@ mvBACON(x, collect = 4, m = min(collect * p, n * 0.5), alpha = 0.95,
 \arguments{
   \item{x}{numeric matrix (of dimension \eqn{[n x p]}),
     not supposed to contain missing values.}
-  \item{collect}{a multiplication factor, when \code{init.sel} is not
+  \item{collect}{a multiplication factor \eqn{c}, when \code{init.sel} is not
     \code{"manual"}, to define \eqn{m}, the size of the initial basic
-    subset, as \code{m <- min(p * collect, n/2)}.}
-  \item{m}{integer in \code{1:n} specifying the size of the initial basic
+    subset, as \eqn{m := c \cdot p}{c * p}, in practice,
+    \code{m <- min(p * collect, n/2)}.}
+  \item{m}{integer in \code{1:n} specifying the \emph{size} of the initial basic
     subset; used only when \code{init.sel} is not \code{"manual"}.}
   \item{alpha}{significance level for the \eqn{\chi^2}{chisq} cutoff,
     used to define the next iterations basic subset.}
   \item{init.sel}{character string, specifying the initial selection
     mode; implemented modes are:
     \describe{
-      \item{"Mahalanobis"}{based on Mahalanobis distances (default)}
+      \item{"Mahalanobis"}{based on Mahalanobis distances (default); the
+	version \eqn{V1} of the reference; affine invariant but not robust.}
       \item{"dUniMedian"}{based on the distances from the
-	\bold{uni}variate medians}
-      \item{"random"}{based on a random selection}
+	\bold{uni}variate medians; ; the version \eqn{V2} of the reference;
+	robust but not affine invariant.}
+      \item{"random"}{based on a random selection, i.e., reproducible only
+	via \code{\link{set.seed}()}.}
       \item{"manual"}{based on manual selection; in this case, a vector
 	\code{man.sel} containing the indices of the selected
 	observations must be specified.}
@@ -65,6 +69,7 @@ mvBACON(x, collect = 4, m = min(collect * p, n * 0.5), alpha = 0.95,
   Billor, N., Hadi, A. S., and Velleman , P. F. (2000).
   BACON: Blocked Adaptive Computationally-Efficient Outlier Nominators;
   \emph{Computational Statistics and Data Analysis} \bold{34}, 279--298.
+  \doi{10.1016/S0167-9473(99)00101-2}
 }
 \author{
   Ueli Oetliker, Swiss Federal Statistical Office, for S-plus 5.1.

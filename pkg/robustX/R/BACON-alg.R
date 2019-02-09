@@ -2,7 +2,6 @@
 ####  15 Dec 2005     --> see ./BACON-alg_email.txt
 ####
 
-#################### MAIN PROGRAM BACON
 
 BACON <- function(x, y = NULL, intercept = TRUE,
                   m = min(collect * p, n * 0.5),
@@ -67,16 +66,16 @@ BACON <- function(x, y = NULL, intercept = TRUE,
 	regB <- .lmBACON(x, y, intercept, init.dis = mvB$dis,
 			 init.fraction=init.fraction, collect=collect,
 			 alpha=alpha, maxsteps=maxsteps, verbose=verbose)
-	list(subset   = regB$subset,
-	     tis      = regB$tis,
-	     mv.subset= mvB$subset)
+	list(subset   = regB$ subset
+           , tis      = regB$ tis
+           , mv.subset= mvB $ subset
+           , mv.dis   = mvB $ dis
+           , steps    = c(mv = mvB$steps, lm = regB$steps)
+             )
     } else ## multivariate
         mvB
-}
+} # end{ BACON() }
 
-########## END BACON
-
-#################### FUNCTION mvBACON
 
 mvBACON <-
     function(x, collect = 4, m = min(collect * p, n * 0.5), alpha = 0.95,
@@ -104,23 +103,20 @@ mvBACON <-
 	chr <- max(0, (h - r) / (h + r))
 	cnp <- 1 + (p + 1) / (n - p) + 2 / (n - 1 - 3*p)
 	cnpr <- cnp + chr
-	chisq <- qchisq(alpha / n, p, lower.tail = FALSE)
-	return(sqrt(chisq) * cnpr)
+	## return
+        cnpr * sqrt( qchisq(alpha / n, p, lower.tail = FALSE) )
     }
 
     init.sel <- match.arg(init.sel)
 
     n <- nrow(x)
     p <- ncol(x)
-    stopifnot(n > 0, p > 0, n > p,
-              0 < alpha, alpha < 1)
+    stopifnot(n > p, p > 0,  0 < alpha, alpha < 1)
 
     ordered.indices <-
         switch(init.sel,
                "Mahalanobis" = {
-                   center <- colMeans(x)
-                   cov <- var(x)
-                   order(mahalanobis(x, center, cov))
+                   order(mahalanobis(x, center = colMeans(x), cov = var(x)))
                },
                "random" = sample(n),
                "manual" = {
@@ -161,7 +157,6 @@ mvBACON <-
 	center <- colMeans(x.)
 	cov <- var(x.)
 	dis <- sqrt(mahalanobis(x, center, cov))
-
         converged <- !any(xor(presubset, subset))
         if(converged)
             break
@@ -178,15 +173,10 @@ mvBACON <-
 
     list(dis = dis, subset = subset, center = center, cov = cov,
          steps = steps, limit = limit, converged = converged)
-}
-
-########## END mvBACON
+} # end{ mvBACON() }
 
 
-
-
-#################### FUNCTION .lmBACON
-
+## exported, even though auxiliary to BACON() :
 .lmBACON <- function(x, y, intercept = TRUE, init.dis,
                     init.fraction = 0, collect = 4, alpha = 0.95,
                     maxsteps = 100, verbose = TRUE)
@@ -302,6 +292,10 @@ mvBACON <-
     skip.init <- (init.fraction > sqrt(.Machine$double.eps))
     ## size of initial subset [ 4*p by default ] :
     m <- as.integer(if(skip.init) round(init.fraction * n) else collect * p)
+    if(m <= 0) {
+	message(gettextf(".lmBACON(): m = %d replaced by m = 1", m), domain =NA)
+	m <- 1L
+    }
     subset <- is.element(1:n, ordered.indices[1:m])
     tis <- GiveTis(x, y, subset, ordered.x, ordered.y, m, TRUE)
     m <- tis$m
@@ -329,7 +323,7 @@ mvBACON <-
     subset <- is.element(1:n, ordered.indices[1:r])
     presubset <- FALSE # rep(FALSE, n)
     prepre.r <- pre.r <- 0L # == sum(presubset)
-    steps <- 0
+    steps <- 0L
     while(steps <= maxsteps &&
           !(pre.r == r && (!any(xor(presubset, subset)) || prepre.r == r))) {
 	presubset <- subset
@@ -341,10 +335,9 @@ mvBACON <-
 	limit <- qt(alpha / (2*(r + 1)), r - p, lower.tail=FALSE)
 	subset <- tis < limit
 	r <- sum(subset)
-	steps <- steps + 1
+	steps <- steps + 1L
 	if(verbose) trace1(steps, r, n)
     }
-    list(subset = subset, tis = tis)
-}
+    list(subset = subset, tis = tis, steps = steps)
+} # end{ .lmBACON() }
 
-########## END .lmBACON
