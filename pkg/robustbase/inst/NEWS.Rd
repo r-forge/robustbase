@@ -4,6 +4,21 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
+\section{CHANGES in robustbase VERSION 0.93-4 (2019-02-22)}{
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item \file{src/rowMedians.c} gets better PROTECT()ion thanks to
+      Tomas Kalibera's "rchk"s.
+    }
+  }
+  \subsection{Tweaks}{
+    \itemize{
+      \item losen the strict tests more, ..........
+      convergence issues on all non-standard BLAS platforms.
+    }
+  }
+}
+
 \section{CHANGES in robustbase VERSION 0.93-3 (2018-09-06)}{
   \subsection{Tweaks}{
     \itemize{
