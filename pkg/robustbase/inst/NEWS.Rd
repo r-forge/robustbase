@@ -7,6 +7,9 @@
 \section{CHANGES in robustbase VERSION 0.93-4 (2019-02-22)}{
   \subsection{BUG FIXES}{
     \itemize{
+      \item \env{R_CHECK_LENGTH_1*} fix in default value for \code{ask} in
+      plot methods for \code{mcd} and \code{lts}
+
       \item \file{src/rowMedians.c} gets better PROTECT()ion thanks to
       Tomas Kalibera's "rchk"s.
     }
