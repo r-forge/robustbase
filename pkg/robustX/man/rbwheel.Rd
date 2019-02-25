@@ -96,7 +96,7 @@ set.seed(12)
 pairs(X <- rbwheel(n, 7, spherize=TRUE))
 colSums(X) # already centered
 
-if(require("ICS")) {
+if(require("ICS") && require("robustbase")) {
   # ICS: Compare M-estimate [Max.Lik. of t_{df = 2}] with high-breakdown :
   stopifnot(require("MASS"))
   X.paM <- ics(X, S1 = cov, S2 = function(.) cov.trob(., nu=2)$cov, stdKurt = FALSE)

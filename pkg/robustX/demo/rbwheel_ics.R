@@ -44,7 +44,7 @@ print.rbwIcs4plot <- function(x, ...) {
     invisible(x)
 }
 
-if(require("ICS")) {
+if(require("ICS") && require("robustbase")) {
   print(rr <- rbw.ics(200, p=4))
 
   cat("Now you can experiment yourself!   E.g.,\n",

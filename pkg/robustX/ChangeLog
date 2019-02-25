@@ -1,3 +1,9 @@
+2019-02-25  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 1.2-4 [not yet released]
+
+	* man/rbwheel.Rd: need 'robustbase' attached for ICS example
+
 2019-02-08  Martin Mächler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 1.2-3
