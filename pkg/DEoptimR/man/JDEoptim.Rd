@@ -134,6 +134,13 @@ JDEoptim(lower, upper, fn,
       in the current population by its newly generated better or equal offspring
       (Babu and Angira, 2006) instead of updating the current population with
       all the new solutions at the same time as in classical DE.
+
+      As the algorithm subsamples via \code{\link{sample}()}
+      which from \R version 3.6.0 depends on \code{\link{RNGkind}(*,
+      sample.kind)}, exact reproducibility of results from \R versions
+      3.5.3 and earlier requires setting \code{\link{RNGversion}("3.5.0")}.
+      In any case, do use \code{\link{set.seed}()} additionally for reproducibility!
+
     }
     \item{Constraint Handling:}{
       Constraint handling is done using the approach described in
