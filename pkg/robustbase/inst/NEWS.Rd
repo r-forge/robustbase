@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.93-4 (2019-02-22)}{
+\section{CHANGES in robustbase VERSION 0.93-4 (2019-03-09)}{
   \subsection{BUG FIXES}{
     \itemize{
       \item \env{R_CHECK_LENGTH_1*} fix in default value for \code{ask} in
@@ -16,13 +16,14 @@
   }
   \subsection{Tweaks}{
     \itemize{
-      \item losen the strict tests more, ..........
-      convergence issues on all non-standard BLAS platforms.
+      \item losen the strict tests more, convergence issues on all
+      non-standard BLAS platforms.   Further, need \code{RNGversion("3.5.0")}
+      in \file{../tests/mc-strict.R} for now.
     }
   }
 }
 
-\section{CHANGES in robustbase VERSION 0.93-3 (2018-09-06)}{
+\section{CHANGES in robustbase VERSION 0.93-3 (2018-09-06, svn r827)}{
   \subsection{Tweaks}{
     \itemize{
       \item losen the strict tests, notably in
@@ -32,7 +33,7 @@
   }
 }
 
-\section{CHANGES in robustbase VERSION 0.93-2 (2018-07-26)}{
+\section{CHANGES in robustbase VERSION 0.93-2 (2018-07-26, svn r825)}{
   \subsection{BUG FIXES}{
     \itemize{
       \item Update \code{lmrob(<empty multivariate>)} to the change in R
@@ -56,7 +57,7 @@
   }
 }
 
-\section{CHANGES in robustbase VERSION 0.93-1-1 (2018-07-18)}{
+\section{CHANGES in robustbase VERSION 0.93-1-1 (2018-07-18, svn r818)}{
   \subsection{BUG FIXES}{
     \itemize{
       \item \file{src/robustbase.h}: \code{is_redescender} now

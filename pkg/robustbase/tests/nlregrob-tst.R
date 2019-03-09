@@ -36,6 +36,8 @@ if(start.from.true) { # population size = NP (random) + 1 (true parameters)
 
 if(!dev.interactive(orNone=TRUE))  pdf("nlregrob-tst.pdf")
 
+RNGversion("3.5.0") # -- TODO once R >> 3.5.0 : update results !!
+
 ## Stromberg, Arnold J. (1993).
 ## Computation of high breakdown nonlinear regression parameters.
 ## J. Amer. Statist. Assoc. 88(421), 237-244.
