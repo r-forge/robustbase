@@ -132,7 +132,7 @@ set.seed(1) ## result is random!
 ao1 <- adjOutlyingness(longley)
 ## which are outlying ?
 which(!ao1$nonOut) ## one: "1948" - for this seed! (often: none)
-stopifnot(all(ao1$nonOut[-2]))
+all(ao1$nonOut[-2]) # TRUE typically (R's own BLAS, Lapack, ..)
 
 ## An Example with outliers :
 

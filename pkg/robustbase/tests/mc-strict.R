@@ -5,7 +5,12 @@
 ### hence, can also produce non-reproducible output such as timing
 
 library(robustbase)
-source(system.file("xtraR/mcnaive.R", package = "robustbase"))# mcNaive()
+for(f in system.file("xtraR", c("mcnaive.R", # -> mcNaive()
+			      "platform-sessionInfo.R"),
+                     package = "robustbase", mustWork=TRUE)) {
+    cat("source(",f,"):\n", sep="")
+    source(f)
+}
 source(system.file("test-tools-1.R",  package="Matrix", mustWork=TRUE))
 assertEQm12 <- function(x,y, giveRE=TRUE, ...)
     assert.EQ(x,y, tol = 1e-12, giveRE=giveRE, ...)
@@ -15,34 +20,9 @@ c.time <- function(...) cat('Time elapsed: ', ..., '\n')
 S.time <- function(expr) c.time(system.time(expr))
 DO <- function(...) S.time(stopifnot(...))
 
+mS <- moreSessionInfo(print.=TRUE)
+
 (doExtras <- robustbase:::doExtras())# TRUE if interactive() or activated by envvar
-La_version()# to know, for completeness
-
-## Are BLAS and LAPACK the same library?
-## TRUE e.g. for OpenBLAS;  FALSE for R's own source compiled
-(is.BLAS.LAPACK <- exists("La_library", mode="function") &&
-     identical(La_library(), extSoftVersion()[["BLAS"]]))
-## also TRUE for Windows [since both are "" !!]
-
-## <---> sync with ~/R/Pkgs/CLA/tests/SP500-ex.R
-##                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-## I'd really want
-##
-##    strict <- we_are_using_Rs_own_BLAS_and_Lapack()
-## or
-##    strict <- !(using ATLAS || MKL || OpenBLAS )
-##
-## but simply for now
-(strict <- Sys.info()[["user"]] == "maechler")# actually
-## but not when testing with /usr/bin/R [OpenBLAS!] (as "maechler"):
-if(!exists("osVersion")) osVersion <- sessionInfo()$running
-cat("osVersion:", osVersion, "\n")
-if(!is.null(osVersion)) "Fedora" # last resort
-if(strict && substr(osVersion, 1,6) == "Fedora" && R.home() == "/usr/lib64/R")
-    strict <- FALSE
-cat("strict:", strict, "\n")
-
-## Rather would want to know which of (OpenBLAS | ATLAS | MKL | R's own BLAS+LAPACK)
 
 
 n.set <- c(1:99, 1e5L+ 0:1) # large n gave integer overflow in earlier versions
@@ -130,12 +110,12 @@ stopifnot(exprs = {
     ## 'longley', 'wood' have no outliers in the "adjOut" sense:
     ## FIXME: longley is platform dependent too
     { if(isMac) TRUE
-      else if(strict) sum(a1.2$nonOut) >= 15 # sum(.) = 16 [nb-mm3, Oct.2014]
+      else if(mS$ strictR) sum(a1.2$nonOut) >= 15 # sum(.) = 16 [nb-mm3, Oct.2014]
       else ## however, openBLAS Fedora Linux /usr/bin/R gives sum(a1.2$nonOut) = 13
           sum(a1.2$nonOut) >= 13
     }
     if(doExtras) {
-        if(strict) a5$nonOut
+        if(mS$ strictR) a5$nonOut
         else ## not for ATLAS
             sum(a5$nonOut) >= 18 # 18: OpenBLAS
     } else TRUE

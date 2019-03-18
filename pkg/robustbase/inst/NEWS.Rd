@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.93-4 (2019-03-09)}{
+\section{CHANGES in robustbase VERSION 0.93-4 (2019-03-18)}{
   \subsection{BUG FIXES}{
     \itemize{
       \item \env{R_CHECK_LENGTH_1*} fix in default value for \code{ask} in
@@ -17,8 +17,10 @@
   \subsection{Tweaks}{
     \itemize{
       \item losen the strict tests more, convergence issues on all
-      non-standard BLAS platforms.   Further, need \code{RNGversion("3.5.0")}
-      in \file{../tests/mc-strict.R} for now.
+      non-standard BLAS platforms.  Now modularized the partly platform
+      dependent testing into \code{moreSessionInfo()} in
+      \file{./xtraR/platform-sessionInfo.R}.  Further, for now use
+      \code{RNGversion("3.5.0")} e.g. in \file{../tests/mc-strict.R}.
     }
   }
 }
