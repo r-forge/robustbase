@@ -22,18 +22,18 @@ void F77_SUB(pr2mcd)(Rboolean *part, Rboolean *all, // <- logical
 }
 
 
-void F77_SUB(pr3mcd)(Rboolean *part, Rboolean *fine, int *final, // <- logical
+void F77_SUB(pr3mcd)(Rboolean *part, Rboolean *fine, Rboolean *final, // <- logical
 		     int *nrep, int *nn, int *nsel, int *nhalf, int *kstep,
-		     int *nmini, int *nmaxi)
+		     int *nmini, int *kmini)
 {
     char* phase_kind = (*part)
 	? ((*fine && !*final)
 	   ? "fine (2 of 3)"
 	   : ((*final) ? "final (3 of 3)" : "first (of 3)"))
 	: ((*final) ? "final" : "one");
-    Rprintf(" Main loop, phase[%s]:\n (nrep=%4d, nn=%4d, nsel=%4d, nhalf=%4d, kstep=%d, nmini=%d, nmaxi=%d)\n",
+    Rprintf(" Main loop, phase[%s]:\n (nrep=%4d, nn=%4d, nsel=%4d, nhalf=%4d, kstep=%d, nmini=%d, kmini=%d)\n",
 	    phase_kind, *nrep, *nn, *nsel, *nhalf,
-	    *kstep, *nmini, *nmaxi);
+	    *kstep, *nmini, *kmini);
 }
 
 void F77_SUB(prp1mcd)(int *n, int *ngroup, int *minigr, int *nhalf, int *nrep,

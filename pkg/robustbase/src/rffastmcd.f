@@ -125,14 +125,14 @@ cc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      subroutine rffastmcd(dat, n,nvar, nhalff, krep, nmini,kmini,
-     *     initcov, initmean,
-     *     inbest, det, weight, fit, coeff, kount, adcov,
-     *     temp, index1, index2, indexx, nmahad, ndist, am, am2, slutn,
-     *     med, mad, sd, means, bmeans, w, fv1, fv2,
-     *     rec, sscp1, cova1, corr1, cinv1, cova2, cinv2, z,
-     *     cstock, mstock, c1stock, m1stock, dath,
-     *     cutoff, chimed, i_trace)
+      subroutine rffastmcd(dat, n,nvar, nhalff, krep, nmini,kmini, ! 7
+     *     initcov, initmean, inbest, det,                         ! 11
+     *     weight, fit, coeff, kount, adcov,                       ! 16
+     *     temp, index1, index2, indexx, nmahad, ndist, am, am2,   ! 24
+     *     slutn, med, mad, sd, means, bmeans, w, fv1, fv2,        ! 33
+     *     rec, sscp1, cova1, corr1, cinv1, cova2, cinv2, z,       ! 41
+     *     cstock, mstock, c1stock, m1stock, dath,                 ! 46
+     *     cutoff, chimed, i_trace)                                ! 49 args
 
 cc      VT::10.10.2005 - a DATA operator was used for computing the
 cc              median and the 0.975 quantile of the chisq distribution
@@ -150,9 +150,9 @@ c      The number of iteration steps in stages 1,2 and 3 can be changed
 c      by adapting the parameters k1, k2, and k3.
 
       integer k1,k2,k3, int_max
-      parameter (k1=2)
-      parameter (k2=2)
-      parameter (k3=100)
+      parameter (k1 =  2 )
+      parameter (k2 =  2 )
+      parameter (k3 = 100)
 c int_max: easily recognized, slightly smaller than 2147483647 = .Machine$integer.max
       parameter (int_max = 2146666666)
 c Arguments
@@ -372,7 +372,7 @@ c             use all combinations; happens iff  nsel = nvar+1 = p+1 <= 6
       endif
 c     seed=iseed
 
-c     above: pr1mcd(i_trace, n, nvar, nhalff, krep, nmini, kmini)
+c     above: prp1mcd (n,ngroup, minigr, nhalf,nrep, mini)
       if(i_trace .ge. 2) then
          call pr2mcd(part, all, kstep, ngroup, minigr, nhalf, nrep)
       endif
