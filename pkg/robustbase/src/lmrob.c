@@ -52,6 +52,19 @@
 #include <R_ext/Applic.h>
 #include <R_ext/Lapack.h>
 
+#ifndef FCLEN
+// From R-devel (2019-06)'s R_ext/BLAS.h  --- needed for FCLEN
+#ifdef FC_LEN_T
+# include <stddef.h> // for size_t if needed
+# define FCLEN ,FC_LEN_T
+# define FCONE ,(FC_LEN_T)1
+#else
+# define FCLEN
+# define FCONE
+#endif
+#endif
+
+
 #include "robustbase.h"
 //-> <R.h>, <Rinternals.h>  -> XLENGTH, R_xlen_t
 
