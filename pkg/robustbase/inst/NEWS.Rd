@@ -4,6 +4,15 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
+\section{CHANGES in robustbase VERSION 0.93-6 (2019-..-.., svn r...)}{
+  \subsection{Tweaks}{
+    \itemize{
+      \item Small updates, also in checks for newer compiler settings,
+      e.g., \code{FCLEN} macro.
+    }
+  }
+}
+
 \section{CHANGES in robustbase VERSION 0.93-5 (2019-05-09, svn r840)}{
   \subsection{Tweaks}{
     \itemize{
