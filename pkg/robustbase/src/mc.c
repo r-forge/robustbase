@@ -205,13 +205,19 @@ double mc_C_d(double *z, int n, const double eps[], int *iter, int scale)
 	if(trace_lev >= 4) {
 	    Rprintf(" before whimed(): work and iwt, each [0:(%d-1)]:\n", j);
 	    if(j >= 100) {
-		for(i=0; i < 90; i++) Rprintf(" %8g", work[i]); Rprintf("\n  ... ");
-		for(i=j-4; i < j; i++)Rprintf(" %8g", work[i]); Rprintf("\n");
-		for(i=0; i < 90; i++) Rprintf(" %8d", iwt [i]); Rprintf("\n  ... ");
-		for(i=j-4; i < j; i++)Rprintf(" %8d", iwt [i]); Rprintf("\n");
+		for(i=0; i < 90; i++)  Rprintf(" %8g", work[i]);
+		Rprintf("\n  ... ");
+		for(i=j-4; i < j; i++) Rprintf(" %8g", work[i]);
+		Rprintf("\n");
+		for(i=0; i < 90; i++)  Rprintf(" %8d", iwt [i]);
+		Rprintf("\n  ... ");
+		for(i=j-4; i < j; i++) Rprintf(" %8d", iwt [i]);
+		Rprintf("\n");
 	    } else { // j <= 99
-		for(i=0; i < j; i++) Rprintf(" %8g", work[i]); Rprintf("\n");
-		for(i=0; i < j; i++) Rprintf(" %8d", iwt [i]); Rprintf("\n");
+		for(i=0; i < j; i++) Rprintf(" %8g", work[i]);
+		Rprintf("\n");
+		for(i=0; i < j; i++) Rprintf(" %8d", iwt [i]);
+		Rprintf("\n");
 	    }
 	}
 	trial = whimed_i(work, iwt, j, acand, a_srt, iw_cand);
