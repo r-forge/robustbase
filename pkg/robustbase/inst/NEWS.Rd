@@ -4,11 +4,11 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.93-6 (2019-..-.., svn r...)}{
+\section{CHANGES in robustbase VERSION 0.93-6 (2019-09-14, svn r846)}{
   \subsection{Tweaks}{
     \itemize{
       \item Small updates, also in checks for newer compiler settings,
-      e.g., \code{FCLEN} macro.
+      e.g., \code{FCLEN} macro, in order to fix 'LTO' compilation issues.
     }
   }
 }

@@ -256,12 +256,14 @@ double mc_C_d(double *z, int n, const double eps[], int *iter, int scale)
 	    if (trace_lev == 3)
 		Rprintf("sum_(p,q)= (%.0f,%.0f)", (double)sum_p, (double)sum_q);
 	    else { /* trace_lev >= 4 */
-		Rprintf("\n%3s p[1:%d]:", "", h2);
 		Rboolean lrg = h2 >= 100;
 		int i_m = lrg ? 95 : h2;
-		for(i = 1; i <= i_m; i++) Rprintf(" %2d", p[i]); if(lrg) Rprintf(" ...");
+		Rprintf("\n%3s p[1:%d]:", "", h2);
+		for(i = 1; i <= i_m; i++) Rprintf(" %2d", p[i]);
+		if(lrg) Rprintf(" ...");
 		Rprintf(" sum=%4.0f\n%3s q[1:%d]:", (double)sum_p, "", h2);
-		for(i = 1; i <= i_m; i++) Rprintf(" %2d", q[i]); if(lrg) Rprintf(" ...");
+		for(i = 1; i <= i_m; i++) Rprintf(" %2d", q[i]);
+		if(lrg) Rprintf(" ...");
 		Rprintf(" sum=%4.0f\n", (double)sum_q);
 	    }
 	}
