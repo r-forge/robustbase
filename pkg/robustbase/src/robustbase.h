@@ -157,7 +157,7 @@ void F77_NAME(rfltsreg)(
     double *dath, double *sd, double *means, double *bmeans, int *i_trace);
 
 /* ------- ./rllarsbi.f -------------- */
-void  F77_NAME(rllarsbi)(
+void F77_NAME(rllarsbi)(
     double *X, double *Y, int *N, int *NP, int *MDX, int *MDT,
     double *TOL, int *NIT, int *K, int *KODE, double *SIGMA, double *THETA,
     double *RS, double *SC1, double *SC2, double *SC3, double *SC4,

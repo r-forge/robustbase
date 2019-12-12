@@ -5,6 +5,7 @@
 #include <R.h>
 
 /* called for  trace >= 2 : ----------------------------------------------- */
+#define F_Logical int_least32_t *
 
 void F77_SUB(pr1mcd)(int *i_trace, int *n, int *nvar, int *nhallf, int *krep,
 		     int *nmini, int *kmini)
@@ -14,7 +15,7 @@ void F77_SUB(pr1mcd)(int *i_trace, int *n, int *nvar, int *nhallf, int *krep,
 	    *i_trace);
 }
 
-void F77_SUB(pr2mcd)(Rboolean *part, Rboolean *all, // <- logical
+void F77_SUB(pr2mcd)(F_Logical part, F_Logical all, // <- logical
 		     int *kstep, int *ngroup, int *minigr, int *nhalf, int *nrep)
 {
     Rprintf("pr[2]: (part=%d, all=%d); (kstep=%d, ngroup=%d, minigr=%d, nhalf=%d, nrep=%d)\n",
@@ -22,7 +23,7 @@ void F77_SUB(pr2mcd)(Rboolean *part, Rboolean *all, // <- logical
 }
 
 
-void F77_SUB(pr3mcd)(Rboolean *part, Rboolean *fine, Rboolean *final, // <- logical
+void F77_SUB(pr3mcd)(F_Logical part, F_Logical fine, F_Logical final, // <- logical
 		     int *nrep, int *nn, int *nsel, int *nhalf, int *kstep,
 		     int *nmini, int *kmini)
 {
