@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.93-6 (2019-12-12, svn r847)}{
+\section{CHANGES in robustbase VERSION 0.93-6 (2019-12-12, svn r849)}{
   \subsection{Tweaks}{
     \itemize{
       \item Small updates, also in checks for newer compiler settings,

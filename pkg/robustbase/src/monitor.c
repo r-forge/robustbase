@@ -5,7 +5,11 @@
 #include <R.h>
 
 /* called for  trace >= 2 : ----------------------------------------------- */
-#define F_Logical int_least32_t *
+#ifdef _new_gfortran__fixme
+# define F_Logical int_least32_t *
+#else
+# define F_Logical int *
+#endif
 
 void F77_SUB(pr1mcd)(int *i_trace, int *n, int *nvar, int *nhallf, int *krep,
 		     int *nmini, int *kmini)
