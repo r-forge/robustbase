@@ -364,7 +364,8 @@ c  "not part" : not partitioning; either  krep == 0  or   n <= 2*nmini-1 ( = 599
          if(krep.eq.0 .or. n.le.replow(nsel)) then
 c             use all combinations; happens iff  nsel = nvar+1 = p+1 <= 6
             nrep = rfncomb(nsel,n)
-            if(i_trace .ge. 2) call intpr('*all* combinations ',-1,0,0)
+            if(i_trace .ge. 2)
+     +           call intpr('*all* combinations ',-1, k1,0)
          else
             nrep=krep
             all = .false.

@@ -10,6 +10,8 @@
 #else
 # define F_Logical int *
 #endif
+// but  'int *' gives warnings with  LTO ?
+
 
 void F77_SUB(pr1mcd)(int *i_trace, int *n, int *nvar, int *nhallf, int *krep,
 		     int *nmini, int *kmini)
@@ -19,7 +21,7 @@ void F77_SUB(pr1mcd)(int *i_trace, int *n, int *nvar, int *nhallf, int *krep,
 	    *i_trace);
 }
 
-void F77_SUB(pr2mcd)(F_Logical part, F_Logical all, // <- logical
+void F77_SUB(pr2mcd)(F_Logical part, F_Logical all,
 		     int *kstep, int *ngroup, int *minigr, int *nhalf, int *nrep)
 {
     Rprintf("pr[2]: (part=%d, all=%d); (kstep=%d, ngroup=%d, minigr=%d, nhalf=%d, nrep=%d)\n",
@@ -27,7 +29,7 @@ void F77_SUB(pr2mcd)(F_Logical part, F_Logical all, // <- logical
 }
 
 
-void F77_SUB(pr3mcd)(F_Logical part, F_Logical fine, F_Logical final, // <- logical
+void F77_SUB(pr3mcd)(F_Logical part, F_Logical fine, F_Logical final,
 		     int *nrep, int *nn, int *nsel, int *nhalf, int *kstep,
 		     int *nmini, int *kmini)
 {

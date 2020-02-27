@@ -130,8 +130,9 @@ c     Function
       data faclts/2.6477,2.5092,2.3826,2.2662,2.1587,
      *     2.0589,1.9660,1.879,1.7973,1.7203,1.6473/
 
+      nrep = krep
       if(i_trace .ge. 2) then
-         call intpr('Entering rfltsreg() - krep: ',-1,krep,1)
+         call intpr('Entering rfltsreg() - krep: ',-1, nrep,1)
       endif
 
       call rndstart
@@ -143,7 +144,6 @@ CCCC  10.10.2005 - substitute the parameters nmax and nvmax
       nvmax1 = nvmax+1
       nvm11 = nvmax*(nvmax+1)
 
-      nrep = krep
 
       if(nvar .lt.5 ) then
          eps=1.0D-12
