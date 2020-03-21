@@ -197,6 +197,7 @@ c      was hardcoded krep := 500; now an *argument*
       double precision cutoff, chimed
       integer i_trace
 
+      integer l2i
 c Functions from ./rf-common.f :
       integer replow
       integer rfncomb
@@ -372,9 +373,9 @@ c             use all combinations; happens iff  nsel = nvar+1 = p+1 <= 6
 c     seed=iseed
 
 c     above: prp1mcd (n,ngroup, minigr, nhalf,nrep, mini)
-      if(i_trace .ge. 2) then
-         call pr2mcd(part, all, kstep, ngroup, minigr, nhalf, nrep)
-      endif
+      if(i_trace .ge. 2)
+     1     call pr2mcd(l2i(part), l2i(all),
+     2                 kstep, ngroup, minigr, nhalf, nrep)
 
 cc
 cc  Some more initializations:
@@ -521,8 +522,8 @@ c                       is determined according to the total number of observati
          nn=-1
       endif
       if(i_trace .ge. 2)  ! " Main loop, phase[%s]: ... "
-     1     call pr3mcd(part, fine, final, nrep, nn,
-     2                 nsel, nhalf, kstep, nmini, kmini)
+     1     call pr3mcd(l2i(part), l2i(fine), l2i(final),
+     2                 nrep, nn, nsel, nhalf, kstep,  nmini, kmini)
 
       if(fine .or.(.not.part.and.final)) then
          nrep = 10
@@ -1396,9 +1397,22 @@ C     ------ == PutRNGstate() in C
       return
       end
 ccccc end {rffastmcd}
+ccccc
+ccccc
 
-ccccc
-ccccc
+
+c --- Auxiliary just to pass Fortran 'logical' as 'integer' to C;   int(.) does *not* work
+      integer function l2i(logi)
+      implicit none
+      logical logi
+      if(logi) then
+         l2i = 1
+      else
+         l2i = 0
+      endif
+      return
+      end
+
 ccccc
 ccccc
       subroutine rfexact(kount,nn,ndist, nvar,sscp1,

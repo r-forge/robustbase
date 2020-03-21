@@ -132,7 +132,8 @@ c     Function
 
       nrep = krep
       if(i_trace .ge. 2) then
-         call intpr('Entering rfltsreg() - krep: ',-1, nrep,1)
+         i_aux(1) = nrep
+         call intpr('Entering rfltsreg() - krep: ',-1, i_aux, 1)
       endif
 
       call rndstart
@@ -247,7 +248,8 @@ cc
         if(ngroup.gt.kmini) ngroup=kmini
         nrep=int(dble(krep)/ngroup)
         minigr=mini(1)+mini(2)+mini(3)+mini(4)+mini(5)
-        if(i_trace .ge. 2) call intpr(' rftls.... minigr=',-1,minigr,1)
+        if(i_trace .ge. 2)
+     +       call intpr(' rftls.... minigr=',-1,[minigr],1)
         call rfrdraw(subdat,n,minigr,mini,ngroup,kmini)
       else
 c          krep == 0  or   n <=  2*nmini-1  ( = 599 by default)
@@ -332,7 +334,7 @@ CDDD  CALL INTPR('>>> Start initialization ... nrep=',-1,nrep,1)
       end do
 
       if(i_trace .ge. 2)
-     +    call intpr(' rftls.... initialization ready',-1,0,1)
+     +    call intpr(' rftls.... initialization ready',-1,[0],1)
  9000 continue
 
       if(nvad.eq.1) then
@@ -441,7 +443,7 @@ CDDD  CALL INTPR('>>> MAIN LOOP BY GROUPS: NGROUP= ',-1,ngroup,1)
 
       do 1111 ii = 1,ngroup
          if(i_trace .ge. 3)
-     +        call intpr(' rftls.... looping by group ii=',-1,ii,1)
+     +        call intpr(' rftls.... looping by group ii=',-1,[ii],1)
         if(.not.fine) kount=0
         if(part .and. .not. fine) nn=mini(ii)
         do i=1,nn
@@ -466,7 +468,7 @@ CDDD  CALL INTPR('>>> MAIN LOOP BY GROUPS: NGROUP= ',-1,ngroup,1)
 
         do 1000 i=1,nrep
           if(i_trace .ge. 4)
-     +          call intpr(' rftls.... for(i = 1,nrep): i=',-1,i,1)
+     +          call intpr(' rftls.... for(i = 1,nrep): i=',-1,[i],1)
           pnsel=nsel
           tottimes=tottimes+1
           fckwi=0.D0

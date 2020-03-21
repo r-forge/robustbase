@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.93-6 (2020-02-27, svn r852)}{
+\section{CHANGES in robustbase VERSION 0.93-6 (2020-03-20, svn r854)}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item \code{splitFrame()} now treats \code{character} columns also as
