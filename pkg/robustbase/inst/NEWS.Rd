@@ -17,7 +17,7 @@
       e.g., \code{FCLEN} macro; also F77_*() etc, in order to fix 'LTO'
       issues.
 
-      \item More careful calling \code{intpr()}: correct "Rank" of array
+      \item More careful or \emph{less} calling \code{intpr()}: correct "Rank" of array
       (for gfortran/gcc 10, when \code{-fallow-argument-mismatch} is not set).
     }
   }

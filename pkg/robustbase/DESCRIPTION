@@ -1,7 +1,7 @@
 Package: robustbase
 Version: 0.93-6
 VersionNote: Released 0.93-5 on 2019-05-09 on CRAN
-Date: 2020-02-27
+Date: 2020-03-21
 Title: Basic Robust Statistics
 Authors@R: c(person("Martin","Maechler", role=c("aut","cre"), email="maechler@stat.math.ethz.ch", comment = c(ORCID = "0000-0002-8685-9910"))
          , person("Peter", "Rousseeuw", role="ctb", comment = "Qn and Sn")

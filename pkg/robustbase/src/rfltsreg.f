@@ -260,9 +260,7 @@ C VT::25.11.2010 - added krep==0 means "exact" (all combinations)
         if(krep.eq.0 .or. n.le.replow(nsel)) then
 c		use all combinations; happens iff  nsel = nvar = p <= 6
            nrep=rfncomb(nsel,n)
-           if(i_trace .ge. 2) then
-               call intpr('will use *all* combinations: ',-1,nrep,1)
-           endif
+           if(i_trace .ge. 2)  call prallc(nrep)
         else
           nrep = krep
           all=.false.
