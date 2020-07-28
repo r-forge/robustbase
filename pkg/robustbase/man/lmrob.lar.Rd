@@ -46,7 +46,7 @@ lmrob.lar(x, y, control, \dots)
   Manuel Koller
 }
 \seealso{
-  \code{\link[quantreg]{rq}} from package \pkg{quantreg}.
+  \code{\link[quantreg]{rq}} from CRAN package \CRANpkg{quantreg}.
 }
 \examples{
 data(stackloss)

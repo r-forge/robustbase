@@ -65,7 +65,7 @@ glmrob(formula, family, data, weights, subset, na.action,
     \code{"robCov"}, weights based on the robust Mahalanobis distance of the
     design matrix (intercept excluded) are used where the covariance
     matrix and the centre is estimated by \code{\link[MASS]{cov.rob}}
-    from the package \pkg{MASS}.\cr
+    from the package \CRANpkg{MASS}.\cr
     Similarly,  if \code{"covMcd"}, robust weights are computed using
     \code{\link{covMcd}}.  The default is \code{"none"}.
 
@@ -75,7 +75,7 @@ glmrob(formula, family, data, weights, subset, na.action,
 
     If it is a \code{\link{list}}, it must be of length one, and as
     element contain a function much like \code{\link{covMcd}()} or
-    \code{\link[MASS]{cov.rob}()} (package \pkg{MASS}), which computes
+    \code{\link[MASS]{cov.rob}()} (package \CRANpkg{MASS}), which computes
     multivariate location and \dQuote{scatter} of a data matrix \code{X}.
   }
   \item{control}{a list of parameters for controlling the fitting process.

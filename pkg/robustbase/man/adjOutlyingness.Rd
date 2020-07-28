@@ -1,7 +1,6 @@
 \name{adjOutlyingness}
 \alias{adjOutlyingness}
 \title{Compute (Skewness-adjusted) Multivariate Outlyingness}
-\newcommand{\CRANpkg}{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 \description{
   For an \eqn{n \times p}{n * p} data matrix (or data frame) \code{x},
   compute the \dQuote{\emph{outlyingness}} of all \eqn{n} observations.
