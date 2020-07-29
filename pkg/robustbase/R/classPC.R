@@ -2,7 +2,7 @@
 rankMM <- function(A, tol = NULL, sv = svd(A,0,0)$d) {
     d <- dim(A)
     stopifnot(length(d)==2, length(sv) == min(d), min(d) >= 1L,
-              length(sv) == 1L || diff(sv) <= 0) # must be sorted decreasingly
+              all(diff(sv) <= 0)) # must be sorted decreasingly
     if(is.null(tol))
 	tol <- max(d) * .Machine$double.eps * abs(sv[1L])
     else
