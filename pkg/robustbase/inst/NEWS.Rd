@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.93-7 (2020-..-.., svn r..)}{
+\section{CHANGES in robustbase VERSION 0.93-7 (2020-07-29, svn r859)}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item Use \command{\\CRANpkg\{.\}} in most places, providing web
