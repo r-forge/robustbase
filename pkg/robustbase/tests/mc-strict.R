@@ -69,6 +69,7 @@ for(n in 3:50) {
 ###----  Strict tests of adjOutlyingness():
 ###                      ================= changed after long-standing bug fix in Oct.2014
 ## as this calls, sample.int() and we carefully compare specific seed examples, need
+RNGversion("3.6.0") # == RNGversion("4.0.2") ..
 RNGversion("3.5.0") ## [TODO: adapt to "current" RNG settings]
 
 set.seed(1);  S.time(a1.1 <- adjOutlyingness(longley))
@@ -158,7 +159,7 @@ sum(abs(d) <= 17) >= 78
 sum(abs(d) <= 13) >= 75
 
 
-
+RNGversion("3.6.0") # == RNGversion("4.0.2") ..
 
 ## check of adjOutlyingness *free* bug
 ## reported by Kaveh Vakili <Kaveh.Vakili@wis.kuleuven.be>
@@ -171,6 +172,22 @@ for (i in 1:10) {
     ## this would produce an error in the 6th iteration
     aa <- adjOutlyingness(x=X,ndir=250)
 }
+
+## Check "high"-dimensional Noise ... typically mc() did *not* converge for some re-centered columns
+## Example by Valentin Todorov:
+n <- 50
+p <- 30
+set.seed(1) # MM
+a <- matrix(rnorm(n * p), nrow=n, ncol=p)
+str(a)
+kappa(a) # 20.42 (~ 10--20 or so; definitely not close to singular)
+a.a <- adjOutlyingness(a, trace.lev=1)
+str(a.a) # surprisingly high 'adjout' values "all similar" -> no outliers .. hmm .. ???
+with(a.a,
+     stopifnot(nonOut,
+               all.equal(MCadjout, 0.260365822962, tol = 8e-12) # seen 1.72e-12
+))
+## The adjout values are all > 10^15  !!! ... what's going on ???
 
 
 ## "large n" (this did overflow sum_p, sum_q  earlier ==> had inf.loop):

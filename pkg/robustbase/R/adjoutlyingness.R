@@ -27,7 +27,8 @@
 
 adjOutlyingness <- function(x, ndir = 250, p.samp = p, clower=4, cupper=3,
                             alpha.cutoff = 0.75, coef = 1.5, qr.tol = 1e-12, keep.tol = 1e-12,
-                           only.outlyingness = FALSE, maxit.mult = max(100, p), trace.lev = 0)
+                            only.outlyingness = FALSE, maxit.mult = max(100, p), trace.lev = 0,
+                            mcScale = FALSE, mcMaxit = 2*maxit.mult, mcEps1 = 1e-12, mcEps2 = 1e-15)
 ## Skewness-Adjusted Outlyingness
 {
     x <- data.matrix(x)
@@ -48,7 +49,7 @@ adjOutlyingness <- function(x, ndir = 250, p.samp = p, clower=4, cupper=3,
             P <- x.[sample.int(n, p.samp), , drop=FALSE]
             if ((qrP <- qr(P, tol = qr.tol))$rank == p) {
                 B[,i] <- solve(qrP, E, tol = qr.tol)
-                if(trace.lev) cat(" it=",it,"; found direction # ", i,"\n", sep="")
+                ## if(trace.lev >= 2) cat(" it=",it,"; found direction # ", i,"\n", sep="")
 		i <- i+1L
             } else if(trace.lev >= 2) {
                 if(it %% p10 == 0)
@@ -66,10 +67,14 @@ adjOutlyingness <- function(x, ndir = 250, p.samp = p, clower=4, cupper=3,
         Bnorm <- sqrt(colSums(B^2))
         Nx <- mean(abs(x.)) ## so the comparison is scale-equivariant:
         keep <- Bnorm*Nx > keep.tol
-        Bnormr <- Bnorm[  keep ]
-        B      <-     B[, keep , drop=FALSE]
+        if(!all(keep)) {
+            if(trace.lev)
+                cat("keeping ", sum(keep), "(out of", length(keep),") normalized directions\n")
+            Bnorm <- Bnorm[  keep ]
+            B     <-     B[, keep , drop=FALSE]
+        } else if(trace.lev) cat("keeping *all* ",length(keep)," normalized directions\n")
 
-        A <- B / rep(Bnormr, each = nrow(B))
+        A <- B / rep(Bnorm, each = nrow(B))
     }
     else {
         stop('More dimensions than observations: not yet implemented')
@@ -84,9 +89,9 @@ adjOutlyingness <- function(x, ndir = 250, p.samp = p, clower=4, cupper=3,
         ##    for i=1:size(B,1)
         ##        Bnorm(i)=norm(B(i,:),2);
         ##    end
-        ##    Bnormr=Bnorm(Bnorm > 1.e-12); %ndirect*1
+        ##    Bnorm=Bnorm(Bnorm > 1.e-12); %ndirect*1
         ##    B=B(Bnorm > 1.e-12,:);       %ndirect*n
-        ##    A=diag(1./Bnormr)*B;         %ndirect*n
+        ##    A=diag(1./Bnorm)*B;         %ndirect*n
 
     }
     Y <- x %*% A # (n x p) %*% (p, nd') == (n x nd');
@@ -94,13 +99,24 @@ adjOutlyingness <- function(x, ndir = 250, p.samp = p, clower=4, cupper=3,
 
     ## Compute and sweep out the median
     med <- colMedians(Y)
+    if(trace.lev) {
+        cat("med <- colMedians(Y): ", length(med), " values; summary():\n")
+        print(summary(med))
+    }
     Y <- Y - rep(med, each=n)
     ## central :<==> non-adjusted  <==> "classical" outlyingness
     central <- clower == 0 && cupper == 0
     if(!central)
         ## MM: mc() could be made faster if we could tell it that med(..) = 0
-        tmc <- apply(Y, 2, mc) ## original Antwerpen *wrongly*: tmc <- mc(Y)
+        ##                 vv
+        tmc <- apply(Y, 2L, mc, doScale=mcScale, trace.lev = max(0, trace.lev-1),
+                     maxit=mcMaxit, eps1=mcEps1, eps2=mcEps2)
     ##                     ==
+    ## original Antwerpen *wrongly*: tmc <- mc(Y)
+    if(trace.lev) {
+        cat("Columnwise mc() got ", length(tmc), " values; summary():\n")
+        print(summary(tmc))
+    }
     Q13 <- apply(Y, 2, quantile, c(.25, .75), names=FALSE)
     Q1 <- Q13[1L,]; Q3 <- Q13[2L,]
     IQR <- Q3 - Q1
@@ -141,7 +157,7 @@ adjOutlyingness <- function(x, ndir = 250, p.samp = p, clower=4, cupper=3,
 	adjout
     else {
 	Qadj <- quantile(adjout, probs = c(1 - alpha.cutoff, alpha.cutoff))
-	mcadjout <- if(cupper != 0) mc(adjout) else 0
+	mcadjout <- if(cupper != 0) mc(adjout, doScale=mcScale, eps1=mcEps1, eps2=mcEps2) else 0
 	##			    ===
 	cutoff <- Qadj[2] + coef * (Qadj[2] - Qadj[1]) *
 	    (if(mcadjout > 0) exp(cupper*mcadjout) else 1)

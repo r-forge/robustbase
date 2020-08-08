@@ -47,7 +47,7 @@
 ##'                     mahalanobis (x, rep(0,p), diag(sd^2)))
 mahalanobisD <- function(x, center, sd) {
     ## Compute the mahalanobis distances (for diagonal cov).
-    if(!identical(center, FALSE))
+    if(!isFALSE(center))
         x <- sweep(x, 2L, center, check.margin=FALSE)
     rowSums(sweep(x, 2L, sd, '/', check.margin=FALSE)^2)
 }
@@ -179,7 +179,7 @@ scaleTau2 <- function(x, c1 = 4.5, c2 = 3.0, consistency = TRUE,
     rho[rho > c2^2] <- c2^2
     ## sigma2 <- sigma0^2 * sum(rho)/ n
 
-    if(!identical(consistency,FALSE)) {
+    if(!isFALSE(FALSE)) {
 	Erho <- function(b)
 	    ## E [ rho_b ( X ) ]   X ~ N(0,1)
 	    2*((1-b^2)*pnorm(b) - b * dnorm(b) + b^2) - 1

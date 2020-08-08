@@ -13,7 +13,9 @@ adjOutlyingness(x, ndir = 250, p.samp = p, clower = 4, cupper = 3,
                 alpha.cutoff = 0.75, coef = 1.5,
                 qr.tol = 1e-12, keep.tol = 1e-12,
                 only.outlyingness = FALSE, maxit.mult = max(100, p),
-                trace.lev = 0)
+                trace.lev = 0,
+                mcScale = FALSE, mcMaxit = 2*maxit.mult,
+                mcEps1 = 1e-12, mcEps2 = 1e-15)
 }
 \arguments{
   \item{x}{a numeric \code{\link{matrix}} or \code{\link{data.frame}},
@@ -53,6 +55,13 @@ adjOutlyingness(x, ndir = 250, p.samp = p, clower = 4, cupper = 3,
     though increasing \code{ndir} may be more important.}
   \item{trace.lev}{an integer, if positive allows to monitor the
     direction search.}
+  %% new (Aug.2020), related to mc():
+  \item{mcScale}{passed as \code{doScale} to \code{\link{mc}()}; note that
+    the default is \emph{not} to scale, differently from \code{\link{mc}()}.}
+  \item{mcMaxit}{passed as \code{maxit} to \code{\link{mc}()}.}
+  \item{mcEps1}{passed as \code{eps1} to \code{\link{mc}()}; the default is slightly
+    looser (100 larger) than the default for \code{mc}().}
+  \item{mcEps2}{passed as \code{eps2} to \code{\link{mc}()}.}
 }
 \note{
   The result is \emph{random} as it depends on the sample of
@@ -88,7 +97,7 @@ adjOutlyingness(x, ndir = 250, p.samp = p, clower = 4, cupper = 3,
   %%      Matlab code
 
   The method as described can be useful as preprocessing in
-  FASTICA (\url{http://www.cis.hut.fi/projects/ica/fastica/};
+  FASTICA (\url{http://research.ics.aalto.fi/ica/fastica/}
   see also the \R package \CRANpkg{fastICA}.
 }
 \value{
@@ -117,7 +126,8 @@ adjOutlyingness(x, ndir = 250, p.samp = p, clower = 4, cupper = 3,
   %% ~/save/papers/robust-diverse/Hubert_skewed-CS2010-paper.pdf (slides are better !!)
 
   For the up-to-date reference, please consult
-  \url{http://wis.kuleuven.be/stat/robust}
+ %\url{https://wis.kuleuven.be/stat/robust}% to sound modern:
+  \url{https://wis.kuleuven.be/statdatascience/robust}
 }
 \author{Guy Brys; help page and improvements by Martin Maechler}
 \seealso{the adjusted boxplot, \code{\link{adjbox}} and the medcouple,
