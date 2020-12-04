@@ -61,7 +61,8 @@ mc(x, na.rm = FALSE, doReflect = (length(x) <= 100),
   \cr
   For others, with pecular values, notably many almost-ties with the
   median, it can help extremely to replace \code{mc(x, *)} by
-  \code{mc(jitter(x), *)}.% MM: see also ~/R/MM/Pkg-ex/robustbase/Robnik-mc.R
+  \code{mc(jitter(x), *)}, % MM: see also ~/R/MM/Pkg-ex/robustbase/Robnik-mc.R
+  or also just \code{mc(signif(x), *)}, %
 
   Also, the algorithm not only centers the data around the median but
   also scales them by the extremes which may have a negative effect

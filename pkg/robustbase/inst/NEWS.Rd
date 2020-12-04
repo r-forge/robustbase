@@ -4,23 +4,24 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.93-7 (2020-08-08, svn r860)}{
+\section{CHANGES in robustbase VERSION 0.93-7 (2020-12-04, svn r862)}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item Use \command{\\CRANpkg\{.\}} in most places, providing web
       links to the respective CRAN package page.
 
       \item \code{adjOutlyingness()} now gains optional parameters to be
-      passed to \code{mc()}; that now defaults to \code{mc(*,
-      doScale=FALSE)} which leads to convergence, e.g., for 50x30
-      dimensional gaussian data.
+      passed to \code{mc()}.
     }
   }
   \subsection{BUG FIXES}{
     \itemize{
       \item update the internal man page, so new \code{checkRdContents()}
       is happy.
-      \item fix several \samp{\\url{.}}'s that now are diagnosed as \sQuote{moved}.
+      \item fix several \samp{\\url{.}}'s that now are diagnosed as
+      \sQuote{moved}.
+
+      \item \code{adjOutlyingness()} finally works with \code{p.samp > p}.
     }
   }
 }

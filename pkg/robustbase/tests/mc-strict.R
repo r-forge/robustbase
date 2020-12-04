@@ -35,7 +35,7 @@ DO(0 == sapply(1:100, function(n) mcNaive(seq_len(n), "h.use" )))
 
 x1 <- c(1, 2, 7, 9, 10)
 mcNaive(x1) # = -1/3
-assertEQm12(-1/3, mcNaive(x1))
+assertEQm12(-1/3, mcNaive(x1, "simple"))
 assertEQm12(-1/3, mcNaive(x1, "h.use"))
 assertEQm12(-1/3, mc(x1))
 
@@ -48,6 +48,7 @@ assertEQm12(1/6, mcNaive(x2, "h.use"))
 x4 <- c(1:5,7,10,15,25, 1e15) ## - bombed in orignal algo
 mcNaive(x4,"h.use") # 0.5833333
 assertEQm12( 7/12, mcNaive(x4, "h.use"))
+assertEQm12( 7/12, mcNaive(x4, "simple"))
 assertEQm12( 7/12, mc( x4, doRefl= FALSE))
 assertEQm12(-7/12, mc(-x4, doRefl= FALSE))
 

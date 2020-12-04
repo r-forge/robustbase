@@ -136,12 +136,20 @@ adjOutlyingness(x, ndir = 250, p.samp = p, clower = 4, cupper = 3,
 \examples{
 ## An Example with bad condition number and "border case" outliers
 
-dim(longley)
-set.seed(1) ## result is random!
-ao1 <- adjOutlyingness(longley)
+dim(longley) # 16 x 7  // set seed, as result is random :
+set.seed(31)
+ao1 <- adjOutlyingness(longley, mcScale=FALSE)
 ## which are outlying ?
-which(!ao1$nonOut) ## one: "1948" - for this seed! (often: none)
-all(ao1$nonOut[-2]) # TRUE typically (R's own BLAS, Lapack, ..)
+which(!ao1$nonOut) ## for this seed, two: "1956", "1957"; (often: none)
+## For seeds 1:100, we observe (Linux 64b)
+if(FALSE) {
+  adjO <- sapply(1:100, function(iSeed) {
+            set.seed(iSeed); adjOutlyingness(longley)$nonOut })
+  table(nrow(longley) - colSums(adjO))
+}
+## #{outl.}:  0  1  2  3
+## #{cases}: 74 17  6  3
+
 
 ## An Example with outliers :
 
