@@ -99,7 +99,7 @@ cat("\nRnk(a4 $ adjout): "); dput(Rnk(a4$adjout), control= {})
     else if(isSun || isMac)
         TRUE
     else
-        all.equal(i.a4Out, c(9:19, 23:27,57, 59, 70, 77))
+        all.equal(i.a4Out, c(9:19, 23:27,57, 59, 70, 77)) # '70' only 64b-Fedora_32, Dec.2020
 }
 
 ## only for ATLAS (BLAS/Lapack), not all are TRUE; which ones?
@@ -182,13 +182,20 @@ set.seed(1) # MM
 a <- matrix(rnorm(n * p), nrow=n, ncol=p)
 str(a)
 kappa(a) # 20.42 (~ 10--20 or so; definitely not close to singular)
-a.a <- adjOutlyingness(a, trace.lev=1)
+a.a <- adjOutlyingness(a, mcScale=FALSE, # <- my own recommendation
+                       trace.lev=1)
+a.s <- adjOutlyingness(a, mcScale=TRUE, trace.lev=1)
+
 str(a.a) # surprisingly high 'adjout' values "all similar" -> no outliers .. hmm .. ???
-with(a.a,
-     stopifnot(nonOut,
-               all.equal(MCadjout, 0.260365822962, tol = 8e-12) # seen 1.72e-12
-))
-## The adjout values are all > 10^15  !!! ... what's going on ???
+stopifnot(exprs = {
+    ## a.a :
+    identical(a.a$nonOut, local({r <- rep(TRUE, 50); r[22] <- FALSE; r}))
+    all.equal(a.a$MCadjout, 0.136839766177, tol = 1e-12) # seen 7.65e-14
+    ## a.s :
+    a.s$nonOut # all TRUE
+    all.equal(a.s$MCadjout, 0.32284906741568, tol = 1e-13) # seen 2.2e-15
+})
+## The adjout values are all > 10^15  !!! ... what's going on ??? (now I know ..)
 
 
 ## "large n" (this did overflow sum_p, sum_q  earlier ==> had inf.loop):

@@ -1,6 +1,6 @@
 
-R version 3.5.0 Patched (2018-06-20 r74924) -- "Joy in Playing"
-Copyright (C) 2018 The R Foundation for Statistical Computing
+R Under development (unstable) (2020-12-26 r79698) -- "Unsuffered Consequences"
+Copyright (C) 2020 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -640,7 +640,7 @@ mc_C_d(z[1:100], trace_lev=1, scale=T): Median = 0.921319 (not at the border)
 > try( mc(x3, doRefl = FALSE, maxit = 15, trace = 3)) ## "non-convergence" (32-bit)
 mc_C_d(z[1:16], trace_lev=3, scale=T): Median = 0 (not at the border)
  x[] has been rescaled (* 1/s) with s = 8
-   x1[] := {x | x_j > x_eps = 1e-28}    has 5 (='j-1') entries
+   x1[] := {x | x_j >= x_eps = 1e-28}    has 5 (='j-1') entries
 'median-x' {x | -eps < x_i <= eps} has 6 (= 'k') entries
   now allocating 2+5 work arrays of size (1+) h2=11 each:
  (h1,h2, nr, knew) = (11,11, 121, 61)
@@ -652,7 +652,7 @@ converged in 3 iterations
 > str(mcComp.(-x3, doScale=TRUE, trace = 4))
 mc_C_d(z[1:16], trace_lev=4, scale=T): Median = -0 (not at the border)
  x[] has been rescaled (* 1/s) with s = 8
-   x1[] := {x | x_j > x_eps = 1e-26}    has 5 (='j-1') entries
+   x1[] := {x | x_j >= x_eps = 1e-26}    has 5 (='j-1') entries
 'median-x' {x | -eps < x_i <= eps} has 6 (= 'k') entries
   now allocating 2+5 work arrays of size (1+) h2=11 each:
  (h1,h2, nr, knew) = (11,11, 121, 61)
@@ -696,7 +696,7 @@ List of 4
 > str(mcComp.( x4, doScale=TRUE, trace= 3))## = 0: conv.quickly
 mc_C_d(z[1:10], trace_lev=3, scale=T): Median = 6 (not at the border)
  x[] has been rescaled (* 1/s) with s = 2e+15
-   x1[] := {x | x_j > x_eps = 1.03e-26}    has 5 (='j-1') entries
+   x1[] := {x | x_j >= x_eps = 1.03e-26}    has 5 (='j-1') entries
 'median-x' {x | -eps < x_i <= eps} has 0 (= 'k') entries
   now allocating 2+5 work arrays of size (1+) h2=5 each:
  (h1,h2, nr, knew) = (5,5, 25, 13)
@@ -710,7 +710,7 @@ List of 4
 > str(mcComp.(-x4, doScale=TRUE, trace= 3)) # *not* conv!
 mc_C_d(z[1:10], trace_lev=3, scale=T): Median = -6 (not at the border)
  x[] has been rescaled (* 1/s) with s = 2e+15
-   x1[] := {x | x_j > x_eps = 1.03e-26}    has 5 (='j-1') entries
+   x1[] := {x | x_j >= x_eps = 1.03e-26}    has 5 (='j-1') entries
 'median-x' {x | -eps < x_i <= eps} has 0 (= 'k') entries
   now allocating 2+5 work arrays of size (1+) h2=5 each:
  (h1,h2, nr, knew) = (5,5, 25, 13)

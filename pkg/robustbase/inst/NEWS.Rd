@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.93-7 (2020-12-04, svn r862)}{
+\section{CHANGES in robustbase VERSION 0.93-7 (2020-12-28, svn r863)}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item Use \command{\\CRANpkg\{.\}} in most places, providing web
@@ -22,6 +22,12 @@
       \sQuote{moved}.
 
       \item \code{adjOutlyingness()} finally works with \code{p.samp > p}.
+
+      \item \code{scaleTau2()} now works with \code{Inf} and very large
+      values, and obeys new \code{na.rm = FALSE} argument.
+
+      \item add \code{check.environment=FALSE} to some of the
+      \code{all.equal()} calls (for 'R-devel', i.e., future R 4.1.x).
     }
   }
 }

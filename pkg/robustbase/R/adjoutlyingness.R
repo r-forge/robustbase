@@ -26,8 +26,10 @@
 
 
 adjOutlyingness <- function(x, ndir = 250, p.samp = p, clower=4, cupper=3,
-                            alpha.cutoff = 0.75, coef = 1.5, qr.tol = 1e-12, keep.tol = 1e-12,
-                            only.outlyingness = FALSE, maxit.mult = max(100, p), trace.lev = 0,
+                            alpha.cutoff = 0.75, coef = 1.5,
+                            qr.tol = 1e-12, keep.tol = 1e-12,
+                            only.outlyingness = FALSE, maxit.mult = max(100, p),
+                            trace.lev = 0,
                             ## these are all passed to mc() {when applied to the projected data}
                             mcReflect = n <= 100, mcScale = TRUE, mcMaxit = 2*maxit.mult,
                             mcEps1 = 1e-12, mcEps2 = 1e-15,

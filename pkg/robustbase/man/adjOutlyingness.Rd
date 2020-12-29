@@ -14,8 +14,9 @@ adjOutlyingness(x, ndir = 250, p.samp = p, clower = 4, cupper = 3,
                 qr.tol = 1e-12, keep.tol = 1e-12,
                 only.outlyingness = FALSE, maxit.mult = max(100, p),
                 trace.lev = 0,
-                mcScale = FALSE, mcMaxit = 2*maxit.mult,
-                mcEps1 = 1e-12, mcEps2 = 1e-15)
+                mcReflect = n <= 100, mcScale = TRUE, mcMaxit = 2*maxit.mult,
+                mcEps1 = 1e-12, mcEps2 = 1e-15,
+                mcTrace = max(0, trace.lev-1))
 }
 \arguments{
   \item{x}{a numeric \code{\link{matrix}} or \code{\link{data.frame}},
@@ -55,13 +56,14 @@ adjOutlyingness(x, ndir = 250, p.samp = p, clower = 4, cupper = 3,
     though increasing \code{ndir} may be more important.}
   \item{trace.lev}{an integer, if positive allows to monitor the
     direction search.}
-  %% new (Aug.2020), related to mc():
-  \item{mcScale}{passed as \code{doScale} to \code{\link{mc}()}; note that
-    the default is \emph{not} to scale, differently from \code{\link{mc}()}.}
+  %% new (Aug-Dec 2020), related to mc():  see >>> ./mc.Rd <<<
+  \item{mcReflect}{passed as \code{doReflect} to \code{\link{mc}()}.}
+  \item{mcScale}{passed as \code{doScale} to \code{\link{mc}()}.}
   \item{mcMaxit}{passed as \code{maxit} to \code{\link{mc}()}.}
   \item{mcEps1}{passed as \code{eps1} to \code{\link{mc}()}; the default is slightly
     looser (100 larger) than the default for \code{mc}().}
   \item{mcEps2}{passed as \code{eps2} to \code{\link{mc}()}.}
+  \item{mcTrace}{passed as \code{trace.lev} to \code{\link{mc}()}.}
 }
 \note{
   The result is \emph{random} as it depends on the sample of
@@ -118,7 +120,8 @@ adjOutlyingness(x, ndir = 250, p.samp = p, clower = 4, cupper = 3,
 
   Hubert, M., Van der Veeken, S. (2008)
   Outlier detection for skewed data;
-  \emph{Journal of Chemometrics} \bold{22}, 235--246.
+  \emph{Journal of Chemometrics} \bold{22}, 235--246;
+  \doi{10.1002/cem.1123}.
   %% preprint \url{http://wis.kuleuven.be/stat/robust/papers/2008/outlierdetectionskeweddata-revision.pdf}
   %%MM: Journal-pdf  ~/save/papers/robust-diverse/Hubert_VdV_skewed-Chemom_2008.pdf
   %%MM: Compstat 2010: Slides (of talk) and paper of Mia H:
