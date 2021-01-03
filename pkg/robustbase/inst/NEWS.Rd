@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.93-7 (2020-12-28, svn r863)}{
+\section{CHANGES in robustbase VERSION 0.93-7 (2021-01-03, svn r865)}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item Use \command{\\CRANpkg\{.\}} in most places, providing web
@@ -28,6 +28,10 @@
 
       \item add \code{check.environment=FALSE} to some of the
       \code{all.equal()} calls (for 'R-devel', i.e., future R 4.1.x).
+
+      \item \code{wgt.himedian(numeric())} now returns \code{NA} instead of
+      occasionally seg.faulting or inf.looping.  Ditto for a case when
+      called from \code{Qn()}.
     }
   }
 }
