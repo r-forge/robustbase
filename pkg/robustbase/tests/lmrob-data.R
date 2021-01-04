@@ -177,7 +177,14 @@ pMat <- function(j, main, x.legend, col = 1:8, lty=1:6, lwd = 2, ylab=NA, ...) {
 }
 
 (jj0 <- nCf*(seq_len(nEst)-1L))
-sfsmisc::mult.fig(2)$old.par -> op
+op <- {
+    if(requireNamespace("sfsmisc", quietly=TRUE))
+        sfsmisc::mult.fig(2)$old.par
+    else
+        par(mfrow = 2:1, mar = .1+ c(4,4,2,1), mgp = c(1.5, 0.6, 0))
+}
+
+
 pMat(j = 2+jj0, main = quote("slope" ~~ hat(beta[2])), "bottomleft")
 pMat(j = 3+jj0, main = quote(hat(sigma)), "topleft")
 par(op)
