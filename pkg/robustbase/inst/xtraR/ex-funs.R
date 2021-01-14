@@ -43,12 +43,13 @@ weighted.median <- function (x, w, na.rm = FALSE, low = FALSE, high = FALSE)
     else if(high) x[k+1] else (x[k] + x[k+1])/2
 }
 
-Qn0R  <- function(x) {
-    ## `R only' naive version of Qn()  ==> slow and large memory for large n
+
+##'  pure-R  naive version of Qn()  ==> slow and large memory for large n
+Qn0R <- function(x, k = choose(n %/% 2 + 1, 2)) {
     n <- length(x <- sort(x))
     if(n == 0) return(NA) else if(n == 1) return(0.)
-    k <- choose(n %/% 2 + 1, 2)
-    m <- outer(x,x,"-")# abs not needed because of sort()
+    stopifnot(is.numeric(k), k == as.integer(k), 1 <= k, k <= n*(n-1)/2)
+    m <- outer(x,x,"-")# abs not needed as x[] is sorted
     sort(m[lower.tri(m)], partial = k)[k]
 }
 

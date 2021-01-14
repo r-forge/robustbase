@@ -15,15 +15,25 @@ Qn.finite.c <- function(n)
      else        3.67561 +( 1.9654 +(6.987 - 77/n)/n)/n # n  even
     )/n + 1
 
-Qn <- function(x, constant = 2.21914, finite.corr = missing(constant))
+
+
+Qn <- function(x, constant = 2.21914, finite.corr = missing(constant),
+                k = choose(n %/% 2 + 1, 2), warn.k.consistency = finite.corr)
 {
     ## Purpose: Rousseeuw and Croux's  Q_n() robust scale estimator
     ## Author: Martin Maechler, Date: 14 Mar 2002, 10:43
     n <- length(x)
     if(n == 0) return(NA) else if(n == 1) return(0.)
+    else if(!is.integer(n))
+        stop("not yet implemented for large vectors")
+    nn2 <- n*(n-1)/2 # double, not integer
+    stopifnot(is.numeric(k <- as.double(k)), k == trunc(k), 1 <= k, k <= nn2) # but k *may* be vector
+    if(!missing(k) && !all(k == choose(n %/% 2 + 1, 2)) && warn.k.consistency)
+        warning("'constant' and finite sample corrections are wrong for non-default 'k'")
 
+    stopifnot(is.integer(l_k <- length(k)))
     r <- constant *
-        .C(Qn0, as.double(x), n, res = double(1))$res
+        .C(Qn0, as.double(x), n, k, l_k, res = double(l_k))$res
 
     if (finite.corr) {
 	if (n <= 12) ## n in 2:12 --> n-1 in 1:11
@@ -47,9 +57,12 @@ Qn.old <- function(x, constant = 2.2219, finite.corr = missing(constant))
     ## Author: Martin Maechler, Date: 14 Mar 2002, 10:43
     n <- length(x)
     if(n == 0) return(NA) else if(n == 1) return(0.)
-
+    else if(!is.integer(n))
+        stop("not yet implemented for large vectors")
+    h <- n %/% 2L + 1L
+    k <- h*(h-1)/2
     r <- constant *
-        .C(Qn0, as.double(x), n, res = double(1))$res
+        .C(Qn0, as.double(x), n, k, 1L, res = double(1))$res
 
     if (finite.corr)
 	(if (n <= 9) { # n in 2:9 --> n-1 in 1:8

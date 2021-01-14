@@ -7,8 +7,8 @@
 #define CALLDEF(name, n)  {#name, (DL_FUNC) &name, n}
 
 
-static R_NativePrimitiveArgType Qn0_t[] = {
-    REALSXP, INTSXP, REALSXP
+static R_NativePrimitiveArgType Qn0_t[] = { // ./qn_sn.c
+    REALSXP, INTSXP, REALSXP, INTSXP, REALSXP
 };
 
 static R_NativePrimitiveArgType Sn0_t[] = {

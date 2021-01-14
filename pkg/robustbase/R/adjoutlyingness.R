@@ -26,6 +26,7 @@
 
 
 adjOutlyingness <- function(x, ndir = 250, p.samp = p, clower=4, cupper=3,
+                            IQRtype = 7,
                             alpha.cutoff = 0.75, coef = 1.5,
                             qr.tol = 1e-12, keep.tol = 1e-12,
                             only.outlyingness = FALSE, maxit.mult = max(100, p),
@@ -124,7 +125,7 @@ adjOutlyingness <- function(x, ndir = 250, p.samp = p, clower=4, cupper=3,
             print(summary(tmc))
         }
     }
-    Q13 <- apply(Y, 2, quantile, c(.25, .75), names=FALSE)
+    Q13 <- apply(Y, 2, quantile, c(.25, .75), names=FALSE, type = IQRtype)
     Q1 <- Q13[1L,]; Q3 <- Q13[2L,]
     IQR <- Q3 - Q1
     ## NOTA BENE(MM): simplified definition of tup/tlo here and below
