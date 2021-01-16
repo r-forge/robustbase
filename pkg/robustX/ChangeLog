@@ -1,6 +1,12 @@
+2021-01-16  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* man/BACON.Rd, mvBACON.Rd: new `init.sel = "V2"` by Tobias Schoch.
+
+	* DESCRIPTION (Version, Authors@R): 1.2-5, new
+
 2019-02-25  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 1.2-4 [not yet released]
+	* DESCRIPTION (Version): 1.2-4  [released to CRAN]
 
 	* man/rbwheel.Rd: need 'robustbase' attached for ICS example
 

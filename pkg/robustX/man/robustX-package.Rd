@@ -39,7 +39,7 @@ Maintainer: Martin Maechler
   Package \pkg{robustbase} which it complements and on which it depends;
   further package \pkg{robust} and the whole CRAN task view on robust
   statistics,
-  \url{http://cran.CH.r-project.org/web/views/Robust.html}
+  \url{https://cran.r-project.org/view=Robust}
 }
 \examples{
 pairs( rbwheel(100, 4) )

@@ -5,9 +5,9 @@
 
 BACON <- function(x, y = NULL, intercept = TRUE,
                   m = min(collect * p, n * 0.5),
-                  init.sel = c("Mahalanobis", "dUniMedian", "random", "manual"),
+                  init.sel = c("Mahalanobis", "dUniMedian", "random", "manual", "V2"),
                   man.sel, init.fraction = 0, collect = 4, alpha = 0.95,
-		  maxsteps = 100, verbose = TRUE)
+                  maxsteps = 100, verbose = TRUE)
 {
     ## This S-Plus function performs an outlier identification
     ## algorithm to the data in the x array [n x p] and y vector [n]
@@ -79,8 +79,9 @@ BACON <- function(x, y = NULL, intercept = TRUE,
 
 mvBACON <-
     function(x, collect = 4, m = min(collect * p, n * 0.5), alpha = 0.95,
-             init.sel = c("Mahalanobis", "dUniMedian", "random", "manual"),
-             man.sel, maxsteps = 100, allowSingular = FALSE, verbose = TRUE)
+             init.sel = c("Mahalanobis", "dUniMedian", "random", "manual", "V2"),
+             man.sel, maxsteps = 100, allowSingular = FALSE,
+             verbose = TRUE)
 {
     ## docu: --> ../man/mvBACON.Rd
     ##                  ~~~~~~~~~~  help file
@@ -129,6 +130,10 @@ mvBACON <-
                "dUniMedian" = {
                    x.centr <- sweep(x, 2, colMedians(x))
                    order(mahalanobis(x.centr, 0, cov(x.centr)))
+               },
+               "V2" = {
+                   x.centr <- sweep(x, 2, colMedians(x))
+                   order(apply(x.centr, 1, crossprod))
                },
                ## otherwise:
                stop("invalid 'init.sel' -- should not happen; please report!")

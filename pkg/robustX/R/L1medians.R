@@ -131,7 +131,7 @@ if(FALSE) {### FIXME
         ##     - s/maxstep/maxit/  max. #{iterations}
 
         ## MM: Note however: the 'tol' is not used as it should be __at all__
-        ## --  (it's used only for the stephalfing, but not for the main
+        ## --  (it's used only for the step halving, but not for the main
         ##      convergence check..)
 
         ##

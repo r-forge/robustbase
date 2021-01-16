@@ -17,7 +17,7 @@
 \usage{
 BACON(x, y = NULL, intercept = TRUE,
       m = min(collect * p, n * 0.5),
-      init.sel = c("Mahalanobis", "dUniMedian", "random", "manual"),
+      init.sel = c("Mahalanobis", "dUniMedian", "random", "manual", "V2"),
       man.sel, init.fraction = 0, collect = 4,
       alpha = 0.95, maxsteps = 100, verbose = TRUE)
 

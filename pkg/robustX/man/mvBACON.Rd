@@ -10,7 +10,7 @@
 }
 \usage{
 mvBACON(x, collect = 4, m = min(collect * p, n * 0.5), alpha = 0.95,
-        init.sel = c("Mahalanobis", "dUniMedian", "random", "manual"),
+        init.sel = c("Mahalanobis", "dUniMedian", "random", "manual", "V2"),
         man.sel, maxsteps = 100, allowSingular = FALSE, verbose = TRUE)
 }
 \arguments{
@@ -30,19 +30,23 @@ mvBACON(x, collect = 4, m = min(collect * p, n * 0.5), alpha = 0.95,
       \item{"Mahalanobis"}{based on Mahalanobis distances (default); the
 	version \eqn{V1} of the reference; affine invariant but not robust.}
       \item{"dUniMedian"}{based on the distances from the
-	\bold{uni}variate medians; ; the version \eqn{V2} of the reference;
+	\bold{uni}variate medians; similar to the version \eqn{V2} of the reference;
 	robust but not affine invariant.}
       \item{"random"}{based on a random selection, i.e., reproducible only
 	via \code{\link{set.seed}()}.}
       \item{"manual"}{based on manual selection; in this case, a vector
 	\code{man.sel} containing the indices of the selected
 	observations must be specified.}
+      \item{"V2"}{based on the Euclidean norm from the \bold{uni}variate
+    medians; this is the version \eqn{V2} of the reference; robust but not
+    affine invariant.}
     }
-    \code{"Mahalanobis"}, \code{"dUniMedian"} where proposed by Hadi
+    \code{"Mahalanobis"} and \code{"V2"} where proposed by Hadi
     and the other authors in the reference as versions \sQuote{V_1}
     and \sQuote{V_2}, as well as \code{"manual"},
     while \code{"random"} is provided in order to study the behaviour of
-    BACON.
+    BACON.  Option \code{"dUniMedian"} is similar to \code{"V2"} and is due
+    to U. Oetliker.
   }
   \item{man.sel}{only when \code{init.sel == "manual"}, the indices of
     observations determining the initial basic subset (and \code{m <-
@@ -57,7 +61,7 @@ mvBACON(x, collect = 4, m = min(collect * p, n * 0.5), alpha = 0.95,
 %
 % }
 \value{
-  a list with components
+  a \code{\link{list}} with components
   \item{subset}{logical vector of length \code{n} where the \code{i}-th
     entry is true iff the i-th observation is part of the final selection.}
   \item{dis}{numeric vector of length \code{n} with the (Mahalanobis)
@@ -73,7 +77,8 @@ mvBACON(x, collect = 4, m = min(collect * p, n * 0.5), alpha = 0.95,
 }
 \author{
   Ueli Oetliker, Swiss Federal Statistical Office, for S-plus 5.1.
-  Port to \R, testing etc, by Martin Maechler
+  Port to \R, testing etc, by Martin Maechler;
+  Init selection \code{"V2"} by Tobias Schoch, FHNW Olten, Switzerland.
 }
 \seealso{
   \code{\link[robustbase]{covMcd}} for a high-breakdown (but more computer
@@ -90,6 +95,27 @@ mvBACON(x, collect = 4, m = min(collect * p, n * 0.5), alpha = 0.95,
  stopifnot(identical(which(!B.st$subset), c(7L,9L,11L,14L,20L,30L,34L)))
  ## finds the clear outliers (and 3 "borderline")
 
+ iniS <- setNames(, eval(formals(mvBACON)$init.sel)) # all initialization methods, incl "random"
+ set.seed(123)
+ Bs.st <- lapply(iniS[iniS != "manual"], function(s)
+                 mvBACON(as.matrix(starsCYG), init.sel = s, verbose=FALSE))
+ ii <- - match("steps", names(Bs.st[[1]]))
+ Bs.s1 <- lapply(Bs.st, `[`, ii)
+ stopifnot(exprs = {
+    length(Bs.s1) >= 4
+    length(unique(Bs.s1)) == 1 # all 4 methods give the same
+ })
+
+## Example where "dUniMedian" and "V2" differ :
+data(pulpfiber, package="robustbase")
+dU.plp <- mvBACON(as.matrix(pulpfiber), init.sel = "dUniMedian")
+V2.plp <- mvBACON(as.matrix(pulpfiber), init.sel = "V2")
+(oU <- which(! dU.plp$subset))
+(o2 <- which(! V2.plp$subset))
+stopifnot(setdiff(oU, o2) == 22)
+## and 22 *is* an outlier according to covMcd(.)
+
+
  ## 'coleman' from pkg 'robustbase'
  coleman.x <- data.matrix(coleman[, 1:6])
  Cc <- covMcd (coleman.x) # truly robust
@@ -97,6 +123,7 @@ mvBACON(x, collect = 4, m = min(collect * p, n * 0.5), alpha = 0.95,
  Cb1 <- mvBACON(coleman.x) ##-> subset is all TRUE hmm??
  Cb2 <- mvBACON(coleman.x, init.sel = "dUniMedian")
  stopifnot(all.equal(Cb1, Cb2))
+ ## try 20 different random starts:
  Cb.r <- lapply(1:20, function(i) { set.seed(i)
                      mvBACON(coleman.x, init.sel="random", verbose=FALSE) })
  nm <- names(Cb.r[[1]]); nm <- nm[nm != "steps"]

@@ -1,2 +1,4 @@
 DESCRIPTION_Author
-.*mail
+mail$
+\.eml$
+modified

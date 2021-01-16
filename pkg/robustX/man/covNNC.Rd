@@ -47,8 +47,9 @@ covNNC(X, k = min(12, n - 1), pnoise = 0.05, emconv = 0.001,
   Robust covariance estimation via nearest neighbor cleaning (with discussion).
   \emph{Journal of the American Statistical Association} \bold{97}, 994--1019.
 
-  see also University of Washington Statistics Technical Report 368 (2000)
-  \url{https://www.stat.washington.edu/research/reports}
+  See also University of Washington Statistics Technical Report 368 (2000);
+  see at %\url{ -- SSL certificate problem ..
+  https://stat.uw.edu/research/tech-reports/ %}
 }
 
 \author{Naisyin Wang \email{nwang@stat.tamu.edu} and

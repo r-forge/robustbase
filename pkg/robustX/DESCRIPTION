@@ -1,11 +1,14 @@
 Package: robustX
 Type: Package
 Title: 'eXtra' / 'eXperimental' Functionality for Robust Statistics
-Version: 1.2-4
-Date: 2019-02-25
-Author: Werner Stahel,
-	Martin Maechler [aut, cre] (<https://orcid.org/0000-0002-8685-9910>)
-	and potentially others
+Version: 1.2-5
+Date: 2021-01-16
+Authors@R: c(person("Martin","Maechler", role=c("aut","cre"), email="maechler@stat.math.ethz.ch", comment = c(ORCID = "0000-0002-8685-9910"))
+         , person("Werner A.", "Stahel", role="aut", email="stahel@stat.math.ethz.ch")
+         , person("Rolf", "Turner",   role="ctb", email="r.turner@auckland.ac.nz", comment = "reclas()")
+         , person("Ueli", "Oetliker", role="ctb", comment = "original version of BACON() and mvBACON for S+")
+         , person("Tobias", "Schoch", role="ctb", comment = "init.sel=\"V2\" for BACON")
+	 )
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 Description: Robustness -- 'eXperimental', 'eXtraneous', or 'eXtraordinary'
   Functionality for Robust Statistics.  In other words, methods which are not
