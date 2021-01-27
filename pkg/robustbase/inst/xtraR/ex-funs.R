@@ -45,12 +45,21 @@ weighted.median <- function (x, w, na.rm = FALSE, low = FALSE, high = FALSE)
 
 
 ##'  pure-R  naive version of Qn()  ==> slow and large memory for large n
+##'  >>>>>> keep in sync with ../../man/Qn.Rd 's \examples{} <<<<<<
 Qn0R <- function(x, k = choose(n %/% 2 + 1, 2)) {
     n <- length(x <- sort(x))
     if(n == 0) return(NA) else if(n == 1) return(0.)
     stopifnot(is.numeric(k), k == as.integer(k), 1 <= k, k <= n*(n-1)/2)
     m <- outer(x,x,"-")# abs not needed as x[] is sorted
     sort(m[lower.tri(m)], partial = k)[k]
+}
+
+##'  pure-R  all-k version of Qn()  "all-k" is O(n^2)  cannot use large n
+QnAll.k <- function(x) {
+    n <- length(x <- sort(x))
+    if(n == 0) return(NA) else if(n == 1) return(0.)
+    m <- outer(x,x, `-`)
+    sort(m[lower.tri(m)])
 }
 
 Sn0R  <- function(x) {

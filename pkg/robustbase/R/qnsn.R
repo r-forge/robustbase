@@ -17,8 +17,8 @@ Qn.finite.c <- function(n)
 
 
 
-Qn <- function(x, constant = 2.21914, finite.corr = missing(constant),
-                k = choose(n %/% 2 + 1, 2), warn.k.consistency = finite.corr)
+Qn <- function(x, constant = NULL, finite.corr = missing(constant) && missing(k),
+                k = choose(n %/% 2 + 1, 2), warn.finite.corr = TRUE)
 {
     ## Purpose: Rousseeuw and Croux's  Q_n() robust scale estimator
     ## Author: Martin Maechler, Date: 14 Mar 2002, 10:43
@@ -26,16 +26,26 @@ Qn <- function(x, constant = 2.21914, finite.corr = missing(constant),
     if(n == 0) return(NA) else if(n == 1) return(0.)
     else if(!is.integer(n))
         stop("not yet implemented for large vectors")
-    nn2 <- n*(n-1)/2 # double, not integer
-    stopifnot(is.numeric(k <- as.double(k)), k == trunc(k), 1 <= k, k <= nn2) # but k *may* be vector
-    if(!missing(k) && !all(k == choose(n %/% 2 + 1, 2)) && warn.k.consistency)
-        warning("'constant' and finite sample corrections are wrong for non-default 'k'")
-
+    nn2 <- choose(n, 2) # = n*(n-1)/2  (double!)
+    dflt.k <- if(dflt.c <- is.null(constant))
+                  missing(k) else FALSE
+    stopifnot(is.numeric(k <- as.double(k)), k == trunc(k), 1 <= k, k <= nn2,
+              ## but k *may* be vector
+              is.integer(l_k <- length(k)))
+    if(dflt.c) # define constant
+        constant <-
+            if(dflt.k)
+                2.21914 # == old default ("true value" rounded to 6 significant digits)
+            else 1/(sqrt(2) * qnorm(((k-1/2)/nn2 + 1)/2))
     stopifnot(is.integer(l_k <- length(k)))
     r <- constant *
         .C(Qn0, as.double(x), n, k, l_k, res = double(l_k))$res
 
     if (finite.corr) {
+        if(!dflt.k && warn.finite.corr)
+            warning("finite sample corrections are not corrected for non-default 'k'")
+        ## FIXME: MM--- using the above  qnorm((k-1/2)/nn2 + 1)/2) should need *less* finite correction !!
+        ## -----  ~~  >>> simulation needed
 	if (n <= 12) ## n in 2:12 --> n-1 in 1:11
 	    ## n=2: E[Q_2] = E|X - Y| = sqrt(pi)/2, fc = sqrt(pi)/2/2.21914
 	    r* c(.399356, # ~= fc = 0.3993560233

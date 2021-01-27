@@ -8,15 +8,21 @@
   Compute the robust scale estimator \eqn{Q_n}{Qn}, an efficient
   alternative to the MAD.
 
-  See the references for more.
+  By default, \eqn{Q_n(x_1, \ldots, x_n)}{Qn(x1, .., xn)} is the \eqn{k}-th
+  order statistic (a quantile) of the \code{choose(n, 2)} absolute
+  differences \eqn{|x_i - x_j|}{abs(x[i] - x[j])},
+  (for \eqn{1 \le i < j \le n}{1 <= i < j <= n}),
+  where by default (originally only possible value) \eqn{k = choose(n\%/\% 2 + 1, 2)}
+  which is about the first quartile (25\% quantile) of these
+  pairwise differences.  See the references for more.
 }
 \usage{
-Qn(x, constant = 2.21914, finite.corr = missing(constant),
-   k = choose(n \%/\% 2 + 1, 2), warn.k.consistency = finite.corr)
+Qn(x, constant = NULL, finite.corr = missing(constant) && missing(k),
+   k = choose(n \%/\% 2 + 1, 2), warn.finite.corr = TRUE)
 
 s_Qn(x, mu.too = FALSE, \dots)
 }
-\arguments{
+\arguments{% >> ../R/qnsn.R <<
   \item{x}{numeric vector of observations.}
   \item{constant}{number by which the result is multiplied; the default
     achieves consistency for normally distributed data.  Note that until
@@ -34,16 +40,18 @@ s_Qn(x, mu.too = FALSE, \dots)
   }
   \item{finite.corr}{logical indicating if the finite sample bias
     correction factor should be applied.  Defaults to \code{TRUE} unless
-    \code{constant} is specified.}
-  \item{k}{integer, typically half of n, specifying the quantile, i.e.,
+    \code{constant} is specified.  Note the for non-default \code{k}, the
+    consistency \code{constant} already depends on \code{n} leading to
+    \emph{some} finite sample correction, but no simulation-based
+    small-\code{n} correction factors are available.}
+  \item{k}{integer, typically half of n, specifying the \dQuote{quantile}, i.e., rather the
     order statistic that \code{Qn()} should return; for the Qn() proper,
-    this has been hard wired to \code{n \%/\% 2 + 1}, i.e.,
+    this has been hard wired to \code{choose(n\%/\%2 +1, 2)}, i.e.,
     \eqn{\lfloor\frac{n}{2}\rfloor +1}{floor(n/2) +1}.  Choosing a large \code{k} is less robust but
     allows to get non-zero results in case the default \code{Qn()} is zero.}
-  \item{warn.k.consistency}{logical indicating if a \code{\link{warning}}
-    should be signalled when \code{k} is non-default, and hence
-    \code{constant} is not leading to consistency, nor \code{finite.corr}
-    to unbiasedness.}
+  \item{warn.finite.corr}{logical indicating if a \code{\link{warning}}
+    should be signalled when \code{k} is non-default, in which case specific
+    small-\eqn{n} correction is not yet provided.}
   \item{mu.too}{logical indicating if the \code{\link[stats]{median}(x)} should
     also be returned for \code{s_Qn()}.}
   \item{\dots}{potentially further arguments for \code{s_Qn()} passed to
@@ -105,8 +113,8 @@ x <- sort(c(rnorm(80), rt(20, df = 1)))
 s_Qn(x, mu.too = TRUE)
 Qn(x, finite.corr = FALSE)
 
-## A naive (ineffecient) pure-R version of Qn()
-Qn0R  <- function(x, k = choose(n \%/\% 2 + 1, 2)) {
+## A simple pure-R version of Qn() -- slow and memory-rich for large n: O(n^2)
+Qn0R <- function(x, k = choose(n \%/\% 2 + 1, 2)) {
     n <- length(x <- sort(x))
     if(n == 0) return(NA) else if(n == 1) return(0.)
     stopifnot(is.numeric(k), k == as.integer(k), 1 <= k, k <= n*(n-1)/2)

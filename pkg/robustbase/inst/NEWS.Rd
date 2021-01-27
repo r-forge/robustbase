@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.93-8 (2021-01-14, svn r868)}{
+\section{CHANGES in robustbase VERSION 0.93-8 (2021-01-27, svn r869)}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item \code{scaleTau2()} gets new optional \code{iter = 1} and

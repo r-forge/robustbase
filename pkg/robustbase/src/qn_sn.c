@@ -142,9 +142,16 @@ void qn0(const double x[], int n, const int64_t k[], int len_k, /* ==> */ double
     int *weight	  = (int *)R_alloc(n, sizeof(int));
 
     const int64_t
-	nn2 = (int64_t) n * (n + 1) / 2,
+	nn2 = (int64_t) n * (n + 1) / 2, // = choose(n+1, 2)
 	n2  = (int64_t) n * n,
-	k_L = 2 + ((int64_t)(n-1) * (n-1))/2; // k >= k_L needs right[] = n
+	// k >= k_L  ==> right[] = n (and smaller k  can start with smaller right[], hence more efficiently)
+	/* NB: The correct k_L seems hard to find, till only from largish simulations and "regression fit":
+	 * 2021, Jan.  3 -- 19       :  k_L = 2 + ((int64_t)(n-1) * (n-2))/2;
+	 * 2021, Jan. 19 -- 27, 11:13:  k_L =     ((int64_t)(n-1) * (n-2))/2;
+	 * 2021, Jan. 27 -- ... : from .../Pkg-ex/robustbase/Qn-multi-k-debugging.R
+                              bnd1 <- function(n) 5 - 1.75*(n %% 2) + (0.3939 - 0.0067*(n %% 2)) * n*(n-1)
+	*/
+	k_L = 5 - 1.75*(n % 2) + (0.3939 - 0.0067*(n % 2)) * (int64_t) n*(n-1) ;
     int h = n / 2 + 1; // really use, only to set right[] below ?
     for (int i = 0; i < n; ++i)
 	y[i] = x[i];
