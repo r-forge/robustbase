@@ -122,15 +122,23 @@ op <- options(warn = 2)# no warnings allowed
 str(B.ST <- with(starsCYG, BACON(x = log.Te, y = log.light)))
 (Bgood <- which(B.ST$subset))
 .Platform$r_arch
-(Platf_arch <- .Platform$r_arch) # maybe distinguish more, e.g. "no-ldouble", "BLAS" version ,  ??
-knownPl <- Platf_arch %in% c("x64", "i386") # update!
+## 32-bit <-> 64-bit different results {tested on Linux & Windows Server}
+is32 <- .Machine$sizeof.pointer == 4 ## <- should work for Linux/MacOS/Windows
+isMac <- Sys.info()[["sysname"]] == "Darwin"
+isSun <- Sys.info()[["sysname"]] == "SunOS"
+isWin <- .Platform$OS.type == "windows"
+(Platf_arch <- paste0(.Platform$r_arch, # maybe distinguish more, e.g. "no-ldouble", "BLAS" version ,  ??
+                      if(isWin) "_win"))
+knownPl <- Platf_arch %in% c("x64", "i386_win", "i386") # update!
 stopifnot(exprs = {
     switch(
         Platf_arch,
+        "i386_win" =, # Platform: i386-w64-mingw32/i386 (32-bit); Windows Server x64 (build 14393)
         "x64"  = identical(Bgood, c(25L, 27:29, 33L,        38L,      43L, 45L)),
+
         "i386" = identical(Bgood, c(25L, 27:29, 33L, 35:36, 38L, 42L, 43L, 45L)),
-                                        # Platform: i386-w64-mingw32/i386 (32-bit);
-                                        # Running under: Windows Server x64 (build 14393)
+                                        # older version of i386-windows
+
         ## other platforms:
         {
             message("Platform architecture (see above) not yet tested for BACON result")

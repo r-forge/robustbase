@@ -9,7 +9,7 @@
   BACON outlier procedure.
 }
 \usage{
-mvBACON(x, collect = 4, m = min(collect * p, n * 0.5), alpha = 0.95,
+mvBACON(x, collect = 4, m = min(collect * p, n * 0.5), alpha = 0.05,
         init.sel = c("Mahalanobis", "dUniMedian", "random", "manual", "V2"),
         man.sel, maxsteps = 100, allowSingular = FALSE, verbose = TRUE)
 }
@@ -22,8 +22,8 @@ mvBACON(x, collect = 4, m = min(collect * p, n * 0.5), alpha = 0.95,
     \code{m <- min(p * collect, n/2)}.}
   \item{m}{integer in \code{1:n} specifying the \emph{size} of the initial basic
     subset; used only when \code{init.sel} is not \code{"manual"}.}
-  \item{alpha}{significance level for the \eqn{\chi^2}{chisq} cutoff,
-    used to define the next iterations basic subset.}
+  \item{alpha}{determines the cutoff value for the Mahalanobis
+    distances (see details).}
   \item{init.sel}{character string, specifying the initial selection
     mode; implemented modes are:
     \describe{
@@ -57,9 +57,18 @@ mvBACON(x, collect = 4, m = min(collect * p, n * 0.5), alpha = 0.95,
   \item{verbose}{logical indicating if messages are printed which trace
     progress of the algorithm.}
 }
-% \details{
-%
-% }
+\details{
+  Remarks on the tuning parameter \code{alpha}: Let \eqn{\chi^2_p}
+  be a chi-square distributed random variable with \eqn{p} degrees
+  of freedom (\eqn{p} is the number of variables; \eqn{n} is the
+  number of observations).  Denote the \eqn{(1-\alpha)} quantile by
+  \eqn{\chi^2_p(\alpha)}, e.g., \eqn{\chi^2_p(0.05)} is the 0.95 quantile.
+  Following Billor et al. (2000), the cutoff value for the
+  Mahalanobis distances is defined as \eqn{\chi_p(\alpha/n)} (the square
+  root of \eqn{chi^2_p}) times a correction factor \eqn{c(n,p)},
+  \eqn{n} and \eqn{p},
+  and they use \eqn{\alpha=0.05}.
+}
 \value{
   a \code{\link{list}} with components
   \item{subset}{logical vector of length \code{n} where the \code{i}-th
@@ -78,7 +87,8 @@ mvBACON(x, collect = 4, m = min(collect * p, n * 0.5), alpha = 0.95,
 \author{
   Ueli Oetliker, Swiss Federal Statistical Office, for S-plus 5.1.
   Port to \R, testing etc, by Martin Maechler;
-  Init selection \code{"V2"} by Tobias Schoch, FHNW Olten, Switzerland.
+  Init selection \code{"V2"} and correction of default \code{alpha} from 0.95 to 0.05,
+  by Tobias Schoch, FHNW Olten, Switzerland.
 }
 \seealso{
   \code{\link[robustbase]{covMcd}} for a high-breakdown (but more computer
@@ -88,12 +98,13 @@ mvBACON(x, collect = 4, m = min(collect * p, n * 0.5), alpha = 0.95,
 }
 \examples{
  require(robustbase) # for example data and covMcd():
-## simple 2D example :
+ ## simple 2D example :
  plot(starsCYG, main = "starsCYG  data  (n=47)")
  B.st <- mvBACON(starsCYG)
  points(starsCYG[ ! B.st$subset,], pch = 4, col = 2, cex = 1.5)
- stopifnot(identical(which(!B.st$subset), c(7L,9L,11L,14L,20L,30L,34L)))
- ## finds the clear outliers (and 3 "borderline")
+ stopifnot(identical(which(!B.st$subset), c(7L,11L,20L,30L,34L)))
+ ## finds the 4 clear outliers (and 1 "borderline");
+ ## it does not find obs. 14 which is an outlier according to covMcd(.)
 
  iniS <- setNames(, eval(formals(mvBACON)$init.sel)) # all initialization methods, incl "random"
  set.seed(123)
@@ -106,15 +117,14 @@ mvBACON(x, collect = 4, m = min(collect * p, n * 0.5), alpha = 0.95,
     length(unique(Bs.s1)) == 1 # all 4 methods give the same
  })
 
-## Example where "dUniMedian" and "V2" differ :
-data(pulpfiber, package="robustbase")
-dU.plp <- mvBACON(as.matrix(pulpfiber), init.sel = "dUniMedian")
-V2.plp <- mvBACON(as.matrix(pulpfiber), init.sel = "V2")
-(oU <- which(! dU.plp$subset))
-(o2 <- which(! V2.plp$subset))
-stopifnot(setdiff(oU, o2) == 22)
-## and 22 *is* an outlier according to covMcd(.)
-
+ ## Example where "dUniMedian" and "V2" differ :
+ data(pulpfiber, package="robustbase")
+ dU.plp <- mvBACON(as.matrix(pulpfiber), init.sel = "dUniMedian")
+ V2.plp <- mvBACON(as.matrix(pulpfiber), init.sel = "V2")
+ (oU <- which(! dU.plp$subset))
+ (o2 <- which(! V2.plp$subset))
+ stopifnot(setdiff(o2, oU) \%in\% c(57L,58L,59L,62L))
+ ## and 57, 58, 59, and 62 *are* outliers according to covMcd(.)
 
  ## 'coleman' from pkg 'robustbase'
  coleman.x <- data.matrix(coleman[, 1:6])
@@ -129,7 +139,8 @@ stopifnot(setdiff(oU, o2) == 22)
  nm <- names(Cb.r[[1]]); nm <- nm[nm != "steps"]
  all(eqC <- sapply(Cb.r[-1], function(CC) all.equal(CC[nm], Cb.r[[1]][nm]))) # TRUE
  ## --> BACON always  breaks down, i.e., does not see the outliers here
-\dontshow{stopifnot(Cb1$subset, Cb.r[[1]]$subset, eqC)} ## breaks down even when manually starting with all the non-outliers:
+ \dontshow{stopifnot(Cb1$subset, Cb.r[[1]]$subset, eqC)}
+ ## breaks down even when manually starting with all the non-outliers:
  Cb.man <- mvBACON(coleman.x, init.sel = "manual",
                    man.sel = setdiff(1:20, c(1,3,10,12,17,18)))
  which( ! Cb.man$subset) # the outliers according to mvBACON : _none_

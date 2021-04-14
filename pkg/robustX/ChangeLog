@@ -1,3 +1,15 @@
+2021-04-14  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/BACON-alg.R (BACON, mvBACON), From Tobias Schoch: 'alpha'
+	must be used as *upper* quantile, hence correct the default to
+	'alpha = 0.05'.
+
+	* R/BACON-alg.R (BACON): Note that for 'BACON()', the 2nd
+	alpha (for linear regression) now may be set by 'alphaLM = *'
+	to a different value than 'alpha' for the multivariate
+	'mvBACON()'.
+
+
 2021-01-16  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* man/BACON.Rd, mvBACON.Rd: new `init.sel = "V2"` by Tobias Schoch.

@@ -19,12 +19,12 @@ BACON(x, y = NULL, intercept = TRUE,
       m = min(collect * p, n * 0.5),
       init.sel = c("Mahalanobis", "dUniMedian", "random", "manual", "V2"),
       man.sel, init.fraction = 0, collect = 4,
-      alpha = 0.95, maxsteps = 100, verbose = TRUE)
+      alpha = 0.05, alphaLM = alpha, maxsteps = 100, verbose = TRUE)
 
 ## *Auxiliary* function:
 .lmBACON(x, y, intercept = TRUE,
          init.dis, init.fraction = 0, collect = 4,
-         alpha = 0.95, maxsteps = 100, verbose = TRUE)
+         alpha = 0.05, maxsteps = 100, verbose = TRUE)
 }
 \arguments{
   \item{x}{a multivariate matrix of dimension [n x p]
@@ -49,7 +49,11 @@ BACON(x, y = NULL, intercept = TRUE,
     size n * init.fraction is chosen (with smallest dis)}
   \item{collect}{numeric factor chosen by the user to define the size of
     the initial subset (p * collect)}
-  \item{alpha}{significance level.}
+  \item{alpha}{number in \eqn{(0, 1)} determining the cutoff value for the
+    Mahalanobis distances (multivariate outlier nomination in
+    \code{\link{mvBACON}()}), or the discrepancies for regression, see \code{alphaLM}.}
+  \item{alphaLM}{number in \eqn{(0, 1)} where a \code{1-alphaM} t-quantile
+    is the cutoff for the discrepancies (for regression, \code{.lmBACON()}); see details.}
   \item{maxsteps}{the maximal number of iteration steps
     (to prevent infinite loops)}
   \item{verbose}{logical indicating if messages are printed which trace
@@ -65,6 +69,21 @@ BACON(x, y = NULL, intercept = TRUE,
 \details{
   Notably about the initial selection mode, \code{init.sel}, see its
   description in the \code{\link{mvBACON}} arguments list.
+
+  The choice of \code{alpha} and \code{alphaLM}:
+  \itemize{
+    \item Multivariate outlier nomination: see the Details section of
+    \code{\link{mvBACON}}.
+
+    \item Regression: Let \eqn{t_r(\alpha)}{t_r(ap)} denote the \eqn{1-\alpha}{1-ap} quantile of the
+    Student \eqn{t}-distribution with \eqn{r} degrees of freedom,
+    where \eqn{r} is the number of elements in the current subset;
+    e.g., \eqn{t_r(0.05)} is the 0.95 quantile.  Following Billor et
+    al. (2000), the cutoff value for the discrepancies is defined
+    as \eqn{t_r(\alpha/(2r + 2))}{t_r(ap/(2r + 2))}, and
+    they use \eqn{\alpha=0.05}{ap=0.05}.   Note that this is argument
+    \code{alphaLM} (defualting to \code{alpha}) for \code{BACON()}.
+  }
 }
 \value{
   \code{BACON(x,y,..)} (for regression) returns a \code{\link{list}} with
@@ -94,6 +113,9 @@ BACON(x, y = NULL, intercept = TRUE,
   Daniel Weeks (at pitt.edu) proposed a fix to a long standing buglet in
   \code{GiveTis()} computing the \eqn{t_i}{t[i]}, which was further improved
   Maechler, for \CRANpkg{robustX} version 1.2-3 (Feb. 2019).
+
+  Correction of \code{alpha} default, from 0.95 to 0.05, by Tobias Schoch,
+  see \code{\link{mvBACON}}.
 }
 \seealso{
   \code{\link{mvBACON}}, the multivariate version of the BACON
