@@ -75,7 +75,7 @@ for(n in 3:50) {
 set.seed(1);  S.time(a1.1 <- adjOutlyingness(longley))
 set.seed(11); S.time(a1.2 <- adjOutlyingness(longley))
 ##
-set.seed(2); S.time(a2 <- adjOutlyingness(hbk))
+set.seed(2); S.time(a2 <- adjOutlyingness(hbk)) # 75 x 4
 set.seed(3); S.time(a3 <- adjOutlyingness(hbk[, 1:3]))# the 'X' space
 set.seed(4); S.time(a4 <- adjOutlyingness(milk)) # obs.63 = obs.64
 set.seed(5); S.time(a5 <- adjOutlyingness(wood)) # 20 x 6  ==> n < 4p
@@ -91,14 +91,17 @@ cat("\nRnk(a3 $ adjout): "); dput(Rnk(a3$adjout), control= {})
 cat("\nRnk(a4 $ adjout): "); dput(Rnk(a4$adjout), control= {})
 
 (i.a4Out <- which( ! a4$nonOut)) # the outliers -- varies "wildly"
+stopifnot(70 %in% i.a4Out)
 {
     if(is32 && !isMac)
         all.equal(i.a4Out, c(1, 2, 41, 70))
     ## and this is "typically" true, but not for a 64-bit Linux version bypassing BLAS in matprod
     else if(isSun || isMac)
         TRUE
+    else if(grepl("^Fedora", osVersion) && !is32)
+        identical(i.a4Out, 70L) # since Dec 2020 (F 32)
     else
-        all.equal(i.a4Out, c(9:19, 23:27,57, 59, 70, 77)) # '70' only 64b-Fedora_32, Dec.2020
+        all.equal(i.a4Out, c(9:19, 23:27,57, 59, 70, 77))
 }
 
 ## only for ATLAS (BLAS/Lapack), not all are TRUE; which ones [but n < 4p]
@@ -121,14 +124,14 @@ stopifnot(exprs = {
             sum(a5$nonOut) >= 18 # 18: OpenBLAS
     } else TRUE
     a6$nonOut[-20]
-    ## hbk (n = 75) :
+    ## hbk (n = 75, p = 3) should be "stable" (but isn't quite)
     abs(Rnk(a3$adjout) -
-             c(62, 64, 68, 71, 70,   65, 66, 63, 69, 67,   73, 75, 72, 74, 25,
-               52, 44,  5, 11, 33,    6, 21, 29, 28, 59,    9, 12, 13, 37, 27,
-               43, 35, 22, 55, 14,    2, 26, 46, 54, 15,   23, 41, 40, 32, 60,
-               30, 61, 19, 16,  8,   39, 53, 51, 48, 20,   47, 50, 42,  7, 38,
-               17, 57, 45, 18, 24,   34,  3, 58, 56,  4,    1, 10, 31, 36, 49)
-	      ) <= 3 ## all 0 on 32-bit Linux
+        c(62, 64, 69, 71, 70,    66, 65, 63, 68, 67,    73, 75, 72, 74, 35,
+          60, 55,  4, 22, 36,     6, 33, 34, 28, 53,    16, 13,  9, 27, 31,
+          49, 39, 20, 50, 14,     2, 24, 40, 54, 21,    17, 37, 52, 23, 58,
+          19, 61, 11, 25,  8,    46, 59, 48, 47, 29,    44, 43, 42,  7, 30,
+          18, 51, 41, 15, 10,    38,  3, 56, 57,  5,     1, 12, 26, 32, 45)
+        ) <= 3 ## all 0 on 64-bit (F 32) Linux
 })
 
 ## milk (n = 86) : -- Quite platform dependent!
