@@ -69,18 +69,17 @@ for(n in 3:50) {
 
 ###----  Strict tests of adjOutlyingness():
 ###                      ================= changed after long-standing bug fix in Oct.2014
-## as this calls, sample.int() and we carefully compare specific seed examples, need
-RNGversion("3.6.0") # == RNGversion("4.0.2") ..
-RNGversion("3.5.0") ## [TODO: adapt to "current" RNG settings]
 
+
+## For longley, note n < 4p and hence "random nonsense" numbers
 set.seed(1);  S.time(a1.1 <- adjOutlyingness(longley))
 set.seed(11); S.time(a1.2 <- adjOutlyingness(longley))
 ##
 set.seed(2); S.time(a2 <- adjOutlyingness(hbk))
 set.seed(3); S.time(a3 <- adjOutlyingness(hbk[, 1:3]))# the 'X' space
 set.seed(4); S.time(a4 <- adjOutlyingness(milk)) # obs.63 = obs.64
-set.seed(5); S.time(a5 <- adjOutlyingness(wood))
-set.seed(6); S.time(a6 <- adjOutlyingness(wood[, 1:5]))# the 'X' space
+set.seed(5); S.time(a5 <- adjOutlyingness(wood)) # 20 x 6  ==> n < 4p
+set.seed(6); S.time(a6 <- adjOutlyingness(wood[, 1:5]))# ('X' space) 20 x 5: n = 4p (ok!)
 
 ## 32-bit <-> 64-bit different results {tested on Linux only}
 is32 <- .Machine$sizeof.pointer == 4 ## <- should work for Linux/MacOS/Windows
@@ -102,7 +101,7 @@ cat("\nRnk(a4 $ adjout): "); dput(Rnk(a4$adjout), control= {})
         all.equal(i.a4Out, c(9:19, 23:27,57, 59, 70, 77)) # '70' only 64b-Fedora_32, Dec.2020
 }
 
-## only for ATLAS (BLAS/Lapack), not all are TRUE; which ones?
+## only for ATLAS (BLAS/Lapack), not all are TRUE; which ones [but n < 4p]
 if(!all(a5$nonOut))
   print(which(!a5$nonOut)) # if we know, enable check below
 
@@ -110,13 +109,13 @@ stopifnot(exprs = {
     which(!a2$nonOut) == 1:14
     which(!a3$nonOut) == 1:14
     ## 'longley', 'wood' have no outliers in the "adjOut" sense:
-    ## FIXME: longley is platform dependent too
-    { if(isMac) TRUE
-      else if(mS$ strictR) sum(a1.2$nonOut) >= 15 # sum(.) = 16 [nb-mm3, Oct.2014]
-      else ## however, openBLAS Fedora Linux /usr/bin/R gives sum(a1.2$nonOut) = 13
-          sum(a1.2$nonOut) >= 13
-    }
-    if(doExtras) {
+    if(doExtras && !isMac) { ## longley also has n < 4p (!)
+        if(mS$ strictR)
+            sum(a1.2$nonOut) >= 15 # sum(.) = 16 [nb-mm3, Oct.2014]
+        else ## however, openBLAS Fedora Linux /usr/bin/R gives sum(a1.2$nonOut) = 13
+            sum(a1.2$nonOut) >= 13
+    } else TRUE
+    if(doExtras) { ## have n < 4p (!)
         if(mS$ strictR) a5$nonOut
         else ## not for ATLAS
             sum(a5$nonOut) >= 18 # 18: OpenBLAS
@@ -160,13 +159,11 @@ sum(abs(d) <= 17) >= 78
 sum(abs(d) <= 13) >= 75
 
 
-RNGversion("3.6.0") # == RNGversion("4.0.2") ..
-
 ## check of adjOutlyingness *free* bug
 ## reported by Kaveh Vakili <Kaveh.Vakili@wis.kuleuven.be>
 set.seed(-37665251)
 X <- matrix(rnorm(100*5),100,5)
-Z <- matrix(rnorm(100*5,0,1/100),10,5)
+Z <- matrix(rnorm(10*5)/100, 10,5)
 Z <- sweep(Z, 2, c(5,rep(0,4)), FUN="+")
 X[91:100,] <- Z
 for (i in 1:10) {

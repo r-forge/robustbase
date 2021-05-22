@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.93-8 (2021-01-27, svn r869)}{
+\section{CHANGES in robustbase VERSION 0.93-8 (2021-05-22, svn r872)}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item \code{scaleTau2()} gets new optional \code{iter = 1} and
@@ -24,9 +24,16 @@
   \subsection{Tweaks}{
     \itemize{
       \item For tests: *again* differences found in the non-sensical
-      adjOutlyingness() example (with large p/n, hence many "random" values
+      \code{adjOutlyingness()} example (with large p/n, hence many "random" values
       in the order of 1e15).
       Disable the test for now (and record the result in *.Rout).
+    }
+  }
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item The \code{test()} utility in \file{tests/lmrob-ex12.R} no
+      longer calls \code{matrix(x, n,4)} where the length of x does not
+      match \code{4n}.   Similar change in \file{tests/mc-strict.R}
     }
   }
 }

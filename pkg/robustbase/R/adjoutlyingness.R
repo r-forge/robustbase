@@ -148,8 +148,8 @@ adjOutlyingness <- function(x, ndir = 250, p.samp = p, clower=4, cupper=3,
     ##      ## because tlo[] becomes 0 too often, YZ[.,.] = c / 0 = Inf !
     ##  }
     Yup <- Ylo <- Y
-    Yup[!(Y < rep(tup, each=n))] <- -Inf
-    Ylo[!(Y > rep(tlo, each=n))] <-  Inf
+    Yup[Y >= rep(tup, each=n)] <- -Inf
+    Ylo[Y <= rep(tlo, each=n)] <-  Inf
     y.up <-  apply(Yup, 2, max) # =  max{ Y[i,] ; Y[i,] < tup[i] }
     y.lo <- -apply(Ylo, 2, min) # = -min{ Y[i,] ; Y[i,] > tlo[i] }
     if(trace.lev) {
@@ -179,7 +179,7 @@ adjOutlyingness <- function(x, ndir = 250, p.samp = p, clower=4, cupper=3,
     ##----                             ---
     if(abs(trace.lev %% 1  - 0.7) < 1e-3) { ## really not for the end user ..
         cat("Plotting outlyingnesses vs. observation i:\n")
-        matplot(t(tY), log="y"); axis(2, at=1); abline(h=1, lty=3)
+        matplot(t(tY), log="y");           axis(2, at=1); abline(h=1, lty=3)
         Sys.sleep(2)
         ## somewhat revealing: 3  groups:  very large |  medium | very small (incl. 0 which are *not* plotted)
         matplot(t(tY), log="y", type="b"); axis(2, at=1); abline(h=1, lty=3)
