@@ -6,7 +6,6 @@ source(system.file("xtraR/opt-test-funs.R", package = "DEoptimR"))
 ## sf1(), swf() + RND, HEND, and alkylation list of $obj and $con  testing functions
 (doExtras <- DEoptimR:::doExtras())
 
-RNGversion("3.5.0") # needed? -- TODO once R >> 3.5.0 update results !
 set.seed(2345)
 S.time(sf1. <- JDEoptim(c(-100, -100), c(100, 100), sf1,
                         NP = 50, tol = 1e-7, maxiter = 800))

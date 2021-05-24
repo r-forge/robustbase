@@ -1,6 +1,6 @@
 Package: DEoptimR
-Version: 1.0-8
-Date: 2016-11-19
+Version: 1.0-9
+Date: 2021-05-24
 Title: Differential Evolution Optimization in Pure R
 Authors@R: c(person("Eduardo L. T.", "Conceicao", role = c("aut", "cre"),
                     email = "mail@eduardoconceicao.org"),
@@ -15,7 +15,7 @@ Description: Differential Evolution (DE) stochastic algorithms for global
   (2) are essentially tuning-free, and
   (3) can be efficiently implemented directly in the R language.
   Currently, it only provides an implementation of the 'jDE' algorithm by
-  Brest et al. (2006) <https://doi.org/10.1109/TEVC.2006.872133>.
+  Brest et al. (2006) <doi:10.1109/TEVC.2006.872133>.
 Imports: stats
 Enhances: robustbase
 License: GPL (>= 2)
