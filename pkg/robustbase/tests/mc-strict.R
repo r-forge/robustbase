@@ -67,9 +67,9 @@ for(n in 3:50) {
     }
 };  cat("\n")
 
+
 ###----  Strict tests of adjOutlyingness():
 ###                      ================= changed after long-standing bug fix in Oct.2014
-
 
 ## For longley, note n < 4p and hence "random nonsense" numbers
 set.seed(1);  S.time(a1.1 <- adjOutlyingness(longley))
@@ -165,13 +165,16 @@ sum(abs(d) <= 13) >= 75
 ## check of adjOutlyingness *free* bug
 ## reported by Kaveh Vakili <Kaveh.Vakili@wis.kuleuven.be>
 set.seed(-37665251)
-X <- matrix(rnorm(100*5),100,5)
-Z <- matrix(rnorm(10*5)/100, 10,5)
-Z <- sweep(Z, 2, c(5,rep(0,4)), FUN="+")
-X[91:100,] <- Z
+X <- matrix(rnorm(100*5),   100, 5)
+Z <- matrix(rnorm(10*5)/100, 10, 5)
+Z[,1] <- Z[,1] + 5
+X[91:100,] <- Z # if anything these should be outliers, but ...
 for (i in 1:10) {
     ## this would produce an error in the 6th iteration
-    aa <- adjOutlyingness(x=X,ndir=250)
+    aa <- adjOutlyingness(x=X, ndir=250)
+    if(any(is.out <- !aa$nonOut))
+        cat("'outliers' at obs.", paste(which(is.out), collapse=", "),"\n")
+    stopifnot(1/4 < aa$adjout & aa$adjout < 16)
 }
 
 ## Check "high"-dimensional Noise ... typically mc() did *not* converge for some re-centered columns
@@ -185,8 +188,7 @@ kappa(a) # 20.42 (~ 10--20 or so; definitely not close to singular)
 a.a <- adjOutlyingness(a, mcScale=FALSE, # <- my own recommendation
                        trace.lev=1)
 a.s <- adjOutlyingness(a, mcScale=TRUE, trace.lev=1)
-
-str(a.a) # surprisingly high 'adjout' values "all similar" -> no outliers .. hmm .. ???
+str(a.a) # high 'adjout' values "all similar" -> no outliers .. hmm .. ???
 (hdOut <- which( ! a.a$nonOut)) ## indices of "outlier" -- very platform dependent !
 stopifnot(exprs = {
     ## a.a :
@@ -198,9 +200,13 @@ stopifnot(exprs = {
     a.s$nonOut # all TRUE
     all.equal(a.s$MCadjout, 0.32284906741568, tol = 1e-13) # seen 2.2e-15
 })
-## The adjout values are all > 10^15  !!! ... what's going on ???
-## Now I know: n < 4*p ==> can find 1D-projection with IQR = 0 !!)
+## The adjout values are all > 10^15  !!! ... what's going on ?
+## Now (2021) I know: n < 4*p ==> can find 1D-projection where 1 of the 2 {Q3-Q2, Q2-Q1} is 0 !
+##---------------------------------------------------------------------------------------------
 
+
+###-- Back to  mc()  checks for "hard" cases
+###           =====  -----------------------
 
 ## "large n" (this did overflow sum_p, sum_q  earlier ==> had inf.loop):
 set.seed(3); x <- rnorm(2e5)
