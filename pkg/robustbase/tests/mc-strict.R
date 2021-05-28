@@ -190,16 +190,10 @@ a.a <- adjOutlyingness(a, mcScale=FALSE, # <- my own recommendation
 a.s <- adjOutlyingness(a, mcScale=TRUE, trace.lev=1)
 str(a.a) # high 'adjout' values "all similar" -> no outliers .. hmm .. ???
 (hdOut <- which( ! a.a$nonOut)) ## indices of "outlier" -- very platform dependent !
-stopifnot(exprs = {
-    ## a.a :
-    TRUE || ## TODO: once we know the different result on different platforms: '22' is ok
-        ## on Windows / Linux 64 bit; but not on  ATLAS, M1mac, MKL, noLD, OpenBLAS
-    identical(a.a$nonOut, local({r <- rep(TRUE, n); r[22] <- FALSE; r}))
-    all.equal(a.a$MCadjout, 0.136839766177, tol = 1e-12) # seen 7.65e-14
-    ## a.s :
-    a.s$nonOut # all TRUE
-    all.equal(a.s$MCadjout, 0.32284906741568, tol = 1e-13) # seen 2.2e-15
-})
+a.s$MCadjout # platform dependent; saw
+## 0.32284906741568 or
+## 0.136839766177   but even others
+##
 ## The adjout values are all > 10^15  !!! ... what's going on ?
 ## Now (2021) I know: n < 4*p ==> can find 1D-projection where 1 of the 2 {Q3-Q2, Q2-Q1} is 0 !
 ##---------------------------------------------------------------------------------------------
