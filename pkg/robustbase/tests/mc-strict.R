@@ -188,13 +188,18 @@ kappa(a) # 20.42 (~ 10--20 or so; definitely not close to singular)
 a.a <- adjOutlyingness(a, mcScale=FALSE, # <- my own recommendation
                        trace.lev=1)
 a.s <- adjOutlyingness(a, mcScale=TRUE, trace.lev=1)
+## a.a :
 str(a.a) # high 'adjout' values "all similar" -> no outliers .. hmm .. ???
 (hdOut <- which( ! a.a$nonOut)) ## indices of "outlier" -- very platform dependent !
+a.a$MCadjout; all.equal(a.a$MCadjout, 0.136839766177,
+          tol = 1e-12) # seen 7.65e-14   and "big" differences on non-default platforms
+## a.s :
+which(! a.s$nonOut ) # none  [all TRUE]
 a.s$MCadjout # platform dependent; saw
-## 0.32284906741568 or
-## 0.136839766177   but even others
+all.equal(a.s$MCadjout, 0.32284906741568, tol = 1e-13) # seen 2.2e-15 ..
+                                        # and big diffs on non-default platforms
 ##
-## The adjout values are all > 10^15  !!! ... what's going on ?
+## The adjout values are all > 10^15  !!!   why ??
 ## Now (2021) I know: n < 4*p ==> can find 1D-projection where 1 of the 2 {Q3-Q2, Q2-Q1} is 0 !
 ##---------------------------------------------------------------------------------------------
 

@@ -12,7 +12,7 @@ stopifnot(0.26 == (himR <-  weighted.median(rep(x,iw))),
           himR == wgt.himedian(x, as.integer(iw)))
 
 
-## same result, but *different  wweigted.median() debug output!
+## same result, but *different wweigted.median() debug output!
 ##-- even when having EXACT data (& exact differences!)
 all.equal(Qn(c(2:1,4:3)), 1.1376128)
 

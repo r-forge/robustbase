@@ -17,8 +17,8 @@ Qn.finite.c <- function(n)
 
 
 
-Qn <- function(x, constant = NULL, finite.corr = missing(constant) && missing(k),
-                k = choose(n %/% 2 + 1, 2), warn.finite.corr = TRUE)
+Qn <- function(x, constant = NULL, finite.corr = is.null(constant) && missing(k),
+               k = choose(n %/% 2 + 1, 2), warn.finite.corr = TRUE)
 {
     ## Purpose: Rousseeuw and Croux's  Q_n() robust scale estimator
     ## Author: Martin Maechler, Date: 14 Mar 2002, 10:43
@@ -32,12 +32,14 @@ Qn <- function(x, constant = NULL, finite.corr = missing(constant) && missing(k)
     stopifnot(is.numeric(k <- as.double(k)), k == trunc(k), 1 <= k, k <= nn2,
               ## but k *may* be vector
               is.integer(l_k <- length(k)))
+    if(missing(finite.corr)) # smarter than "visual default"
+        finite.corr <- dflt.c && (dflt.k <- dflt.k ||
+                                  (l_k == 1 && k == choose(n %/% 2 + 1, 2)))
     if(dflt.c) # define constant
         constant <-
             if(dflt.k)
                 2.21914 # == old default ("true value" rounded to 6 significant digits)
             else 1/(sqrt(2) * qnorm(((k-1/2)/nn2 + 1)/2))
-    stopifnot(is.integer(l_k <- length(k)))
     r <- constant *
         .C(Qn0, as.double(x), n, k, l_k, res = double(l_k))$res
 

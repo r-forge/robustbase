@@ -17,7 +17,7 @@
   pairwise differences.  See the references for more.
 }
 \usage{
-Qn(x, constant = NULL, finite.corr = missing(constant) && missing(k),
+Qn(x, constant = NULL, finite.corr = is.null(constant) && missing(k),
    k = choose(n \%/\% 2 + 1, 2), warn.finite.corr = TRUE)
 
 s_Qn(x, mu.too = FALSE, \dots)
