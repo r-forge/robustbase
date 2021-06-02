@@ -88,7 +88,7 @@ L1median(X, m.init = colMedians(X), weights = NULL,
 \seealso{
   \code{\link{median}}, \code{\link[robustbase]{covMcd}}
 
-  CRAN package \pkg{pcaPP} added more L1 median methods,
+  CRAN package \CRANpkg{pcaPP} added more L1 median methods,
   re-implementing our \R versions in C++, see Fritz et al.(2012) and
   e.g., \code{\link[pcaPP]{l1median_NLM}()}.
 }
