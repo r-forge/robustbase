@@ -64,6 +64,7 @@ rbwheel(n, p, frac = 1/p, sig1 = 0.05, sig2 = 1/10,
   Stahel, W.~A. and \enc{Mächler}{Maechler}, M. (2009).
   Comment on ``invariant co-ordinate selection'',
   \emph{Journal of the Royal Statistical Society B} \bold{71}, 584--586.
+  \doi{10.1111/j.1467-9868.2009.00706.x}
 }
 \author{Werner Stahel and Martin Maechler}
 % \seealso{ %............
