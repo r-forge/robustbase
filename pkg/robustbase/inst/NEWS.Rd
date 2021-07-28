@@ -4,6 +4,27 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
+\section{CHANGES in robustbase VERSION 0.93-9 (2021-07-.., svn r8..)}{
+  % --- 1.0-0  if we fix  adjOutlyingness() properly !
+  %     =====  *and* fix  mc()  nicely according to Lukas Graz' MSc thesis !!
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item .
+    }
+  }
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item .
+    }
+  }
+  \subsection{Misc}{
+    \itemize{
+      \item No longer include \file{Rdefines.h} as it is somewhat deprecated.
+    }
+  }
+}
+
+
 \section{CHANGES in robustbase VERSION 0.93-8 (2021-06-01, svn r879)}{
   \subsection{NEW FEATURES}{
     \itemize{

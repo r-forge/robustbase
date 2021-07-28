@@ -4,7 +4,8 @@
 
  Copyright Henrik Bengtsson, 2007;  Martin Maechler, 2014;  History --> EOF
  **************************************************************************/
-#include <Rdefines.h>
+#include <Rinternals.h>
+// was #include <Rdefines.h>
 
 //  Public methods:
 
