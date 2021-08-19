@@ -222,7 +222,7 @@ void zero_mat(double **a, int n, int m);
     F77_CALL(dgels)("N", &_n_, &_p_, &one, _X_, &_n_, _y_,      \
 		    &_n_, &work0, &lwork, &info FCLEN);         \
     if (info) {                                                 \
-	warning(" Problem determining optimal block size, using minimum"); \
+	warning(_(" Problem determining optimal block size, using minimum")); \
 	lwork = 2*_p_;                                          \
     } else                                                      \
 	lwork = (int)work0;                                     \
@@ -259,14 +259,14 @@ void zero_mat(double **a, int n, int m);
     if (info) {					                \
 	if (info < 0) {                                         \
 	    CLEANUP_WLS;					\
-	    error("DGELS: illegal argument in %i. argument.", info); \
+	    error(_("DGELS: illegal argument in %i. argument."), info); \
 	} else {                                                \
 	    if (trace_lev >= 4) {				\
 		Rprintf(" Robustness weights in failing step: "); \
 		disp_vec(weights, _n_);				\
 	    }                                                   \
 	    CLEANUP_WLS;					\
-	    error("DGELS: weighted design matrix not of full rank (column %d).\nUse control parameter 'trace.lev = 4' to get diagnostic output.", info); \
+	    error(_("DGELS: weighted design matrix not of full rank (column %d).\nUse control parameter 'trace.lev = 4' to get diagnostic output."), info); \
 	}                                                       \
     }
 
@@ -287,17 +287,17 @@ void zero_mat(double **a, int n, int m);
     if (info) {                                                 \
 	if (info < 0) {                                         \
 	    CLEANUP_EQUILIBRATION;				\
-	    error("DGEEQ: illegal argument in %i. argument", -1 * info); \
+	    error(_("DGEEQ: illegal argument in %i. argument"), -1 * info); \
 	} else if (info > _n_) {                                \
 	    if (_large_n_) {                                    \
-	        error("Fast S large n strategy failed. Use control parameter 'fast.s.large.n = Inf'."); \
+	        error(_("Fast S large n strategy failed. Use control parameter 'fast.s.large.n = Inf'.")); \
 	    } else {						\
-                error("DGEEQU: column %i of the design matrix is exactly zero.", info - _n_); \
+                error(_("DGEEQU: column %i of the design matrix is exactly zero."), info - _n_); \
 	    }                                                   \
 	} else {                                                \
 	/* FIXME: replace dgeequ by our own version */          \
 	/* that does not treat this as error */                 \
-	    warning(" Skipping design matrix equilibration (DGEEQU): row %i is exactly zero.", info); \
+	    warning(_(" Skipping design matrix equilibration (DGEEQU): row %i is exactly zero."), info); \
 	}                                                       \
     } else {							\
         /* scale _X_ */                                         \
@@ -457,7 +457,7 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
 		      SC1, SC2, SC3, SC4, *mts, *ss);
 
 	if (*scale < 0)
-	    error("m_s_subsample() stopped prematurely (scale < 0).");
+	    error(_("m_s_subsample() stopped prematurely (scale < 0)."));
     }
 
     /* STEP 3: Transform back */
@@ -652,7 +652,7 @@ double rho_inf(const double k[], int ipsi) {
     double c = k[0];
 
     switch(ipsi) {
-    default: error("rho_inf(): ipsi=%d not implemented.", ipsi);
+    default: error(_("rho_inf(): ipsi=%d not implemented."), ipsi);
     case 0: return(R_PosInf); // huber
     case 1: return(c*c/6.); // biweight
     case 2: return(c*c); // GaussWeight / "Welsh"
@@ -682,7 +682,7 @@ double normcnst(const double k[], int ipsi) {
     double c = k[0];
 
     switch(ipsi) {
-    default: error("normcnst(): ipsi=%d not implemented.", ipsi);
+    default: error(_("normcnst(): ipsi=%d not implemented."), ipsi);
     case 0: return(0.); // huber {normcnst() should never be used for that!}
     case 1: return(6./(c*c)); // biweight
     case 2: return(1./(c*c)); // GaussWeight / "Welsh"
@@ -712,7 +712,7 @@ double rho(double x, const double c[], int ipsi)
      * This rho() is normalized to 1, called rho~() or chi() in other contexts
      */
     switch(ipsi) {
-    default: error("rho(): ipsi=%d not implemented.", ipsi);
+    default: error(_("rho(): ipsi=%d not implemented."), ipsi);
     case 0: return(rho_huber(x, c)); // huber
     case 1: return(rho_biwgt(x, c)); // biweight
     case 2: return(rho_gwgt(x, c)); // GaussWeight / "Welsh"
@@ -731,7 +731,7 @@ double psi(double x, const double c[], int ipsi)
      * this is actually rho' and not psi
      */
     switch(ipsi) {
-    default: error("psi(): ipsi=%d not implemented.", ipsi);
+    default: error(_("psi(): ipsi=%d not implemented."), ipsi);
     case 0: return(psi_huber(x, c)); // huber
     case 1: return(psi_biwgt(x, c)); // biweight
     case 2: return(psi_gwgt(x, c)); // GaussWeight / "Welsh"
@@ -749,7 +749,7 @@ double psip(double x, const double c[], int ipsi)
      * this is actually rho'' and not psip
      */
     switch(ipsi) {
-    default: error("psip(): ipsi=%d not implemented.", ipsi);
+    default: error(_("psip(): ipsi=%d not implemented."), ipsi);
     case 0: return(psip_huber(x, c)); // huber
     case 1: return(psip_biwgt(x, c)); // biweight
     case 2: return(psip_gwgt(x, c)); // GaussWeight / "Welsh"
@@ -765,13 +765,13 @@ double psi2(double x, const double c[], int ipsi)
     /* Compute   psi''(x) == rho'''(x)
      */
     switch(ipsi) {
-    // default: error("psi2: ipsi=%d not implemented.", ipsi);
+    // default: error(_("psi2: ipsi=%d not implemented."), ipsi);
     case 0: return(psi2_huber(x, c)); // huber
     case 1: return(psi2_biwgt(x, c)); // biweight
     case 4: return(psi2_hmpl(x, c)); // Hampel
     case 6: return(psi2_lqq(x, c)); // LQQ (piecewise linear psi')
 
-    default: error("psi2(): ipsi=%d not implemented.", ipsi);
+    default: error(_("psi2(): ipsi=%d not implemented."), ipsi);
 /*
     case 2: return(psi2_gwgt(x, c)); // GaussWeight / "Welsh"
     case 3: return(psi2_opt(x, c)); // Optimal
@@ -1201,7 +1201,7 @@ double rho_ggw(double x, const double k[])
 	case 3: c = 1.063;     break;
 	case 4: c = 0.7593544; break;
 	case 5: c = 0.2959132; break;
-	default: error("rho_ggw(): case (%i) not implemented.", j+1);
+	default: error(_("rho_ggw(): case (%i) not implemented."), j+1);
 	}
 	x = fabs(x);
 	if (x <= c)
@@ -1242,7 +1242,7 @@ double rho_ggw(double x, const double k[])
 	       &limit, &lenw, &last,
 	       iwork, work);
 	if (ier >= 1)
-	    error("Error from Rdqags(psi_ggw*, k, ...): ier = %i", ier);
+	    error(_("Error from Rdqags(psi_ggw*, k, ...): ier = %i"), ier);
 	return(result/k[4]);
     }
 }
@@ -2173,7 +2173,7 @@ int refine_fast_s(const double X[], double *wx, const double y[], double *wy,
 	/* was "if(0)",	 since default lead to 'NOT converged' */
 	if(!converged) {
 	    *conv = FALSE;
-	    warning("S refinements did not converge (to refine.tol=%g) in %d (= k.max) steps",
+	    warning(_("S refinements did not converge (to refine.tol=%g) in %d (= k.max) steps"),
 		    rel_tol, i);
 	}
     }
@@ -2332,7 +2332,7 @@ Rboolean m_s_descent(double *X1, double *X2, double *y,
 			   SC1, SC2, SC3, SC4, BET0);
 	if (*KODE > 1) {
 	    CLEANUP_WLS;
-	    error("m_s_descent(): Problem in RLLARSBI (RILARS). KODE=%d. Exiting.",
+	    error(_("m_s_descent(): Problem in RLLARSBI (RILARS). KODE=%d. Exiting."),
 		  *KODE);
 	}
 	/* STEP 3: Compute the scale estimate */
@@ -2376,7 +2376,7 @@ Rboolean m_s_descent(double *X1, double *X2, double *y,
     } // while(.)
 
     if ( (!converged) & (nref == max_k) )
-	warning(" M-S estimate: maximum number of refinement steps reached.");
+	warning(_(" M-S estimate: maximum number of refinement steps reached."));
 
     if (trace_lev >= 1) {
 	Rprintf(" Descent procedure: %sconverged (best scale: %.5g, last step: %.5g)\n",
@@ -2465,7 +2465,7 @@ Start:
 	sing=TRUE;
 	do {
 	    if (i+j == n) {
-		warning("subsample(): could not find non-singular subsample.");
+		warning(_("subsample(): could not find non-singular subsample."));
 		return(1);
 	    }
 	    idc[j] = ind_space[i+j];
@@ -2514,7 +2514,7 @@ Start:
 		if (ss == 0) {
 		    attempt++;
 		    if (attempt >= mts) {
-			warning("Too many singular resamples. Aborting subsample().\n See parameter 'subsampling; in help of lmrob.config().");
+			warning(_("Too many singular resamples. Aborting subsample().\n See parameter 'subsampling; in help of lmrob.config()."));
 			return(2);
 		    }
 		    goto Start;
@@ -2573,7 +2573,7 @@ double find_scale(const double r[], double b, const double rrhoc[], int ipsi,
 		  Rboolean trace)
 {
     if(initial_scale <= 0.) {
-	warning("find_scale(*, initial_scale = %g)  -> final scale = 0", initial_scale);
+	warning(_("find_scale(*, initial_scale = %g)  -> final scale = 0"), initial_scale);
 	return 0.;
     }
     // else
@@ -2588,7 +2588,7 @@ double find_scale(const double r[], double b, const double rrhoc[], int ipsi,
 	}
 	initial_scale = scale;
     }
-    warning("find_scale() did not converge in '%s' (= %d) iterations with tol=%g, last rel.diff=%g",
+    warning(_("find_scale() did not converge in '%s' (= %d) iterations with tol=%g, last rel.diff=%g"),
 	    "maxit.scale", /* <- name from lmrob.control() */ *iter, scale_tol,
 	    (scale - initial_scale) / initial_scale);
 

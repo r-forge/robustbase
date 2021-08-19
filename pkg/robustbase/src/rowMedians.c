@@ -39,11 +39,11 @@ SEXP R_rowMedians(SEXP x, SEXP naRm, SEXP hasNA, SEXP byRow, SEXP keepNms) {
 
   // Argument checking and "C type coercion":
   if (!isMatrix(x))
-    error("Argument 'x' must be a matrix.");
+    error(_("Argument 'x' must be a matrix."));
 
   int narm = asLogical(naRm); // error if it ain't
   if (narm != TRUE && narm != FALSE)
-    error("Argument 'naRm' must be either TRUE or FALSE.");
+    error(_("Argument 'naRm' must be either TRUE or FALSE."));
 
   int hasna = asLogical(hasNA); // error if it ain't
   if (hasna == NA_INTEGER)
@@ -68,7 +68,7 @@ SEXP R_rowMedians(SEXP x, SEXP naRm, SEXP hasNA, SEXP byRow, SEXP keepNms) {
   } else if (isInteger(x)) {
       ans = PROTECT(rowMedians_Integer(x, nrow, ncol, narm, hasna, byrow));
   } else {
-      error("Argument 'x' must be numeric (integer or double).");
+      error(_("Argument 'x' must be numeric (integer or double)."));
   }
   if(keepnms) {
       SEXP xDnms = getAttrib(x, R_DimNamesSymbol);
