@@ -4,17 +4,15 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.93-9 (2021-07-.., svn r8..)}{
   % --- 1.0-0  if we fix  adjOutlyingness() properly !
   %     =====  *and* fix  mc()  nicely according to Lukas Graz' MSc thesis !!
-  \subsection{NEW FEATURES}{
-    \itemize{
-      \item .
-    }
-  }
+
+\section{CHANGES in robustbase VERSION 0.93-9 (2021-09-24, svn r886)}{
   \subsection{BUG FIXES}{
     \itemize{
-      \item .
+      \item \code{Qn(x)} and \code{Sn(x)} gain an \code{na.rm = FALSE}
+      option and now work when \code{x} has \code{NA}s and contains
+      \eqn{\pm}{+/-} \code{Inf}.
     }
   }
   \subsection{Misc}{
@@ -23,7 +21,6 @@
     }
   }
 }
-
 
 \section{CHANGES in robustbase VERSION 0.93-8 (2021-06-01, svn r879)}{
   \subsection{NEW FEATURES}{

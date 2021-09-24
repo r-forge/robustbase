@@ -2,10 +2,12 @@
 
  Authors: Adopted from rowQuantiles.c by R. Gentleman.
 
- Copyright Henrik Bengtsson, 2007;  Martin Maechler, 2014;  History --> EOF
+ Copyright Henrik Bengtsson, 2007;  Martin Maechler, 2014-2021;  History --> EOF
  **************************************************************************/
 #include <Rinternals.h>
 // was #include <Rdefines.h>
+
+#include "robustbase.h"
 
 //  Public methods:
 
