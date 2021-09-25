@@ -7,7 +7,7 @@
   % --- 1.0-0  if we fix  adjOutlyingness() properly !
   %     =====  *and* fix  mc()  nicely according to Lukas Graz' MSc thesis !!
 
-\section{CHANGES in robustbase VERSION 0.93-9 (2021-09-24, svn r886)}{
+\section{CHANGES in robustbase VERSION 0.93-9 (2021-09-24, svn r887)}{
   \subsection{BUG FIXES}{
     \itemize{
       \item \code{Qn(x)} and \code{Sn(x)} gain an \code{na.rm = FALSE}
@@ -18,6 +18,9 @@
   \subsection{Misc}{
     \itemize{
       \item No longer include \file{Rdefines.h} as it is somewhat deprecated.
+
+      \item In \file{src/lmrob.c} add \code{USE_FC_LEN_T} and use \code{FCONE}
+      rather than the older FCLEN approach.
     }
   }
 }
