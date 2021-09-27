@@ -7,7 +7,7 @@
   % --- 1.0-0  if we fix  adjOutlyingness() properly !
   %     =====  *and* fix  mc()  nicely according to Lukas Graz' MSc thesis !!
 
-\section{CHANGES in robustbase VERSION 0.93-9 (2021-09-24, svn r887)}{
+\section{CHANGES in robustbase VERSION 0.93-9 (2021-09-27, svn r888)}{
   \subsection{BUG FIXES}{
     \itemize{
       \item \code{Qn(x)} and \code{Sn(x)} gain an \code{na.rm = FALSE}
