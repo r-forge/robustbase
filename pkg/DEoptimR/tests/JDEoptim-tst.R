@@ -3,7 +3,7 @@ require("DEoptimR")
 c.time <- function(...) cat('Time elapsed: ', ..., '\n')
 S.time <- function(expr) c.time(system.time(expr))
 source(system.file("xtraR/opt-test-funs.R", package = "DEoptimR"))
-## sf1(), swf() + g11 + RND, HEND, and alkylation list of $obj and $con testing functions
+## sf1(), swf() + g11, RND, HEND, and alkylation list of $obj and $con testing functions
 (doExtras <- DEoptimR:::doExtras())
 
 set.seed(2345)
