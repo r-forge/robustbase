@@ -4,10 +4,14 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.95-0 (2022-03-28, svn r???)}{
+\section{CHANGES in robustbase VERSION 0.95-0 (2022-03-28, svn r892)}{
   % --- 1.0-0  if we fix  adjOutlyingness() properly !
   %     =====  *and* fix  mc()  nicely according to Lukas Graz' MSc thesis !!
+  \subsection{Misc}{
     \itemize{
+      \item rather "truncating" \eqn{+/-}\code{Inf} to <large>, use
+      \code{NA.OK = TRUE} in \code{Qn()} and \code{Sn()}'s \code{.C()} call.
+
       \item Our C code no longer uses the \code{DOUBLE_*} constants from S,
       but rather standard \code{<float.h>}.
     }
