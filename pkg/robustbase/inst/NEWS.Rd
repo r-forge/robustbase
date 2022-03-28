@@ -4,8 +4,16 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
+\section{CHANGES in robustbase VERSION 0.95-0 (2022-03-28, svn r???)}{
   % --- 1.0-0  if we fix  adjOutlyingness() properly !
   %     =====  *and* fix  mc()  nicely according to Lukas Graz' MSc thesis !!
+    \itemize{
+      \item Our C code no longer uses the \code{DOUBLE_*} constants from S,
+      but rather standard \code{<float.h>}.
+    }
+  }
+}
+
 
 \section{CHANGES in robustbase VERSION 0.93-9 (2021-09-27, svn r888)}{
   \subsection{BUG FIXES}{
