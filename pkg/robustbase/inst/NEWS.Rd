@@ -4,9 +4,31 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.95-0 (2022-03-28, svn r892)}{
+\section{CHANGES in robustbase VERSION 0.95-0 (2022-03-31, svn r893)}{
   % --- 1.0-0  if we fix  adjOutlyingness() properly !
-  %     =====  *and* fix  mc()  nicely according to Lukas Graz' MSc thesis !!
+  %     =====  *and* fix  mc()  nicely according to Lukas Graz' BSc thesis !!
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item New \code{huberize()} utility, notably by default used in \code{mc()}.
+
+      \item \code{mc()} now by default uses \code{doScale=FALSE} in order
+      to guarantee convergence also in extreme cases when used \emph{together}
+      with new \code{c.huberize = 1e11}.  Both are \emph{not} back
+      compatible but clearly better in extreme cases, as assessed by
+      Lukas Graz' BSc thesis.
+      Note that the behavior of the new default \code{doScale=FALSE} has
+      been amended in the C code to be more compatible in its \code{eps}
+      checks with (the previous default) \code{doScale=TRUE}.
+
+      Lastly, a \code{message()} is printed currently, at most once per \R session,
+      whenever \code{mc()} is called without an explicit specification of \code{doScale=*},
+      alerting users to the changed default.  This message can be turned
+      off by setting \code{options(mc_doScale_quiet = TRUE)}.
+
+      \item New dataset \code{data(x30o50)} as an example of potentially
+      problematic data, not just for \code{mc()}.
+    }
+  }
   \subsection{Misc}{
     \itemize{
       \item rather "truncating" \eqn{+/-}\code{Inf} to <large>, use

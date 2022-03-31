@@ -64,12 +64,12 @@ stopifnot(exprs = {
     mad(exL$xI, constant = 1) == 2.5
 })
 
-## FIXME: should not give NaN :
-scaleTau2(xI)
-
-## FIXME: even give  Error in ..... : NA/NaN/Inf in foreign function call (arg 1)
-try( Sn(xI) )
-try( Qn(xI) )
+stopifnot(exprs = {
+    all.equal(3.5471741782, scaleTau2(xI)) # gave NaN
+    ## These even gave  Error in ..... : NA/NaN/Inf in foreign function call (arg 1)
+    all.equal(3.5778,       Sn(xI))
+    all.equal(3.1961829592, Qn(xI))
+})
 
 ## From  example(mc)  {by MM} :
 
@@ -77,16 +77,21 @@ try( Qn(xI) )
 dX10 <- function(X) c(1:5,7,10,15,25, X) # generate skewed size-10 with 'X'
 (Xs <- c(10,20,30, 60, 10^(2:10), 1000^(4:19), 1e6^c(10:20,10*(3:5)), Inf))
 
-(mc10x <- vapply(Xs, function(x) mc(dX10(x)), 1))
+mc10x <- vapply(Xs, function(x) mc(dX10(x)), 1)
+## now fixed:
+stopifnot(all.equal(c(4,6, rep(7,42))/12, mc10x))
 plot(Xs, mc10x, type="b", main = "mc( c(1:5,7,10,15,25, X) )", xlab="X", log="x")
 
-##--- FIXME: the above must change!
-
 ## so, Inf does work, indeed for mc()
-dX10(Inf)
-set.seed(2020-12-04)
+mcOld <- function(x, ..., doScale=TRUE) mc(x, doScale=doScale, c.huberize=Inf, ...)
+(x10I <- dX10(Inf))
+set.seed(2020-12-04)# rlnorm(.)
+summary(xlN <- rlnorm(100))
+xII <- c(-Inf, xlN, Inf)
 stopifnot(exprs = {
-    is.finite(mc(dX10(Inf))) # 0.5 currently
-    mc(c(-Inf, rlnorm(100), Inf)) == 0
+    all.equal(0.5,  print(mcOld(x10I)))
+    all.equal(7/12, print(mc   (x10I, doScale=TRUE ))) # was 0.5 before huberization
+    all.equal(7/12, print(mc   (x10I, doScale=FALSE)))
+    mcOld(xII) == 0
+    all.equal(0.3646680319, mc(xII))
 })
-
