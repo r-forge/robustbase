@@ -35,7 +35,8 @@ mc <- function(x, na.rm = FALSE, doReflect = (length(x) <= 100)
         .optEnv$mc_doScale_msg <- FALSE
     }
 
-    if(is.finite(c.huberize)) x <- huberize(x, c=c.huberize)
+    if(is.finite(c.huberize))
+        x <- huberize(x, c=c.huberize, warn0 = trace.lev > 0, saveTrim=FALSE)
     rr <- mcComp(x, doReflect, doScale=doScale, eps1=eps1, eps2=eps2,
                  maxit=maxit, trace.lev=trace.lev)
 

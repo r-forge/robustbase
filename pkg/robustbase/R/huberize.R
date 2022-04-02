@@ -24,7 +24,7 @@ huberize <- function(x, M = huberM(x, k=k)$mu, c = k,
               length(trim) >= 1, trim >= 0, diff(trim) < 0) # trim must be strictly decreasing
     qn. <- Qn(x)
     j <- 0L
-    while(qn. == 0 && j < length(trim))
+    while(!is.na(qn.) && qn. == 0 && j < length(trim))
         qn. <- tmad(x, center = M, trim = trim[j <- j+1L])
         ##     ~~~~
     if(qn. == 0 && warn0)

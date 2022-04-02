@@ -4,9 +4,15 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.95-0 (2022-03-31, svn r893)}{
+\section{CHANGES in robustbase VERSION 0.95-0 (2022-04-02, svn r894)}{
   % --- 1.0-0  if we fix  adjOutlyingness() properly !
   %     =====  *and* fix  mc()  nicely according to Lukas Graz' BSc thesis !!
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item \code{huberM(x, k)} now also works in small sample cases with
+      \code{+/-Inf}, e.g. for \code{x = c(-Inf, 1)}.
+    }
+  }
   \subsection{NEW FEATURES}{
     \itemize{
       \item New \code{huberize()} utility, notably by default used in \code{mc()}.

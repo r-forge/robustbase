@@ -6,6 +6,7 @@
 
 library(robustbase)
 for(f in system.file("xtraR", c("mcnaive.R", # -> mcNaive()
+                                "styleData.R",  # -> smallD  list of small datasets
 			      "platform-sessionInfo.R"),
                      package = "robustbase", mustWork=TRUE)) {
     cat("source(",f,"):\n", sep="")
@@ -30,7 +31,16 @@ mS <- moreSessionInfo(print.=TRUE)
 
 if(!dev.interactive(orNone=TRUE)) pdf("mc-strict.pdf")
 
-assertCondition(mc(1:11), "message")
+assertCondition(mc(1:11), "message") # change of default to  doScale=FALSE
+
+smlMC  <- vapply(smallD, mc, pi)
+smlMCo <- vapply(smallD, mc, pi, doScale=TRUE, c.huberize=Inf)
+yI <- c("yI", "yI."); notI  <- setdiff(names(smallD), yI)
+yI2 <- c(yI, "x3I");  notI2 <- setdiff(names(smallD), yI2)
+assert.EQ(smlMC [notI],
+          smlMCo[notI], tol = 4e-11, giveRE=TRUE)
+## above small diff. is from 'x3I';  dropping that, too, leaves no differences
+table(smlMC [notI2] == smlMCo[notI2])
 
 n.set <- c(1:99, 1e5L+ 0:1) # large n gave integer overflow in earlier versions
 DO(0 == sapply(n.set, function(n) mc(seq_len(n))))

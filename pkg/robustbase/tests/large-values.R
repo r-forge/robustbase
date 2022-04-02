@@ -3,27 +3,14 @@
 
 require(robustbase)
 
+source(system.file("xtraR/styleData.R", package = "robustbase"))# -> smallD, mkMx()
+
 stopifnot(exprs = {
     all.equal(scaleTau2(c(-4:4, 10000), consistency=FALSE),
              (scaleTau2(c(-4:4, 1e300), consistency=FALSE) -> sT), # <- gave NaN, now fine !
              tol = 1e-15) # even 0 (exact equality; Linux 64b)
     all.equal(3.41103800034854, sT, tol = 1e-14) # seen 6.5e-16
 })
-
-mkMx <- function(M, ngood = 10, left = floor(ngood/3)) {
-    stopifnot(is.numeric(ngood), ngood >= 3,
-              is.numeric(M), length(M) == 1L, M >= 1000,
-              is.numeric(left), 0 <= left, left <= ngood)
-    right <- ngood-left
-    res <- list(
-        c(rep(-M, left), seq_len(ngood - 1L), rep(M, right)) # < 50% "good"
-      , c(rep(-M, left), seq_len(ngood     ), rep(M, right)) # half  "good"
-      , c(rep(-M, left), seq_len(ngood + 1L), rep(M, right)) # > 50% "good"
-    )
-    nM <- gsub("[-+]", "", formatC(M, digits=2, width=1))
-    names(res) <- paste0("M", nM,"_n", c("m1", "eq", "p1"))
-    res
-}
 
 exL <- c(
     list( xNA  = c(NA, 1:6)
@@ -32,15 +19,10 @@ exL <- c(
        , xI   = c(-4:4, Inf)
        , IxI  = c(-Inf, -4:4, Inf)
        , IxI2 = c(-Inf, -4:4, Inf,Inf))
-  ##
-, mkMx(M = .Machine$double.xmax)
-, mkMx(M = 1e6)
-, mkMx(M = 1e9)
-, mkMx(M = 1e12)
-, mkMx(M = 1e14)
-, mkMx(M = 1e16)
-, mkMx(M = 1e20)
-, mkMx(M = 1e40)
+    ,
+    mkMx(c(1e6, 1e9,
+           1e12, 1e14, 1e16,
+           1e20, 1e40, .Machine$double.xmax, Inf))
 )
 
 madL <- vapply(exL, mad, pi)
