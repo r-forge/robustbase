@@ -93,6 +93,7 @@ export(Sn, Qn, Qn.old,
        outlierStats,
 
        mc, # Mia Hubers's medcouple
+       lmc, rmc, # left and right mc, robust measures of tail weight
        adjbox,
        adjboxStats,
        adjOutlyingness,

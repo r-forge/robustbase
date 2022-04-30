@@ -4,9 +4,23 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
+\section{CHANGES in robustbase VERSION 0.95-1 (2022-04-21, svn r..)}{
+  % --- 1.0-0  once we fix  adjOutlyingness() properly !
+  %     =====
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item .
+    }
+  }
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item New \code{lmc()} and \code{rmc()} for robust tail weight
+      (\dQuote{robust kurtosis}). % ../man/lmc-rmc.Rd
+    }
+  }
+}
+
 \section{CHANGES in robustbase VERSION 0.95-0 (2022-04-02, svn r894)}{
-  % --- 1.0-0  if we fix  adjOutlyingness() properly !
-  %     =====  *and* fix  mc()  nicely according to Lukas Graz' BSc thesis !!
   \subsection{BUG FIXES}{
     \itemize{
       \item \code{huberM(x, k)} now also works in small sample cases with
