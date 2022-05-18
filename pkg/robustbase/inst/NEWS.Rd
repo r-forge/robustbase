@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.95-1 (2022-04-21, svn r..)}{
+\section{CHANGES in robustbase VERSION 0.95-1 (2022-05-18, svn r900)}{
   % --- 1.0-0  once we fix  adjOutlyingness() properly !
   %     =====
   \subsection{BUG FIXES}{
@@ -16,6 +16,13 @@
     \itemize{
       \item New \code{lmc()} and \code{rmc()} for robust tail weight
       (\dQuote{robust kurtosis}). % ../man/lmc-rmc.Rd
+    }
+  }
+  \subsection{Misc}{
+    \itemize{
+      \item Our \file{tests/*.R} no longer rely on the \CRANpkg{Matrix}
+      \file{test-tools.R} collection but rather use our much smaller own
+      one in \file{xtraR/test-tools.R}.
     }
   }
 }

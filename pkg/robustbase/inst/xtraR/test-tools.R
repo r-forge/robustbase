@@ -1,6 +1,10 @@
 ## Just a small subset of those from 'Matrix' i.e,
 ##    system.file("test-tools-1.R",  package = "Matrix")
 
+identical3 <- function(x,y,z)	  identical(x,y) && identical (y,z)
+identical4 <- function(a,b,c,d)   identical(a,b) && identical3(b,c,d)
+identical5 <- function(a,b,c,d,e) identical(a,b) && identical4(b,c,d,e)
+
 assert.EQ <- function(target, current, tol = if(showOnly) 0 else 1e-15,
                       giveRE = FALSE, showOnly = FALSE, ...) {
     ## Purpose: check equality *and* show non-equality
