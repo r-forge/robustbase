@@ -9,7 +9,7 @@
   %     =====
   \subsection{BUG FIXES}{
     \itemize{
-      \item .
+      \item Fixed \code{covMcd()}: \code{raw.only=TRUE} does not work in the case \code{nsamp="deterministic"}
     }
   }
   \subsection{NEW FEATURES}{
