@@ -1,3 +1,8 @@
+2023-01-04  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 1.2-6
+	* tests/cov-ex.R: skip check failing with ATLAS in R-devel{system-Lapack}.
+
 2021-04-14  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/BACON-alg.R (BACON, mvBACON), From Tobias Schoch: 'alpha'

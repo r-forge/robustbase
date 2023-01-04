@@ -1,6 +1,14 @@
 library(robustX)
 library(robustbase)
 
+sessionInfo()
+packageDescription("robustX")
+(ourBLAS <- grepl(print(normalizePath(R.home())),
+                        normalizePath(extSoftVersion()[["BLAS"]]), fixed = TRUE))
+## need extended precision (typically *includes* 64-bit):
+doCheck <- (.Machine$sizeof.longdouble >= 16)
+cat("doCheck (= have long double):", doCheck,"\n")
+
 if(!dev.interactive(orNone=TRUE)) pdf("cov-ex.pdf")
 
 covNN.1 <- robustX:::covNNC1  ## the original definition (2003)
@@ -41,9 +49,6 @@ summ.NN <- function(cNN, digits = 3) {
           incc.p= round(cNN$innc$postprob, digits))
 }
 
-sessionInfo()
-packageDescription("robustX")
-
 s1 <- summ.NN(cN1)
 ss <- summ.NN(cN)
 if(isTRUE(all.equal(ss, s1))) ss else cbind(ss, s1)
@@ -52,9 +57,6 @@ if(isTRUE(all.equal(ss, s1))) ss else cbind(ss, s1)
 try( # testing
     chk.NN.new.old(cN, cN1, tol=0)
 )
-## need extended precision (typically *includes* 64-bit):
-doCheck <- (.Machine$sizeof.longdouble >= 16)
-cat("doCheck (= have long double):", doCheck,"\n")
 
 ## This fails (interestingly) when we use R's instead of BLAS matrix products:
 if(doCheck) try( chk.NN.new.old(cN, cN1) ) # seems to work now (?)
@@ -72,10 +74,10 @@ system.time(cNX  <- covNNC (X))# 0.66  0.163
 system.time(cM   <- covMcd (X))# 0.151 0.097  <- !
 # NB: *slower* times above, when using R's instead of BLAS matrix prod
 
-try( # testing
+try( # --> show relative difference(s):
     chk.NN.new.old(cNX, cNX1, tol=0)
 )
-if(doCheck)
+if(doCheck && ourBLAS) # did fail with ATLAS in R-devel 2023-1-1
     chk.NN.new.old(cNX, cNX1)
 
 kappa(cM $cov)# 1990.8.. then  1900.421
