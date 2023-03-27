@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.95-1 (2022-05-18, svn r900)}{
+\section{CHANGES in robustbase VERSION 0.95-1 (2023-03-27, svn r901)}{
   % --- 1.0-0  once we fix  adjOutlyingness() properly !
   %     =====
   \subsection{BUG FIXES}{
@@ -23,6 +23,13 @@
       \item Our \file{tests/*.R} no longer rely on the \CRANpkg{Matrix}
       \file{test-tools.R} collection but rather use our much smaller own
       one in \file{xtraR/test-tools.R}.
+
+      \item fixed \code{\\} escape in \file{man/aircraft.Rd}.
+
+      \item initialize \var{equed} in \file{src/lmrob.c} to avoid
+      false positive compiler warning.
+
+      \item document "internal" \code{.regularize.Mpsi()}.
     }
   }
 }
