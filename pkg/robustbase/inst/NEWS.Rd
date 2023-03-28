@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.95-1 (2023-03-27, svn r901)}{
+\section{CHANGES in robustbase VERSION 0.95-1 (2023-03-28, svn r903)}{
   % --- 1.0-0  once we fix  adjOutlyingness() properly !
   %     =====
   \subsection{BUG FIXES}{
@@ -30,6 +30,8 @@
       false positive compiler warning.
 
       \item document "internal" \code{.regularize.Mpsi()}.
+
+      \item replace \code{()} by \code{(void)} arguments for \code{F77_SUB(println)}.
     }
   }
 }
