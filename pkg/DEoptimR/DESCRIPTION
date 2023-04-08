@@ -1,6 +1,6 @@
 Package: DEoptimR
-Version: 1.0-11
-Date: 2022-04-03
+Version: 1.0-12
+Date: 2023-04-08
 Title: Differential Evolution Optimization in Pure R
 Authors@R: c(
     person(c("Eduardo", "L. T."), "Conceicao",
