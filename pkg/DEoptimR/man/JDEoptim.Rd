@@ -145,7 +145,6 @@ JDEoptim(lower, upper, fn,
       3.5.3 and earlier requires setting \code{\link{RNGversion}("3.5.0")}.
       In any case, do use \code{\link{set.seed}()} additionally for
       reproducibility!
-
     }
     \item{Constraint Handling:}{
       Constraint handling is done using the approach described in
@@ -328,6 +327,7 @@ set.seed(1234)
 #     A numerical evaluation of several stochastic algorithms
 #     on selected continuous global optimization test problems.
 #     Journal of Global Optimization 31, 635-672.
+#     https://doi.org/10.1007/s10898-004-9972-2
 griewank <- function(x) {
     1 + crossprod(x)/4000 - prod( cos(x/sqrt(seq_along(x))) )
 }
@@ -346,6 +346,7 @@ JDEoptim(rep(-600, 10), rep(600, 10), griewank,
 #     Assuring a global optimum by the use of an upper bound
 #     on the lower (dual) bound.
 #     Computers and Chemical Engineering 2, 83-92.
+#     https://doi.org/10.1016/0098-1354(78)80012-X
 fcn <-
     list(obj = function(x) {
              35*x[1]^0.6 + 35*x[2]^0.6
