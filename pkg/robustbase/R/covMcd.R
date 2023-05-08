@@ -238,7 +238,13 @@ covMcd <- function(x,
             ans <- c(ans, cov.wt(x, wt = weights, cor=cor))
 
 	    if(sum.w != n) {
-		cdelta.rew <- .MCDcons(p, sum.w/n) ## VT::19.3.2007
+		
+        ##  VT::05.04.2023
+        ## The correct consistency correction factor for the reweighted estimate
+        ##  would be .MCDcons(p, 0.975) and not .MCDcons(p, sum.w/n) - see mail from
+        ##  Andreas Alfons from 29.01.2020 and Croux and Haesbroeck (1999), equations 4.1 and 4.2.
+        ##  cdelta.rew <- .MCDcons(p, sum.w/n) ## VT::19.3.2007
+        cdelta.rew <- .MCDcons(p, 0.975)
 		correct.rew <- if(use.correction) .MCDcnp2.rew(p, n, alpha) else 1.
 		cnp2 <- c(cdelta.rew, correct.rew)
 		ans$cov <- cdelta.rew * correct.rew * ans$cov
@@ -337,7 +343,12 @@ covMcd <- function(x,
         ## Compute and apply the consistency correction factor for
         ## the reweighted cov
         if(!sing.rewt && sum.w != n) {
-	    cdelta.rew <- .MCDcons(p, sum.w/n) ## VT::19.3.2007
+        ##  VT::05.04.2023
+        ## The correct consistency correction factor for the reweighted estimate
+        ##  would be .MCDcons(p, 0.975) and not .MCDcons(p, sum.w/n) - see mail from
+        ##  Andreas Alfons from 29.01.2020 and Croux and Haesbroeck (1999), equations 4.1 and 4.2.
+        ##  cdelta.rew <- .MCDcons(p, sum.w/n) ## VT::19.3.2007
+        cdelta.rew <- .MCDcons(p, 0.975)
 	    correct.rew <- if(use.correction) .MCDcnp2.rew(p, n, alpha) else 1.
 	    cnp2 <- c(cdelta.rew, correct.rew)
 	    ans$cov <- cdelta.rew * correct.rew * ans$cov
@@ -588,7 +599,7 @@ print.summary.mcd <-
 ##'    (see calfa in Croux and Haesbroeck)
 ##' @param p
 ##' @param alpha alpha ~= h/n = quan/n
-##'    also use for the reweighted MCD, calling with alpha = 'sum(weights)/n'
+##'    also use for the reweighted MCD, calling with alpha = 0.975
 MCDcons <- # <- *not* exported, but currently used in pkgs rrcov, rrcovNA
 .MCDcons <- function(p, alpha)
 {
