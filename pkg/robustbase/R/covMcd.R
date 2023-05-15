@@ -50,13 +50,11 @@ covMcd <- function(x,
     logdet.Lrg <- 50 ## <-- FIXME add to  rrcov.control() and then use that
     ##   Analyze and validate the input parameters ...
     if(length(seed) > 0) {
-	if(length(seed) < 3 || seed[1L] < 100)
+	if(length(seed) < 3L || seed[1L] < 100L)
 	    stop("invalid 'seed'. Must be compatible with .Random.seed !")
-        if(exists(".Random.seed", envir=.GlobalEnv, inherits=FALSE))  {
-            seed.keep <- get(".Random.seed", envir=.GlobalEnv, inherits=FALSE)
-            on.exit(assign(".Random.seed", seed.keep, envir=.GlobalEnv))
-        }
-        assign(".Random.seed", seed, envir=.GlobalEnv)
+        if(!is.null(seed.keep <- get0(".Random.seed", envir = .GlobalEnv, inherits = FALSE)))
+            on.exit(.GlobalEnv[[".Random.seed"]] <- seed.keep)
+        .GlobalEnv[[".Random.seed"]] <- seed
     }
 
     ## For back compatibility, as some new args did not exist pre 2013-04,

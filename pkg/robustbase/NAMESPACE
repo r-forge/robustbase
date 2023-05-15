@@ -126,7 +126,7 @@ S3method(anova, glmrob)
 S3method(alias, lmrob)
 S3method(case.names, lmrob)
 ## S3method(confint,    lmrob, confint.lm)	# fails with  *warning*
-## S3method(dummy.coef, lmrob, dummy.coef.lm)	# S3 methods ‘confint.lm’, ‘dummy.coef.lm’
+## S3method(dummy.coef, lmrob, dummy.coef.lm)	# S3 methods 'confint.lm', 'dummy.coef.lm'
 						# were declared in NAMESPACE but not found
 ## Instead "make copies" <generic>.lmrob in  R/lmrob.R  and register now:
 S3method(confint, lmrob)

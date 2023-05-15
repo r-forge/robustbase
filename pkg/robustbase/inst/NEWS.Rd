@@ -4,21 +4,26 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.95-2 (2023-05-08, svn r903)}{
+\section{CHANGES in robustbase VERSION 0.95-2 (2023-05-15, svn r911)}{
   % --- 1.0-0  once we fix  adjOutlyingness() properly !
   %     =====
   \subsection{BUG FIXES}{
     \itemize{
-      \item Fixed \code{covMcd()}: corrected the consistency correction 
-        factor for the reweighted estimate: was MCDCons(p, sum(w)/n), 
-        now is MCDCons(p, 0.975), see Croux and Haesbroeck (1999). 
+      \item Fixed \code{covMcd()}: corrected the consistency correction
+        factor for the reweighted estimate: was MCDCons(p, sum(w)/n),
+        now is MCDCons(p, 0.975), see Croux and Haesbroeck (1999).
+	% MM -> VT: note this *broke* the checks!
+    }
+  }
+  \subsection{Misc}{
+    \itemize{
+      \item argument \code{mf} e.g., in \code{lmrob.fit()} has been deprecated
+      since 2017-12-09 and is defunct now.
     }
   }
 }
 
 \section{CHANGES in robustbase VERSION 0.95-1 (2023-03-28, svn r903)}{
-  % --- 1.0-0  once we fix  adjOutlyingness() properly !
-  %     =====
   \subsection{BUG FIXES}{
     \itemize{
       \item Fixed \code{covMcd()}: \code{raw.only=TRUE} does not work in the case \code{nsamp="deterministic"}

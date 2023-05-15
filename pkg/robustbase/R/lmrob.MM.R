@@ -59,19 +59,20 @@ lmrob.control <-
     function(setting, seed = NULL, nResample = 500,
 	     tuning.chi = NULL, bb = 0.5,
 	     tuning.psi = NULL, max.it = 50,
-	     groups = 5, n.group = 400, k.fast.s = 1, best.r.s = 2,
-	     k.max = 200, maxit.scale = 200, k.m_s = 20,
-	     ##           ^^^^^^^^^^^ had MAX_ITER_FIND_SCALE 200 in ../src/lmrob.c
+	     groups = 5, n.group = 400, k.fast.s = 1L, best.r.s = 2L,
+	     k.max = 200L, maxit.scale = 200L, k.m_s = 20L,
+	     ##            ^^^^^^^^^^^ had MAX_ITER_FIND_SCALE 200 in ../src/lmrob.c
 	     refine.tol = 1e-7, rel.tol = 1e-7,
              scale.tol = 1e-10, # new, was hardcoded to EPS_SCALE = 1e-10 in C code
 	     solve.tol = 1e-7,
 	     ## had  ^^^^^^^^  TOL_INVERSE 1e-7 in ../src/lmrob.c
-	     trace.lev = 0, mts = 1000,
+	     trace.lev = 0, # both for init.est. lmrob.S() *and* lmrob.fit
+	     mts = 1000L,
 	     subsampling = c("nonsingular", "simple"),
 	     compute.rd = FALSE,
 	     method = 'MM',
 	     psi = 'bisquare',
-	     numpoints = 10, cov = NULL,
+	     numpoints = 10L, cov = NULL,
 	     split.type = c("f", "fi", "fii"),
 	     fast.s.large.n = 2000,
              eps.outlier = function(nobs) 0.1 / nobs,
@@ -86,13 +87,13 @@ lmrob.control <-
         if (setting %in% c('KS2011', 'KS2014')) {
             if (missing(method)) method <- 'SMDM'
 	    psi <- if(p.ok) 'lqq' else .regularize.Mpsi(psi) ; p.ok <- TRUE
-            if (missing(max.it)) max.it <- 500
-            if (missing(k.max)) k.max <- 2000
+            if (missing(max.it)) max.it <- 500L
+            if (missing(k.max)) k.max <- 2000L
             if (missing(cov) || is.null(cov)) cov <- '.vcov.w'
             if (setting == 'KS2014') {
-                if (missing(best.r.s)) best.r.s <- 20
-                if (missing(k.fast.s)) k.fast.s <- 2
-                if (missing(nResample)) nResample <- 1000
+                if (missing(best.r.s)) best.r.s <- 20L
+                if (missing(k.fast.s)) k.fast.s <- 2L
+                if (missing(nResample)) nResample <- 1000L
             }
         } else {
             warning("Unknown setting '", setting, "'. Using defaults.")
@@ -180,7 +181,7 @@ lmrob.fit.MM <- function(x, y, control) ## defunct
 
 lmrob.fit <- function(x, y, control, init=NULL, mf=NULL) {
     if(!is.matrix(x)) x <- as.matrix(x)
-    if(!missing(mf)) warning("'mf' is unused and deprecated")
+    if(!missing(mf)) .Defunct("'mf' argument is now defunct")
     ## old notation: MM -> SM
     if (control$method == "MM") control$method <- "SM"
     ## Assumption:  if(is.null(init))  method = "S..."   else  method = "..."
@@ -544,13 +545,13 @@ globalVariables("r", add=TRUE) ## below and in other lmrob.E() expressions
 lmrob..M..fit <- function (x = obj$x, y = obj$y, beta.initial = obj$coef,
                            scale = obj$scale, control = obj$control,
                            obj,
-                           mf = obj$model,
+                           mf,
 			   method = obj$control$method) #<- also when 'control' is not obj$control
 {
     c.psi <- .psi.conv.cc(control$psi, control$tuning.psi)
     ipsi <- .psi2ipsi(control$psi)
     stopifnot(is.matrix(x))
-    if(!missing(mf)) warning("'mf' is unused and deprecated")
+    if(!missing(mf)) .Defunct("'mf' argument is now defunct")
     n <- nrow(x)
     p <- ncol(x)
     if (is.null(y) && !is.null(obj$model))
@@ -573,10 +574,8 @@ lmrob..M..fit <- function (x = obj$x, y = obj$y, beta.initial = obj$coef,
               ipsi = as.integer(ipsi),
               loss = double(1),
               rel.tol = as.double(control$rel.tol),
-              converged = logical(1),
-              trace.lev = trace.lev,
-              mts = as.integer(control$mts),
-              ss =  .convSs(control$subsampling)
+              converged = logical(1)
+            , trace.lev = trace.lev
               )[c("coefficients",  "scale", "residuals", "loss", "converged", "iter")]
     ## FIXME?: Should rather warn *here* in case of non-convergence
     ret$fitted.values <- drop(x %*% ret$coefficients)
@@ -637,15 +636,15 @@ lmrob..M..fit <- function (x = obj$x, y = obj$y, beta.initial = obj$coef,
 
 ##' Compute  S-estimator for linear model -- using  "fast S" algorithm --> ../man/lmrob.S.Rd
 lmrob.S <- function (x, y, control, trace.lev = control$trace.lev,
-                     only.scale = FALSE, mf = NULL)
+                     only.scale = FALSE, mf)
 {
     if (!is.matrix(x)) x <- as.matrix(x)
     n <- nrow(x)
     p <- ncol(x)
-    if(!missing(mf)) warning("'mf' is unused and deprecated")
+    if(!missing(mf)) .Defunct("'mf' argument is now defunct")
     nResample <- if(only.scale) 0L else as.integer(control$nResample)
     groups <- as.integer(control$groups)
-    nGr <- as.integer(control$n.group)
+    nGr    <- as.integer(control$n.group)
     large_n <- (n > control$fast.s.large.n)
     if (large_n) {
         if (nGr <= p)
@@ -655,13 +654,12 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev,
         if (nGr <= p + 10) ## FIXME (be smarter ..)
             warning("'control$n.group' is not much larger than 'p', probably too small")
     }
-    if (length(seed <- control$seed) > 0) {
-        if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
-            seed.keep <- get(".Random.seed", envir = .GlobalEnv,
-                             inherits = FALSE)
-            on.exit(assign(".Random.seed", seed.keep, envir = .GlobalEnv))
-        }
-        assign(".Random.seed", seed, envir = .GlobalEnv) ## why not set.seed(seed)
+    if (length(seed <- control$seed) > 0) { # not by default
+	if(length(seed) < 3L || seed[1L] < 100L)
+	    stop("invalid 'seed'. Must be compatible with .Random.seed !")
+	if(!is.null(seed.keep <- get0(".Random.seed", envir = .GlobalEnv, inherits = FALSE)))
+	    on.exit(.GlobalEnv[[".Random.seed"]] <- seed.keep)
+	.GlobalEnv[[".Random.seed"]] <- seed
     }
 
     bb <- as.double(control$bb)
@@ -670,7 +668,7 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev,
     stopifnot(length(c.chi) > 0, c.chi >= 0, length(bb) > 0,
               length(best.r) > 0, best.r >= 1, length(y) == n, n > 0)
 
-    b <- .C(R_lmrob_S,
+    b <- .C(R_lmrob_S, # --> ../src/lmrob.c
             x = as.double(x),
             y = as.double(y),
             n = as.integer(n),
@@ -730,13 +728,13 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev,
     b
 }## --- lmrob.S()
 
-lmrob..D..fit <- function(obj, x=obj$x, control = obj$control, mf = obj$model,
+lmrob..D..fit <- function(obj, x=obj$x, control = obj$control, mf,
 			  method = obj$control$method) #<- also when 'control' is not obj$control
 {
     if (is.null(control)) stop('lmrob..D..fit: control is missing')
     if (!obj$converged)
         stop('lmrob..D..fit: prior estimator did not converge, stopping')
-    if(!missing(mf)) warning("'mf' is unused and deprecated")
+    if(!missing(mf)) .Defunct("'mf' argument is now defunct")
     if (is.null(x)) x <- model.matrix(obj)
     w <- obj$rweights
     if (is.null(w)) stop('lmrob..D..fit: robustness weights undefined')
