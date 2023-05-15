@@ -238,13 +238,13 @@ covMcd <- function(x,
             ans <- c(ans, cov.wt(x, wt = weights, cor=cor))
 
 	    if(sum.w != n) {
-		
-        ##  VT::05.04.2023
-        ## The correct consistency correction factor for the reweighted estimate
-        ##  would be .MCDcons(p, 0.975) and not .MCDcons(p, sum.w/n) - see mail from
-        ##  Andreas Alfons from 29.01.2020 and Croux and Haesbroeck (1999), equations 4.1 and 4.2.
-        ##  cdelta.rew <- .MCDcons(p, sum.w/n) ## VT::19.3.2007
-        cdelta.rew <- .MCDcons(p, 0.975)
+		##  VT::05.04.2023
+		## The correct consistency correction factor for the reweighted estimate
+		##  would be .MCDcons(p, 0.975) and not .MCDcons(p, sum.w/n) - see mail from
+		##  Andreas Alfons from 29.01.2020 and Croux and Haesbroeck (1999), equations 4.1 and 4.2.
+		##  cdelta.rew <- .MCDcons(p, sum.w/n) ## VT::19.3.2007
+		cdelta.rew <- .MCDcons(p, 0.975)
+
 		correct.rew <- if(use.correction) .MCDcnp2.rew(p, n, alpha) else 1.
 		cnp2 <- c(cdelta.rew, correct.rew)
 		ans$cov <- cdelta.rew * correct.rew * ans$cov
@@ -545,11 +545,11 @@ print.mcd <- function(x, digits = max(3, getOption("digits") - 3), print.gap = 2
             "\n", sep="")
     ## VT::29.03.2007 - solve a conflict with fastmcd() in package robust -
     ##      also returning an object of class "mcd"
-    xx <- NA
-    if(!is.null(x$crit))
-	xx <- format(x$crit, digits = digits)
-    else if (!is.null(x$raw.objective))
-	xx <- format(log(x$raw.objective), digits = digits)
+    xx <- if(!is.null(x$crit))
+              format(x$crit, digits = digits)
+          else if (!is.null(x$raw.objective))
+              format(log(x$raw.objective), digits = digits)
+          else NA
     cat("Log(Det.): ", xx , "\n\nRobust Estimate of Location:\n")
     print(x$center, digits = digits, print.gap = print.gap, ...)
     cat("Robust Estimate of Covariance:\n")
