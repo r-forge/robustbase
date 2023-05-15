@@ -91,9 +91,9 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
 void R_lmrob_MM(double *X, double *y, int *n, int *P,
 		double *beta_initial, double *scale,
 		double *beta_m, double *resid,
-		int *max_it,
-		double *rho_c, int *ipsi, double *loss, double *rel_tol,
-		int *converged, int *trace_lev, int *mts, int *ss);
+		int *max_it, double *rho_c, int *ipsi,
+		double *loss, double *rel_tol,
+		int *converged, int *trace_lev);
 
 void R_subsample(const double *x, const double *y, int *n, int *m,
 		 double *beta, int *ind_space, int *idc, int *idr,

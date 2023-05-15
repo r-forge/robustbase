@@ -29,9 +29,11 @@
 
 /* kollerma:
    Added alternative psi functions callable via psifun, chifun and
-   wgtfun. ipsi is used to distinguish between the different types.
-   The ipsi argument works for the S-estimator as well as for the
-   MM-estimator.
+   wgtfun. ipsi is used to distinguish between the different types:
+   0: huber,  1: biweight="bisquare",  2: GaussWeight="welsh",  3: optimal,  4: hampel,
+    5: GGW="ggw" (Generalized Gauss Weight),  6: LQQ="lqq"=lin.quadr.qu../ piecewise linear psi'()
+
+   The ipsi argument works for the S-estimator as well as for the MM-estimator.
 
    - Added implementation of M-S algorithm.
 
@@ -340,7 +342,10 @@ void R_lmrob_S(double *X, double *y, int *n, int *P,
 	       int *K_s, int *max_k, int *max_it_scale,
 	       double *rel_tol, double *inv_tol,
 	       double *scale_tol, // <- new, was hardwired to EPS_SCALE := 1e-10
-	       int *converged, int *trace_lev, int *mts, int *ss, int *cutoff)
+	       int *converged, int *trace_lev, int *mts,
+	       int *ss, // subsampling
+	       int *cutoff // defining "large n" <==> using fast_s_large_n()
+    )
 {
     /* best_r = 't' of Salibian-Barrera_Yohai(2006),
      *	      = no. of best candidates to be iterated further ("refined")
@@ -492,8 +497,8 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
 void R_lmrob_MM(double *X, double *y, int *n, int *P,
 		double *beta_initial, double *scale,
 		double *beta_m, double *resid,
-		int *max_it, double *rho_c, int *ipsi, double *loss,
-		double *rel_tol, int *converged, int *trace_lev, int *mts, int *ss)
+		int *max_it, double *rho_c, int *ipsi,
+		double *loss, double *rel_tol, int *converged, int *trace_lev)
 {
     /* starting from the S-estimate (beta_initial), use
      * irwls to compute the MM-estimate (beta_m)  */

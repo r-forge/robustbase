@@ -41,7 +41,7 @@ static R_NativePrimitiveArgType R_lmrob_MM_typ[] = {
     /* beta_initial */ REALSXP, REALSXP,
     /* beta_m */ REALSXP, REALSXP,
     /* max_it */ INTSXP, REALSXP, INTSXP,
-    /* loss */ REALSXP, REALSXP, LGLSXP, INTSXP, INTSXP, INTSXP
+    /* loss */ REALSXP, REALSXP, LGLSXP, INTSXP
 };
 
 static R_NativePrimitiveArgType R_find_D_scale_typ[] = {
