@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.95-2 (2023-05-15, svn r911)}{
+\section{CHANGES in robustbase VERSION 0.95-2 (2023-05-15, svn r914)}{
   % --- 1.0-0  once we fix  adjOutlyingness() properly !
   %     =====
   \subsection{BUG FIXES}{

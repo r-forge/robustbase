@@ -77,7 +77,7 @@ lmrob.control(setting, seed = NULL, nResample = 500,
     local improvement steps (\dQuote{\emph{I-steps}}) for each
     re-sampling candidate.}
   \item{k.m_s}{(for the M-S algorithm): specifies after how many
-    unsucessful refinement steps the algorithm stops.}
+    unsuccessful refinement steps the algorithm stops.}
   \item{best.r.s}{(for the fast-S algorithm): Number of
     of best candidates to be iterated further (i.e.,
     \dQuote{\emph{\bold{r}efined}}); is denoted \eqn{t} in
@@ -96,6 +96,7 @@ lmrob.control(setting, seed = NULL, nResample = 500,
     tolerance for inversion.  Hence, this corresponds to
     \code{\link{solve.default}()}'s \code{tol}.}
   \item{trace.lev}{integer indicating if the progress of the MM-algorithm
+    and the fast-S algorithms, see \code{\link{lmrob.S}},
     should be traced (increasingly); default \code{trace.lev = 0} does
     no tracing.}
   \item{mts}{maximum number of samples to try in subsampling
