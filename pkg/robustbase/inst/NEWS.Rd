@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.95-2 (2023-05-15, svn r914)}{
+\section{CHANGES in robustbase VERSION 0.95-2 (2023-05-22, svn r916)}{
   % --- 1.0-0  once we fix  adjOutlyingness() properly !
   %     =====
   \subsection{BUG FIXES}{
@@ -19,6 +19,8 @@
     \itemize{
       \item argument \code{mf} e.g., in \code{lmrob.fit()} has been deprecated
       since 2017-12-09 and is defunct now.
+
+      \item \code{lmrob()} tweaks, notably saying more for \code{trace.lev >= 3}.
     }
   }
 }

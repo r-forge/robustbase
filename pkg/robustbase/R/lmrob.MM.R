@@ -656,7 +656,7 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev,
     }
     if (length(seed <- control$seed) > 0) { # not by default
 	if(length(seed) < 3L || seed[1L] < 100L)
-	    stop("invalid 'seed'. Must be compatible with .Random.seed !")
+	    stop("invalid 'seed'.  Must be a valid .Random.seed !")
 	if(!is.null(seed.keep <- get0(".Random.seed", envir = .GlobalEnv, inherits = FALSE)))
 	    on.exit(.GlobalEnv[[".Random.seed"]] <- seed.keep)
 	.GlobalEnv[[".Random.seed"]] <- seed
@@ -686,8 +686,8 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev,
             k.fast.s = as.integer(control$k.fast.s),
             k.iter = as.integer(control$k.max),
             maxit.scale = as.integer(control$maxit.scale),
-            refine.tol = as.double(control$refine.tol),
-            inv.tol = as.double(control$solve.tol),
+            refine.tol= as.double(control$refine.tol),
+            inv.tol   = as.double(control$solve.tol),
             scale.tol = as.double(control$scale.tol),
             converged = logical(1),
             trace.lev = as.integer(trace.lev),

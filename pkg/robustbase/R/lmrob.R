@@ -6,7 +6,7 @@ lmrob <-
 	     singular.ok = TRUE, contrasts = NULL, offset = NULL,
 	     control = NULL, init = NULL, ...)
 {
-    ## to avoid problems with setting argument
+    ## to avoid problems with 'setting' argument
     ## call lmrob.control here either with or without method arg.
     if (miss.ctrl <- missing(control))
 	control <- if (missing(method))
@@ -148,7 +148,7 @@ lmrob <-
 			if (length(init$coef) != ncol(x))
 			    stop("Length of initial coefficients vector does not match rank of singular design matrix x")
 		    }
-		} else stop("unknown init argument")
+		} else stop("invalid 'init' argument")
 		stopifnot(is.numeric(init$coef), is.numeric(init$scale))
 		## modify (default) control$method, possibly dropping first letter:
 		if (control$method == "MM" || substr(control$method, 1, 1) == "S")
@@ -156,7 +156,7 @@ lmrob <-
 		## check for control$cov argument
 		if (class(init)[1] != "lmrob.S" && control$cov == '.vcov.avar1')
 		    control$cov <- ".vcov.w"
-	    }
+	    } # else pass on  init=NULL :
 	    z <- lmrob.fit(x, y, control, init=init) #-> ./lmrob.MM.R
 	    ##   ---------
             if(is.character(ini) && !grepl(paste0("^", ini), control$method))

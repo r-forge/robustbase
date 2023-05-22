@@ -30,8 +30,10 @@
 /* kollerma:
    Added alternative psi functions callable via psifun, chifun and
    wgtfun. ipsi is used to distinguish between the different types:
-   0: huber,  1: biweight="bisquare",  2: GaussWeight="welsh",  3: optimal,  4: hampel,
-    5: GGW="ggw" (Generalized Gauss Weight),  6: LQQ="lqq"=lin.quadr.qu../ piecewise linear psi'()
+   0: huber,    1: biweight="bisquare",  2: GaussWeight="welsh",
+   3: optimal,  4: hampel,
+   5: GGW="ggw" (Generalized Gauss Weight),
+   6: LQQ="lqq"=lin.quadr.qu../ piecewise linear psi'()
 
    The ipsi argument works for the S-estimator as well as for the MM-estimator.
 
@@ -214,22 +216,26 @@ double MAD(double *a, int n, double center, double *tmp, double *tmp2);
 void zero_mat(double **a, int n, int m);
 
 
-#define INIT_WLS(_X_, _y_, _n_, _p_)                            \
-    /* Determine optimal block size for work array*/            \
-    F77_CALL(dgels)("N", &_n_, &_p_, &one, _X_, &_n_, _y_,      \
-		    &_n_, &work0, &lwork, &info FCONE);         \
-    if (info) {                                                 \
-	warning(_(" Problem determining optimal block size, using minimum")); \
-	lwork = 2*_p_;                                          \
-    } else                                                      \
-	lwork = (int)work0;                                     \
-                                                                \
-    if (trace_lev >= 4)                                         \
-	Rprintf(" Optimal block size for DGELS: %d\n", lwork); \
-                                                                \
-    /* allocate */                                              \
-    work =    (double *) Calloc(lwork, double);                 \
-    weights = (double *) Calloc(n,     double);
+// additionally using info (is *modified), trace_lev:
+#define INIT_WLS(_X_, _y_, _n_, _p_)				\
+    int lwork = -1, one = 1;					\
+    double work0;						\
+								\
+    /* Determine optimal block size for work array */		\
+    F77_CALL(dgels)("N", &_n_, &_p_, &one, _X_, &_n_, _y_,	\
+		    &_n_, &work0, &lwork, &info FCONE);		\
+    if (info) {							\
+	warning(_("DGELS could not determine optimal block size, using minimum")); \
+	lwork = 2*_p_;						\
+    } else							\
+	lwork = (int)work0;					\
+								\
+    if (trace_lev >= 4)						\
+	Rprintf(" Optimal block size for DGELS: %d\n", lwork);	\
+								\
+    /* allocate */						\
+    double *work = (double *) Calloc(lwork, double),		\
+	*weights = (double *) Calloc(_n_,   double);
 
 #define CLEANUP_WLS                                             \
     Free(work); Free(weights);
@@ -243,30 +249,31 @@ void zero_mat(double **a, int n, int m);
     CLEANUP_EQUILIBRATION;
 
 #define FIT_WLS(_X_, _x_, _y_, _n_, _p_)			\
-    /* add weights to _y_ and _x_ */                            \
-    for (j=0; j<_n_; j++) {                                     \
-	wtmp = sqrt(weights[j]);				\
+    /* add weights to _y_ and _x_ */				\
+    for (int j=0; j<_n_; j++) {					\
+	double wtmp = sqrt(weights[j]);				\
 	_y_[j] *= wtmp;						\
-	for (k=0; k<_p_; k++)					\
+	for (int k=0; k<_p_; k++)				\
 	    _x_[_n_*k+j] = _X_[_n_*k+j] * wtmp;			\
-    }                                                           \
-    /* solve weighted least squares problem */                  \
-    F77_CALL(dgels)("N", &_n_, &_p_, &one, _x_, &_n_, _y_,      \
-		    &_n_, work, &lwork, &info FCONE);           \
-    if (info) {					                \
-	if (info < 0) {                                         \
+    }								\
+    /* solve weighted least squares problem */			\
+    F77_CALL(dgels)("N", &_n_, &_p_, &one, _x_, &_n_, _y_,	\
+		    &_n_, work, &lwork, &info FCONE);		\
+    if (info) {							\
+	if (info < 0) {						\
 	    CLEANUP_WLS;					\
-	    error(_("DGELS: illegal argument in %i. argument."), info); \
-	} else {                                                \
+	    error(_("DGELS: illegal argument in %i. argument."), info);	\
+	} else {						\
 	    if (trace_lev >= 4) {				\
 		Rprintf(" Robustness weights in failing step: "); \
 		disp_vec(weights, _n_);				\
-	    }                                                   \
+	    }							\
 	    CLEANUP_WLS;					\
 	    error(_("DGELS: weighted design matrix not of full rank (column %d).\nUse control parameter 'trace.lev = 4' to get diagnostic output."), info); \
-	}                                                       \
+	}							\
     }
 
+// *modifying* 'info':
 #define SETUP_EQUILIBRATION(_n_, _p_, _X_, _large_n_)           \
     /* equilibration of matrix _X_                          */  \
     /* solve (Dr X Dc) b = Dr y with beta = Dc b instead of */  \
@@ -274,7 +281,7 @@ void zero_mat(double **a, int n, int m);
     /* see Demmel (1997) APPLIED NUMERICAL LINEAR ALGEBRA   */  \
     /*     Section 2.5.2 Equilibration                      */  \
     double *Dr, *Dc, *Xe, rowcnd, colcnd, amax;			\
-    int rowequ = 0 , colequ = 0;                                \
+    int rowequ = 0 , colequ = 0;				\
     Dr =        (double *) Calloc(_n_,     double);             \
     Dc =        (double *) Calloc(_p_,     double);             \
     Xe =        (double *) Calloc(_n_*_p_, double);             \
@@ -306,26 +313,24 @@ void zero_mat(double **a, int n, int m);
     }
 
 #define SETUP_SUBSAMPLE(_n_, _p_, _X_, _large_n_)		\
-    /* (Pointers to) Arrays - to be allocated */                \
-    int *ind_space, *idc, *idr, *pivot;				\
-    double *lu, *v;						\
-    ind_space = (int *)    Calloc(_n_,     int);                \
-    idc =       (int *)    Calloc(_n_,     int);                \
-    idr =       (int *)    Calloc(_p_,     int);                \
-    pivot =     (int *)    Calloc(_p_-1,   int);                \
-    lu =        (double *) Calloc(_p_*_p_, double);             \
-    v =         (double *) Calloc(_p_,     double);             \
+    /* (Pointers to) Arrays - to be allocated */		\
+    int *ind_space = (int *)    Calloc(_n_,     int),		\
+	*idc =       (int *)    Calloc(_n_,     int),		\
+	*idr =       (int *)    Calloc(_p_,     int),		\
+	*pivot =     (int *)    Calloc(_p_-1,   int);		\
+    double *lu =     (double *) Calloc(_p_*_p_, double),	\
+	*v =         (double *) Calloc(_p_,     double);	\
     SETUP_EQUILIBRATION(_n_, _p_, _X_, _large_n_);
 
 #define COPY(from, to, len) Memcpy(to, from, len)
 /* This assumes that 'p' is correctly defined, and 'j' can be used in caller: */
-/* #define COPY(BETA_FROM, BETA_TO, _p_)			\ */
-/*     for(j=0; j < _p_; j++) BETA_TO[j] = BETA_FROM[j]; */
+/* #define COPY(FROM, TO, _p_)			\ */
+/*     for(j=0; j < _p_; j++) TO[j] = FROM[j]; */
 /* In theory BLAS should be fast, but this seems slightly slower,
  * particularly for non-optimized BLAS :*/
 /* static int one = 1; */
-/* #define COPY(BETA_FROM, BETA_TO, _p_) \ */
-/*     F77_CALL(dcopy)(&_p_, BETA_FROM, &one, BETA_TO, &one);  */
+/* #define COPY(FROM, TO, _p_) \ */
+/*     F77_CALL(dcopy)(&_p_, FROM, &one, TO, &one);  */
 
 #define EPS_SCALE 1e-10
 #define INFI 1e+20
@@ -334,7 +339,9 @@ void zero_mat(double **a, int n, int m);
  * help() in ../man/lmrob.S.Rd, this function computes an S-regression estimator
              ~~~~~~~~~~~~~~~~~
  */
-void R_lmrob_S(double *X, double *y, int *n, int *P,
+void R_lmrob_S(double *X,
+	       double *y, // y[] on input;  residuals[] on output
+	       int *n, int *P,
 	       int *nRes, // = nResample ( = 500, by default)
 	       double *scale, double *beta_s,
 	       double *rrhoc, int *iipsi, double *bb,
@@ -1483,12 +1490,11 @@ double kthplace(double *a, int n, int k)
  */
 static void sample_noreplace(int *x, int n, int k, int *ind_space)
 {
-    int i, j, nn=n;
 #define II ind_space
-
-    for (i = 0; i < n; i++) II[i] = i;
-    for (i = 0; i < k; i++) {
-	j = nn * unif_rand();
+    for (int i = 0; i < n; i++) II[i] = i;
+    int nn=n;
+    for (int i = 0; i < k; i++) {
+	int j = (int)(nn * unif_rand());
 	x[i] = II[j];
 	II[j] = II[--nn];
     }
@@ -1508,10 +1514,8 @@ Rboolean rwls(const double X[], const double y[], int n, int p,
 			 on Output: number of iterations */
 	 double *rho_c, const int ipsi, int trace_lev)
 {
-    int lwork = -1, one = 1, info = 1;
-    double work0, *work, wtmp, *weights;
     double done = 1., dmone = -1., d_beta = 0.;
-    int j, k, iterations = 0;
+    int j, iterations = 0;
     Rboolean converged = FALSE;
 
     double
@@ -1519,7 +1523,8 @@ Rboolean rwls(const double X[], const double y[], int n, int p,
 	*wy     = (double *) R_alloc(n,   sizeof(double)),
 	*beta0  = (double *) R_alloc(p,   sizeof(double));
 
-    INIT_WLS(wx, wy, n, p);
+    int info = 1;
+    INIT_WLS(wx, wy, n, p); // -> work[] etc
 
     COPY(i_estimate, beta0, p);
     /* calculate residuals */
@@ -1627,7 +1632,8 @@ void fast_s_large_n(double *X, double *y,
  * *bbeta  = final estimator
  * *sscale = associated scale estimator (or -1 when problem)
  */
-    int i,j,k, ij, freedsamp = 0, initwls = 0;
+    int i,j,k, ij, freedsamp = 0;
+    Rboolean initwls = FALSE;
     int n = *nn, p = *pp, kk = *K, ipsi = *iipsi;
     int groups = *ggroups, n_group = *nn_group, sg = groups * n_group;
     double b = *bb, sc, best_sc, worst_sc;
@@ -1701,9 +1707,9 @@ void fast_s_large_n(double *X, double *y,
  * with kk C-steps and keep only the "best_r" best ones
  */
     /* initialize new work matrices */
-    double *wx, *wy;
-    wx =  (double *) R_alloc(n*p, sizeof(double)); // need only k here,
-    wy =  (double *) R_alloc(n,   sizeof(double)); // but n in the last step
+    double
+	*wx =  (double *) R_alloc(n*p, sizeof(double)), // need only k here,
+	*wy =  (double *) R_alloc(n,   sizeof(double)); // but n in the last step
     xsamp =     (double *) Calloc(sg*p, double);
     ysamp =     (double *) Calloc(sg,   double);
     freedsamp = 0;
@@ -1716,9 +1722,8 @@ void fast_s_large_n(double *X, double *y,
 	ysamp[ij] = y[indices[ij]];
     }
 
-    int lwork = -1, one = 1, info = 1;
-    double work0, *work, *weights;
-    INIT_WLS(wx, wy, n, p); initwls = 1;
+    int info = 1;
+    INIT_WLS(wx, wy, n, p); initwls = TRUE;
 
     Rboolean conv = FALSE;
     int pos_worst_scale = 0;
@@ -1843,15 +1848,13 @@ Rboolean fast_s_with_memory(double *X, double *y, double *res,
  * *best_scales = returning their associated residual scales
  */
 
-    int i,j,k;
     int n = *nn, p = *pp, nResample = *nRes;
     Rboolean conv = FALSE,
 	sing = FALSE; // sing = TRUE|FALSE  the final result
     int ipsi = *iipsi;
     double b = *bb, sc, worst_sc = INFI;
-    double work0, *weights, *work;
-    int lwork = -1, one = 1, info = 1;
 
+    int info = 1; // is set by *both* :
     SETUP_SUBSAMPLE(n, p, X, 1);
     INIT_WLS(X, y, n, p);
 
@@ -1861,20 +1864,20 @@ Rboolean fast_s_with_memory(double *X, double *y, double *res,
 	*beta_cand = (double *) Calloc(p,   double),
 	*beta_ref  = (double *) Calloc(p,   double);
 
-    for(i=0; i < *best_r; i++)
+    for(int i=0; i < *best_r; i++)
 	best_scales[i] = INFI;
     int pos_worst_scale = 0;
 
 /* resampling approximation  */
 
-    for(i=0; i < nResample; i++) {
+    for(int i=0; i < nResample; i++) {
 	R_CheckUserInterrupt();
 	/* find a candidate */
 	sing = (Rboolean) // 0 |--> FALSE (= success);  {1,2} |-> TRUE
 	    subsample(Xe, y, n, p, beta_cand, ind_space, idc, idr, lu, v, pivot,
 		      Dr, Dc, rowequ, colequ, 1, mts, ss, inv_tol, 1);
 	if (sing) {
-	    for (k=0; k< *best_r; k++) best_scales[i] = -1.;
+	    for (int k=0; k < *best_r; k++) best_scales[i] = -1.;
 	    goto cleanup_and_return;
 	}
 	/* FIXME: is_ok ?? */
@@ -1894,9 +1897,9 @@ Rboolean fast_s_with_memory(double *X, double *y, double *res,
 	    /* scale will be better */
 	    sc = find_scale(res, b, rrhoc, ipsi, sc, n, p,
 			    &scale_iter, scale_tol, trace_lev >= 3);
-	    k = pos_worst_scale;
+	    int k = pos_worst_scale;
 	    best_scales[ k ] = sc;
-	    for(j=0; j < p; j++)
+	    for(int j=0; j < p; j++)
 		best_betas[k][j] = beta_ref[j];
 	    pos_worst_scale = find_max(best_scales, *best_r);
 	    worst_sc = best_scales[pos_worst_scale];
@@ -1939,18 +1942,16 @@ void fast_s(double *X, double *y,
  * *rrhoc  = tuning constant for loss function
  *	     (this should be associated with *bb)
  * *iipsi  = indicator for type of loss function to be used
- * *bbeta  = final estimator
+ * *bbeta  = "best beta" = final estimator
  * *sscale = associated scale estimator (or -1 when problem)
  */
-    int i,k;
     int n = *nn, p = *pp, nResample = *nRes, ipsi = *iipsi;
     double b = *bb;
     double sc, best_sc, aux;
-    int lwork = -1, one = 1, info = 1;
-    double work0, *work, *weights;
 
     /* Rprintf("fast_s %d\n", ipsi); */
 
+    int info;
     SETUP_SUBSAMPLE(n, p, X, 0);
 
     // More arrays, allocated:
@@ -1962,12 +1963,12 @@ void fast_s(double *X, double *y,
 	*best_scales = (double *) Calloc(*best_r, double),
 	// matrix:
 	**best_betas = (double **) Calloc(*best_r, double *);
-    for(i=0; i < *best_r; i++) {
+    for(int i=0; i < *best_r; i++) {
 	best_betas[i] = (double*) Calloc(p, double);
 	best_scales[i] = INFI;
     }
 
-    INIT_WLS(wx, wy, n, p);
+    INIT_WLS(wx, wy, n, p); // (re-setting 'info')
 
     /* disp_mat(x, n, p); */
 
@@ -1979,11 +1980,10 @@ void fast_s(double *X, double *y,
     GetRNGstate();
 
 /* resampling approximation  */
-
     if (trace_lev)
-	Rprintf(" Subsampling to find candidate betas:\n", i);
+	Rprintf(" Subsampling %d times to find candidate betas:\n", nResample);
 
-    for(i=0; i < nResample; i++) {
+    for(int i=0; i < nResample; i++) {
 
 	R_CheckUserInterrupt();
 	/* find a candidate */
@@ -1992,31 +1992,36 @@ void fast_s(double *X, double *y,
 		      Dr, Dc, rowequ, colequ, 1, mts, ss, inv_tol, 1);
 	if (sing) {
 	    *sscale = -1.;
+	    if (trace_lev >= 1)
+		Rprintf("  Sample[%3d]: singular subsample() - giving up!\n", i);
 	    goto cleanup_and_return;
 	}
-	if (trace_lev >= 5) {
+	Rboolean trace_sample = trace_lev >= 3 && (p <= 9 || trace_lev >= 5);
+	if (trace_sample) {
 	    Rprintf("  Sample[%3d]: idc = ", i); disp_veci(idc, p);
+	    if(p <= 3 || trace_lev >= 5) {
+		Rprintf("   b^[] = "); disp_vec(beta_cand, p);
+	    }
 	}
-
-	/* disp_vec(beta_cand,p); */
 
 	/* improve the re-sampling candidate */
 
-	/* conv = FALSE : do *k refining steps */
+	/* conv = FALSE : do *K refining steps */
 	refine_fast_s(X, wx, y, wy, weights, n, p, res,
 		      work, lwork, beta_cand, *K, &conv/* = FALSE*/,
 		      *max_k, rel_tol, trace_lev, b, rrhoc, ipsi, -1.,
 		      /* -> */ beta_ref, &sc);
 	if(trace_lev >= 3) {
 	    double del = norm_diff(beta_cand, beta_ref, p);
-	    Rprintf("  Sample[%3d]: after refine_(*, conv=FALSE):\n", i);
-	    Rprintf("   beta_ref : "); disp_vec(beta_ref,p);
+	    if(!trace_sample) Rprintf("  Sample[%3d]:", i);
+	    Rprintf("   after refine_(*, conv=F):\n"
+		    "   beta_ref : "); disp_vec(beta_ref,p);
 	    Rprintf("   with ||beta_ref - beta_cand|| = %.12g, --> sc = %.15g\n",
 		    del, sc);
 	}
 	if(fabs(sc) == 0.) { /* exact zero set by refine_*() */
 	    if(trace_lev >= 1)
-		Rprintf(" Too many exact zeroes -> leaving refinement!\n");
+		Rprintf(" |s|=0: Too many exact zeroes -> leaving refinement!\n");
 	    *sscale = sc;
 	    COPY(beta_cand, bbeta, p);
 	    goto cleanup_and_return;
@@ -2026,7 +2031,7 @@ void fast_s(double *X, double *y,
 	    /* scale will be better */
 	    sc = find_scale(res, b, rrhoc, ipsi, sc, n, p,
 			    &scale_iter, scale_tol, trace_lev >= 3);
-	    k = pos_worst_scale;
+	    int k = pos_worst_scale;
 	    best_scales[ k ] = sc;
 	    COPY(beta_ref, best_betas[k], p);
 	    pos_worst_scale = find_max(best_scales, *best_r);
@@ -2037,16 +2042,16 @@ void fast_s(double *X, double *y,
 	      Rprintf("               worst scale is now %.7g\n", worst_sc);
 	    }
 	}
-
-    } /* for(i ) */
+    } /* for(i in 1..nResample) */
 
 /* now look for the very best */
     if(trace_lev)
 	Rprintf(" Now refine() to convergence for %d very best ones:\n",
 		*best_r);
 
-    best_sc = INFI; *converged = 1;  k = 0;
-    for(i=0; i < *best_r; i++) {
+    best_sc = INFI; *converged = 1;
+    int k = 0;
+    for(int i=0; i < *best_r; i++) {
 	conv = TRUE;
 	if(trace_lev >= 4) Rprintf("  i=%d:\n", i);
 	int it_k = refine_fast_s(X, wx, y, wy, weights, n, p, res, work, lwork,
@@ -2079,15 +2084,15 @@ void fast_s(double *X, double *y,
     Free(best_scales);
     Free(beta_cand);
     Free(beta_ref);
-    for(i=0; i < *best_r; i++)
+    for(int i=0; i < *best_r; i++)
 	Free(best_betas[i]);
     Free(best_betas);
 
     return;
 } /* fast_s() */
 
-int refine_fast_s(const double X[], double *wx, const double y[], double *wy,
-		  double *weights,
+int refine_fast_s(const double X[], double *wx,
+		  const double y[], double *wy, double *weights,
 		  int n, int p, double *res,
 		  double *work, int lwork, double *beta_cand,
 		  int kk, Rboolean *conv, int max_k, double rel_tol,
@@ -2116,35 +2121,42 @@ int refine_fast_s(const double X[], double *wx, const double y[], double *wy,
  * lwork    = length of vector work
  */
 
-    int i,j,k, zeroes=0, one = 1, info = 1;
-    Rboolean converged = FALSE;/* Wall */
-    double s0, done = 1., dmone = -1., wtmp;
-
-    if (trace_lev >= 4) {
-	Rprintf("   beta_cand before refinement : "); disp_vec(beta_cand,p);
+    if (trace_lev >= 3) {
+	Rprintf("   refine_fast_s(s0=%g): beta_cand=", initial_scale);
+	if(p <= 6 || trace_lev >= 5)
+	    disp_vec(beta_cand,p);
     }
 
+    Rboolean converged = FALSE;/* Wall */
+    int one = 1, info = 1;
+    double done = 1., dmone = -1.;
     /* calculate residuals */
     COPY(y, res, n);
     F77_CALL(dgemv)("N", &n, &p, &dmone, X, &n, beta_cand, &one, &done, res, &one FCONE);
-    for(j=0; j < n; j++) {
+    // FIXME: instead of EPS_SCALE should be proportional to "scale(residuals)" (equivariance!),
+    // -----  but initial_scale maybe ~0 (and then may *not* count zeroes properly):
+    int zeroes = 0;
+    for(int j=0; j < n; j++)
 	if( fabs(res[j]) < EPS_SCALE )
 	    zeroes++;
-    }
+
 /* if "perfect fit", return it with a 0 assoc. scale */
     if( zeroes > (((double)n + (double)p)/2.) ) /* <<- FIXME: depends on 'b' ! */
 	{
 	    COPY(beta_cand, beta_ref, p);
+	    if (trace_lev >= 4)
+		Rprintf(" %d zeroes (too many) -> scale=0 & quit refinement\n", zeroes);
 	    *scale = 0.;
 	    return 0;
 	}
 
     if( initial_scale < 0. )
 	initial_scale = MAD(res, n, 0., wy, weights);// wy and weights used as work arrays
-    s0 = initial_scale;
+    double s0 = initial_scale;
     if(*conv)
 	kk = max_k;
-    for(i=0; i < kk; i++) {
+    int iS;
+    for(iS=0; iS < kk; iS++) {
 	/* one step for the scale */
 	s0 = s0 * sqrt( sum_rho_sc(res, s0, n, p, rrhoc, ipsi) / b );
 	/* compute weights for IRWLS */
@@ -2156,10 +2168,10 @@ int refine_fast_s(const double X[], double *wx, const double y[], double *wy,
 	if(*conv) { /* check for convergence */
 	    double del = norm_diff(beta_cand, beta_ref, p);
 	    double nrmB= norm(beta_cand, p);
-	    if(trace_lev >= 4)
-		Rprintf("   it %4d, ||b[i]||= %#.12g, ||b[i] - b[i-1]|| = %#.15g\n",
-			i, nrmB, del);
 	    converged = (del <= rel_tol * fmax2(rel_tol, nrmB));
+	    if(trace_lev >= 4)
+		Rprintf("     it %4d, ||b[i]||= %#.12g, ||b[i] - b[i-1]||= %#.15g --> conv=%s\n",
+			iS, nrmB, del, (converged ? "TRUE" : "FALSE"));
 	    if(converged)
 		break;
 	}
@@ -2167,18 +2179,18 @@ int refine_fast_s(const double X[], double *wx, const double y[], double *wy,
 	COPY(y, res, n);
 	F77_CALL(dgemv)("N", &n, &p, &dmone, X, &n, beta_ref, &one, &done, res, &one FCONE);
 	COPY(beta_ref, beta_cand, p);
-    } /* for(i = 0; i < kk ) */
+    } /* for(iS = 0; iS < kk ) */
 
     if(*conv) {
 	/* was "if(0)",	 since default lead to 'NOT converged' */
 	if(!converged) {
 	    *conv = FALSE;
 	    warning(_("S refinements did not converge (to refine.tol=%g) in %d (= k.max) steps"),
-		    rel_tol, i);
+		    rel_tol, iS);
 	}
     }
     *scale = s0;
-    return i; /* number of refinement steps */
+    return iS; /* number of refinement steps */
 } /* refine_fast_s() */
 
 /* Subsampling part for M-S algorithm                    */
@@ -2283,13 +2295,11 @@ Rboolean m_s_descent(double *X1, double *X2, double *y,
 		 int *NIT, int *K, int *KODE, double *SIGMA,  double *BET0,
 		 double *SC1, double *SC2, double *SC3, double *SC4)
 {
-    int j, k, nnoimpr = 0, nref = 0;
+    int nnoimpr = 0, nref = 0;
     int p = p1 + p2;
     Rboolean converged = FALSE;
     double b = *bb;
     double sc = *sscale, done = 1., dmone = -1.;
-    int lwork = -1, one = 1, info = 1;
-    double work0, *work, wtmp, *weights;
 
     COPY(b1, t1, p1);
     COPY(b2, t2, p2);
@@ -2298,6 +2308,7 @@ Rboolean m_s_descent(double *X1, double *X2, double *y,
     if (trace_lev >= 2)
 	Rprintf(" Starting descent procedure...\n");
 
+    int info = 1;
     INIT_WLS(x2, y, n, p2);
 
     if (trace_lev >= 3) {
@@ -2578,11 +2589,12 @@ double find_scale(const double r[], double b, const double rrhoc[], int ipsi,
     }
     // else
     double scale = initial_scale;
-    if(trace) Rprintf("find_scale(*, ini.scale =%#15.11g):\nit | new scale\n", scale);
+    if(trace) Rprintf("find_scale(*, ini.scale =%#15.11g, tol=%g):\n  it | new scale\n",
+		      scale, scale_tol);
     for(int it = 0; it < iter[0]; it++) {
 	scale = initial_scale *
 	    sqrt( sum_rho_sc(r, initial_scale, n, p, rrhoc, ipsi) / b ) ;
-	if(trace) Rprintf("%2d | %#13.10g\n", it, scale);
+	if(trace) Rprintf("  %2d | %#13.10g\n", it, scale);
 	if(fabs(scale - initial_scale) <= scale_tol*initial_scale) { // converged:
 	    *iter = it; return(scale);
 	}
@@ -2687,33 +2699,29 @@ double MAD(double *a, int n, double center, double *b,
 
 double median(double *x, int n, double *aux)
 {
-    double t;
     for(int i=0; i < n; i++) aux[i]=x[i];
-    if ( (n/2) == (double) n / 2 )
-	t = ( kthplace(aux,n,n/2) + kthplace(aux,n,n/2+1) ) / 2.0 ;
-    else t = kthplace(aux,n, n/2+1 ) ;
-    return(t);
+    return
+	(n % 2) ? /* odd */ kthplace(aux,n, n/2+1)
+ 	: /* even */ (kthplace(aux,n,n/2) + kthplace(aux,n,n/2+1)) / 2. ;
 }
 
 double median_abs(double *x, int n, double *aux)
 {
-    double t;
-    for(int i=0; i < n; i++) aux[i]=fabs(x[i]);
-    if ( (n/2) == (double) n / 2 )
-	t = ( kthplace(aux,n,n/2) + kthplace(aux,n,n/2+1) ) / 2.0 ;
-    else	t = kthplace(aux,n, n/2+1 ) ;
-    return(t);
+    for(int i=0; i < n; i++) aux[i] = fabs(x[i]);
+    return
+	(n % 2) ? /* odd */ kthplace(aux,n, n/2+1)
+ 	: /* even */ (kthplace(aux,n, n/2) + kthplace(aux,n, n/2+1)) / 2. ;
 }
 
 void disp_vec(double *a, int n)
 {
-    for(int i=0; i < n; i++) Rprintf("%lf ",a[i]);
+    for(int i=0; i < n; i++) Rprintf("%g ", a[i]);
     Rprintf("\n");
 }
 
 void disp_veci(int *a, int n)
 {
-    for(int i=0; i < n; i++) Rprintf("%d ",a[i]);
+    for(int i=0; i < n; i++) Rprintf("%d ", a[i]);
     Rprintf("\n");
 }
 

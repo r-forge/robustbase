@@ -85,7 +85,7 @@ lmrob.control(setting, seed = NULL, nResample = 500,
   \item{k.max}{(for the fast-S algorithm): maximal number of
     refinement steps for the \dQuote{fully} iterated best candidates.}
   \item{maxit.scale}{integer specifying the maximum number of C level
-    \code{find_scale()} iterations.}
+    \code{find_scale()} iterations (in fast-S and M-S algorithms).}
   \item{refine.tol}{(for the fast-S algorithm): relative convergence
     tolerance for the fully iterated best candidates.}
   \item{rel.tol}{(for the RWLS iterations of the MM algorithm): relative

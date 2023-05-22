@@ -4,7 +4,6 @@
 \description{
   Computes an S-estimator for linear regression,
   using the \dQuote{fast S} algorithm.% of Matias Salibian & Victor Yohai ...
-
 }
 \usage{
 lmrob.S(x, y, control,

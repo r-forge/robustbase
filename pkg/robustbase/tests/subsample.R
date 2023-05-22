@@ -175,7 +175,7 @@ set.seed(20)
 data <- data.frame(y=c(rep.int(0, 20), rnorm(5)),
                    group=rep(letters[1:5], each=5))
 x <- model.matrix(y ~ group, data)
-lmrob.S(x, data$y, lmrob.control())
+(ini <- lmrob.S(x, data$y, lmrob.control()))
 (ret <- lmrob(y ~ group, data))
 summary(ret)
 
