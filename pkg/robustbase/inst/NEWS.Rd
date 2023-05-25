@@ -4,15 +4,24 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.95-2 (2023-05-22, svn r916)}{
+\section{CHANGES in robustbase VERSION 0.95-2 (2023-05-25, svn r917)}{
   % --- 1.0-0  once we fix  adjOutlyingness() properly !
   %     =====
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item \code{lmrob.control()} gets class \code{"lmrobCtrl"} and can be
+      \code{update()}d.
+    }
+  }
+
   \subsection{BUG FIXES}{
     \itemize{
       \item Fixed \code{covMcd()}: corrected the consistency correction
-        factor for the reweighted estimate: was MCDCons(p, sum(w)/n),
-        now is MCDCons(p, 0.975), see Croux and Haesbroeck (1999).
-	% MM -> VT: note this *broke* the checks!
+      factor for the reweighted estimate: was MCDCons(p, sum(w)/n),
+      now is MCDCons(p, 0.975), see Croux and Haesbroeck (1999).
+      % MM -> VT: note this *broke* the checks!
+
+      \item registered \code{residuals.lmrob.S}.
     }
   }
   \subsection{Misc}{

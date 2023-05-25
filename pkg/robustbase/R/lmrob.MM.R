@@ -118,10 +118,11 @@ lmrob.control <-
     if(is.null(tuning.psi))
 	tuning.psi <- .Mpsi.tuning.default(psi)
     else ## wd like to compute.const *always* -- but slightly changes KS2011/14 !!
-    if(compute.const)
-	tuning.psi <- .psi.const(tuning.psi, psi)
+        if(compute.const)
+            tuning.psi <- .psi.const(tuning.psi, psi)
 
-    c(list(setting = if (missing(setting)) NULL else setting,
+    `class<-`(
+        c(list(setting = if (missing(setting)) NULL else setting,
            seed = as.integer(seed), nResample=nResample, psi=psi,
            tuning.chi=tuning.chi, bb=bb, tuning.psi=tuning.psi,
            max.it=max.it, groups=groups, n.group=n.group,
@@ -137,7 +138,34 @@ lmrob.control <-
            compute.outlier.stats = sub("^MM$", "SM", compute.outlier.stats),
            warn.limit.reject = warn.limit.reject,
            warn.limit.meanrw = warn.limit.meanrw),
-      list(...))
+      list(...)), "lmrobCtrl")
+}
+
+## FIXME R bug -- S3method(within, lmrobCtrl, within.list)  *fails* unless it is in *our* namespace:
+within.list <- within.list
+
+##' e.g.  update(<lmrobCtrl>, maxit.scale = 400)
+update.lmrobCtrl <- function(object, ...) {
+    stopifnot(is.list(object)
+              ## all updating args must be named:
+            , length(dNms <- ...names()) == ...length()
+              ## all updating names must exist in lmrobCtrl object
+            , dNms %in% (nms <- names(object))
+              )
+    if("setting" %in% dNms && !identical(object[["setting"]], dNms[["setting"]]))
+        stop("update(*, setting = <changed setting>) is not allowed")
+    dots <- list(...)
+    setNULLmaybe <- function(ch)
+        if(is.na(match(ch, dNms))) object[[ch]] <<- NULL
+    if("psi" %in% dNms && object[["psi"]] != dots[["psi"]]) { # recompute
+        setNULLmaybe("tuning.psi")
+        setNULLmaybe("tuning.chi")
+    }
+    if("method" %in% dNms && object[["method"]] != dots[["method"]]) {
+        setNULLmaybe("cov")
+    }
+    object[dNms] <- dots
+    do.call(lmrob.control, object) # update tuning.* when psi has been changed
 }
 
 ##' Modify a \code{\link{lmrob.control}} list to contain only parameters that

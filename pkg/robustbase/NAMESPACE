@@ -142,7 +142,11 @@ S3method(nobs, lmrob)
 S3method(nobs, lmrob.S, nobs.lmrob)# use the same as "lmrob"
 S3method(nobs, mcd)
 S3method(residuals, lmrob)
+S3method(residuals, lmrob.S)
 S3method(variable.names, lmrob)
+S3method(update, lmrobCtrl)
+## R Bug: needs within.list in our NS:
+S3method(within, lmrobCtrl, within.list)
 S3method(weights, glmrob)
 S3method(weights, lmrob)
 S3method(weights, lmrob.S, weights.lmrob)# use the same as "lmrob"

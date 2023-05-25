@@ -2,7 +2,7 @@
 \title{Tuning Parameters for lmrob() and Auxiliaries}
 \encoding{utf8}
 \alias{lmrob.control}
-\alias{lmrob.control}
+\alias{update.lmrobCtrl}
 \alias{.Mchi.tuning.default}
 \alias{.Mpsi.tuning.default}
 \alias{.Mchi.tuning.defaults}
@@ -34,7 +34,9 @@ lmrob.control(setting, seed = NULL, nResample = 500,
               eps.x = function(maxx) .Machine$double.eps^(.75)*maxx,
               compute.outlier.stats = method,
               warn.limit.reject = 0.5,
-              warn.limit.meanrw = 0.5, ...)
+              warn.limit.meanrw = 0.5, \dots)
+
+\method{update}{lmrobCtrl}(object, \dots)
 
 .Mchi.tuning.defaults
 .Mchi.tuning.default(psi)
@@ -148,8 +150,16 @@ lmrob.control(setting, seed = NULL, nResample = 500,
   \item{warn.limit.meanrw}{limit of the mean robustness per factor level
     below which (\eqn{\leq}{<=}) a warning is produced.
     Set to \code{NULL} to disable warning.}
-  \item{...}{further arguments to be added as \code{\link{list}}
-    components to the result, e.g., those to be used in \code{.vcov.w()}.}
+
+  \item{object}{an \code{"lmrobCtrl"} object, as resulting from a
+    \code{lmrob.control(*)} or an \code{update(<lmrobCtrl>, *)} call.}
+  \item{\dots}{for \describe{
+      \item{\code{lmrob.control()}:}{further arguments to be added as
+	\code{\link{list}} components to the result, e.g., those to be used in
+	\code{.vcov.w()}.}
+      \item{\code{update(object, *)}:}{(named) components from
+	\code{object}, to be \emph{modified}, \bold{not} \code{setting = *}.}
+  }}
 }
 \value{
   \code{.Mchi.tuning.default(psi)} and \code{.Mpsi.tuning.default(psi)}
@@ -164,6 +174,11 @@ lmrob.control(setting, seed = NULL, nResample = 500,
   \code{tuning.psi} and \code{tuning.chi} are typically computed, as
   \code{.Mpsi.tuning.default(psi)} or \code{.Mchi.tuning.default(psi)},
   respectively.
+  It is of \code{\link{class}} \code{"lmrobCtrl"} and we provide an
+  \code{\link{update}()} method.
+
+  \code{update(<lmrobCtrl>, ....)} does \emph{not} allow a
+  \code{setting="<...>"} in \code{....}.
 }
 \details{The option \code{setting="KS2011"} alters the default
   arguments.  They are changed to \code{method = "SMDM"}, \code{psi = "lqq"},
@@ -276,6 +291,15 @@ cbind(KS11 = unlist(C11[diffC[-1]]),
 ## nResample  500 1000
 ## best.r.s     2   20
 ## k.fast.s     1    2
+
+## update()ing a lmrob.control() , e.g.,
+C14mod <- update(C14, trace.lev = 2) # the same as
+C14m.d <- C14; C14m.d$trace.lev <- 2
+stopifnot(identical(C14mod, C14m.d))
+C14mp <- update(C14, psi = "hampel", seed=101)
+all.equal(C14, C14mp)# changed also tuning.psi & tuning.chi
+try( update(C14, setting="KS2011") ) #--> Error: .. not allowed
+\dontshow{tools::assertError(update(C14, setting="KS2011"))}
 }
 \keyword{robust}
 \keyword{regression}
