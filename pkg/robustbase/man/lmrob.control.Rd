@@ -296,8 +296,20 @@ cbind(KS11 = unlist(C11[diffC[-1]]),
 C14mod <- update(C14, trace.lev = 2) # the same as
 C14m.d <- C14; C14m.d$trace.lev <- 2
 stopifnot(identical(C14mod, C14m.d))
+## changing psi --> updates tuning.{psi,chi}:
 C14mp <- update(C14, psi = "hampel", seed=101)
-all.equal(C14, C14mp)# changed also tuning.psi & tuning.chi
+all.equal(C14, C14mp)# changed tuning.psi & tuning.chi, too
+C14m <- update(C14, method="SMM")
+stopifnot(identical(C14, update(C14, method="SMDM")), # no change!
+          identical(C14m, local({C <- C14; C$method <- "SMM"; C})))
+## updating 'method' is "smart" :
+Cdef <- lmrob.control()
+C.SMDM <- update(Cdef, method="SMDM")
+all.equal(Cdef, C.SMDM) # changed also psi, tuning.{psi,chi} and cov !
+chgd <- c("method", "psi", "tuning.chi",  "tuning.psi", "cov")
+str(Cdef  [chgd])
+str(C.SMDM[chgd])
+##
 try( update(C14, setting="KS2011") ) #--> Error: .. not allowed
 \dontshow{tools::assertError(update(C14, setting="KS2011"))}
 }

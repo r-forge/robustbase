@@ -150,22 +150,47 @@ update.lmrobCtrl <- function(object, ...) {
               ## all updating args must be named:
             , length(dNms <- ...names()) == ...length()
               ## all updating names must exist in lmrobCtrl object
-            , dNms %in% (nms <- names(object))
+            , dNms %in% names(object)
               )
-    if("setting" %in% dNms && !identical(object[["setting"]], dNms[["setting"]]))
-        stop("update(*, setting = <changed setting>) is not allowed")
     dots <- list(...)
-    setNULLmaybe <- function(ch)
-        if(is.na(match(ch, dNms))) object[[ch]] <<- NULL
-    if("psi" %in% dNms && object[["psi"]] != dots[["psi"]]) { # recompute
-        setNULLmaybe("tuning.psi")
-        setNULLmaybe("tuning.chi")
+    if("setting" %in% dNms && !identical(object[["setting"]], dots[["setting"]]))
+        stop("update(*, setting = <changed setting>) is not allowed")
+    do.psi <- (hPsi <- "psi" %in% dNms) && object[["psi"]] != (psi <- dots[["psi"]])
+    if("method" %in% dNms && object[["method"]] != (method <- dots[["method"]])) {
+        ## new method --> possibly update psi *and* cov
+	if(!do.psi && grepl('D', method)) {
+            psi <- 'lqq'
+            do.psi <- TRUE
+        }
+        do.cov <- any(ic <- dNms == "cov") && object[["cov"]] != (cov <- dots[["cov"]])
+	if (!do.cov || is.null(cov))
+	    cov <- if(method %in% c('SM', 'MM')) ".vcov.avar1" else ".vcov.w"
+        object[["cov"]] <- cov # and drop from "to do":
+        dNms <- dNms[!ic]
+        dots <- dots[!ic]
     }
-    if("method" %in% dNms && object[["method"]] != dots[["method"]]) {
-        setNULLmaybe("cov")
+    if(do.psi) { # new psi --> update
+        compute.const <- (psi %in% c('ggw', 'lqq'))
+        if(!("tuning.chi" %in% dNms)) { # update
+            tuning.chi <- .Mchi.tuning.default(psi)
+            if(compute.const)
+                tuning.chi <- .psi.const(tuning.chi, psi)
+            object[["tuning.chi"]] <- tuning.chi
+        }
+        if(!("tuning.psi" %in% dNms)) {
+            tuning.psi <- .Mpsi.tuning.default(psi)
+            if(compute.const)
+                tuning.psi <- .psi.const(tuning.psi, psi)
+            object[["tuning.psi"]] <- tuning.psi
+        }
+        object[["psi"]] <- psi # and possibly drop from "to do":
+        if(hPsi) {
+            dNms <- dNms[i <- dNms != "psi"]
+            dots <- dots[i]
+        }
     }
     object[dNms] <- dots
-    do.call(lmrob.control, object) # update tuning.* when psi has been changed
+    object
 }
 
 ##' Modify a \code{\link{lmrob.control}} list to contain only parameters that
