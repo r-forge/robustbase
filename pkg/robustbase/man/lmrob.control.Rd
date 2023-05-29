@@ -30,6 +30,7 @@ lmrob.control(setting, seed = NULL, nResample = 500,
               compute.rd = FALSE, method = "MM", psi = "bisquare",
               numpoints = 10, cov = NULL,
               split.type = c("f", "fi", "fii"), fast.s.large.n = 2000,
+              # only for outlierStats() :
               eps.outlier = function(nobs) 0.1 / nobs,
               eps.x = function(maxx) .Machine$double.eps^(.75)*maxx,
               compute.outlier.stats = method,
@@ -132,17 +133,22 @@ lmrob.control(setting, seed = NULL, nResample = 500,
     \dQuote{large n} strategy.}
   \item{eps.outlier}{limit on the robustness weight below which an observation
     is considered to be an outlier.
-    Either a numeric(1) or a function that takes the number of observations as
-    an argument.  Used in \code{\link{summary.lmrob}} and
+    Either a \code{numeric(1)} or a function that takes the number of observations as
+    an argument.  Used only in \code{\link{summary.lmrob}} and
     \code{\link{outlierStats}}.}
   \item{eps.x}{limit on the absolute value of the elements of the design matrix
     below which an element is considered zero.
-    Either a numeric(1) or a function that takes the maximum absolute value in
+    Either a \code{numeric(1)} or a function that takes the maximum absolute value in
     the design matrix as an argument.}
   \item{compute.outlier.stats}{vector of \code{\link{character}}
     strings, each valid to be used as \code{method} argument.  Used to
     specify for which estimators outlier statistics (and warnings)
-    should be produced.  Set to empty string if none are required.}
+    should be produced.  Set to empty (\code{NULL} or \code{character(0)})
+    if none are required.
+    \cr Note that the default is \code{method} which by default is either
+    \code{"MM"}, \code{"SM"}, or \code{"SMDM"}; hence using
+    \code{compute.outlier.stats = "S"} provides \code{\link{outlierStats}()}
+    to a \code{\link{lmrob.S}()} result.}
   \item{warn.limit.reject}{limit of ratio
     \eqn{\#\mbox{rejected} / \#\mbox{obs in level}}{# rejected / # obs in level}
     above (\eqn{\geq}{>=}) which a warning is produced.
@@ -174,8 +180,8 @@ lmrob.control(setting, seed = NULL, nResample = 500,
   \code{tuning.psi} and \code{tuning.chi} are typically computed, as
   \code{.Mpsi.tuning.default(psi)} or \code{.Mchi.tuning.default(psi)},
   respectively.
-  It is of \code{\link{class}} \code{"lmrobCtrl"} and we provide an
-  \code{\link{update}()} method.
+  It is of \code{\link{class}} \code{"lmrobCtrl"} and we provide
+  \code{print()}, \code{\link{update}()} and \code{\link{within}} methods.
 
   \code{update(<lmrobCtrl>, ....)} does \emph{not} allow a
   \code{setting="<...>"} in \code{....}.
@@ -280,17 +286,27 @@ stopifnot(identical(.Mpsi.tuning.defaults,
 str(.Mchi.tuning.defaults)
 
 ## Difference between settings:
+Cdef <- lmrob.control()
 C11 <- lmrob.control("KS2011")
 C14 <- lmrob.control("KS2014")
 str(C14)
-## Apart from `setting` itself, they only differ in three places:
-diffC <- names(which(!mapply(identical, C11,C14, ignore.environment=TRUE)))
+## Differences:
+diffD <- names(which(!mapply(identical, Cdef,C11, ignore.environment=TRUE)))
+diffC <- names(which(!mapply(identical, C11, C14, ignore.environment=TRUE)))
+## KS2011 vs KS2014:  Apart from `setting` itself, they only differ in three places:
 cbind(KS11 = unlist(C11[diffC[-1]]),
       KS14 = unlist(C14[diffC[-1]]))
 ##           KS11 KS14
 ## nResample  500 1000
 ## best.r.s     2   20
 ## k.fast.s     1    2
+## default vs KS2011: a bit more: setting + 8
+str2simpLang <-  function(x) {
+    r <- if(is.null(x)) quote((NULL)) else str2lang(deparse(x))
+    if(is.call(r)) format(r) else r
+}
+cbind(deflt= lapply(Cdef[diffD], str2simpLang),
+      KS11 = lapply(C11 [diffD], str2simpLang))
 
 ## update()ing a lmrob.control() , e.g.,
 C14mod <- update(C14, trace.lev = 2) # the same as
@@ -298,17 +314,20 @@ C14m.d <- C14; C14m.d$trace.lev <- 2
 stopifnot(identical(C14mod, C14m.d))
 ## changing psi --> updates tuning.{psi,chi}:
 C14mp <- update(C14, psi = "hampel", seed=101)
-all.equal(C14, C14mp)# changed tuning.psi & tuning.chi, too
-C14m <- update(C14, method="SMM")
-stopifnot(identical(C14, update(C14, method="SMDM")), # no change!
-          identical(C14m, local({C <- C14; C$method <- "SMM"; C})))
 ## updating 'method' is "smart" :
-Cdef <- lmrob.control()
 C.SMDM <- update(Cdef, method="SMDM")
 all.equal(Cdef, C.SMDM) # changed also psi, tuning.{psi,chi} and cov !
 chgd <- c("method", "psi", "tuning.chi",  "tuning.psi", "cov")
 str(Cdef  [chgd])
 str(C.SMDM[chgd])
+C14m <- update(C14, method="SMM")
+(ae <- all.equal(C14, C14mp))# changed tuning.psi & tuning.chi, too
+stopifnot(exprs = {
+    identical(C14, update(C14, method="SMDM")) # no change!
+    identical(c("psi", "seed", "tuning.chi", "tuning.psi"),
+              sort(gsub("[^.[:alpha:]]", "", sub(":.*", "", sub("^Component ", "", ae)))))
+    identical(C14m, local({C <- C14; C$method <- "SMM"; C}))
+})
 ##
 try( update(C14, setting="KS2011") ) #--> Error: .. not allowed
 \dontshow{tools::assertError(update(C14, setting="KS2011"))}

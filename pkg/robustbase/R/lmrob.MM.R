@@ -75,6 +75,7 @@ lmrob.control <-
 	     numpoints = 10L, cov = NULL,
 	     split.type = c("f", "fi", "fii"),
 	     fast.s.large.n = 2000,
+             ## only for outlierStats() [2014]:
              eps.outlier = function(nobs) 0.1 / nobs,
              eps.x = function(maxx) .Machine$double.eps^(.75)*maxx,
              compute.outlier.stats = method,
@@ -144,6 +145,12 @@ lmrob.control <-
 ## FIXME R bug -- S3method(within, lmrobCtrl, within.list)  *fails* unless it is in *our* namespace:
 within.list <- within.list
 
+print.lmrobCtrl <- function(x, ...) {
+    cat("lmrob.control() --> \"lmrobCtrl\" object with", length(x),"components:\n")
+    str(x, no.list=TRUE, ...)
+    invisible(x)
+}
+
 ##' e.g.  update(<lmrobCtrl>, maxit.scale = 400)
 update.lmrobCtrl <- function(object, ...) {
     stopifnot(is.list(object)
@@ -198,20 +205,26 @@ update.lmrobCtrl <- function(object, ...) {
 ##' objects.
 ##'
 ##' @title Minimize lmrob control to non-redundant parts
-##' @param control a list, typically the 'control' component of a
+##' @param cl a list, typically the 'control' component of a
 ##' \code{\link{lmrob}()} call, or the result of  \code{\link{lmrob.control}()}.
-##' @return list: the (typically) modified \code{control}
+##' @param n number of observations == nobs(<fitted model) == length(residuals(<fit>)) ..
+##' @return list: the (typically) modified \code{cl}
 ##' @author Martin Maechler {from Manuel's original code}
-lmrob.control.minimal <- function(cl) {
-    if(is.null(cl)) return(cl)
+lmrob.control.minimal <- function(cl, nobs, oStats = TRUE) {
+    if(!length(cl)) return(cl)
+    shrtM <- sub("^(S|M-S).*", "\\1", cl$method)
     p.MS <- c("k.m_s", "split.type")
     p.nonLrg <- c("groups", "n.group")
     p.fastS <- c(p.nonLrg, "refine.tol", "best.r.s", "k.fast.s")
-    switch(sub("^(S|M-S).*", "\\1", cl$method),
+    ## outlierStats() parts:
+    p.oStat <- c("eps.outlier", "eps.x", "compute.outlier.stats", "warn.limit.reject", "warn.limit.meanrw")
+    if(!oStats) ## e.g., for lmrob.S() but *NOT* for lmrob(*, method="S")
+        cl[p.oStat] <- NULL
+    switch(shrtM,
 	   "S" = {                       # remove all M-S specific control pars
 	       cl[p.MS] <- NULL
 					# if large_n is not used, remove corresp control pars
-	       if (length(residuals) <= cl$fast.s.large.n)
+	       if (nobs <= cl$fast.s.large.n)
 		   cl[p.nonLrg] <- NULL
 	   },
 	   "M-S" = # remove all fast S specific control pars
@@ -278,7 +291,7 @@ lmrob.fit <- function(x, y, control, init=NULL, mf=NULL) {
             init <- switch(step, ## 'control' may differ from 'init$control' when both (init, control) are spec.
                            ## D(AS)-Step
 			   D = lmrob..D..fit(init, x,
-					     control=control, method = init$control$method),
+                                             control=control, method = init$control$method),
 			   ## M-Step
 			   M = lmrob..M..fit(x = x, y = y, obj = init,
 					     control=control, method = init$control$method),
@@ -293,6 +306,13 @@ lmrob.fit <- function(x, y, control, init=NULL, mf=NULL) {
                 break
             }
         }
+    } else {
+        if(trace.lev) {
+            cat(sprintf("init *NOT* converged; init$scale = %g, init$coef:\n  ",
+                        init$scale))
+            print(init$coef)
+        }
+        warning("initial estim. 'init' not converged -- will be return()ed basically unchanged")
     }
     ## << FIXME? qr(.)  should be available from earlier
     if (is.null(init$qr)) init$qr <- qr(x * sqrt(init$rweights))
@@ -776,7 +796,7 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev,
     if (identical(parent.frame(), .GlobalEnv))
         b$call <- match.call()
     class(b) <- 'lmrob.S'
-    if ("S" %in% control$compute.outlier.stats)
+    if ("S" %in% control$compute.outlier.stats)# not by default
         b$ostats <- outlierStats(b, x, control)
     b
 }## --- lmrob.S()
@@ -1374,10 +1394,13 @@ ghq <- function(n = 1, modify = TRUE) {
 outlierStats <- function(object, x = object$x,
                          control = object$control,
                          epsw = control$eps.outlier,
-                         epsx = control$eps.x,
-                         warn.limit.reject = control$warn.limit.reject,
-                         warn.limit.meanrw = control$warn.limit.meanrw
-                         ) {
+                         epsx = control$eps.x
+                       , warn.limit.reject = control$warn.limit.reject
+                       , warn.limit.meanrw = control$warn.limit.meanrw
+                       , shout = NA)
+{
+    stopifnot(is.logical(shout), length(shout) == 1L) # should we "shout"?
+
     ## look at all the factors in the model and count
     ## for each level how many observations were rejected.
     ## Issue a warning if there is any level where more than
@@ -1387,19 +1410,20 @@ outlierStats <- function(object, x = object$x,
     rw <- object$rweights
     ##    ^^^^^^^^^^^^^^^ not weights(..., type="robustness") as we
     ##                    don't want naresid() padding here.
-    if (is.function(epsw)) epsw <- epsw(nobs(object, use.fallback = TRUE))
-    if (!is.numeric(epsw) || length(epsw) != 1)
-        stop("'epsw' must be numeric(1) or a function of nobs(obj.) which returns a numeric(1)")
-    rj <- abs(rw) < epsw
     if (NROW(x) != length(rw))
         stop("number of rows in 'x' and length of 'object$rweights' must be the same")
+    if (is.function(epsw)) epsw <- epsw(nobs(object, use.fallback = TRUE))
+    if (!is.numeric(epsw) || length(epsw) != 1)
+        stop(gettextf("'%s' must be a number or a function of %s which returns a number",
+                      "epsw", "nobs(obj.)"), domain = NA)
     if (is.function(epsx)) epsx <- epsx(max(abs(x)))
     if (!is.numeric(epsx) || length(epsx) != 1)
-        stop("'epsx' must be numeric(1) or a function of max(abs(x)) which returns a numeric(1)")
-    xnz <- abs(x) > epsx
+        stop(gettextf("'%s' must be a number or a function of %s which returns a number",
+                      "epsx", "max(abs(x))"), domain = NA)
 
-    cc <- function(idx) {
+    cc <- function(idx) { # (rw, epsw)
         nnz <- sum(idx) ## <- if this is zero, 'Ratio' and 'Mean.RobWeight' will be NaN
+        rj <- abs(rw) < epsw
         Fr <- sum(rj[idx])
 	c(N.nonzero = nnz,
 	  N.rejected = Fr,
@@ -1407,19 +1431,20 @@ outlierStats <- function(object, x = object$x,
 	  Mean.RobWeight = mean(rw[idx]))
     }
 
+    xnz <- abs(x) > epsx
     report <- t(apply(cbind(Overall=TRUE, xnz[, colSums(xnz) < NROW(xnz)]), 2, cc))
 
-    shout <- FALSE # should we "shout"? -- scalar logical, never NA
-    lbr <- rep.int(FALSE, nrow(report))
-    if (!is.null(warn.limit.reject)) {
+    if(!isFALSE(shout)) { ## NA or TRUE
+      lbr <- logical(nrow(report)) # == rep(FALSE, ..)
+      if (!is.null(warn.limit.reject)) {
 	lbr <- report[, "Ratio"] >= warn.limit.reject
-	shout <- any(lbr & !is.na(lbr))
-    }
-    if (!is.null(warn.limit.meanrw)) {
+	shout <- shout || any(lbr & !is.na(lbr))
+      }
+      if (!is.null(warn.limit.meanrw)) {
 	lbr <- lbr | report[, "Mean.RobWeight"] <= warn.limit.meanrw
 	shout <- shout || any(lbr & !is.na(lbr))
-    }
-    if (shout) {
+      }
+      if(!is.na(shout)) { # is true
         nbr <- rownames(report)[lbr]
         attr(report, "warning") <- paste("Possible local breakdown of",
                                          paste0("'", nbr, "'", collapse=", "))
@@ -1429,7 +1454,7 @@ outlierStats <- function(object, x = object$x,
                 if ("KS2014" %in% control$setting) "" else
                 "\nUse lmrob argument 'setting=\"KS2014\"' to avoid this problem."
                 )
+      }
     }
-
     report
 }

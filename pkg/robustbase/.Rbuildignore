@@ -3,7 +3,10 @@ DESCRIPTION_
 auto/
 misc/
 CRAN
+M1mac
+WAS[_-]
 [-.](out|txt|log|mail|eml|zip|not-yet)
+^[^/]*\.R?out$
 Done
 win-builder
 configure-hint-Kurt
@@ -12,6 +15,8 @@ R/glmrobMqle\.R\+-
 vignettes/.*_Makefile
 vignettes/.*\.(tex|toc|aux|log|bbl|blg|eps|pdf)
 inst/doc/r.*\.Rdata
+inst/doc/K.*\.pdf
+inst/doc/.*_simulation_.*\.pdf
 tests/m-s-estimator.Rout.save
 tests/mc-etc.Rout.save
 tests/tmcd.Rout.save

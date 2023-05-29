@@ -4,25 +4,40 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.95-2 (2023-05-27, svn r918)}{
+\section{CHANGES in robustbase VERSION 0.95-2 (2023-05-29, svn r920)}{
   % --- 1.0-0  once we fix  adjOutlyingness() properly !
   %     =====
   \subsection{NEW FEATURES}{
     \itemize{
-      \item \code{lmrob.control()} gets class \code{"lmrobCtrl"} and can be
-      \code{update()}d.
+      \item \code{lmrob.control()} gets class \code{"lmrobCtrl"} which can be
+      \code{print()}ed and \code{update()}d.
     }
   }
-
   \subsection{BUG FIXES}{
     \itemize{
       \item Fixed \code{covMcd()}: corrected the consistency correction
       factor for the reweighted estimate: was MCDCons(p, sum(w)/n),
       now is MCDCons(p, 0.975), see Croux and Haesbroeck (1999).
-      % MM -> VT: note this *broke* the checks!
+
+      Consequently, often \code{covMcd()} and estimates based on it, such
+      as \code{BYlogreg()} or \code{ltsReg()} are slightly changed. % 3 of our ex. checks broke
 
       \item registered \code{residuals.lmrob.S} \emph{and} changed
       \code{formals} compatible with generic to \code{(object, ...)}.
+
+      \item \code{lmrob.S()} in C level \code{refine_fast_s()} no longer
+      modifies \code{beta_cand[]} which notably fixes a bug found in
+      exact-fit examples previously resulting in \code{coef() == 0}
+      \dQuote{results}, also for \code{lmrob()} which calls
+      \code{lmrob.S()} for its default initial estimate.
+
+      \item \code{print(<lmrob.S>)} finally works again as intended
+      (\emph{not} printing a largish list); mostly by fixing internal
+      \code{lmrob.control.minimal()}.
+
+      \item \code{summary.lmrob(obj)} now also gets a \code{weights}
+      component from \code{obj} if that is non-trivial; this may also
+      correct \code{summary()} output in weighted cases.
     }
   }
   \subsection{Misc}{
@@ -31,6 +46,9 @@
       since 2017-12-09 and is defunct now.
 
       \item \code{lmrob()} tweaks, notably saying more for \code{trace.lev >= 3}.
+
+      \item replaceed (almost) all \code{Calloc()} by \code{R_alloc()} in C code;
+      e.g., prevents leakage from user interrupt.
     }
   }
 }

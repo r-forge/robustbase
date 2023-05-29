@@ -20,6 +20,7 @@
 **** DONE shouldn't we rename jde() to jdeopt() or even jdeoptim(), jDEoptim(), or JDEoptim()
 R users already know optim() etc.. so the name seems more logical for them.
 * Short Term
+** TODO lmrob.S() -> lmrob.control() should get nResample = "exact" -- as covMcd()
 ** DONE sc.1) Qn(), Sn()  should work with 'NA' (via 'na.rm=FALSE' argument, as mad())
 ** DONE sc.2) Qn(), Sn()  should work with Inf and "large x", see example(mc)
 ** DONE sc.2) mc() now works better with "large x", see example(mc) --- BSc thesis by Lukas Graz

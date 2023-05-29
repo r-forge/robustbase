@@ -8,11 +8,14 @@ source(system.file("xtraR/test-tools.R", package = "robustbase")) # assert.EQ(),
 cat("doExtras:", doExtras <- robustbase:::doExtras(),"\n")
 showProc.time()
 
-A <- matrix(c(0.001, 1, 1, 2), 2)
+A <- rbind(c(0.001, 1),
+           c(1,     2))
 set.seed(11)
 str(sa <- tstSubsample(A))
 
-A <- matrix(c(3, 2, 6, 17, 4, 18, 10, -2, 12), 3)
+A <- rbind(c(3, 17, 10),
+           c(2,  4, -2),
+           c(6, 18, 12))
 tstSubsample(A)
 
 ## test some random matrix
@@ -21,7 +24,10 @@ A <- matrix(rnorm(100), 10)
 tstSubsample(A)
 
 ## test singular matrix handling
-A <- matrix(c(1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1), 4, byrow=TRUE)
+A <- rbind(c(1, 0, 0),
+           c(0, 1, 0),
+           c(0, 1, 0),
+           c(0, 0, 1))
 tstSubsample(A)
 
 
@@ -36,17 +42,20 @@ stopifnot(z$status == 2)
 
 ## test equilibration
 ## columns only
-X <- matrix(c(1e-7, 2, 1e-10, 0.2), 2)
+X <- rbind(c(1e-7, 1e-10),
+           c(2   , 0.2))
 y <- 1:2
 tstSubsample(t(X), y)
 
 ## rows only
-X <- matrix(c(1e-7, 2, 1e10, 0.2), 2)
+X <- rbind(c(1e-7, 1e+10),
+           c(2   , 0.2))
 y <- 1:2
 tstSubsample(X, y)
 
 ## both
-X <- matrix(c(1e-7, 1e10, 2, 2e12), 2)
+X <- rbind(c(1e-7,  2  ),
+           c(1e10, 2e12))
 y <- 1:2
 tstSubsample(X, y)
 showProc.time()
@@ -76,12 +85,22 @@ nsing <- sum(replicate(if(doExtras) 200 else 20, tstSubsampleSing(X, y)))
 stopifnot(nsing == 0)
 showProc.time()
 
-## test example with many categorical predictors
-set.seed(10)
-r1 <- lmrob(Diversity ~ .^2 , data = possumDiv, cov="none")
-## lmrob.S used to fail for this seed:
-set.seed(108)
-r2 <- lmrob(Diversity ~ .^2 , data = possumDiv, cov="none") #, trace=4)
+## test example with many categorical predictors - 2 different random seeds:
+set.seed(10) ; r1 <- lmrob(Diversity ~ .^2 , data = possumDiv, cov="none")
+set.seed(108); r2 <- lmrob(Diversity ~ .^2 , data = possumDiv, cov="none")# lmrob.S() failed
+(i1 <- r1$init) # print(<lmrob.S>)
+(i2 <- r1$init) # ... and they are "somewhat" close:
+stopifnot(all.equal(r1[names(r1) != "init.S"],
+                    r2[names(r2) != "init.S"], tol = 0.40))
+c1 <- coef(r1)
+c2 <- coef(r2)
+relD <- (c1-c2)*2/(c1+c2)
+xCf <- which(abs(relD) >= 10)
+stopifnot(exprs = {
+    identical(xCf, c(`Bark:aspectSW-NW` = 46L))
+    all.equal(c1[-xCf], c2[-xCf], tol = 0.35) # 0.3418
+    sign(c1[-xCf]) == sign(c2[-xCf])
+})
 showProc.time()
 
 ## investigate problematic subsample:
@@ -172,12 +191,78 @@ showProc.time() ## 4.24
 
 ## test exact fit property
 set.seed(20)
-data <- data.frame(y=c(rep.int(0, 20), rnorm(5)),
+data <- data.frame(y=c(rep.int(0, 20), round(100*rnorm(5))),
                    group=rep(letters[1:5], each=5))
 x <- model.matrix(y ~ group, data)
 (ini <- lmrob.S(x, data$y, lmrob.control()))
 (ret <- lmrob(y ~ group, data))
 summary(ret)
+showProc.time() ## 4.24
+
+##--- continuous x -- exact fit -- inspired by Thomas Mang's real data example
+mkD9 <- function(iN, dN = 1:m) {
+    stopifnot((length(iN) -> m) == length(dN), 1 <= m, m <= 5,
+              iN == as.integer(iN), is.numeric(dN), !is.na(dN))
+    x <- c(-3:0,0:1,1:3) # {n=9; sorted; x= 0, 1  are "doubled"}
+    y <- x+5
+    y[iN] <- y[iN] + dN
+    data.frame(x,y)
+}
+
+d9L <- list(
+    mkD9(c(1L,3L, 5L, 7L))
+  , mkD9(c(1L,3L, 8:9))
+  , mkD9(2L*(1:4))
+)
+
+if(doExtras) {
+sfsmisc::mult.fig(length(d9L)); lapply(d9L, function(d) with(d, n.plot(x,y)))
+}
+
+dorob <- function(dat, control=lmrob.control(...), doPl=interactive(), cex=1, ...) {
+    stopifnot(is.data.frame(dat), c("x","y") %in% names(dat), is.list(control))
+    if(doPl) plot(y ~ x, data=dat) ## with(dat, n.plot(x, y, cex=cex))
+    S <- tryCatch(with(dat, lmrob.S(cbind(1,x), y, control)), error=identity)
+    if(!doPl)
+        return(S)
+    ## else
+    if(inherits(S, "lmrob.S")) {
+        abline(coef(S))
+        ## with(dat, plotDS(x,y, ys = fitted(S))
+    } else { # error
+        mtext(paste("lmrob.S() Error:", conditionMessage(S)))
+    }
+    invisible(S)
+}
+
+## a bad case -- now shows a lot with *NEW* robustbase 0.95-2
+Se <- dorob(d9L[[1]], lmrob.control("KS2014", trace.lev=4))
+## was really bad -- ended returning  coef = (0 0); fitted == 0, residuals == 0 !!
+## --- Version 0.95-2, May 27, 2023: now at least has correct coef():
+
+set.seed(2); rs2 <- .Random.seed
+if(doExtras) sfsmisc::mult.fig(length(d9L))
+r0 <- lapply(d9L, dorob, seed=rs2, doPl=doExtras) # looks all fine
+if(doExtras) print(r0)
+## 3 very similar but somewhat different fits:
+sapply(r0, coef)
+
+
+if(doExtras) sfsmisc::mult.fig(length(d9L))
+### Here, all 3 were "0-models"
+r14 <- lapply(d9L, dorob, control=lmrob.control("KS2014", seed=rs2), doPl=doExtras)
+## --> 3 (identical) warnings:   In lmrob.S(cbind(1, x), y, control) :#
+##                        S-estimated scale == 0:  Probably exact fit; check your data
+if(doExtras) print(r14)
+## all 3 are "identical"
+sapply(r14, coef)
+
+## FIXME ?? improve ?
+all.equal(r14[[1]], r14[[2]]) #  "Component “residuals”: Mean relative difference: 0.4242424"
+all.equal(r14[[3]], r14[[2]]) #] "Component “residuals”: Mean relative difference: 0.3111111"
+
+## TODO:  ==> use  lmrob() instead of just lmrob.S() !!
+
 
 
 showProc.time()

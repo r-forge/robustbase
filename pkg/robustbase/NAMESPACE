@@ -144,6 +144,7 @@ S3method(nobs, mcd)
 S3method(residuals, lmrob)
 S3method(residuals, lmrob.S)
 S3method(variable.names, lmrob)
+S3method(print, lmrobCtrl)
 S3method(update, lmrobCtrl)
 ## R Bug: needs within.list in our NS:
 S3method(within, lmrobCtrl, within.list)
