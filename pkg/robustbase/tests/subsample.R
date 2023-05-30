@@ -209,6 +209,14 @@ mkD9 <- function(iN, dN = 1:m) {
     data.frame(x,y)
 }
 
+d <- mkD9(c(1L,3L, 5L, 7L))
+set.seed(2); rs2 <- .Random.seed
+Se <- with(d, lmrob.S(cbind(1,x), y, lmrob.control("KS2014", seed=rs2)))
+                                        # gave DGELS rank error {for lmrob.c+wg..}
+coef(Se)      # was (0 0)
+residuals(Se) # was == y !
+
+
 d9L <- list(
     mkD9(c(1L,3L, 5L, 7L))
   , mkD9(c(1L,3L, 8:9))
@@ -216,23 +224,28 @@ d9L <- list(
 )
 
 if(doExtras) {
-sfsmisc::mult.fig(length(d9L)); lapply(d9L, function(d) with(d, n.plot(x,y)))
+sfsmisc::mult.fig(length(d9L)); invisible(lapply(d9L, function(d) plot(y ~ x, data=d)))
 }
 
-dorob <- function(dat, control=lmrob.control(...), doPl=interactive(), cex=1, ...) {
+dorob <- function(dat, control=lmrob.control(...), meth = c("S", "MM"),
+                  doPl=interactive(), cex=1, ...) {
+    meth <- match.arg(meth)
     stopifnot(is.data.frame(dat), c("x","y") %in% names(dat), is.list(control))
     if(doPl) plot(y ~ x, data=dat) ## with(dat, n.plot(x, y, cex=cex))
-    S <- tryCatch(with(dat, lmrob.S(cbind(1,x), y, control)), error=identity)
+    ans <- tryCatch(error = identity,
+                  switch(meth
+                       , "S" = with(dat, lmrob.S(cbind(1,x), y, control))
+                       , "MM"= lmrob(y ~ x, data = dat, control=control)
+                       , stop("invalid 'meth'")))
     if(!doPl)
-        return(S)
+        return(ans)
     ## else
-    if(inherits(S, "lmrob.S")) {
-        abline(coef(S))
-        ## with(dat, plotDS(x,y, ys = fitted(S))
+    if(!inherits(ans, "error")) {
+        abline(coef(ans))
     } else { # error
-        mtext(paste("lmrob.S() Error:", conditionMessage(S)))
+        mtext(paste(paste0("lmrob.", meth), "Error:", conditionMessage(ans)))
     }
-    invisible(S)
+    invisible(ans)
 }
 
 ## a bad case -- now shows a lot with *NEW* robustbase 0.95-2
@@ -245,25 +258,44 @@ if(doExtras) sfsmisc::mult.fig(length(d9L))
 r0 <- lapply(d9L, dorob, seed=rs2, doPl=doExtras) # looks all fine
 if(doExtras) print(r0)
 ## 3 very similar but somewhat different fits:
-sapply(r0, coef)
-
+(cf0 <- sapply(r0, coef))
+stopifnot(all.equal(tol = 5e-8, # seen 2.66e-8
+    rbind(   c(5.180231 , 5.080106 , 5),
+          x =c(0.8873905, 0.8130624, 1)), cf0))
 
 if(doExtras) sfsmisc::mult.fig(length(d9L))
 ### Here, all 3 were "0-models"
 r14 <- lapply(d9L, dorob, control=lmrob.control("KS2014", seed=rs2), doPl=doExtras)
 ## --> 3 (identical) warnings:   In lmrob.S(cbind(1, x), y, control) :#
 ##                        S-estimated scale == 0:  Probably exact fit; check your data
+## now *does* plot
 if(doExtras) print(r14)
 ## all 3 are "identical"
 sapply(r14, coef)
+stopifnot(sapply(r14, coef) == c(5,1))
 
 ## FIXME ?? improve ?
 all.equal(r14[[1]], r14[[2]]) #  "Component “residuals”: Mean relative difference: 0.4242424"
 all.equal(r14[[3]], r14[[2]]) #] "Component “residuals”: Mean relative difference: 0.3111111"
 
-## TODO:  ==> use  lmrob() instead of just lmrob.S() !!
+## ==> use  lmrob() instead of  lmrob.S():
 
+mm0 <- lapply(d9L, dorob, meth = "MM", seed=rs2, doPl=doExtras) # looks all fine
+if(doExtras) print(mm0)
+## now, the 3rd one errors
+(cm0 <- sapply(mm0, function(.) if(inherits(.,"error")) noquote(as.character(.)) else coef(.)))
 
+stopifnot(all.equal(tol = 5e-8, # seen 2.66e-8
+    rbind(   c(5.180231 , 5.080106 , 5),
+          x =c(0.8873905, 0.8130624, 1)), cf0))
+
+if(doExtras) sfsmisc::mult.fig(length(d9L))
+### Here, all 3 were "0-models"
+cm14 <- lapply(d9L, dorob, meth = "MM", control=lmrob.control("KS2014", seed=rs2), doPl=doExtras)
+## now coef = (5, 1) are correct
+stopifnot(sapply(cm14, coef) == c(5,1))
+sapply(cm14, residuals) ## still wrong
+sapply(cm14, fitted) ## still wrong
 
 showProc.time()
 

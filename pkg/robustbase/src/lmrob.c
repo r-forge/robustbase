@@ -2012,8 +2012,8 @@ void fast_s(double *X, double *y,
 	    pos_worst_scale = find_max(best_scales, *best_r);
 	    worst_sc = best_scales[pos_worst_scale];
 	    if (trace_lev >= 2) {
-	      Rprintf("  Sample[%3d]: found new candidate with scale %.7g in %d iter.\n",
-		      i, sc, scale_iter);
+		if(trace_lev < 3) /* not yet "Sample[..]" */ Rprintf("  Sample[%3d]:", i);
+	      Rprintf("   found new candidate with scale %.7g in %d iter.\n", sc, scale_iter);
 	      Rprintf("               worst scale is now %.7g\n", worst_sc);
 	    }
 	}
@@ -2109,9 +2109,10 @@ int refine_fast_s(const double X[], double *wx,
     for(int j=0; j < n; j++)
 	if( fabs(res[j]) < EPS_SCALE )
 	    zeroes++;
-    if (trace_lev >= 4) Rprintf("  #{i; res[i] = 0} = %d ", zeroes);
+    if (trace_lev >= 4) Rprintf("  |{i; res[i] = 0}| = %d ;", zeroes);
 
 /* if "perfect fit", return it with a 0 assoc. scale */
+// --- FIXME / TODO? compute MAD() here and check for initial_scale = 0 here .. and then leave ??
     if( zeroes > (((double)n + (double)p)/2.) ) /* <<- FIXME: depends on 'b' ! */
 	{
 	    COPY(beta_cand, beta_ref, p);
