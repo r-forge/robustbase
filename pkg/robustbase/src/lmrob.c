@@ -254,13 +254,12 @@ static const int one = 1;
 	*weights = (double *) R_alloc(_n_,   sizeof(double));
 
 /* Solve weighted LS, called in a loop, from rwls(), fast_refine_s() & m_s_descent():
-   _x_ is a "work array" only,  (_X, _y_)
-
-     also uses (weights, trace_level, info, one, work, lwork) */
-#define FIT_WLS(_X_, _x_, _y_, _n_, _p_, _beta_)		\
+   _x_ is a "work array" only,  input(_X, _y_, _wts_);  output _beta_ (_y_ is *modified*)
+     also uses (trace_level, info, one, work, lwork) */
+#define FIT_WLS(_X_, _wts_, _x_, _y_, _n_, _p_, _beta_)		\
     /* add weights to _y_ and _x_ */				\
     for (int j=0; j<_n_; j++) {					\
-	double wtmp = sqrt(weights[j]);				\
+	double wtmp = sqrt(_wts_[j]);				\
 	_y_[j] *= wtmp;						\
 	for (int k=0; k<_p_; k++)				\
 	    _x_[_n_*k+j] = _X_[_n_*k+j] * wtmp;			\
@@ -274,9 +273,10 @@ static const int one = 1;
 	} else {						\
 	    if (trace_lev >= 4) {				\
 		Rprintf(" Robustness weights in failing step: "); \
-		disp_vec(weights, _n_);				\
+		disp_vec(_wts_, _n_);				\
 	    }							\
-	    error(_("DGELS: weighted design matrix not of full rank (column %d).\nUse control parameter 'trace.lev = 4' to get diagnostic output."), info); \
+	    error(_("DGELS: weighted design matrix not of full rank (column %d).\n" \
+	            "Use control parameter 'trace.lev = 4' to get diagnostic output."), info); \
 	}							\
     }								\
     COPY(_y_, _beta_, _p_)
@@ -930,6 +930,10 @@ double rho_gwgt(double x, const double c[])
     return(-expm1(-(ac*ac)/2));
 }
 
+/*========= TODO --- these limits could be lowered for the (normal) case where we have sub-normal numbers,
+            ----     i.e. 0 < x < .Machine$double.xmin   min_x = 2^-1074 = 2^-(1022+52) ~= 4e-324
+*/
+
 // Largest x  such that  exp(-x) does not underflow :
 static double MIN_Exp = -708.4; // ~ = M_LN2 * DBL_MIN_EXP = -log(2) * 1022 = -708.3964 */
 
@@ -1505,6 +1509,13 @@ static void sample_noreplace(int *x, int n, int k, int *ind_space)
 #undef II
 }
 
+void get_weights_rhop(const double r[], double s, int n,
+		      const double rrhoc[], int ipsi, /* --> */ double *w)
+{
+    for(int i=0; i < n; i++) // work correctly for s == 0 (basically 0/0 = 0 in that case):
+	w[i] = wgt((r[i] == 0.) ? 0. : (r[i] / s), rrhoc, ipsi);
+}
+
 /* RWLS iterations starting from i_estimate,
  * ---- the workhorse of the "lmrob_MM" algorithm, called only from R_lmrob_MM(),
  * which itself is called only from R's  lmrob..M..fit().
@@ -1538,13 +1549,19 @@ Rboolean rwls(const double X[], const double y[], int n, int p,
     /* main loop */
     while(!converged &&	 ++iterations < *max_it) {
 	R_CheckUserInterrupt();
-        /* compute weights */
-	for(int i=0; i < n; i++)
-	    weights[i] = wgt(resid[i] / scale, rho_c, ipsi);
+	/* compute weights for WLS */
+	get_weights_rhop(resid, scale, n, rho_c, ipsi, weights);
+	if(trace_lev >= 5) {
+	    Rprintf("  it %4d: scale=%g, resid = "); disp_vec(resid,   n);
+	    Rprintf("              new weights = "); disp_vec(weights, n);
+	}
 	/* solve weighted least squares problem */
 	COPY(y, wy, n);
-	FIT_WLS(X, wx, wy, n, p, /* -> */ estimate);
+	FIT_WLS(X, weights, wx, wy, n, p, /* -> */ estimate);
 	/* calculate residuals */
+	if(trace_lev >= 5) {
+	    Rprintf(" FIT_WLS() => new estimate= "); disp_vec(estimate, p);
+	}
 	COPY(y, resid, n);
 	get_Res_Xb(n,p, X, estimate, resid);
 	d_beta = norm1_diff(beta0,estimate, p);
@@ -1565,7 +1582,7 @@ Rboolean rwls(const double X[], const double y[], int n, int p,
 	COPY(estimate, beta0, p);
     } /* end while(!converged & iter <=...) */
 
-    if(0 < trace_lev) {
+    if(trace_lev > 0) {
 	if(trace_lev < 3) *loss = sum_rho_sc(resid,scale,n,0,rho_c,ipsi);
 	Rprintf(" rwls() used %2d it.; last ||b0 - b1||_1 = %#g, L(b1) = %.12g; %sconvergence\n",
 		iterations, d_beta, *loss, (converged ? "" : "NON-"));
@@ -2133,12 +2150,11 @@ int refine_fast_s(const double X[], double *wx,
     for(iS=0; iS < kk; iS++) {
 	/* one step for the scale */
 	s0 = s0 * sqrt( sum_rho_sc(res, s0, n, p, rrhoc, ipsi) / b );
-	/* compute weights for IRWLS */
-	for(int i=0; i < n; i++)
-	    weights[i] = wgt(res[i] / s0, rrhoc, ipsi);
+	/* compute weights for WLS */
+	get_weights_rhop(res, s0, n, rrhoc, ipsi, weights);
         /* solve weighted least squares problem */
 	COPY(y, wy, n); // wy = y[1:n] on in input, and beta[1:p] on output
-	FIT_WLS(X, wx, wy, n, p, /* -> */ beta_ref);
+	FIT_WLS(X, weights, wx, wy, n, p, /* -> */ beta_ref);
 	if(*conv) { /* check for convergence */
 	    double del = norm_diff(beta_j, beta_ref, p);
 	    double nrmB= norm(beta_j, p);
@@ -2169,6 +2185,7 @@ int refine_fast_s(const double X[], double *wx,
     return iS; /* number of refinement steps */
 } /* refine_fast_s() */
 
+
 /* Subsampling part for M-S algorithm                    */
 /* Recreates RLFRSTML function found in src/lmrobml.f    */
 /* of the robust package                                 */
@@ -2186,7 +2203,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
     *sscale = INFI;
 
     if (trace_lev >= 2)
-	Rprintf(" Starting subsampling procedure.. ");
+	Rprintf(" Starting M-S subsampling procedure.. ");
 
     SETUP_SUBSAMPLE(n, p2, x2, 0);
 
@@ -2228,7 +2245,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 	    sc = find_scale(res, b, rrhoc, ipsi, sc, n, p, &scale_iter,
 			    scale_tol, trace_lev >= 4);
 	    if(trace_lev >= 2)
-		Rprintf("  Sample[%3d]: new candidate with sc = %#10.5g in %d iter\n",
+		Rprintf("  Sample[%3d]: new candidate with sc =%#16.9g in %d iter\n",
 			i, sc, scale_iter);
 	    /* STEP 6: Update best fit */
 	    *sscale = sc;
@@ -2303,11 +2320,10 @@ Rboolean m_s_descent(double *X1, double *X2, double *y,
 	COPY(y, y_tilde, n);
 	COPY(X1, x1, n*p1); // FIXME(MM)?  don't need x1, use X1 (which is unchanged!)
 	get_Res_Xb(n,p1, x1, t1, y_tilde);
-	/* compute weights for IRWLS */
-	for(int i=0; i < n; i++)
-	    weights[i] = wgt(res2[i] / sc, rrhoc, ipsi);
+	/* compute weights for WLS */
+	get_weights_rhop(res2, sc, n, rrhoc, ipsi, weights);
 	/* solve weighted least squares problem */
-	FIT_WLS(X2, x2, y_tilde, n, p2,  /* -> */ t2);
+	FIT_WLS(X2, weights, x2, y_tilde, n, p2,  /* -> */ t2);
         /* get (intermediate) residuals */
 	COPY(y, res2, n);
 	get_Res_Xb(n,p2, X2, t2, res2);
@@ -2425,7 +2441,7 @@ int subsample(const double x[], const double y[], int n, int m,
              1: singular (matrix xt does not contain a m dim. full rank submatrix)
              2: too many singular resamples (simple subsampling case)
 */
-    int j, k, l, mu = 0, tmpi, i = 0, attempt = 0;
+    int j, k, l, mu = 0, i = 0, attempt = 0;
     Rboolean sing;
 
 #define xt(_k_, _j_) x[idr[_k_]*n+idc[_j_]]
@@ -2438,7 +2454,8 @@ Start:
     /* STEP 1: Calculate permutation of 1:n */
     if (sample) {
 	sample_noreplace(ind_space, n, n, idc);
-    } else for(k=0;k<n;k++) ind_space[k] = k;
+    } else // !sample --> "trivial permutation":
+	for(k=0;k<n;k++) ind_space[k] = k;
     for(k=0;k<m;k++) idr[k] = k;
 
     /* STEP 2: Calculate LU decomposition of the first m cols of xt     *
@@ -2458,8 +2475,8 @@ Start:
 		/* z = solve(lu[0:(j-1), 0:(j-1)], xt[0:(j-1), j]) */
 		F77_CALL(dtrsv)("L", "N", "U", &j, lu, &m, u(0, j), &one FCONE FCONE FCONE);
 		/* Rprintf("Step %d: z = ", j);  */
-		/* for(i=0; i < j; i++) Rprintf("%lf ",U(i, j)); */
-		/* Rprintf("\n"); */
+		/* for(i=0; i < j; i++) Rprintf("%lf ",U(i, j));  Rprintf("\n"); */
+
 		/* v[j:(m-1)] = xt[j:(m-1), j] - L[j:(m-1), 0:(j-1)] %*% z */
 		for(k=j;k<m;k++) {
 		    v[k] = xt(k, j);
@@ -2481,9 +2498,9 @@ Start:
 		/* } */
 		/* continue only if pivot is large enough */
 		if (tmpd >= tol_inv) {
-		    pivot[j] = mu;
-		    tmpd = v[j]; v[j] = v[mu]; v[mu] = tmpd;
-		    tmpi = idr[j]; idr[j] = idr[mu]; idr[mu] = tmpi;
+		    pivot[j] = mu; // swap  j <--> mu :
+		        tmpd =   v[j];   v[j] =   v[mu];   v[mu] = tmpd;
+		    int itmp = idr[j]; idr[j] = idr[mu]; idr[mu] = itmp;
 		    for(k=j+1;k<m;k++) L(k, j) = v[k] / v[j];
 		    if (j > 0) {
 			for(k=0;k<j;k++) {
@@ -2510,9 +2527,9 @@ Start:
 	} while(sing);
     } /* end for loop */
 
-    /* Rprintf("lu:"); disp_vec(lu, m*m); */
+    /* Rprintf("lu:");    disp_vec (lu, m*m); */
     /* Rprintf("pivot:"); disp_veci(pivot, m-1); */
-    /* Rprintf("idc:"); disp_veci(idc, m); */
+    /* Rprintf("idc:");   disp_veci(idc, m); */
 
     /* STEP 3: Solve for candidate parameters if requested */
     if (solve == 0) {

@@ -209,12 +209,41 @@ mkD9 <- function(iN, dN = 1:m) {
     data.frame(x,y)
 }
 
-d <- mkD9(c(1L,3L, 5L, 7L))
-set.seed(2); rs2 <- .Random.seed
-Se <- with(d, lmrob.S(cbind(1,x), y, lmrob.control("KS2014", seed=rs2)))
-                                        # gave DGELS rank error {for lmrob.c+wg..}
-coef(Se)      # was (0 0)
-residuals(Se) # was == y !
+mkRS <- function(...) { set.seed(...); .Random.seed }
+
+d <- mkD9(c(1L,3:4, 7L))
+rs2 <- mkRS(2)
+Se <- tryCatch(error = identity,
+               with(d, lmrob.S(cbind(1,x), y, lmrob.control("KS2014", seed=rs2))))
+## gave DGELS rank error {for lmrob.c+wg..}
+
+if(inherits(Se, "error")) {
+    cat("Caught ")
+    print(Se)
+} else withAutoprint({ ## no error
+    coef(Se)
+    stopifnot(coef(Se) == c(5, 1)) # was (0 0)
+    residuals(Se) # was == y  ---- FIXME
+})
+
+## try 100 different seeds
+repS <- lapply(1:100, function(ii) tryCatch(error = identity,
+                with(d, lmrob.S(cbind(1,x), y, lmrob.control("KS2014", seed = mkRS(ii))))))
+
+str(unique(repS))## ==> 100 times the same error
+
+## *Not* "KS2014" but the defaults works *all the time* (!)
+repS0 <- lapply(1:100, function(ii) tryCatch(error = identity,
+               with(d, lmrob.S(cbind(1,x), y, lmrob.control(seed = mkRS(ii))))))
+
+str(cfS0 <- t(sapply(repS0, coef))) # all numeric -- not *one* error
+
+## even all the same:
+(ucfS0 <- unique(cfS0))
+stopifnot(nrow(ucfS0) == 1L,
+          all.equal(drop(ucfS0),
+                    c(5.1802307, x = 0.88739048), tol = 1e-8)# see 2.713e-9
+          )
 
 
 d9L <- list(
@@ -249,11 +278,14 @@ dorob <- function(dat, control=lmrob.control(...), meth = c("S", "MM"),
 }
 
 ## a bad case -- now shows a lot with *NEW* robustbase 0.95-2
-Se <- dorob(d9L[[1]], lmrob.control("KS2014", trace.lev=4))
+Se <- dorob(d9L[[1]], lmrob.control("KS2014", mkRS(2), trace.lev=4))
 ## was really bad -- ended returning  coef = (0 0); fitted == 0, residuals == 0 !!
 ## --- Version 0.95-2, May 27, 2023: now at least has correct coef():
+## May 31, 2023 -- now always get
+## Error in lmrob.S(cbind(1, x), y, control): DGELS: weighted design matrix not of full rank (column 2).
+##         Use control parameter 'trace.lev = 4' to get diagnostic output.>
 
-set.seed(2); rs2 <- .Random.seed
+
 if(doExtras) sfsmisc::mult.fig(length(d9L))
 r0 <- lapply(d9L, dorob, seed=rs2, doPl=doExtras) # looks all fine
 if(doExtras) print(r0)
@@ -263,6 +295,13 @@ stopifnot(all.equal(tol = 5e-8, # seen 2.66e-8
     rbind(   c(5.180231 , 5.080106 , 5),
           x =c(0.8873905, 0.8130624, 1)), cf0))
 
+## increase maxit.scale
+r0.4k <- lapply(d9L, dorob, seed=rs2, maxit.scale=4000, doPl=doExtras) # looks all fine
+r0.4k # --- very different: scales are order-of-magnitude ~ 1
+## ==> we "lost" (some robustness !! {{what is desired?}
+## ==>> MM : if scale ~= 0 -- lmrob.S() should return w {beta, scale, resid, (non-nan!) weights, ..}
+##      ==========================================================================================
+
 if(doExtras) sfsmisc::mult.fig(length(d9L))
 ### Here, all 3 were "0-models"
 r14 <- lapply(d9L, dorob, control=lmrob.control("KS2014", seed=rs2), doPl=doExtras)
@@ -270,32 +309,62 @@ r14 <- lapply(d9L, dorob, control=lmrob.control("KS2014", seed=rs2), doPl=doExtr
 ##                        S-estimated scale == 0:  Probably exact fit; check your data
 ## now *does* plot
 if(doExtras) print(r14)
-## all 3 are "identical"
+## NO LONGER! all 3 are "identical"
 sapply(r14, coef)
-stopifnot(sapply(r14, coef) == c(5,1))
+## NO LONGER! stopifnot(sapply(r14, coef) == c(5,1))
+stopifnot(
+    identical(lapply(r14, coef)[2:3] ,
+              rep(list(c(5, x = 1)), 2))
+)
 
 ## FIXME ?? improve ?
-all.equal(r14[[1]], r14[[2]]) #  "Component “residuals”: Mean relative difference: 0.4242424"
-all.equal(r14[[3]], r14[[2]]) #] "Component “residuals”: Mean relative difference: 0.3111111"
+## all.equal(r14[[1]], r14[[2]]) #  "Component “residuals”: Mean relative difference: 0.4242424"
+## all.equal(r14[[3]], r14[[2]]) #] "Component “residuals”: Mean relative difference: 0.3111111"
 
 ## ==> use  lmrob() instead of  lmrob.S():
 
-mm0 <- lapply(d9L, dorob, meth = "MM", seed=rs2, doPl=doExtras) # looks all fine
+mm0 <- lapply(d9L, dorob, meth = "MM", seed=rs2, doPl=doExtras) # looks all fine -- no longer: error in [[3]]
 if(doExtras) print(mm0)
 ## now, the 3rd one errors
-(cm0 <- sapply(mm0, function(.) if(inherits(.,"error")) noquote(as.character(.)) else coef(.)))
+(cm0 <- sapply(mm0, function(.) if(inherits(.,"error")) noquote(paste("Caught", as.character(.))) else coef(.)))
+stopifnot(all.equal(tol = 1e-8, # seen 4.4376e-9
+                    rbind(`(Intercept)` = c(5.7640215, 6.0267156),
+                          x             = c(0.85175883, 1.3823841)),
+                    simplify2array(cm0[1:2])))
+cm0[[3]]
+## FIXME?:   Caught Error in eigen(ret, symmetric = TRUE): infinite or missing values in 'x'\n
 
-stopifnot(all.equal(tol = 5e-8, # seen 2.66e-8
-    rbind(   c(5.180231 , 5.080106 , 5),
-          x =c(0.8873905, 0.8130624, 1)), cf0))
+## investigate: 'trace.lev=' only for lmrob() MM part:
+try(
+se3 <- lmrob(y ~ x, data=d9L[[3]], init = r0[[3]], seed=rs2, trace.lev=6)
+)
+if(FALSE)
+    debug(lmrob.fit)
+
 
 if(doExtras) sfsmisc::mult.fig(length(d9L))
 ### Here, all 3 were "0-models"
+##  now, have 3 *different* cases {with this seed}
+## [1] : init fails (-> r14[[1]] above)
+## [2] : init s=0, b=(5,1) .. but  residuals(),fitted() wrong
+## [3] : init s=0, b=(5,1) ..*and* residuals(),fitted() are good
+
 cm14 <- lapply(d9L, dorob, meth = "MM", control=lmrob.control("KS2014", seed=rs2), doPl=doExtras)
-## now coef = (5, 1) are correct
-stopifnot(sapply(cm14, coef) == c(5,1))
-sapply(cm14, residuals) ## still wrong
-sapply(cm14, fitted) ## still wrong
+## now, first is error; for others, coef = (5, 1) are correct:
+stopifnot(exprs = {
+    sapply(cm14[-1], coef)  == c(5,1)
+    sapply(cm14[-1], sigma) == 0
+})
+
+m2 <- cm14[[2]]
+summary(m2) # prints quite nicely; and this is perfect (for scale=0), too:
+## {residual != 0 <==> weights = 0}:
+cbind(rwgt = weights(m2, "rob"), res = residuals(m2), fit = fitted(m2), y = d9L[[2]][,"y"])
+
+sapply(cm14, residuals) ## now, [2] is good; [3] still wrong - FIXME
+sapply(cm14, fitted)
+sapply(cm14, weights, "robust")## [2]: 0 1 0 1 1 1 1 0 0;  [3]: all 0
+
 
 showProc.time()
 

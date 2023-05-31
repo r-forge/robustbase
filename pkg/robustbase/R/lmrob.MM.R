@@ -142,7 +142,9 @@ lmrob.control <-
       list(...)), "lmrobCtrl")
 }
 
-## FIXME R bug -- S3method(within, lmrobCtrl, within.list)  *fails* unless it is in *our* namespace:
+## base within.list, used in ../NAMESPACE :
+## S3method(within, lmrobCtrl, within.list)  fails unless it is in *our* namespace:
+## R bug fixed in svn rev 84463 - for R 4.4.0
 within.list <- within.list
 
 print.lmrobCtrl <- function(x, ...) {
