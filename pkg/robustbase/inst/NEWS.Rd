@@ -38,6 +38,11 @@
       \item \code{summary.lmrob(obj)} now also gets a \code{weights}
       component from \code{obj} if that is non-trivial; this may also
       correct \code{summary()} output in weighted cases.
+
+      \item Minor fixes in \code{plot.lts()} related to par mfrow.
+      
+      \item ltsReg() Help file changed - the note strongly advising NOT 
+      to use LTS regression removed. 
     }
   }
   \subsection{Misc}{
