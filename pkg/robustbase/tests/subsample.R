@@ -4,6 +4,7 @@ require(robustbase)
 source(system.file("xtraR/subsample-fns.R", package = "robustbase", mustWork=TRUE))
 ## instead of relying on  system.file("test-tools-1.R", package="Matrix"):
 source(system.file("xtraR/test-tools.R", package = "robustbase")) # assert.EQ(), showProc.time() ..
+options(nwarnings = 4e4)
 
 cat("doExtras:", doExtras <- robustbase:::doExtras(),"\n")
 showProc.time()
@@ -155,7 +156,7 @@ fm2 <- lmrob(y ~ a + I(a^2) + tf + I(tf^2) + A + I(A^2) + . , data = d1k27,
              cov = ".vcov.w", trace = TRUE)
 showProc.time()# 2.77
 
-if(doExtras) {##-----------------------------------------------------------------
+if(doExtras) withAutoprint({##---------------------------------------------------------
 
 ## Q: does it change to use numeric instead of binary factors ?
 ## A: not really ..
@@ -166,14 +167,14 @@ fm1.n <- lmrob(y ~ a + I(a^2) + tf + I(tf^2) + A + I(A^2) + . , data = d1k.n)
 fm2.n <- lmrob(y ~ a + I(a^2) + tf + I(tf^2) + A + I(A^2) + . , data = d1k.n,
              cov = ".vcov.w", trace = 2)
 
-print(summary(weights(fm1, type="robustness")))
-hist(weights(fm1, type="robustness"), main="robustness weights of fm1")
+summary(weights(fm1, type="robustness"))
+   hist(weights(fm1, type="robustness"), main="robustness weights of fm1")
 rug(weights(fm1, type="robustness"))
 showProc.time()## 2.88
 
 ##
 fmc <- lm   (y ~ poly(a,2)-a + poly(tf, 2)-tf + poly(A, 2)-A + . , data = d1k27)
-print(summary(fmc))
+summary(fmc)
 ## -> has NA's for  'a, tf, A'  --- bad that it did *not* work to remove them
 
 nform <- update(formula(fm1), ~ .
@@ -185,9 +186,9 @@ fm1. <- lmrob(nform, data = d1k27)# now w/o warning !? !!
 fm2. <- lmrob(nform, data = d1k27, cov = ".vcov.w", trace = TRUE)
 
 ## now lmrob takes care of NA coefficients automatically
-print(lmrob(y ~ poly(a,2)-a + poly(tf, 2)-tf + poly(A, 2)-A + . , data = d1k27))
+lmrob(y ~ poly(a,2)-a + poly(tf, 2)-tf + poly(A, 2)-A + . , data = d1k27)
 showProc.time() ## 4.24
-} ## only if(doExtras) ##--------------------------------------------------------
+}) ## only if(doExtras) -----------------------------------------------------
 
 ## test exact fit property
 set.seed(20)
@@ -229,21 +230,29 @@ if(inherits(Se, "error")) {
 ## try 100 different seeds
 repS <- lapply(1:100, function(ii) tryCatch(error = identity,
                 with(d, lmrob.S(cbind(1,x), y, lmrob.control("KS2014", seed = mkRS(ii))))))
-
-str(unique(repS))## ==> 100 times the same error
+if(FALSE)
+ ## was
+ str(unique(repS))## ==> 100 times the same error
+## now completely different: *all* returned properly
+str(cfS <- t(sapply(repS, coef))) # all numeric -- not *one* error --
+## even all the *same* (5 1) solution:
+(ucfS <- unique(cfS))
+stopifnot(identical(ucfS, array(c(5, 1), dim = 1:2, dimnames = list(NULL, c("", "x")))))
 
 ## *Not* "KS2014" but the defaults works *all the time* (!)
 repS0 <- lapply(1:100, function(ii) tryCatch(error = identity,
                with(d, lmrob.S(cbind(1,x), y, lmrob.control(seed = mkRS(ii))))))
+summary(warnings())
+## 100 identical warnings:
+## In lmrob.S(cbind(1, x), y, lmrob.control(seed = mkRS(ii))) :
+##   S-estimated scale == 0:  Probably exact fit; check your data
 
 str(cfS0 <- t(sapply(repS0, coef))) # all numeric -- not *one* error
-
-## even all the same:
+## even all the same *and* the same as "KS2014"
 (ucfS0 <- unique(cfS0))
 stopifnot(nrow(ucfS0) == 1L,
-          all.equal(drop(ucfS0),
-                    c(5.1802307, x = 0.88739048), tol = 1e-8)# see 2.713e-9
-          )
+          ucfS0 == c(5,1))
+
 
 
 d9L <- list(
@@ -289,18 +298,17 @@ Se <- dorob(d9L[[1]], lmrob.control("KS2014", mkRS(2), trace.lev=4))
 if(doExtras) sfsmisc::mult.fig(length(d9L))
 r0 <- lapply(d9L, dorob, seed=rs2, doPl=doExtras) # looks all fine
 if(doExtras) print(r0)
-## 3 very similar but somewhat different fits:
+## back to 3 identical fits: (5 1)
 (cf0 <- sapply(r0, coef))
-stopifnot(all.equal(tol = 5e-8, # seen 2.66e-8
-    rbind(   c(5.180231 , 5.080106 , 5),
-          x =c(0.8873905, 0.8130624, 1)), cf0))
+stopifnot(cf0 == c(5,1))
+## stopifnot(all.equal(tol = 5e-8, # seen 2.66e-8
+##     rbind(   c(5.180231 , 5.080106 , 5),
+##           x =c(0.8873905, 0.8130624, 1)), cf0))
 
 ## increase maxit.scale
 r0.4k <- lapply(d9L, dorob, seed=rs2, maxit.scale=4000, doPl=doExtras) # looks all fine
-r0.4k # --- very different: scales are order-of-magnitude ~ 1
-## ==> we "lost" (some robustness !! {{what is desired?}
-## ==>> MM : if scale ~= 0 -- lmrob.S() should return w {beta, scale, resid, (non-nan!) weights, ..}
-##      ==========================================================================================
+## if scale ~= 0 -- lmrob.S() should return w {beta, scale, resid, (non-nan!) weights, ..}
+## ==========================================================================================
 
 if(doExtras) sfsmisc::mult.fig(length(d9L))
 ### Here, all 3 were "0-models"
@@ -325,17 +333,27 @@ stopifnot(
 
 mm0 <- lapply(d9L, dorob, meth = "MM", seed=rs2, doPl=doExtras) # looks all fine -- no longer: error in [[3]]
 if(doExtras) print(mm0)
-## now, the 3rd one errors
+## now, the 3rd one errors (on Linux, not on M1 mac!)
 (cm0 <- sapply(mm0, function(.) if(inherits(.,"error")) noquote(paste("Caught", as.character(.))) else coef(.)))
-stopifnot(all.equal(tol = 1e-8, # seen 4.4376e-9
-                    rbind(`(Intercept)` = c(5.7640215, 6.0267156),
-                          x             = c(0.85175883, 1.3823841)),
-                    simplify2array(cm0[1:2])))
-cm0[[3]]
-## FIXME?:   Caught Error in eigen(ret, symmetric = TRUE): infinite or missing values in 'x'\n
+## Linux: no longer error
+c0.12 <- rbind(`(Intercept)` = c(5.7640215, 6.0267156),
+               x             = c(0.85175883, 1.3823841))
+
+if(is.list(cm0)) { ## after error
+    ## NB: This does *not* happen on Macbuilder -- there the result it cf = (5 1)  !!
+    stopifnot(all.equal(tol = 1e-8, # seen 4.4376e-9
+                        c0.12, simplify2array(cm0[1:2])))
+    print(cm0[[3]])
+    ## FIXME?:   Caught Error in eigen(ret, symmetric = TRUE): infinite or missing values in 'x'\n
+} else if(is.matrix(cm0)) { # when no error happened
+    ## was  stopifnot(all.equal(tol = 1e-8, cbind(c0.12, c(5, 1)), cm0))
+    k <- ncol(cm0)
+    stopifnot(all.equal(tol = 1e-8, rbind(`(Intercept)` = rep(5,k), "x" = rep(1,k)), cm0))
+} else warning("not yet encountered this case {and it should not happen}")
+
 
 ## investigate: 'trace.lev=' only for lmrob() MM part:
-try(
+try( # no error on Linux
 se3 <- lmrob(y ~ x, data=d9L[[3]], init = r0[[3]], seed=rs2, trace.lev=6)
 )
 if(FALSE)
@@ -365,6 +383,8 @@ sapply(cm14, residuals) ## now, [2] is good; [3] still wrong - FIXME
 sapply(cm14, fitted)
 sapply(cm14, weights, "robust")## [2]: 0 1 0 1 1 1 1 0 0;  [3]: all 0
 
+## (unfinished ... do *test* once we've checked platform consistency)
 
+summary(warnings())
 showProc.time()
 

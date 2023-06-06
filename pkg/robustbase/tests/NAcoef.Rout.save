@@ -1,5 +1,5 @@
 
-R version 4.3.0 Patched (2023-05-17 r84446) -- "Already Tomorrow"
+R version 4.3.1 beta (2023-06-05 r84504) -- "Beagle Scouts"
 Copyright (C) 2023 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -411,10 +411,10 @@ Robustness weights:
 Algorithmic parameters: 
        tuning.chi                bb        tuning.psi        refine.tol 
          1.55e+00          5.00e-01          4.69e+00          1.00e-07 
-          rel.tol         scale.tol         solve.tol       eps.outlier 
-         1.00e-07          1.00e-10          1.00e-07          1.00e-02 
-            eps.x warn.limit.reject warn.limit.meanrw 
-         1.82e-12          5.00e-01          5.00e-01 
+          rel.tol         scale.tol         solve.tol          zero.tol 
+         1.00e-07          1.00e-10          1.00e-07          1.00e-10 
+      eps.outlier             eps.x warn.limit.reject warn.limit.meanrw 
+         1.00e-02          1.82e-12          5.00e-01          5.00e-01 
      nResample         max.it       best.r.s       k.fast.s          k.max 
            500             50              2              1            200 
    maxit.scale      trace.lev            mts     compute.rd fast.s.large.n 
@@ -455,8 +455,8 @@ Robustness weights:
 Algorithmic parameters: 
        tuning.psi           rel.tol         scale.tol         solve.tol 
          4.69e+00          1.00e-07          1.00e-10          1.00e-07 
-      eps.outlier warn.limit.reject warn.limit.meanrw 
-         1.00e-02          5.00e-01          5.00e-01 
+         zero.tol       eps.outlier warn.limit.reject warn.limit.meanrw 
+         1.00e-10          1.00e-02          5.00e-01          5.00e-01 
         max.it    maxit.scale      trace.lev     compute.rd fast.s.large.n 
             50            200              0              0           2000 
          eps.x 
@@ -481,4 +481,4 @@ seed : int(0)
 > 
 > proc.time()
    user  system elapsed 
-  0.242   0.034   0.270 
+  0.730   0.133   0.901 

@@ -1,7 +1,7 @@
 
-R Under development (unstable) (2023-05-19 r84451) -- "Unsuffered Consequences"
+R version 4.3.0 Patched (2023-06-03 r84496) -- "Already Tomorrow"
 Copyright (C) 2023 The R Foundation for Statistical Computing
-Platform: x86_64-pc-linux-gnu
+Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -252,10 +252,10 @@ Robustness weights:
 Algorithmic parameters: 
                bb        refine.tol           rel.tol         scale.tol 
         3.846e-04         1.000e-07         1.000e-07         1.000e-10 
-        solve.tol       eps.outlier             eps.x warn.limit.reject 
-        1.000e-07         3.030e-03         4.369e-12         5.000e-01 
-warn.limit.meanrw 
-        5.000e-01 
+        solve.tol          zero.tol       eps.outlier             eps.x 
+        1.000e-07         1.000e-10         3.030e-03         4.369e-12 
+warn.limit.reject warn.limit.meanrw 
+        5.000e-01         5.000e-01 
      nResample     tuning.chi     tuning.psi         max.it       best.r.s 
            500             20             20             50              2 
       k.fast.s          k.max    maxit.scale      trace.lev            mts 
@@ -305,10 +305,10 @@ Robustness weights:
 Algorithmic parameters: 
                bb        refine.tol           rel.tol         scale.tol 
         3.846e-04         1.000e-07         1.000e-07         1.000e-10 
-        solve.tol       eps.outlier             eps.x warn.limit.reject 
-        1.000e-07         3.704e-03         5.094e-12         5.000e-01 
-warn.limit.meanrw 
-        5.000e-01 
+        solve.tol          zero.tol       eps.outlier             eps.x 
+        1.000e-07         1.000e-10         3.704e-03         5.094e-12 
+warn.limit.reject warn.limit.meanrw 
+        5.000e-01         5.000e-01 
      nResample     tuning.chi     tuning.psi         max.it       best.r.s 
            500             20             20             50              2 
       k.fast.s          k.max    maxit.scale      trace.lev            mts 
@@ -357,10 +357,10 @@ Robustness weights:
 Algorithmic parameters: 
                bb        refine.tol           rel.tol         scale.tol 
         3.846e-04         1.000e-07         1.000e-07         1.000e-10 
-        solve.tol       eps.outlier             eps.x warn.limit.reject 
-        1.000e-07         2.632e-03         4.369e-12         5.000e-01 
-warn.limit.meanrw 
-        5.000e-01 
+        solve.tol          zero.tol       eps.outlier             eps.x 
+        1.000e-07         1.000e-10         2.632e-03         4.369e-12 
+warn.limit.reject warn.limit.meanrw 
+        5.000e-01         5.000e-01 
      nResample     tuning.chi     tuning.psi         max.it       best.r.s 
            500             20             20             50              2 
       k.fast.s          k.max    maxit.scale      trace.lev            mts 
@@ -612,4 +612,4 @@ Coefficients:
 > 
 > proc.time()
    user  system elapsed 
-  0.359   0.052   0.405 
+  0.883   0.193   1.100 

@@ -4,13 +4,28 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.95-2 (2023-05-31, svn r922)}{
+\section{CHANGES in robustbase VERSION 0.99-0 (2023-06-06, svn r922)}{
   % --- 1.0-0  once we fix  adjOutlyingness() properly !
   %     =====
   \subsection{NEW FEATURES}{
     \itemize{
+      \item In case it finds an \emph{exact fit}, i.e., \eqn{k > n/2}
+      residuals are (practically) zero, \code{lmrob.S()} now returns that,
+      \code{scale = 0}, and robustness weights \code{weights(.,	"robustness")}
+      which are either 0 or 1 quickly and more consistently.
+
+      **** \bold{TODO}: Optionally (but off by default?? for back compatibility??),
+      \code{lmrob()} initialized by such an exact-fit estimator may use a
+      (user-specified or automatic) scale \eqn{\hat{s} > 0}{s^ > 0} to
+      continue providing efficient SM / MM estimates.
+
       \item \code{lmrob.control()} gets class \code{"lmrobCtrl"} which can be
       \code{print()}ed and \code{update()}d.
+
+      \item New tuning const \code{zero.scale = 1e-10} instead of hardwired
+      \code{EPS_ZERO} in \code{lmrob.S()}'s C code; additionally the exact
+      fit / zero-residuals checking is finally y-scale equivariant, using
+      \eqn{1/n ||y||_1 = } \code{mean(abs(y))}.
     }
   }
   \subsection{BUG FIXES}{
@@ -40,9 +55,9 @@
       correct \code{summary()} output in weighted cases.
 
       \item Minor fixes in \code{plot.lts()} related to par mfrow.
-      
-      \item ltsReg() Help file changed - the note strongly advising NOT 
-      to use LTS regression removed. 
+
+      \item ltsReg() Help file changed - the note strongly advising NOT
+      to use LTS regression removed.
     }
   }
   \subsection{Misc}{

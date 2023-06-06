@@ -25,6 +25,7 @@ lmrob.control(setting, seed = NULL, nResample = 500,
               k.fast.s = 1, best.r.s = 2,
               k.max = 200, maxit.scale = 200, k.m_s = 20,
               refine.tol = 1e-7, rel.tol = 1e-7, scale.tol = 1e-10, solve.tol = 1e-7,
+              zero.tol = 1e-10,
               trace.lev = 0,
               mts = 1000, subsampling = c("nonsingular", "simple"),
               compute.rd = FALSE, method = "MM", psi = "bisquare",
@@ -98,6 +99,13 @@ lmrob.control(setting, seed = NULL, nResample = 500,
   \item{solve.tol}{(for the S algorithm): relative
     tolerance for inversion.  Hence, this corresponds to
     \code{\link{solve.default}()}'s \code{tol}.}
+  \item{zero.tol}{for checking 0-residuals in the S algorithm, non-negative number
+    \eqn{\epsilon_z}{ez} such that
+    \eqn{\{i; \left|\tilde{R}_i\right| \le \epsilon_z\}}{{i; |R~[i]| <= ez}}
+    correspond to \eqn{0}-residuals, where \eqn{\tilde{R}_i}{R~[i]} are standardized residuals,
+    \eqn{\tilde{R}_i = R_i/s_y}{R~[i] = R[i]/sy} and
+    \eqn{s_y = \frac{1}{n} \sum_{i=1}^n \left|y_i\right|}{%
+          sy = ave_i |y[i]| = 1/n sum(i=1..n, |y[i]|)}.}
   \item{trace.lev}{integer indicating if the progress of the MM-algorithm
     and the fast-S algorithms, see \code{\link{lmrob.S}},
     should be traced (increasingly); default \code{trace.lev = 0} does

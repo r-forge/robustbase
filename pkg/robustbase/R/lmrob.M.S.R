@@ -143,6 +143,7 @@ lmrob.M.S <- function(x, y, control, mf, split = splitFrame(mf, x, control$split
             rel_tol =   as.double(control$rel.tol),
 	    inv_tol =   as.double(control$solve.tol),
 	    scale_tol = as.double(control$scale.tol),
+            zero.tol =  as.double(control$zero.tol),
             converged = logical(1),
             trace_lev = traceLev,
             ## well, these 3 are for the experts ... still why not arguments?

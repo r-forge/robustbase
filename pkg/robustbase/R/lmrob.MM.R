@@ -62,10 +62,11 @@ lmrob.control <-
 	     groups = 5, n.group = 400, k.fast.s = 1L, best.r.s = 2L,
 	     k.max = 200L, maxit.scale = 200L, k.m_s = 20L,
 	     ##            ^^^^^^^^^^^ had MAX_ITER_FIND_SCALE 200 in ../src/lmrob.c
-	     refine.tol = 1e-7, rel.tol = 1e-7,
+	     refine.tol= 1e-7,
+             rel.tol   = 1e-7,
              scale.tol = 1e-10, # new, was hardcoded to EPS_SCALE = 1e-10 in C code
-	     solve.tol = 1e-7,
-	     ## had  ^^^^^^^^  TOL_INVERSE 1e-7 in ../src/lmrob.c
+	     solve.tol = 1e-7,	# hardcoded to  TOL_INVERSE 1e-7 in ../src/lmrob.c
+             zero.tol  = 1e-10, # new, was hardcoded to EPS_SCALE = 1e-10 in C code
 	     trace.lev = 0, # both for init.est. lmrob.S() *and* lmrob.fit
 	     mts = 1000L,
 	     subsampling = c("nonsingular", "simple"),
@@ -129,8 +130,8 @@ lmrob.control <-
            max.it=max.it, groups=groups, n.group=n.group,
            best.r.s=best.r.s, k.fast.s=k.fast.s,
            k.max=k.max, maxit.scale=maxit.scale, k.m_s=k.m_s, refine.tol=refine.tol,
-           rel.tol=rel.tol, scale.tol = scale.tol,
-           solve.tol=solve.tol, trace.lev=trace.lev, mts=mts,
+           rel.tol=rel.tol, scale.tol=scale.tol, solve.tol=solve.tol, zero.tol=zero.tol,
+           trace.lev=trace.lev, mts=mts,
            subsampling=subsampling,
            compute.rd=compute.rd, method=method, numpoints=numpoints,
            cov=cov, split.type = match.arg(split.type),
@@ -764,6 +765,7 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev,
             refine.tol= as.double(control$refine.tol),
             inv.tol   = as.double(control$solve.tol),
             scale.tol = as.double(control$scale.tol),
+            zero.tol  = as.double(control$zero.tol),
             converged = logical(1),
             trace.lev = as.integer(trace.lev),
             mts = as.integer(control$mts),

@@ -82,16 +82,20 @@
 /* these  will also move to "lmrob.h" ---
  *  but first make many of these 'static' <<< FIXME!
  */
-void fast_s_large_n(double *X, double *y,
+void fast_s_large_n(double *X, double *y, double s_y,
 		    int *nn, int *pp, int *nRes, int *max_it_scale, double *res,
 		    int *ggroups, int *nn_group,
-		    int *K, int *max_k, double rel_tol, double inv_tol, double scale_tol, int *converged,
+		    int *K, int *max_k,
+		    double rel_tol, double inv_tol, double scale_tol, double zero_tol,
+		    int *converged,
 		    int *best_r, double *bb, const double rrhoc[], int *iipsi,
 		    double *bbeta, double *sscale, int trace_lev, int mts, Rboolean ss);
 
-void fast_s(double *X, double *y,
+void fast_s(double *X, double *y, double s_y,
 	    int *nn, int *pp, int *nRes, int *max_it_scale, double *res,
-	    int *K, int *max_k, double rel_tol, double inv_tol, double scale_tol, int *converged,
+	    int *K, int *max_k,
+	    double rel_tol, double inv_tol, double scale_tol, double zero_tol,
+	    int *converged,
 	    int *best_r, double *bb, const double rrhoc[], int *iipsi,
 	    double *bbeta, double *sscale, int trace_lev, int mts, Rboolean ss);
 
@@ -103,13 +107,14 @@ Rboolean rwls(const double X[], const double y[], int n, int p,
 
 static void sample_noreplace(int *x, int n, int k, int *ind_space);
 
+double norm2 (const double x[], int n);
+double norm (const double x[], int n);
+double norm1(const double x[], int n);
+double mean_abs(const double y[], int n) { return norm1(y, n) / n ; }
 
-double norm2 (double *x, int n);
-double norm (double *x, int n);
-double norm1(double *x, int n);
-double norm_diff2 (double *x, double *y, int n);
-double norm_diff (double *x, double *y, int n);
-double norm1_diff(double *x, double *y, int n);
+double norm_diff2(const double x[], const double y[], int n);
+double norm_diff (const double x[], const double y[], int n);
+double norm1_diff(const double x[], const double y[], int n);
 
 /* moved to robustbase.h
  *
@@ -165,18 +170,18 @@ double wgt_lqq(double x, const double c[]);
 
 double sum_rho_sc(const double r[], double scale, int n, int p,
 		  const double c[], int ipsi);
-int refine_fast_s(const double X[], double *wx, const double y[], double *wy,
+int refine_fast_s(const double X[], double *wx, const double y[], double s_y, double *wy,
 		  double *weights, int n, int p, double *res,
 		  double *work, int lwork,
 		  const double beta_cand[], double *beta_j,
-		  Rboolean *conv, int kk, double rel_tol,
+		  Rboolean *conv, int kk, double rel_tol, double zero_tol,
 		  int trace_lev,
 		  double b, const double rrhoc[], int ipsi, double initial_scale,
 		  double *beta_ref, double *scale);
 
 void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 		   int nResample, int max_it_scale,
-		   double rel_tol, double inv_tol, double scale_tol, double *bb,
+		   double rel_tol, double inv_tol, double scale_tol, double zero_tol, double *bb,
 		   const double rrhoc[], int ipsi, double *sscale, int trace_lev,
 		   double *b1, double *b2, double *t1, double *t2,
 		   double *y_tilde, double *res, double *x1, double *x2,
@@ -198,9 +203,10 @@ int subsample(const double x[], const double y[], int n, int m,
 	      double *Dr, double *Dc, int rowequ, int colequ,
 	      Rboolean sample, int mts, Rboolean ss, double tol_inv, Rboolean solve);
 
-Rboolean fast_s_with_memory(double *X, double *y, double *res,
+Rboolean fast_s_with_memory(double *X, double *y, double s_y, double *res,
 		       int *nn, int *pp, int *nRes, int *max_it_scale, int *K, int *max_k,
-		       double rel_tol, double inv_tol, double scale_tol, int trace_lev,
+		       double rel_tol, double inv_tol, double scale_tol, double zero_tol,
+		       int trace_lev,
 		       int *best_r, double *bb, const double rrhoc[], int *iipsi,
 		       double **best_betas, double *best_scales, int mts, Rboolean ss);
 
@@ -219,7 +225,6 @@ double find_scale(const double r[], double b, const double rrhoc[], int ipsi,
 		  double scale_tol,
 		  Rboolean trace);
 
-double median_abs(double *, int, double *);
 double MAD(double *a, int n, double center, double *tmp, double *tmp2);
 
 void zero_mat(double **a, int n, int m);
@@ -338,7 +343,7 @@ static const int one = 1;
 /* #define COPY(FROM, TO, _p_) \ */
 /*     F77_CALL(dcopy)(&_p_, FROM, &one, TO, &one);  */
 
-#define EPS_SCALE 1e-10
+// #define EPS_SCALE 1e-10
 #define INFI 1e+20
 
 /* Called from R's  lmrob.S() in ../R/lmrob.MM.R,
@@ -355,6 +360,7 @@ void R_lmrob_S(double *X,
 	       int *K_s, int *max_k, int *max_it_scale,
 	       double *rel_tol, double *inv_tol,
 	       double *scale_tol, // <- new, was hardwired to EPS_SCALE := 1e-10
+	       double *zero_tol, // <- very new, was hardwired to EPS_SCALE := 1e-10
 	       int *converged, int *trace_lev, int *mts,
 	       int *ss, // subsampling
 	       int *cutoff // defining "large n" <==> using fast_s_large_n()
@@ -366,18 +372,19 @@ void R_lmrob_S(double *X,
      */
     if (*nRes > 0) {
 	double *res = (double *) R_alloc(*n, sizeof(double)); // residuals
+	double s_y = mean_abs(y, *n);
 	if (*n > *cutoff) {
 	    if(*trace_lev > 0)
 		Rprintf("lmrob_S(n = %d, nRes = %d): fast_s_large_n():\n", *n, *nRes);
-	    fast_s_large_n(X, y, n, P, nRes, max_it_scale, res,
+	    fast_s_large_n(X, y, s_y, n, P, nRes, max_it_scale, res,
 			   Groups, N_group,
-			   K_s, max_k, *rel_tol, *inv_tol, *scale_tol, converged,
+			   K_s, max_k, *rel_tol, *inv_tol, *scale_tol, *zero_tol, converged,
 			   best_r, bb, rrhoc, iipsi, beta_s, scale, *trace_lev, *mts, (Rboolean)*ss);
 	} else {
 	    if(*trace_lev > 0)
 		Rprintf("lmrob_S(n = %d, nRes = %d): fast_s() [non-large n]:\n", *n, *nRes);
-	    fast_s(X, y, n, P, nRes, max_it_scale, res,
-		   K_s, max_k, *rel_tol, *inv_tol, *scale_tol, converged,
+	    fast_s(X, y, s_y, n, P, nRes, max_it_scale, res,
+		   K_s, max_k, *rel_tol, *inv_tol, *scale_tol, *zero_tol, converged,
 		   best_r, bb, rrhoc, iipsi, beta_s, scale, *trace_lev, *mts, *ss);
 	}
 	COPY(res, y, *n); // return the 'residuals' in 'y'
@@ -400,6 +407,7 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
 		 double *rho_c, int *ipsi, double *bb,
 		 int *K_m_s, int *max_k,
 		 double *rel_tol, double *inv_tol, double *scale_tol,
+		 double *zero_tol,
 		 int *converged,
 		 int *trace_lev,
 		 int *orthogonalize, int *subsample, int *descent,
@@ -411,7 +419,7 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
 
     /* (Pointers to) Arrays - to be allocated */
     double *t1, *t2, *y_tilde, *y_work;
-    double *x1, *x2, *ot1, *oT2, *ptr;
+    double *x1, *x2, *ot1, *oT2;
 
     if(*trace_lev > 0) Rprintf(
 	"lmrob_M_S(n = %d, nRes = %d, (p1,p2)=(%d,%d), (orth,subs,desc)=(%d,%d,%d))\n",
@@ -429,8 +437,7 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
     x2 =      (double *) R_alloc(n*p2, sizeof(double));
     COPY(X2, x2, n*p2);
 
-    /* Variables required for rllarsbi
-     *  (l1 / least absolut residuals - estimate) */
+    /* Variables required for rllarsbi() := L1 / least absolute residuals - estimate */
     int NIT=0, K=0, KODE=0;
     double SIGMA = 0.,
 	*SC1 = (double *) R_alloc(n,  sizeof(double)),
@@ -448,7 +455,7 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
 	COPY(t1, ot1, p1);
 	for (i=0; i < p2; i++) {
 	    COPY(X1, x1, n*p1);
-	    ptr = X2+i*n; COPY(ptr, y_work, n);
+	    double *ptr = X2+i*n; COPY(ptr, y_work, n);
 	    F77_CALL(rllarsbi)(x1, y_work, &n, &p1, &n, &n, rel_tol,
 			       &NIT, &K, &KODE, &SIGMA, t1, x2+i*n, SC1, SC2,
 			       SC3, SC4, &BET0);
@@ -463,7 +470,7 @@ void R_lmrob_M_S(double *X1, double *X2, double *y, double *res,
     /* STEP 2: Subsample */
     if (*subsample) {
 	m_s_subsample(X1, y_work, n, p1, p2, *nRes, *max_it_scale,
-		      *rel_tol, *inv_tol, *scale_tol, bb,
+		      *rel_tol, *inv_tol, *scale_tol, *zero_tol, bb,
 		      rho_c, *ipsi, scale, *trace_lev,
 		      b1, b2, t1, t2, y_tilde, res, x1, x2,
 		      &NIT, &K, &KODE, &SIGMA, &BET0,
@@ -1617,10 +1624,12 @@ void zero_mat(double **a, int n, int m)
 
 /* This function implements the "large n" strategy
  */
-void fast_s_large_n(double *X, double *y,
+void fast_s_large_n(double *X, double *y, double s_y,
 		    int *nn, int *pp, int *nRes, int *max_it_scale, double *res,
 		    int *ggroups, int *nn_group,
-		    int *K, int *max_k, double rel_tol, double inv_tol, double scale_tol, int *converged,
+		    int *K, int *max_k,
+		    double rel_tol, double inv_tol, double scale_tol, double zero_tol,
+		    int *converged,
 		    int *best_r, double *bb, const double rrhoc[], int *iipsi,
 		    double *bbeta, double *sscale,
 		    int trace_lev, int mts, Rboolean ss)
@@ -1704,9 +1713,9 @@ void fast_s_large_n(double *X, double *y,
 	}
 	if (trace_lev)
 	    Rprintf(" Subsampling to find candidate betas in group %d:\n", i);
-	if(fast_s_with_memory(xsamp, ysamp, res,
+	if(fast_s_with_memory(xsamp, ysamp, s_y, res,
 			      &n_group, pp, nRes, max_it_scale, K, max_k,
-			      rel_tol, inv_tol, scale_tol,
+			      rel_tol, inv_tol, scale_tol, zero_tol,
 			      trace_lev, best_r, bb, rrhoc,
 			      iipsi, best_betas + i* *best_r,
 			      best_scales+ i* *best_r, mts, ss)) {
@@ -1754,13 +1763,14 @@ void fast_s_large_n(double *X, double *y,
 		Rprintf("   with scale %.15g\n", best_scales[i]);
 	    }
 	}
-	refine_fast_s(xsamp, wx, ysamp, wy, weights, sg, p, res,
-		      work, lwork, best_betas[i], w_beta,
-		      &conv/* = FALSE*/, kk, rel_tol, trace_lev,
-		      b, rrhoc, ipsi, best_scales[i], /* -> */ beta_ref, &sc);
+	int ik = refine_fast_s(xsamp, wx, ysamp, s_y, wy, weights, sg, p, res,
+			   work, lwork, best_betas[i], w_beta,
+			   &conv/* = FALSE*/, kk, rel_tol, zero_tol, trace_lev,
+			   b, rrhoc, ipsi, best_scales[i], /* -> */ beta_ref, &sc);
 	if(trace_lev >= 3) {
 	    Rprintf("   after refine: beta_ref : "); disp_vec(beta_ref,p);
 	    Rprintf("   with scale %.15g\n", sc);
+	    if(ik < 0) Rprintf("* exact fit! %d zero residuals", -ik);
 	}
 	if ( sum_rho_sc(res, worst_sc, sg, p, rrhoc, ipsi) < b ) {
 	    int scale_iter = *max_it_scale;
@@ -1784,22 +1794,31 @@ void fast_s_large_n(double *X, double *y,
 
     for(int i=0; i < *best_r; i++) {
 	conv = TRUE;
-	int it_k = refine_fast_s(X, wx, y, wy, weights, n, p, res,
+	if(trace_lev >= 4) Rprintf("  i=%d:\n", i);
+	int it_k = refine_fast_s(X, wx, y, s_y, wy, weights, n, p, res,
 				work, lwork, final_best_betas[i], w_beta,
-			        &conv/* = TRUE */, *max_k, rel_tol, trace_lev,
+			        &conv/* = TRUE */, *max_k, rel_tol, zero_tol, trace_lev,
 			        b, rrhoc, ipsi, final_best_scales[i], /* -> */ beta_ref, &sc);
-	if(trace_lev)
-	    Rprintf("  Best[%d]: %sconvergence (%d iter.)",
-		    i, conv ? "" : "NON ", it_k);
+	if(trace_lev) {
+	    Rprintf("  Final best[%d]: %sconvergence ", i, conv ? "" : "NON ");
+	    if(it_k >= 0)
+		Rprintf("(%d iter.)", it_k);
+	    else
+		Rprintf("(Exact fit! %d zeroes; scale=0)", -it_k);
+	}
 	if(best_sc > sc) {
 	    if(trace_lev)
 		Rprintf(": -> improved scale to %.15g", sc);
 	    best_sc = sc;
 	    COPY(beta_ref, bbeta, p);
+	    if(best_sc == 0.) {
+		if(trace_lev) Rprintf(" = 0  ==> finish\n");
+		break;
+	    }
 	}
 	if (trace_lev) Rprintf("\n");
 	if (!conv && *converged) *converged = 0;
-	if (k < it_k) k = it_k;
+	if (it_k >= 0 && k < it_k) k = it_k;
     }
     *sscale = best_sc;
     *max_k = k;
@@ -1817,9 +1836,10 @@ void fast_s_large_n(double *X, double *y,
 
 } /* fast_s_large_n() */
 
-Rboolean fast_s_with_memory(double *X, double *y, double *res,
+Rboolean fast_s_with_memory(double *X, double *y, double s_y, double *res,
 		       int *nn, int *pp, int *nRes, int *max_it_scale,
-		       int *K, int *max_k, double rel_tol, double inv_tol, double scale_tol,
+		       int *K, int *max_k,
+			double rel_tol, double inv_tol, double scale_tol, double zero_tol,
 		       int trace_lev, int *best_r, double *bb, const double rrhoc[],
 		       int *iipsi, double **best_betas, double *best_scales,
 		       int mts, Rboolean ss)
@@ -1882,11 +1902,15 @@ Rboolean fast_s_with_memory(double *X, double *y, double *res,
 	/* improve the re-sampling candidate */
 
 	/* conv = FALSE : do *K refining steps */
-	refine_fast_s(X, wx, y, wy, weights, n, p, res,
-		      work, lwork, beta_cand, w_beta, &conv/* = FALSE*/, *K,
-		      rel_tol, trace_lev, b, rrhoc, ipsi, -1., /* -> */ beta_ref, &sc);
+	int ik = refine_fast_s(X, wx, y, s_y, wy, weights, n, p, res,
+			       work, lwork, beta_cand, w_beta, &conv/* = FALSE*/, *K,
+			       rel_tol, zero_tol, trace_lev, b, rrhoc, ipsi, -1.,
+			       /* -> */ beta_ref, &sc);
+	if(ik < 0) {
+	    if(trace_lev) Rprintf(" * exact fit! %d zero residuals; scale = 0\n", -ik);
 
-	/* FIXME: if sc ~ 0 ---> return beta_cand and be done */
+	    /* FIXME ??  ---> return beta_cand and be done - as in fast_s(..) ? */
+	}
 
 	if ( sum_rho_sc(res, worst_sc, n, p, rrhoc, ipsi) < b )	{
 	    int scale_iter = *max_it_scale;
@@ -1910,9 +1934,11 @@ Rboolean fast_s_with_memory(double *X, double *y, double *res,
     return sing;
 } /* fast_s_with_memory() */
 
-void fast_s(double *X, double *y,
+void fast_s(double *X, double *y, double s_y,
 	    int *nn, int *pp, int *nRes, int *max_it_scale, double *res,
-	    int *K, int *max_k, double rel_tol, double inv_tol, double scale_tol, int *converged,
+	    int *K, int *max_k,
+	    double rel_tol, double inv_tol, double scale_tol, double zero_tol,
+	    int *converged,
 	    int *best_r, double *bb, const double rrhoc[], int *iipsi,
 	    double *bbeta, double *sscale, int trace_lev, int mts, Rboolean ss)
 {
@@ -1964,7 +1990,6 @@ void fast_s(double *X, double *y,
     int pos_worst_scale = 0;
     Rboolean conv = FALSE;
     double worst_sc = INFI;
-
     /* srand((long)*seed_rand); */
     GetRNGstate();
 
@@ -1996,9 +2021,10 @@ void fast_s(double *X, double *y,
 	/* improve the re-sampling candidate */
 
 	/* conv = FALSE : do *K refining steps */
-	refine_fast_s(X, wx, y, wy, weights, n, p, res,
+	int ik = refine_fast_s(X, wx, y, s_y, wy, weights, n, p, res,
 		      work, lwork, beta_cand, w_beta, &conv/* = FALSE*/, *K,
-		      rel_tol, trace_lev, b, rrhoc, ipsi, -1., /* -> */ beta_ref, &sc);
+		      rel_tol, zero_tol, trace_lev, b, rrhoc, ipsi, -1.,
+		      /* -> */ beta_ref, &sc);
 	if(trace_lev >= 3) {
 	    double del = norm_diff(beta_cand, beta_ref, p);
 	    if(!trace_sample) Rprintf("  Sample[%3d]:", i);
@@ -2009,7 +2035,7 @@ void fast_s(double *X, double *y,
 	}
 	if(fabs(sc) == 0.) { /* exact zero set by refine_*() */
 	    if(trace_lev >= 1)
-		Rprintf(" |s|=0: Too many exact zeroes -> leaving refinement!\n");
+		Rprintf(" |s|=0: Have %d (too many) exact zeroes -> leaving refinement!\n", -ik);
 	    *sscale = sc;
 	    /* *converged = 1; -- important when used as init in lmrob() --
 	     * ---------------  but for that need at least valid residuals, fitted,
@@ -2046,13 +2072,17 @@ void fast_s(double *X, double *y,
     for(int i=0; i < *best_r; i++) {
 	conv = TRUE;
 	if(trace_lev >= 4) Rprintf("  i=%d:\n", i);
-	int it_k = refine_fast_s(X, wx, y, wy, weights, n, p, res, work, lwork,
+	int it_k = refine_fast_s(X, wx, y, s_y, wy, weights, n, p, res, work, lwork,
 				best_betas[i], w_beta, &conv /* = TRUE */, *max_k,
-				rel_tol, trace_lev, b, rrhoc, ipsi,
+				rel_tol, zero_tol, trace_lev, b, rrhoc, ipsi,
 				best_scales[i], /* -> */ beta_ref, &aux);
-	if(trace_lev)
-	    Rprintf("  Best[%d]: %sconvergence (%d iter.)",
-		    i, (conv) ? "" : "NON ", it_k);
+	if(trace_lev) {
+	    Rprintf("  Best[%d]: %sconvergence ", i, conv ? "" : "NON ");
+	    if(it_k >= 0)
+		Rprintf("(%d iter.)", it_k);
+	    else
+		Rprintf("(%d zeroes; scale=0)", -it_k);
+	}
 	if(aux < best_sc) {
 	    if(trace_lev)
 		Rprintf(": -> improved scale to %.15g", aux);
@@ -2076,10 +2106,10 @@ void fast_s(double *X, double *y,
 } /* fast_s() */
 
 int refine_fast_s(const double X[], double *wx,
-		  const double y[], double *wy, double *weights,
+		  const double y[], double s_y, double *wy, double *weights,
 		  int n, int p, double *res,
 		  double *work, int lwork, const double beta_cand[], double *beta_j,
-		  Rboolean *conv, int kk, double rel_tol,
+		  Rboolean *conv, int kk, double rel_tol, double zero_tol,
 		  int trace_lev, // here: only print when trace_lev >= 3
 		  double b, const double rrhoc[], int ipsi, double initial_scale,
 		  double *beta_ref, double *scale)
@@ -2092,6 +2122,8 @@ int refine_fast_s(const double X[], double *wx,
  * conv: FALSE means do  kk  refining steps     (and conv stays FALSE)
  *	 TRUE  means refine until convergence(rel_tol, max{k} = kk)
  *             and in this case, 'conv' *returns* TRUE if refinements converged
+ * rel_tol  =
+ * zero_tol = small positive, determining "zero residuals" - was hardwired to EPS_SCALE := 1e-10
  * beta_cand= candidate beta[] (of length p)	Input
  * beta_j   = internal "working" beta[] (of length p)
  * is	    = initial scale			input
@@ -2105,7 +2137,8 @@ int refine_fast_s(const double X[], double *wx,
  * work     = vector of length lwork
  * lwork    = length of vector work
 
- * return( <number of iteration steps> )
+ * return( <number of iteration steps> *or* -z,  where z = zeroes := #{i; |R~_i| <= e_z};
+                                                                     e_z := zero_tol
  */
     Rboolean trace_beta, converged = FALSE;/* Wall */
     if (trace_lev >= 3) {
@@ -2120,28 +2153,29 @@ int refine_fast_s(const double X[], double *wx,
     COPY(y, res, n);
     get_Res_Xb(n,p, X, beta_cand, /*--> */ res);
 
-    // FIXME: instead of EPS_SCALE should be proportional to "scale(residuals)" (equivariance!),
-    // -----  but initial_scale maybe ~0 (and then may *not* count zeroes properly):
-    int zeroes = 0;
-    for(int j=0; j < n; j++)
-	if( fabs(res[j]) < EPS_SCALE )
-	    zeroes++;
-    if (trace_lev >= 4) Rprintf("  |{i; res[i] = 0}| = %d ;", zeroes);
-
-/* if "perfect fit", return it with a 0 assoc. scale */
-// --- FIXME / TODO? compute MAD() here and check for initial_scale = 0 here .. and then leave ??
-    if( zeroes > (((double)n + (double)p)/2.) ) /* <<- FIXME: depends on 'b' ! */
-	{
-	    COPY(beta_cand, beta_ref, p);
-	    if (trace_lev >= 3)
-		Rprintf(" %d zeroes (too many) -> scale=0 & quit refinement\n", zeroes);
-	    *scale = 0.;
-	    return 0;
-	}
-
     if( initial_scale < 0. )
 	initial_scale = MAD(res, n, 0., wy, weights);// wy and weights used as work arrays
-    double s0 = initial_scale;
+
+    double s0 = s_y * zero_tol;
+    int zeroes = 0;
+    for(int j=0; j < n; j++) { // ensuring "eps_zero" to be equivariant in y[] :
+	if(fabs(res[j]) <= s0)
+	    zeroes++;
+    }
+    if (trace_lev >= 4) Rprintf("  |{i; res[i] <= %.4g ~= 0}| = %d zeroes (zero_tol = %.3g, s_y=%g);",
+				s0, zeroes, zero_tol, s_y);
+
+/* if "perfect fit", return it with a 0 assoc. scale */
+    if(initial_scale <= 0. || zeroes > ((double)n)/2.) { /* <<- FIXME: should depend on 'b' ! */
+	// if(zeroes > (((double)n + (double)p)/2.)) -- corresponding to MAD_p but have MAD=MAD_0 above
+	COPY(beta_cand, beta_ref, p);
+	if (trace_lev >= 3)
+	    Rprintf(" %d zeroes (too many) -> scale=0 & quit refinement\n", zeroes);
+	*scale = 0.;
+	return -zeroes; // (for diagnosis + emphasize special scale=0)
+    }
+
+    s0 = initial_scale; // > 0
     int info, iS;
     if(trace_lev >= 4)
 	Rprintf("   %s %d refinement iterations, starting with s0=%g\n",
@@ -2191,7 +2225,9 @@ int refine_fast_s(const double X[], double *wx,
 /* of the robust package                                 */
 void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 		   int nResample, int max_it_scale,
-		   double rel_tol, double inv_tol, double scale_tol, double *bb,
+		   double rel_tol, double inv_tol, double scale_tol,
+		   double zero_tol,
+		   double *bb,
 		   const double rrhoc[], int ipsi, double *sscale, int trace_lev,
 		   double *b1, double *b2, double *t1, double *t2,
 		   double *y_tilde, double *res, double *x1, double *x2,
@@ -2251,7 +2287,7 @@ void m_s_subsample(double *X1, double *y, int n, int p1, int p2,
 	    *sscale = sc;
 	    COPY(t1, b1, p1);
 	    COPY(t2, b2, p2);
-	    if (sc < EPS_SCALE) {
+	    if (sc < zero_tol) {
 		REprintf("\nScale too small\n",
 			 "Aborting m_s_subsample()\n\n");
 		*sscale = -1.;
@@ -2566,7 +2602,7 @@ double find_scale(const double r[], double b, const double rrhoc[], int ipsi,
 		  Rboolean trace)
 {
     if(initial_scale <= 0.) {
-	warning(_("find_scale(*, initial_scale = %g < 0) -> final scale = 0"), initial_scale);
+	warning(_("find_scale(*, initial_scale = %g <= 0) -> final scale = 0"), initial_scale);
 	return 0.;
     }
     // else
@@ -2574,8 +2610,7 @@ double find_scale(const double r[], double b, const double rrhoc[], int ipsi,
     if(trace) Rprintf("find_scale(*, ini.scale =%#13.11g, tol=%g):\n  it | new scale\n",
 		      scale, scale_tol);
     for(int it = 0; it < iter[0]; it++) {
-	scale = initial_scale *
-	    sqrt( sum_rho_sc(r, initial_scale, n, p, rrhoc, ipsi) / b ) ;
+	scale *= sqrt( sum_rho_sc(r, scale, n, p, rrhoc, ipsi) / b ) ;
 	if(trace) Rprintf("  %2d | %#13.10g\n", it, scale);
 	if(fabs(scale - initial_scale) <= scale_tol*initial_scale) { // converged:
 	    *iter = it; return(scale);
@@ -2614,7 +2649,7 @@ double sum_rho_sc(const double r[], double scale, int n, int p, const double c[]
 }
 
 /* ||x||_2^2 */
-double norm2(double *x, int n)
+double norm2(const double x[], int n)
 {
     double s = 0.;
     s = F77_CALL(dnrm2)(&n, x, &one);
@@ -2622,18 +2657,19 @@ double norm2(double *x, int n)
 }
 
 /* ||x||_2 */
-double norm(double *x, int n)
+double norm(const double x[], int n)
 {
     return(F77_CALL(dnrm2)(&n, x, &one));
 }
 
-double norm1(double *x, int n)
+/* ||x||_1 */
+double norm1(const double x[], int n)
 {
     return(F77_CALL(dasum)(&n, x, &one));
 }
 
 /* ||x-y||_2^2 */
-double norm_diff2(double *x, double *y, int n)
+double norm_diff2(const double x[], const double y[], int n)
 {
     double s = 0;
     for(int i=0; i < n; i++)
@@ -2642,7 +2678,7 @@ double norm_diff2(double *x, double *y, int n)
 }
 
 /* ||x-y||_2 */
-double norm_diff(double *x, double *y, int n)
+double norm_diff(const double x[], const double y[], int n)
 {
     double s = 0;
     for(int i=0; i < n; i++)
@@ -2652,7 +2688,7 @@ double norm_diff(double *x, double *y, int n)
 
 
 /* ||x-y||_1 */
-double norm1_diff(double *x, double *y, int n)
+double norm1_diff(const double x[], const double y[], int n)
 {
     double s = 0;
     for(int i=0; i < n; i++)
@@ -2660,6 +2696,22 @@ double norm1_diff(double *x, double *y, int n)
     return(s);
 }
 
+
+double median(const double x[], int n, double *aux)
+{
+    for(int i=0; i < n; i++) aux[i]=x[i];
+    return
+	(n % 2) ? /* odd */ kthplace(aux,n, n/2+1)
+ 	: /* even */ (kthplace(aux,n,n/2) + kthplace(aux,n,n/2+1)) / 2. ;
+}
+
+double median_abs(const double x[], int n, double *aux)
+{
+    for(int i=0; i < n; i++) aux[i] = fabs(x[i]);
+    return
+	(n % 2) ? /* odd */ kthplace(aux,n, n/2+1)
+ 	: /* even */ (kthplace(aux,n, n/2) + kthplace(aux,n, n/2+1)) / 2. ;
+}
 
 double MAD(double *a, int n, double center, double *b,
 	   double *tmp)
@@ -2670,22 +2722,6 @@ double MAD(double *a, int n, double center, double *b,
 	    b[i] = a[i] - center;
 /*     } */
     return( median_abs(b,n,tmp) * 1.4826 );
-}
-
-double median(double *x, int n, double *aux)
-{
-    for(int i=0; i < n; i++) aux[i]=x[i];
-    return
-	(n % 2) ? /* odd */ kthplace(aux,n, n/2+1)
- 	: /* even */ (kthplace(aux,n,n/2) + kthplace(aux,n,n/2+1)) / 2. ;
-}
-
-double median_abs(double *x, int n, double *aux)
-{
-    for(int i=0; i < n; i++) aux[i] = fabs(x[i]);
-    return
-	(n % 2) ? /* odd */ kthplace(aux,n, n/2+1)
- 	: /* even */ (kthplace(aux,n, n/2) + kthplace(aux,n, n/2+1)) / 2. ;
 }
 
 void disp_vec(const double a[], int n)
