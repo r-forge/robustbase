@@ -217,8 +217,8 @@ lmrob.control.minimal <- function(cl, nobs, oStats = TRUE) {
     if(!length(cl)) return(cl)
     shrtM <- sub("^(S|M-S).*", "\\1", cl$method)
     p.MS <- c("k.m_s", "split.type")
-    p.nonLrg <- c("groups", "n.group")
-    p.fastS <- c(p.nonLrg, "refine.tol", "best.r.s", "k.fast.s")
+    p.Lrg.n <- c("groups", "n.group")
+    p.fastS <- c(p.Lrg.n, "refine.tol", "best.r.s", "k.fast.s")
     ## outlierStats() parts:
     p.oStat <- c("eps.outlier", "eps.x", "compute.outlier.stats", "warn.limit.reject", "warn.limit.meanrw")
     if(!oStats) ## e.g., for lmrob.S() but *NOT* for lmrob(*, method="S")
@@ -228,7 +228,7 @@ lmrob.control.minimal <- function(cl, nobs, oStats = TRUE) {
 	       cl[p.MS] <- NULL
 					# if large_n is not used, remove corresp control pars
 	       if (nobs <= cl$fast.s.large.n)
-		   cl[p.nonLrg] <- NULL
+		   cl[p.Lrg.n] <- NULL
 	   },
 	   "M-S" = # remove all fast S specific control pars
 	       cl[p.fastS] <- NULL,
@@ -725,7 +725,7 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev,
     if (large_n) {
         if (nGr <= p)
             stop("'control$n.group' must be larger than 'p' for 'large_n' algorithm")
-        if (nGr * groups > n)
+        if (nGr * groups > n) # {NB: integer overflow here *also* signals error}
             stop("'groups * n.group' must be smaller than 'n' for 'large_n' algorithm")
         if (nGr <= p + 10) ## FIXME (be smarter ..)
             warning("'control$n.group' is not much larger than 'p', probably too small")
@@ -734,8 +734,12 @@ lmrob.S <- function (x, y, control, trace.lev = control$trace.lev,
 	if(length(seed) < 3L || seed[1L] < 100L)
 	    stop("invalid 'seed'.  Must be a valid .Random.seed !")
 	if(!is.null(seed.keep <- get0(".Random.seed", envir = .GlobalEnv, inherits = FALSE)))
-	    on.exit(.GlobalEnv[[".Random.seed"]] <- seed.keep)
-	.GlobalEnv[[".Random.seed"]] <- seed
+            on.exit(assign(".Random.seed", seed.keep, envir = .GlobalEnv))
+        assign(".Random.seed", seed, envir = .GlobalEnv)
+        if(trace.lev) {
+            cat("Assigning .Random.seed to .GlobalEnv: "); str(seed)
+            stopifnot(identical(seed, globalenv()$.Random.seed))
+        }
     }
 
     bb <- as.double(control$bb)

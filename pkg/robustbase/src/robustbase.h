@@ -164,4 +164,4 @@ void F77_NAME(rllarsbi)(
     double *X, double *Y, int *N, int *NP, int *MDX, int *MDT,
     double *TOL, int *NIT, int *K, int *KODE, double *SIGMA, double *THETA,
     double *RS, double *SC1, double *SC2, double *SC3, double *SC4,
-    double *BET0);
+    const double *BET0);

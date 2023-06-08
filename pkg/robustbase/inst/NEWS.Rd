@@ -4,7 +4,7 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.99-0 (2023-06-06, svn r922)}{
+\section{CHANGES in robustbase VERSION 0.99-0 (2023-06-08, svn r926)}{
   % --- 1.0-0  once we fix  adjOutlyingness() properly !
   %     =====
   \subsection{NEW FEATURES}{
@@ -13,6 +13,8 @@
       residuals are (practically) zero, \code{lmrob.S()} now returns that,
       \code{scale = 0}, and robustness weights \code{weights(.,	"robustness")}
       which are either 0 or 1 quickly and more consistently.
+
+      This is \emph{not yet} satisfactorily working for the \dQuote{large n} case.
 
       **** \bold{TODO}: Optionally (but off by default?? for back compatibility??),
       \code{lmrob()} initialized by such an exact-fit estimator may use a

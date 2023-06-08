@@ -286,29 +286,16 @@ dorob <- function(dat, control=lmrob.control(...), meth = c("S", "MM"),
     invisible(ans)
 }
 
-## a bad case -- now shows a lot with *NEW* robustbase 0.95-2
+## a bad case -- much better new robustbase >= 0.99-0
 Se <- dorob(d9L[[1]], lmrob.control("KS2014", mkRS(2), trace.lev=4))
 ## was really bad -- ended returning  coef = (0 0); fitted == 0, residuals == 0 !!
-## --- Version 0.95-2, May 27, 2023: now at least has correct coef():
-## May 31, 2023 -- now always get
-## Error in lmrob.S(cbind(1, x), y, control): DGELS: weighted design matrix not of full rank (column 2).
-##         Use control parameter 'trace.lev = 4' to get diagnostic output.>
-
 
 if(doExtras) sfsmisc::mult.fig(length(d9L))
-r0 <- lapply(d9L, dorob, seed=rs2, doPl=doExtras) # looks all fine
+r0 <- lapply(d9L, dorob, seed=rs2, doPl=doExtras) # 3 x ".. exact fit" warning
 if(doExtras) print(r0)
 ## back to 3 identical fits: (5 1)
 (cf0 <- sapply(r0, coef))
 stopifnot(cf0 == c(5,1))
-## stopifnot(all.equal(tol = 5e-8, # seen 2.66e-8
-##     rbind(   c(5.180231 , 5.080106 , 5),
-##           x =c(0.8873905, 0.8130624, 1)), cf0))
-
-## increase maxit.scale
-r0.4k <- lapply(d9L, dorob, seed=rs2, maxit.scale=4000, doPl=doExtras) # looks all fine
-## if scale ~= 0 -- lmrob.S() should return w {beta, scale, resid, (non-nan!) weights, ..}
-## ==========================================================================================
 
 if(doExtras) sfsmisc::mult.fig(length(d9L))
 ### Here, all 3 were "0-models"
@@ -317,17 +304,23 @@ r14 <- lapply(d9L, dorob, control=lmrob.control("KS2014", seed=rs2), doPl=doExtr
 ##                        S-estimated scale == 0:  Probably exact fit; check your data
 ## now *does* plot
 if(doExtras) print(r14)
-## NO LONGER! all 3 are "identical"
-sapply(r14, coef)
-## NO LONGER! stopifnot(sapply(r14, coef) == c(5,1))
-stopifnot(
-    identical(lapply(r14, coef)[2:3] ,
-              rep(list(c(5, x = 1)), 2))
-)
+## all 3 are "identical"
+(cf14 <- sapply(r14, coef))
+identical(cf0, cf14) # see TRUE; test a bit less:
+stopifnot(all.equal(cf0, cf14, tol=1e-15))
 
-## FIXME ?? improve ?
-## all.equal(r14[[1]], r14[[2]]) #  "Component “residuals”: Mean relative difference: 0.4242424"
-## all.equal(r14[[3]], r14[[2]]) #] "Component “residuals”: Mean relative difference: 0.3111111"
+## use "large n"
+ctrl.LRG.n <- lmrob.control("KS2014", seed=rs2, trace.lev = if(doExtras) 2 else 1, # 3: too much (for now),
+                            nResample = 60,
+                            fast.s.large.n = 7, n.group = 3, groups = 2)
+rLrg.n <- lapply(d9L, \(d) lmrob.S(cbind(1,d$x), d$y, ctrl.LRG.n))
+summary(warnings())
+sapply(rLrg.n, coef)
+## currently ... ....  really would want always (5 1)
+##      [,1] [,2]     [,3]
+## [1,]    5    5 7.333333
+## [2,]    1    1 1.666667
+
 
 ## ==> use  lmrob() instead of  lmrob.S():
 
@@ -335,29 +328,23 @@ mm0 <- lapply(d9L, dorob, meth = "MM", seed=rs2, doPl=doExtras) # looks all fine
 if(doExtras) print(mm0)
 ## now, the 3rd one errors (on Linux, not on M1 mac!)
 (cm0 <- sapply(mm0, function(.) if(inherits(.,"error")) noquote(paste("Caught", as.character(.))) else coef(.)))
-## Linux: no longer error
+
+## no longer needed
 c0.12 <- rbind(`(Intercept)` = c(5.7640215, 6.0267156),
                x             = c(0.85175883, 1.3823841))
-
-if(is.list(cm0)) { ## after error
+if(is.list(cm0)) { ## after error {was on Linux+Win, not on M1 mac}:
     ## NB: This does *not* happen on Macbuilder -- there the result it cf = (5 1)  !!
     stopifnot(all.equal(tol = 1e-8, # seen 4.4376e-9
                         c0.12, simplify2array(cm0[1:2])))
     print(cm0[[3]])
     ## FIXME?:   Caught Error in eigen(ret, symmetric = TRUE): infinite or missing values in 'x'\n
 } else if(is.matrix(cm0)) { # when no error happened
-    ## was  stopifnot(all.equal(tol = 1e-8, cbind(c0.12, c(5, 1)), cm0))
     k <- ncol(cm0)
     stopifnot(all.equal(tol = 1e-8, rbind(`(Intercept)` = rep(5,k), "x" = rep(1,k)), cm0))
 } else warning("not yet encountered this case {and it should not happen}")
 
 
-## investigate: 'trace.lev=' only for lmrob() MM part:
-try( # no error on Linux
 se3 <- lmrob(y ~ x, data=d9L[[3]], init = r0[[3]], seed=rs2, trace.lev=6)
-)
-if(FALSE)
-    debug(lmrob.fit)
 
 
 if(doExtras) sfsmisc::mult.fig(length(d9L))

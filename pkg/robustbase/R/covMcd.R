@@ -52,9 +52,9 @@ covMcd <- function(x,
     if(length(seed) > 0) {
 	if(length(seed) < 3L || seed[1L] < 100L)
 	    stop("invalid 'seed'. Must be compatible with .Random.seed !")
-        if(!is.null(seed.keep <- get0(".Random.seed", envir = .GlobalEnv, inherits = FALSE)))
-            on.exit(.GlobalEnv[[".Random.seed"]] <- seed.keep)
-        .GlobalEnv[[".Random.seed"]] <- seed
+	if(!is.null(seed.keep <- get0(".Random.seed", envir = .GlobalEnv, inherits = FALSE)))
+	    on.exit(assign(".Random.seed", seed.keep, envir = .GlobalEnv))
+	assign(".Random.seed", seed, envir = .GlobalEnv)
     }
 
     ## For back compatibility, as some new args did not exist pre 2013-04,

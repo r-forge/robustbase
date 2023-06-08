@@ -112,8 +112,8 @@ lmrob.M.S <- function(x, y, control, mf, split = splitFrame(mf, x, control$split
 	if(length(seed) < 3L || seed[1L] < 100L)
 	    stop("invalid 'seed'. Must be compatible with .Random.seed !")
 	if(!is.null(seed.keep <- get0(".Random.seed", envir = .GlobalEnv, inherits = FALSE)))
-	    on.exit(.GlobalEnv[[".Random.seed"]] <- seed.keep)
-	.GlobalEnv[[".Random.seed"]] <- seed
+	    on.exit(assign(".Random.seed", seed.keep, envir = .GlobalEnv))
+	assign(".Random.seed", seed, envir = .GlobalEnv)
     }
     x1 <- split$x1
     x2 <- split$x2

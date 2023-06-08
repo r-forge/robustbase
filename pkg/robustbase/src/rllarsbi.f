@@ -67,10 +67,12 @@ C--- copied from robust package: src/lmrobbi.f -------------------------
       END
 C=======================================================================
       SUBROUTINE rlLARSbi(X, Y, N, NP, MDX,MDT,
-     +     TOL, NIT, K,
-     +     KODE,
+     +     TOL,
+     +     NIT,   ! --> final #{pivoting steps}
+     +     K,     ! --> ("scratch"?? ; maybe interesting for debugging)
+     +     KODE,  ! --> return code in {0, 1, 2}
      +     SIGMA, ! --> high-median(rs[i]) / bet0
-     +     THETA,
+     +     THETA, ! --> theta[1:nP] = the \hat{\beta} vector
      +     RS, ! --> residuals
      +     SC1,SC2,SC3,SC4,
      +     BET0)
@@ -316,13 +318,13 @@ c---
             RS(K)=D
          endif
       end do
-      K=NP+1-KR
-      SUM=ZERO
-      DO I=KL,N
-         SUM=SUM+THETA(I)
-      end do
-      SUMIN=SUM
-      NIT=KOUNT
+c      K=NP+1-KR
+c      SUM=ZERO
+c      DO I=KL,N
+c         SUM=SUM+THETA(I)
+c      end do
+c      SUMIN=SUM
+      NIT=KOUNT ! final #{pivoting steps}
       DO J=1,NP
          THETA(J)=SC2(J)
       end do

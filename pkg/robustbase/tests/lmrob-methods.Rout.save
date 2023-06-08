@@ -1,5 +1,5 @@
 
-R version 4.3.0 Patched (2023-06-03 r84496) -- "Already Tomorrow"
+R version 4.3.1 beta (2023-06-07 r84521) -- "Beagle Scouts"
 Copyright (C) 2023 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -20,6 +20,46 @@ Type 'q()' to quit R.
 > library(robustbase)
 > 
 > data(stackloss)
+> cat("doExtras:", doExtras <- robustbase:::doExtras(),"\n")
+doExtras: FALSE 
+> 
+> str(ctrl2 <- lmrob.control(trace.lev = if(doExtras) 2 else 0))
+List of 34
+ $ setting              : NULL
+ $ seed                 : int(0) 
+ $ nResample            : num 500
+ $ psi                  : chr "bisquare"
+ $ tuning.chi           : num 1.55
+ $ bb                   : num 0.5
+ $ tuning.psi           : num 4.69
+ $ max.it               : num 50
+ $ groups               : num 5
+ $ n.group              : num 400
+ $ best.r.s             : int 2
+ $ k.fast.s             : int 1
+ $ k.max                : int 200
+ $ maxit.scale          : int 200
+ $ k.m_s                : int 20
+ $ refine.tol           : num 1e-07
+ $ rel.tol              : num 1e-07
+ $ scale.tol            : num 1e-10
+ $ solve.tol            : num 1e-07
+ $ zero.tol             : num 1e-10
+ $ trace.lev            : num 0
+ $ mts                  : int 1000
+ $ subsampling          : chr "nonsingular"
+ $ compute.rd           : logi FALSE
+ $ method               : chr "MM"
+ $ numpoints            : int 10
+ $ cov                  : chr ".vcov.avar1"
+ $ split.type           : chr "f"
+ $ fast.s.large.n       : num 2000
+ $ eps.outlier          :function (nobs)  
+ $ eps.x                :function (maxx)  
+ $ compute.outlier.stats: chr "SM"
+ $ warn.limit.reject    : num 0.5
+ $ warn.limit.meanrw    : num 0.5
+ - attr(*, "class")= chr "lmrobCtrl"
 > 
 > ## S
 > set.seed(0)
@@ -67,9 +107,9 @@ compute.outlier.stats
                   "S" 
 seed : int(0) 
 > set.seed(0)
-> m0a <- lmrob.S(m0$x, stack.loss, lmrob.control())
+> m0a <- lmrob.S(m0$x, stack.loss, ctrl2)
 > 
-> all.equal(m0[c('coefficients', 'scale', 'rweights')],
+> all.equal(m0 [c('coefficients', 'scale', 'rweights')],
 +           m0a[c('coefficients', 'scale', 'rweights')])
 [1] TRUE
 > 
@@ -361,4 +401,4 @@ Error in lmrob.S(model.matrix(model, NOxEmissions)[1:682, ], NOxEmissions$LNOx[1
 > 
 > proc.time()
    user  system elapsed 
-  0.653   0.167   0.831 
+  0.253   0.085   0.376 
