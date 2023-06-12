@@ -274,14 +274,14 @@ static const int one = 1;
 		    &_n_, work, &lwork, &info FCONE);		\
     if (info) {							\
 	if (info < 0) {						\
-	    error(_("DGELS: illegal argument in %i. argument."), info);	\
+	    error(_("DGELS: illegal %i-th argument"), -info);	\
 	} else {						\
 	    if (trace_lev >= 4) {				\
 		Rprintf(" Robustness weights in failing step: "); \
 		disp_vec(_wts_, _n_);				\
 	    }							\
 	    error(_("DGELS: weighted design matrix not of full rank (column %d).\n" \
-	            "Use control parameter 'trace.lev = 4' to get diagnostic output."), info); \
+	            "Use control parameter 'trace.lev = 4' to get diagnostic output"), info); \
 	}							\
     }								\
     COPY(_y_, _beta_, _p_)
@@ -303,7 +303,7 @@ static const int one = 1;
     		     &colcnd, &amax, &info);                    \
     if (info) {                                                 \
 	if (info < 0) {                                         \
-	    error(_("DGEEQ: illegal argument in %i. argument"), -1 * info); \
+	    error(_("DGEEQU: illegal %i-th argument"), - info); \
 	} else if (info > _n_) {                                \
 	    if (_large_n_) {                                    \
 	        error(_("Fast S large n strategy failed. Use control parameter 'fast.s.large.n = Inf'.")); \
