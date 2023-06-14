@@ -1,3 +1,8 @@
+2023-06-14  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 1.2-7
+	* tests/cov-ex.R: adapt to robustbase_0.99-0's "radical" covMcd() tweaks.
+
 2023-01-04  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 1.2-6

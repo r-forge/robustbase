@@ -1,5 +1,6 @@
 library(robustX)
 library(robustbase)
+(newRB <- (packageVersion("robustbase") >= "0.99"))
 
 sessionInfo()
 packageDescription("robustX")
@@ -27,7 +28,7 @@ report.stopifnot.all.eq <- function(a,b, tol, ...) {
 		     paste(ae, collapse="\n")),
 	     call.=FALSE)
     ## else
-    invisible(TRUE)
+    TRUE
 }
 
 UN <- function(L) lapply(L, unname)
@@ -38,7 +39,7 @@ chk.NN.new.old <- function(cNew, cNold, tol = 2e-15, tol.1 = 20*tol) {
     print(table(new = cNew $classification,
                 old = cNold$classification))
     report.stopifnot.all.eq(UN(cNew [1:4]),
-                            UN(cNold[1:4]), tol=tol.1)
+                            UN(cNold[1:4]), tol=tol.1) &
     report.stopifnot.all.eq(cNew $innc[n.i],
                             cNold$innc[n.i], tol=tol)
 }
@@ -54,13 +55,12 @@ ss <- summ.NN(cN)
 if(isTRUE(all.equal(ss, s1))) ss else cbind(ss, s1)
 
 
-try( # testing
+try( # testing (tol=0 too small)
     chk.NN.new.old(cN, cN1, tol=0)
 )
-
-## This fails (interestingly) when we use R's instead of BLAS matrix products:
-if(doCheck) try( chk.NN.new.old(cN, cN1) ) # seems to work now (?)
-
+## This used to fail when we use R's instead of BLAS matrix products:
+if(doCheck)
+    chk.NN.new.old(cN, cN1, tol = 4e-15) # seen 1.1e-15 work
 
 
 ## for n = 500, you *do* see it
@@ -80,9 +80,11 @@ try( # --> show relative difference(s):
 if(doCheck && ourBLAS) # did fail with ATLAS in R-devel 2023-1-1
     chk.NN.new.old(cNX, cNX1)
 
-kappa(cM $cov)# 1990.8.. then  1900.421
-kappa(cNX$cov)#    4.4858
-kappa(cov(X)) #    1.0478
+stopifnot(exprs = {
+    all.equal(1900.4208,   kappa(cM $cov))# 1990.8.. then  1900.421
+    all.equal(4.485807117, kappa(cNX$cov))
+    all.equal(1.047781251, kappa(cov(X)))
+})
 
 ## ---- d = 1 :
 X1 <- cbind(c(1:6, 1000))
@@ -97,11 +99,10 @@ covNNC(X1)$cov ## -- really not at all robust:
 ##          [,1]
 ## [1,] 121595.8
 
-C.mcd <- covMcd(X1)$cov
-##          [,1]
-## [1,] 7.790004
-all.equal(C.mcd, as.matrix(7.79), tol=0)
-stopifnot(all.equal(C.mcd, as.matrix(7.79), tol = 1e-6))
+(C.mcd <- covMcd(X1)$cov)
+Cm <- as.matrix(if(newRB) 4.8848 else 7.790004)
+all.equal(Cm, C.mcd, tol=0) # 6.633e-6
+stopifnot(all.equal(Cm, C.mcd, tol = 2e-5))
 
 
 MASS::cov.rob(X1)$cov
@@ -137,10 +138,8 @@ stopifnot(exprs = {
         Platf_arch,
         "i386_win" =, # Platform: i386-w64-mingw32/i386 (32-bit); Windows Server x64 (build 14393)
         "x64"  = identical(Bgood, c(25L, 27:29, 33L,        38L,      43L, 45L)),
-
         "i386" = identical(Bgood, c(25L, 27:29, 33L, 35:36, 38L, 42L, 43L, 45L)),
                                         # older version of i386-windows
-
         ## other platforms:
         {
             message("Platform architecture (see above) not yet tested for BACON result")

@@ -1,8 +1,8 @@
 Package: robustX
 Type: Package
 Title: 'eXtra' / 'eXperimental' Functionality for Robust Statistics
-Version: 1.2-6
-Date: 2023-01-04
+Version: 1.2-7
+Date: 2023-06-14
 Authors@R: c(person("Martin","Maechler", role=c("aut","cre"), email="maechler@stat.math.ethz.ch", comment = c(ORCID = "0000-0002-8685-9910"))
          , person("Werner A.", "Stahel", role="aut", email="stahel@stat.math.ethz.ch")
          , person("Rolf", "Turner",   role="ctb", email="r.turner@auckland.ac.nz", comment = "reclas()")
