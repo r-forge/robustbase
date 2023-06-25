@@ -49,13 +49,15 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
         }
     else which.min
 
+
     # Check input parameters
     compare_to <- match.arg(compare_to)
     d <- length(lower)
     if (length(upper) != d)
         stop("'lower' must have same length as 'upper'")
     stopifnot(is.numeric(lower), is.finite(lower),
-              is.numeric(upper), is.finite(upper), lower <= upper,
+              is.numeric(upper), is.finite(upper),
+              lower <= upper,
               is.function(fn))
     if (!is.null(constr)) {
         stopifnot(is.function(constr),
@@ -68,7 +70,8 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
     }
     stopifnot(length(NP) == 1, NP == as.integer(NP), NP >= 0,
               length(Fl) == 1, is.numeric(Fl),
-              length(Fu) == 1, is.numeric(Fu), Fl <= Fu)
+              length(Fu) == 1, is.numeric(Fu),
+              Fl <= Fu)
     stopifnot(length(tau_F) == 1, is.numeric(tau_F), 0 <= tau_F, tau_F <= 1,
               length(tau_CR) == 1, is.numeric(tau_CR), 0 <= tau_CR, tau_CR <= 1,
               length(tau_pF) == 1, is.numeric(tau_pF), 0 <= tau_pF, tau_pF <= 1)
