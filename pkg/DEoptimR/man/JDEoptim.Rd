@@ -1,6 +1,9 @@
 \name{JDEoptim}
 \alias{JDEoptim}
-\title{Nonlinear Constrained and Unconstrained Optimization via Differential Evolution}
+\title{
+  Bound-Constrained and Nonlinear Constrained Single-Objective Optimization
+  via Differential Evolution
+}
 \description{
   An bespoke implementation of the \sQuote{jDE} variant by
   Brest \emph{et al.} (2006) \doi{10.1109/TEVC.2006.872133}.
@@ -437,3 +440,5 @@ res
 c(floor(res$par[1:2]), res$par[3:4])
 }
 }
+\keyword{nonlinear}
+\keyword{optimize}
