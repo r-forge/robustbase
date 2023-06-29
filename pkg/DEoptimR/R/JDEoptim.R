@@ -8,7 +8,7 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
                      trace = FALSE, triter = 1,
                      details = FALSE, ...)
 
-#   Copyright 2013, 2014, 2016, Eduardo L. T. Conceicao
+#   Copyright 2013, 2014, 2016, 2023, Eduardo L. T. Conceicao
 #   Available under the GPL (>= 2)
 
 {

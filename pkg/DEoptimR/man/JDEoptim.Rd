@@ -442,3 +442,4 @@ c(floor(res$par[1:2]), res$par[3:4])
 }
 \keyword{nonlinear}
 \keyword{optimize}
+\concept{global optimization}
