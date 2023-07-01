@@ -1,6 +1,6 @@
 Package: DEoptimR
 Version: 1.1-0
-Date: 2023-06-29
+Date: 2023-07-01
 Title: Differential Evolution Optimization in Pure R
 Authors@R: c(
     person(c("Eduardo", "L. T."), "Conceicao",
@@ -13,7 +13,7 @@ Authors@R: c(
     )
 Description: Differential Evolution (DE) stochastic heuristic algorithms for
     global optimization of problems with and without general constraints.
-    The aim is to curate a collection of its state-of-the-art variants that
+    The aim is to curate a collection of its variants that
     (1) do not sacrifice simplicity of design,
     (2) are essentially tuning-free, and
     (3) can be efficiently implemented directly in the R language.

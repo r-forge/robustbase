@@ -85,9 +85,6 @@ NCDEoptim <- function(
               length(CRl) == 1, is.numeric(CRl),
               length(CRu) == 1, is.numeric(CRu),
               CRl <= CRu)
-    stopifnot(length(nbngbrsl) == 1, is.numeric(nbngbrsl), nbngbrsl >= 3,
-              length(nbngbrsu) == 1, is.numeric(nbngbrsu),
-              nbngbrsl <= nbngbrsu)
     stopifnot(length(tau_F) == 1, is.numeric(tau_F), tau_F >= 0, tau_F <= 1,
               length(tau_CR) == 1, is.numeric(tau_CR), tau_CR >= 0, tau_CR <= 1,
               length(tau_pF) == 1, is.numeric(tau_pF), tau_pF >= 0, tau_pF <= 1,
@@ -371,7 +368,10 @@ NCDEoptim <- function(
         pop <- unname(cbind(pop, add_to_init_pop))
         NP <- ncol(pop)
     }
-    stopifnot(NP >= 4, nbngbrsu <= NP)
+    stopifnot(NP >= 4)
+    stopifnot(length(nbngbrsl) == 1, is.numeric(nbngbrsl), nbngbrsl >= 3,
+              length(nbngbrsu) == 1, is.numeric(nbngbrsu), nbngbrsu <= NP,
+              nbngbrsl <= nbngbrsu)
     F <- if (use_jitter)
         (1 + jitter_factor*runif(d, -0.5, 0.5)) %o% runif(NP, Fl, Fu)
     else matrix(runif(NP, Fl, Fu), nrow = 1)
