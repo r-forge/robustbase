@@ -5,7 +5,7 @@
   via Differential Evolution
 }
 \description{
-  An bespoke implementation of the \sQuote{jDE} variant by
+  A bespoke implementation of the \sQuote{jDE} variant by
   Brest \emph{et al.} (2006) \doi{10.1109/TEVC.2006.872133}.
 }
 \usage{
@@ -21,9 +21,9 @@ JDEoptim(lower, upper, fn,
          details = FALSE, ...)
 }
 \arguments{
-  \item{lower, upper}{numeric vectors of \emph{lower} or \emph{upper}
+  \item{lower, upper}{numeric vectors of \emph{lower} and \emph{upper}
     bounds, respectively, for the parameters to be optimized over.  Must
-    be finite (\code{\link{is.finite}}) as they bound the hyper rectangle
+    be finite (\code{\link{is.finite}}) as they bound the hyper-rectangle
     of the initial random population.}
 
   \item{fn}{(nonlinear) objective \code{\link{function}} to be
@@ -43,7 +43,7 @@ JDEoptim(lower, upper, fn,
 
   \item{meq}{an optional positive integer specifying that the first
     \code{meq} constraints are treated as \emph{equality} constraints,
-    all the remaining as \emph{inequality} constraints.  Defaults to
+    and all the remaining as \emph{inequality} constraints.  Defaults to
     \code{0} (inequality constraints only).}
 
   \item{eps}{maximal admissible constraint violation for equality constraints.
