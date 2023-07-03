@@ -93,12 +93,11 @@ NCDEoptim <- function(
     if (!is.null(jitter_factor))
         stopifnot(length(jitter_factor) == 1, is.numeric(jitter_factor))
     stopifnot(length(maxiter) == 1, maxiter == as.integer(maxiter))
-    if (!is.null(add_to_init_pop)) {
+    if (!is.null(add_to_init_pop))
         stopifnot(NROW(add_to_init_pop) == d,
                   is.numeric(add_to_init_pop),
                   add_to_init_pop >= lower,
                   add_to_init_pop <= upper)
-    }
     stopifnot(length(trace) == 1, is.logical(trace),
               length(triter) == 1, triter == as.integer(triter))
 
