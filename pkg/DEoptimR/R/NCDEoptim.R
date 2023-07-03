@@ -349,16 +349,15 @@ NCDEoptim <- function(
 
     fn1 <- function(par) fn(par, ...)
 
-    if (!is.null(constr)) {
-        if (meq > 0) {
+    if (!is.null(constr))
+        constr1 <- if (meq > 0) {
             equalIndex <- 1:meq
-            constr1 <- function(par) {
+            function(par) {
                 h <- constr(par, ...)
                 h[equalIndex] <- abs(h[equalIndex]) - eps
                 h
             }
-        } else constr1 <- function(par) constr(par, ...)
-    }
+        } else function(par) constr(par, ...)
 
     use_jitter <- !is.null(jitter_factor)
 
