@@ -115,7 +115,7 @@ NCDEoptim <- function(
                 if (any(found_ind)) {
                     # Re-initialize nearest neighbor of the trial vector
                     pop[, k] <- runif(d, lower, upper)
-                    fpop[k] <- fn1(pop[, i])
+                    fpop[k] <- fn1(pop[, k])
                     F[, k] <- if (use_jitter)
                         runif(1, Fl, Fu) * (1 + jitter_factor*runif(d, -0.5, 0.5))
                     else runif(1, Fl, Fu)
@@ -167,8 +167,8 @@ NCDEoptim <- function(
                     if (any(found_ind)) {
                         # Re-initialize nearest neighbor of the trial vector
                         pop[, k] <- runif(d, lower, upper)
-                        fpop[k] <- fn1(pop[, i])
-                        hpop[, k] <- constr1(pop[, i])
+                        fpop[k] <- fn1(pop[, k])
+                        hpop[, k] <- constr1(pop[, k])
                         F[, k] <- if (use_jitter)
                             runif(1, Fl, Fu) * (1 + jitter_factor*runif(d, -0.5, 0.5))
                         else runif(1, Fl, Fu)
@@ -214,7 +214,7 @@ NCDEoptim <- function(
             dist <- vapply(
                 pop_index,
                 \(i) min(sqrt(colSums(
-                    distmsk * (pop[, i] - pop[, -i, drop = FALSE])^2
+                    (pop[, i] - pop[, -i, drop = FALSE])^2
                 ))),
                 0
             )
@@ -462,11 +462,11 @@ NCDEoptim <- function(
             x_best_in_pop <- which_best(fpop)
             x_best_in_S <- which.min(S[1, ])
             cat(iteration, ":", "<", R, ">",
-                "P>>",
+                "population>>",
                 "(", fpop[x_best_in_pop], ")", pop[, x_best_in_pop],
                 if (!is.null(constr))
                     paste("{", which(hpop[, x_best_in_pop] > 0), "}"),
-                "A>>", "[", ncol(S), "]",
+                "archive>>", "[", ncol(S), "]",
                 "(", S[1, x_best_in_S], ")", S[x_ind_in_S, x_best_in_S],
                 fill = TRUE)
         }
