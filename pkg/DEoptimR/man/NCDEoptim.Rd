@@ -136,7 +136,7 @@ NCDEoptim(lower, upper, fn,
   during evolution.  Constraints are tackled through the
   \eqn{\epsilon}-constraint method as proposed in Poole and Allen (2019).
   The \sQuote{jDE} and \eqn{\epsilon}-constraint mechanisms are applied
-  in the same way as in \code{\link{JDEoptim()}}, but with \emph{synchronous}
+  in the same way as in \code{\link{JDEoptim}}, but with \emph{synchronous}
   mode of population update.
 
   Each line of trace output follows the format of:
@@ -188,9 +188,6 @@ NCDEoptim(lower, upper, fn,
 }
 \author{
   Eduardo L. T. Conceicao \email{mail@eduardoconceicao.org}
-}
-\note{
-
 }
 \examples{
 \donttest{
