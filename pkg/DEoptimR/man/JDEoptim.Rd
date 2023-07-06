@@ -98,17 +98,17 @@ JDEoptim(lower, upper, fn,
     is used.  It defaults to \dQuote{\code{median}}.  See \sQuote{Details}.}
 
   \item{add_to_init_pop}{an optional real vector of length \code{length(lower)}
-    or matrix with \code{length(lower)} rows specifying initial values of the
-    parameters to be optimized which are appended to the randomly generated
-    initial population.  It defaults to \code{NULL}.}
+    or \code{\link{matrix}} with \code{length(lower)} rows specifying
+    initial values of the parameters to be optimized which are appended to
+    the randomly generated initial population.  It defaults to \code{NULL}.}
 
   \item{trace}{an optional logical value indicating if a trace of the
     iteration progress should be printed.  Default is \code{FALSE}.}
 
   \item{triter}{an optional positive integer that controls the frequency
     of tracing when \code{trace = TRUE}.  Default is \code{triter = 1},
-    which means that \code{iteration : < value of stopping test >
-    ( value of best solution ) best solution { index of violated constraints }}
+    which means that
+    \code{iteration : < value of stopping test > ( value of best solution ) best solution { index of violated constraints }}
     is printed at every iteration.}
 
   \item{details}{an optional logical value.  If \code{TRUE} the output
