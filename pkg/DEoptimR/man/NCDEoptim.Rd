@@ -44,8 +44,8 @@ NCDEoptim(lower, upper, fn,
 
   \item{meq}{an integer, the first \code{meq} constraints are
     \emph{equality} constraints whereas the remaining ones are
-    \emph{inequality} constraints. Defaults to \code{0}
-    (inequality constraints only)}
+    \emph{inequality} constraints.  Defaults to \code{0}
+    (inequality constraints only).}
 
   \item{eps}{the maximal admissible constraint violation for
     equality constraints.  A numeric vector of small positive tolerance values
@@ -71,9 +71,9 @@ NCDEoptim(lower, upper, fn,
   \item{reinit_if_solu_in_arch}{a logical, if \code{TRUE}, any solution
     \eqn{X_i} already in the archive \strong{reinitializes} its nearest neighbor
     \emph{in the current population} within the range
-    \eqn{[\mathrm{lower}, \mathrm{upper}]}.}
+    \eqn{[\mathrm{lower}, \mathrm{upper}]}.  Default is \code{TRUE}.}
 
-  \item{NP}{an integer, the population size. Defaults to \code{100}.}
+  \item{NP}{an integer, the population size.  Defaults to \code{100}.}
 
   \item{Fl}{a numeric, the minimum value that the
     \emph{scaling factor} \code{F} could take.  It defaults to \code{0.1}.}
@@ -191,11 +191,14 @@ NCDEoptim(lower, upper, fn,
 }
 \examples{
 \donttest{
-# NOTE Examples were excluded from testing
-#      to reduce package check time.
+# NOTE: Examples were excluded from testing
+#       to reduce package check time.
 
 # Use a preset seed so test values are reproducible.
 set.seed(1234)
+
+# Warning: the examples are run using a very small number of
+# iterations to decrease execution time.
 
 # Bound-constrained optimization
 
@@ -206,7 +209,8 @@ set.seed(1234)
 #   The function has 6^n global minima without local minima.
 
 NCDEoptim(c(0.25, 0.25), c(10, 10), \(x) -mean(sin(10*log(x))),
-          niche_radius = 0.2, maxiter = 500, trace = TRUE, triter = 50)
+          niche_radius = 0.2,
+          maxiter = 200, trace = TRUE, triter = 20)
 
 # Nonlinear constrained optimization
 
@@ -217,10 +221,11 @@ NCDEoptim(c(0.25, 0.25), c(10, 10), \(x) -mean(sin(10*log(x))),
 #
 #   0 <= x <= 1
 #   The 10 global optima are
-#   (x1, ..., x10; f) = ((2*(1:10) - 1)/20; 0.875)
+#   (x1, ..., x10; f) = ((2*(1:10) - 1)/20; 0.875).
 
 NCDEoptim(0, 1, \(x) -sin(5*pi*x)^6 + 1, \(x) -cos(10*pi*x),
-          niche_radius = 0.05, maxiter = 500, trace = TRUE, triter = 50)
+          niche_radius = 0.05,
+          maxiter = 200, trace = TRUE, triter = 20)
 }
 }
 \concept{multimodal optimization}
