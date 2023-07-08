@@ -114,14 +114,14 @@ NCDEoptim <- function(
                 )) <= R
                 if (any(found_ind)) {
                     # Re-initialize nearest neighbor of the trial vector
-                    pop[, k] <- runif(d, lower, upper)
-                    fpop[k] <- fn1(pop[, k])
-                    F[, k] <- if (use_jitter)
+                    pop_next[, k] <- runif(d, lower, upper)
+                    fpop_next[k] <- fn1(pop[, k])
+                    F_next[, k] <- if (use_jitter)
                         runif(1, Fl, Fu) * (1 + jitter_factor*runif(d, -0.5, 0.5))
                     else runif(1, Fl, Fu)
-                    CR[k] <- runif(1, CRl, CRu)
-                    pF[k] <- runif(1)
-                    nbngbrs[k] <- runif(1, nbngbrsl, nbngbrsu)
+                    CR_next[k] <- runif(1, CRl, CRu)
+                    pF_next[k] <- runif(1)
+                    nbngbrs_next[k] <- runif(1, nbngbrsl, nbngbrsu)
 
                     S[, found_ind & (ftrial < S[1, ])] <- c(ftrial, trial)
                     if (sum(found_ind) > 1)
@@ -166,16 +166,16 @@ NCDEoptim <- function(
                     )) <= R
                     if (any(found_ind)) {
                         # Re-initialize nearest neighbor of the trial vector
-                        pop[, k] <- runif(d, lower, upper)
-                        fpop[k] <- fn1(pop[, k])
-                        hpop[, k] <- constr1(pop[, k])
-                        F[, k] <- if (use_jitter)
+                        pop_next[, k] <- runif(d, lower, upper)
+                        fpop_next[k] <- fn1(pop[, k])
+                        hpop_next[, k] <- constr1(pop[, k])
+                        F_next[, k] <- if (use_jitter)
                             runif(1, Fl, Fu) * (1 + jitter_factor*runif(d, -0.5, 0.5))
                         else runif(1, Fl, Fu)
-                        CR[k] <- runif(1, CRl, CRu)
-                        pF[k] <- runif(1)
-                        nbngbrs[k] <- runif(1, nbngbrsl, nbngbrsu)
-                        TAVpop[k] <- sum(pmax(hpop[, k], 0))
+                        CR_next[k] <- runif(1, CRl, CRu)
+                        pF_next[k] <- runif(1)
+                        nbngbrs_next[k] <- runif(1, nbngbrsl, nbngbrsu)
+                        TAVpop_next[k] <- sum(pmax(hpop[, k], 0))
 
                         S[, found_ind & (ftrial < S[1, ])] <- c(ftrial, trial, htrial)
                         if (sum(found_ind) > 1)
