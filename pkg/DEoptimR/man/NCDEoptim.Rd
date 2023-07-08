@@ -70,7 +70,7 @@ NCDEoptim(lower, upper, fn,
 
   \item{reinit_if_solu_in_arch}{a logical, if \code{TRUE}, any solution
     \eqn{X_i} already in the archive \strong{reinitializes} its nearest neighbor
-    \emph{in the current population} within the range
+    \emph{in the population} within the range
     \eqn{[\mathrm{lower}, \mathrm{upper}]}.  Default is \code{TRUE}.}
 
   \item{NP}{an integer, the population size.  Defaults to \code{100}.}
@@ -111,8 +111,8 @@ NCDEoptim(lower, upper, fn,
   \item{jitter_factor}{a numeric, the tuning constant for \emph{jitter}.
     If \code{NULL} only \emph{dither} is used.  Default is \code{0.001}.}
 
-  \item{maxiter}{an integer, the maximum number of iterations allowed.
-    Default is \code{2000}.}
+  \item{maxiter}{an integer, the maximum number of iterations allowed which is
+    the \strong{stopping condition}.  Default is \code{2000}.}
 
   \item{add_to_init_pop}{numeric vector of length \code{length(lower)} or
     column-wise \code{\link{matrix}} with \code{length(lower)} rows specifying
