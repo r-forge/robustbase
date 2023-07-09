@@ -11,10 +11,10 @@
 \usage{
 JDEoptim(lower, upper, fn,
          constr = NULL, meq = 0, eps = 1e-05,
-         NP = 10*d, Fl = 0.1, Fu = 1,
+         NP = 10*length(lower), Fl = 0.1, Fu = 1,
          tau_F = 0.1, tau_CR = 0.1, tau_pF = 0.1,
          jitter_factor = 0.001,
-         tol = 1e-15, maxiter = 200*d, fnscale = 1,
+         tol = 1e-15, maxiter = 200*length(lower), fnscale = 1,
          compare_to = c("median", "max"),
          add_to_init_pop = NULL,
          trace = FALSE, triter = 1,
