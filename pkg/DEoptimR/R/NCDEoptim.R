@@ -372,7 +372,7 @@ NCDEoptim <- function(
     pF <- runif(NP)
     nbngbrs <- runif(NP, nbngbrsl, nbngbrsu)
     fpop <- apply(pop, 2, fn1)
-    stopifnot( !any(is.na(fpop)) )
+    stopifnot(!anyNA(fpop))
     pop_next <- pop
     F_next <- F
     CR_next <- CR
@@ -381,7 +381,7 @@ NCDEoptim <- function(
     fpop_next <- fpop
     if (!is.null(constr)) {
         hpop <- apply(pop, 2, constr1)
-        stopifnot( !any(is.na(hpop)) )
+        stopifnot(!anyNA(hpop))
         if (is.vector(hpop)) dim(hpop) <- c(1, length(hpop))
         TAVpop <- apply( hpop, 2, function(x) sum(pmax(x, 0)) )
         mu <- median(TAVpop)
