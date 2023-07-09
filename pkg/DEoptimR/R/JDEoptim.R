@@ -214,10 +214,10 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
     CR <- runif(NP)
     pF <- runif(NP)
     fpop <- apply(pop, 2, fn1)
-    stopifnot( !any(is.na(fpop)) )
+    stopifnot(!anyNA(fpop))
     if (!is.null(constr)) {
         hpop <- apply(pop, 2, constr1)
-        stopifnot( !any(is.na(hpop)) )
+        stopifnot(!anyNA(hpop))
         if (is.vector(hpop)) dim(hpop) <- c(1, length(hpop))
         TAVpop <- apply( hpop, 2, function(x) sum(pmax(x, 0)) )
         mu <- median(TAVpop)
