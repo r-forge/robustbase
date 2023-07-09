@@ -203,27 +203,31 @@ set.seed(1234)
 # Bound-constrained optimization
 
 #   Vincent function
+#
 #   f(x) = -mean(sin(10*log(x)))
 #
 #   0.25 <= xi <= 10, i = {1, 2, ..., n}
 #   The function has 6^n global minima without local minima.
 
-NCDEoptim(c(0.25, 0.25), c(10, 10), \(x) -mean(sin(10*log(x))),
+NCDEoptim(c(0.25, 0.25), c(10, 10),
+          \(x) -mean(sin(10*log(x))),
           niche_radius = 0.2,
           maxiter = 200, trace = TRUE, triter = 20)
 
 # Nonlinear constrained optimization
 
 #   Function F10 of Poole and Allen (2019)
+#
 #   f(x) = -sin(5*pi*x)^6 + 1
 #   subject to:
 #   g(x) = -cos(10*pi*x) <= 0
 #
 #   0 <= x <= 1
 #   The 10 global optima are
-#   (x1, ..., x10; f) = ((2*(1:10) - 1)/20; 0.875).
+#   (x1*, ..., x10*; f*) = ((2*(1:10) - 1)/20; 0.875).
 
-NCDEoptim(0, 1, \(x) -sin(5*pi*x)^6 + 1, \(x) -cos(10*pi*x),
+NCDEoptim(0, 1,
+          \(x) -sin(5*pi*x)^6 + 1, \(x) -cos(10*pi*x),
           niche_radius = 0.05,
           maxiter = 200, trace = TRUE, triter = 20)
 }
