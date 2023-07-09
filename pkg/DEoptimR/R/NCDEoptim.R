@@ -53,22 +53,16 @@ NCDEoptim <- function(
 
 
     # Check input parameters
-    d <- length(lower)
-    if (length(upper) != d)
-        stop("'lower' must have same length as 'upper'")
-    stopifnot(is.numeric(lower), is.finite(lower),
+    stopifnot(length(upper) == length(lower),
+              is.numeric(lower), is.finite(lower),
               is.numeric(upper), is.finite(upper),
               lower <= upper,
               is.function(fn))
-    if (!is.null(constr)) {
+    if (!is.null(constr))
         stopifnot(is.function(constr),
                   length(meq) == 1, meq == as.integer(meq), meq >= 0,
-                  is.numeric(eps), is.finite(eps), eps > 0)
-        if (length(eps) == 1)
-            eps <- rep.int(eps, meq)
-        if (length(eps) != meq)
-            stop("eps must be either of length meq, or length 1")
-    }
+                  is.numeric(eps), is.finite(eps), eps > 0,
+                  length(eps) == 1 || length(eps) == meq)
     stopifnot(is.numeric(crit), is.finite(crit), crit > 0)
     if (!is.null(niche_radius))
         stopifnot(length(niche_radius) == 1, is.numeric(niche_radius),
@@ -94,7 +88,7 @@ NCDEoptim <- function(
         stopifnot(length(jitter_factor) == 1, is.numeric(jitter_factor))
     stopifnot(length(maxiter) == 1, maxiter == as.integer(maxiter))
     if (!is.null(add_to_init_pop))
-        stopifnot(NROW(add_to_init_pop) == d,
+        stopifnot(NROW(add_to_init_pop) == length(lower),
                   is.numeric(add_to_init_pop),
                   add_to_init_pop >= lower,
                   add_to_init_pop <= upper)
@@ -114,14 +108,14 @@ NCDEoptim <- function(
                 )) <= R
                 if (any(found_ind)) {
                     # Re-initialize nearest neighbor of the trial vector
-                    pop_next[, k] <- runif(d, lower, upper)
-                    fpop_next[k] <- fn1(pop[, k])
-                    F_next[, k] <- if (use_jitter)
+                    pop[, k] <- runif(d, lower, upper)
+                    fpop[k] <- fn1(pop[, k])
+                    F[, k] <- if (use_jitter)
                         runif(1, Fl, Fu) * (1 + jitter_factor*runif(d, -0.5, 0.5))
                     else runif(1, Fl, Fu)
-                    CR_next[k] <- runif(1, CRl, CRu)
-                    pF_next[k] <- runif(1)
-                    nbngbrs_next[k] <- runif(1, nbngbrsl, nbngbrsu)
+                    CR[k] <- runif(1, CRl, CRu)
+                    pF[k] <- runif(1)
+                    nbngbrs[k] <- runif(1, nbngbrsl, nbngbrsu)
 
                     S[, found_ind & (ftrial < S[1, ])] <- c(ftrial, trial)
                     if (sum(found_ind) > 1)
@@ -166,16 +160,16 @@ NCDEoptim <- function(
                     )) <= R
                     if (any(found_ind)) {
                         # Re-initialize nearest neighbor of the trial vector
-                        pop_next[, k] <- runif(d, lower, upper)
-                        fpop_next[k] <- fn1(pop[, k])
-                        hpop_next[, k] <- constr1(pop[, k])
-                        F_next[, k] <- if (use_jitter)
+                        pop[, k] <- runif(d, lower, upper)
+                        fpop[k] <- fn1(pop[, k])
+                        hpop[, k] <- constr1(pop[, k])
+                        F[, k] <- if (use_jitter)
                             runif(1, Fl, Fu) * (1 + jitter_factor*runif(d, -0.5, 0.5))
                         else runif(1, Fl, Fu)
-                        CR_next[k] <- runif(1, CRl, CRu)
-                        pF_next[k] <- runif(1)
-                        nbngbrs_next[k] <- runif(1, nbngbrsl, nbngbrsu)
-                        TAVpop_next[k] <- sum(pmax(hpop[, k], 0))
+                        CR[k] <- runif(1, CRl, CRu)
+                        pF[k] <- runif(1)
+                        nbngbrs[k] <- runif(1, nbngbrsl, nbngbrsu)
+                        TAVpop[k] <- sum(pmax(hpop[, k], 0))
 
                         S[, found_ind & (ftrial < S[1, ])] <- c(ftrial, trial, htrial)
                         if (sum(found_ind) > 1)
@@ -361,6 +355,7 @@ NCDEoptim <- function(
     use_jitter <- !is.null(jitter_factor)
 
     # Initialization
+    d <- length(lower)
     pop <- matrix(runif(NP*d, lower, upper), nrow = d)
     if (!is.null(add_to_init_pop)) {
         pop <- unname(cbind(pop, add_to_init_pop))
@@ -377,6 +372,7 @@ NCDEoptim <- function(
     pF <- runif(NP)
     nbngbrs <- runif(NP, nbngbrsl, nbngbrsu)
     fpop <- apply(pop, 2, fn1)
+    stopifnot( !any(is.na(fpop)) )
     pop_next <- pop
     F_next <- F
     CR_next <- CR
@@ -385,8 +381,7 @@ NCDEoptim <- function(
     fpop_next <- fpop
     if (!is.null(constr)) {
         hpop <- apply(pop, 2, constr1)
-        if ( any(is.na(hpop)) )
-            stop("value of meq is invalid")
+        stopifnot( !any(is.na(hpop)) )
         if (is.vector(hpop)) dim(hpop) <- c(1, length(hpop))
         TAVpop <- apply( hpop, 2, function(x) sum(pmax(x, 0)) )
         mu <- median(TAVpop)
@@ -472,12 +467,15 @@ NCDEoptim <- function(
         }
     }
 
-    ord <- order(S[1, ])
-    res <- list(solution_arch = unname(S[x_ind_in_S, ord, drop = FALSE]),
-                objective_arch = unname(S[1, ord]),
-                iter = iteration)
+    res <- list(iter = iteration)
+    if (!is.null(S)) {
+        ord <- order(S[1, ])
+        res$solution_arch <- unname(S[x_ind_in_S, ord, drop = FALSE])
+        res$objective_arch <- unname(S[1, ord])
+        if (!is.null(constr))
+            res$constr_value_arch <- unname(S[-(1:(d+1)), ord, drop = FALSE])
+    }
     if (!is.null(constr)) {
-        res$constr_value_arch <- unname(S[-(1:(d+1)), ord, drop = FALSE])
         ord <- order(apply(hpop > 0, 2, any), fpop)
         res$constr_value_pop <- hpop[, ord, drop = FALSE]
     } else ord <- order(fpop)

@@ -60,9 +60,11 @@ NCDEoptim(lower, upper, fn,
     dynamic archive.  Defaults to \code{1e-5}.}
 
   \item{niche_radius}{a numeric, the absolute tolerance used to decide whether
-    the solution \eqn{X_i} is \strong{identical} to an already existing
+    the solution \eqn{X_i} is \emph{identical} to an already existing
     local or global solution \emph{in the archive}.  It defaults to \code{NULL},
-    meaning that the niche radius is adaptively chosen during the search.}
+    meaning that the niche radius is adaptively chosen during the search.
+    Results are \strong{much better} if one is able to provide
+    a reasonable value.}}
 
   \item{archive_size}{an integer, the maximum number of solutions that
     can be kept in the archive; entries above this limit are discarded.
@@ -137,7 +139,8 @@ NCDEoptim(lower, upper, fn,
   \eqn{\epsilon}-constraint method as proposed in Poole and Allen (2019).
   The \sQuote{jDE} and \eqn{\epsilon}-constraint mechanisms are applied
   in the same way as in \code{\link{JDEoptim}}, but with \emph{synchronous}
-  mode of population update.
+  mode of population update.  In contrast, the reinitialization in the current
+  population triggered by already found solutions is done \emph{asynchronously}.
 
   Each line of trace output follows the format of:
 
@@ -188,6 +191,9 @@ NCDEoptim(lower, upper, fn,
 }
 \author{
   Eduardo L. T. Conceicao \email{mail@eduardoconceicao.org}
+}
+\note{
+  \bold{This function is in an experimental stage.}
 }
 \examples{
 \donttest{
