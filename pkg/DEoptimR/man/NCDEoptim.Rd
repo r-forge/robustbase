@@ -64,7 +64,7 @@ NCDEoptim(lower, upper, fn,
     local or global solution \emph{in the archive}.  It defaults to \code{NULL},
     meaning that the niche radius is adaptively chosen during the search.
     Results are \strong{much better} if one is able to provide
-    a reasonable value.}}
+    a reasonable value.}
 
   \item{archive_size}{an integer, the maximum number of solutions that
     can be kept in the archive; entries above this limit are discarded.
