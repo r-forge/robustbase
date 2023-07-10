@@ -240,7 +240,7 @@ NCDEoptim <- function(
 
     child <- if (is.null(constr)) { # Evaluate/select
         expression({
-            ftrial <- fn1(trial) # Evaluate trial with your function
+            ftrial <- fn1(trial)
             if (ftrial <= fpop[k]) {
                 pop_next[, k] <- trial
                 fpop_next[k] <- ftrial

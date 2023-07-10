@@ -86,7 +86,7 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
 
     child <- if (is.null(constr)) { # Evaluate/select
         expression({
-            ftrial <- fn1(trial) # Evaluate trial with your function
+            ftrial <- fn1(trial)
             if (ftrial <= fpop[i]) {
                 pop[, i] <- trial
                 fpop[i] <- ftrial
