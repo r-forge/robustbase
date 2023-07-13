@@ -147,58 +147,54 @@ NCDEoptim <- function(
 
     check_archive_constr <- if (reinit_if_solu_in_arch) {
         expression({
-            if (all( htrial <= 0 )) {
-                if (ftrial < best_fpop ||
-                    isTRUE(all.equal(best_fpop, ftrial, tolerance = crit))) {
-                    if (ftrial < best_fpop) {
-                        if (is.null(S))
-                            S <- as.matrix(c(ftrial, trial, htrial))
-                        best_fpop <- ftrial
-                    }
-                    found_ind <- sqrt(colSums(
-                        (trial - S[x_ind_in_S, , drop = FALSE])^2
-                    )) <= R
-                    if (any(found_ind)) {
-                        # Re-initialize nearest neighbor of the trial vector
-                        pop[, k] <- runif(d, lower, upper)
-                        fpop[k] <- fn1(pop[, k])
-                        hpop[, k] <- constr1(pop[, k])
-                        F[, k] <- if (use_jitter)
-                            runif(1, Fl, Fu) * (1 + jitter_factor*runif(d, -0.5, 0.5))
-                        else runif(1, Fl, Fu)
-                        CR[k] <- runif(1, CRl, CRu)
-                        pF[k] <- runif(1)
-                        nbngbrs[k] <- runif(1, nbngbrsl, nbngbrsu)
-                        TAVpop[k] <- sum(pmax(hpop[, k], 0))
-
-                        S[, found_ind & (ftrial < S[1, ])] <- c(ftrial, trial, htrial)
-                        if (sum(found_ind) > 1)
-                            S <- unique(S, MARGIN = 2)
-                    } else if (ncol(S) < archive_size)
-                        S <- cbind(S, c(ftrial, trial, htrial))
+            if (all( htrial <= 0 ) && (ftrial < best_fpop ||
+                isTRUE(all.equal(best_fpop, ftrial, tolerance = crit)))) {
+                if (ftrial < best_fpop) {
+                    if (is.null(S))
+                        S <- as.matrix(c(ftrial, trial, htrial))
+                    best_fpop <- ftrial
                 }
+                found_ind <- sqrt(colSums(
+                    (trial - S[x_ind_in_S, , drop = FALSE])^2
+                )) <= R
+                if (any(found_ind)) {
+                    # Re-initialize nearest neighbor of the trial vector
+                    pop[, k] <- runif(d, lower, upper)
+                    fpop[k] <- fn1(pop[, k])
+                    hpop[, k] <- constr1(pop[, k])
+                    F[, k] <- if (use_jitter)
+                        runif(1, Fl, Fu) * (1 + jitter_factor*runif(d, -0.5, 0.5))
+                    else runif(1, Fl, Fu)
+                    CR[k] <- runif(1, CRl, CRu)
+                    pF[k] <- runif(1)
+                    nbngbrs[k] <- runif(1, nbngbrsl, nbngbrsu)
+                    TAVpop[k] <- sum(pmax(hpop[, k], 0))
+
+                    S[, found_ind & (ftrial < S[1, ])] <- c(ftrial, trial, htrial)
+                    if (sum(found_ind) > 1)
+                        S <- unique(S, MARGIN = 2)
+                } else if (ncol(S) < archive_size)
+                    S <- cbind(S, c(ftrial, trial, htrial))
             }
         })
     } else {
         expression({
-            if (all( htrial <= 0 )) {
-                if (ftrial < best_fpop ||
-                    isTRUE(all.equal(best_fpop, ftrial, tolerance = crit))) {
-                    if (ftrial < best_fpop) {
-                        if (is.null(S))
-                            S <- as.matrix(c(ftrial, trial, htrial))
-                        best_fpop <- ftrial
-                    }
-                    found_ind <- sqrt(colSums(
-                        (trial - S[x_ind_in_S, , drop = FALSE])^2
-                    )) <= R
-                    if (any(found_ind)) {
-                        S[, found_ind & (ftrial < S[1, ])] <- c(ftrial, trial, htrial)
-                        if (sum(found_ind) > 1)
-                            S <- unique(S, MARGIN = 2)
-                    } else if (ncol(S) < archive_size)
-                        S <- cbind(S, c(ftrial, trial, htrial))
+            if (all( htrial <= 0 ) && (ftrial < best_fpop ||
+                isTRUE(all.equal(best_fpop, ftrial, tolerance = crit)))) {
+                if (ftrial < best_fpop) {
+                    if (is.null(S))
+                        S <- as.matrix(c(ftrial, trial, htrial))
+                    best_fpop <- ftrial
                 }
+                found_ind <- sqrt(colSums(
+                    (trial - S[x_ind_in_S, , drop = FALSE])^2
+                )) <= R
+                if (any(found_ind)) {
+                    S[, found_ind & (ftrial < S[1, ])] <- c(ftrial, trial, htrial)
+                    if (sum(found_ind) > 1)
+                        S <- unique(S, MARGIN = 2)
+                } else if (ncol(S) < archive_size)
+                    S <- cbind(S, c(ftrial, trial, htrial))
             }
         })
     }
