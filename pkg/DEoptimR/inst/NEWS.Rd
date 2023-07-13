@@ -1,7 +1,7 @@
 \name{NEWS}
 \title{News for package \pkg{DEoptimR}}
 
-\section{Changes in DEoptimR version 1.1-0 (2023-06-27)}{
+\section{Changes in DEoptimR version 1.1-0 (2023-07-10)}{
   \itemize{
     \item Added a bespoke implementation of the NCDE algorithm for
           multimodal optimization in \code{NCDEoptim()}.
