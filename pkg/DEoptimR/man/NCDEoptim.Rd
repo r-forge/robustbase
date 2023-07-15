@@ -53,9 +53,8 @@ NCDEoptim(lower, upper, fn,
     inequalities of the form \eqn{|h_j(X_i)| - \epsilon \le 0}.  A scalar value
     is expanded to apply to all equality constraints.  Default is \code{1e-5}.}
 
-  \item{crit}{a numeric, the absolute acceptance threshold on the
-    archive strategy.  If
-    \eqn{|\mathrm{fn}(X_\mathrm{best\_so\_far\_in\_archive}) - X_i| \le \mathrm{crit}},
+  \item{crit}{a numeric, the acceptance threshold on the archive strategy.  If
+    \code{\link{isTRUE}(\link{all.equal}(fn(\eqn{X_\mathrm{best\_so\_far\_in\_archive}}), \eqn{X_i}, tolerance = crit))},
     a solution \eqn{X_i} is checked for possible insertion into the
     dynamic archive.  Defaults to \code{1e-5}.}
 
