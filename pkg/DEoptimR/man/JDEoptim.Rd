@@ -105,9 +105,9 @@ JDEoptim(lower, upper, fn,
   \item{trace}{an optional logical value indicating if a trace of the
     iteration progress should be printed.  Default is \code{FALSE}.}
 
-  \item{triter}{an optional positive integer that controls the frequency
+  \item{triter}{an optional positive integer giving the frequency
     of tracing when \code{trace = TRUE}.  Default is \code{triter = 1},
-    which means that
+    in which case
     \code{iteration : < value of stopping test > ( value of best solution ) best solution { index of violated constraints }}
     is printed at every iteration.}
 

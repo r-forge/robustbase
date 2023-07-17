@@ -93,7 +93,7 @@ NCDEoptim <- function(
                   add_to_init_pop >= lower,
                   add_to_init_pop <= upper)
     stopifnot(length(trace) == 1, is.logical(trace),
-              length(triter) == 1, triter == as.integer(triter))
+              length(triter) == 1, triter == as.integer(triter), triter >= 1)
 
     check_archive <- if (reinit_if_solu_in_arch) {
         expression({

@@ -81,7 +81,7 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
                   add_to_init_pop >= lower,
                   add_to_init_pop <= upper)
     stopifnot(length(trace) == 1, is.logical(trace),
-              length(triter) == 1, triter == as.integer(triter),
+              length(triter) == 1, triter == as.integer(triter), triter >= 1,
               length(details) == 1, is.logical(details))
 
     child <- if (is.null(constr)) { # Evaluate/select
