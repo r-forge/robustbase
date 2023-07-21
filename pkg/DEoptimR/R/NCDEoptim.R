@@ -203,7 +203,7 @@ NCDEoptim <- function(
         expression({
             dist <- vapply(
                 pop_index,
-                \(i) min(sqrt(colSums(
+                function(i) min(sqrt(colSums(
                     (pop[, i] - pop[, -i, drop = FALSE])^2
                 ))),
                 0
@@ -357,8 +357,8 @@ NCDEoptim <- function(
         pop <- unname(cbind(pop, add_to_init_pop))
         NP <- ncol(pop)
     }
-    stopifnot(NP >= 4)
-    stopifnot(length(nbngbrsl) == 1, is.numeric(nbngbrsl), nbngbrsl >= 3,
+    stopifnot(NP >= 4,
+              length(nbngbrsl) == 1, is.numeric(nbngbrsl), nbngbrsl >= 3,
               length(nbngbrsu) == 1, is.numeric(nbngbrsu), nbngbrsu <= NP,
               nbngbrsl <= nbngbrsu)
     F <- if (use_jitter)
