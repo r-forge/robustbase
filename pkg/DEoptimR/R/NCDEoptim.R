@@ -63,7 +63,8 @@ NCDEoptim <- function(
                   length(meq) == 1, meq == as.integer(meq), meq >= 0,
                   is.numeric(eps), is.finite(eps), eps > 0,
                   length(eps) == 1 || length(eps) == meq)
-    stopifnot(is.numeric(crit), is.finite(crit), crit > 0)
+    stopifnot(length(crit) == 1, is.numeric(crit),
+              is.finite(crit), crit > 0)
     if (!is.null(niche_radius))
         stopifnot(length(niche_radius) == 1, is.numeric(niche_radius),
                   is.finite(niche_radius), niche_radius > 0)
@@ -368,7 +369,7 @@ NCDEoptim <- function(
     pF <- runif(NP)
     nbngbrs <- runif(NP, nbngbrsl, nbngbrsu)
     fpop <- apply(pop, 2, fn1)
-    stopifnot(is.vector(fpop), !anyNA(fpop))
+    stopifnot(is.vector(fpop), !anyNA(fpop), !is.nan(fpop))
     pop_next <- pop
     F_next <- F
     CR_next <- CR
@@ -377,7 +378,8 @@ NCDEoptim <- function(
     fpop_next <- fpop
     if (!is.null(constr)) {
         hpop <- apply(pop, 2, constr1)
-        stopifnot(is.matrix(hpop) || is.vector(hpop), !anyNA(hpop))
+        stopifnot(is.matrix(hpop) || is.vector(hpop),
+                  !anyNA(hpop), !is.nan(hpop))
         if (is.vector(hpop)) dim(hpop) <- c(1, length(hpop))
         TAVpop <- apply( hpop, 2, function(x) sum(pmax(x, 0)) )
         mu <- median(TAVpop)
