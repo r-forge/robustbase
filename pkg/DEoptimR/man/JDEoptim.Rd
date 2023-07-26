@@ -199,7 +199,7 @@ JDEoptim(lower, upper, fn,
     }
     \item{Stopping Criterion:}{
       The algorithm is stopped if
-        \deqn{\frac{\mathrm{compare\_to}\{[\mathrm{fn}(X_1),\ldots,\mathrm{fn}(X_\mathrm{npop})]\} - \mathrm{fn}(X_\mathrm{best})}{\mathrm{fnscale}} \le \mathrm{tol}}{%
+        \deqn{\frac{\mathrm{compare\_to}\{[\mathrm{fn}(X_1),\ldots,\mathrm{fn}(X_\mathrm{npop})]\} - \mathrm{fn}(X_\mathrm{best})}{\mathrm{fnscale}} \le \mathrm{tol},}{%
       ( compare_to{ [fn(X_1),\ldots,fn(X_npop)] } - fn(X_best) )/fnscale <= tol,}
       where the \dQuote{best} individual \eqn{X_\mathrm{best}}{X_best} is the
       \emph{feasible} solution with the lowest objective function value in the
