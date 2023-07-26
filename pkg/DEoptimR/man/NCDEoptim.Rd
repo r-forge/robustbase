@@ -135,10 +135,11 @@ NCDEoptim(lower, upper, fn,
   instead of canonical Diferential Evolution.  The key reason for archiving
   good solutions during the search process is to prevent them from being lost
   during evolution.  Constraints are tackled through the
-  \eqn{\varepsilon}-constrained method as proposed in Poole and Allen (2019).
-  The \sQuote{jDE} and \eqn{\varepsilon}-constrained mechanisms are applied
-  in the same way as in \code{\link{JDEoptim}}, but with \emph{synchronous}
-  mode of population update.  In contrast, the reinitialization in the current
+  \eqn{\varepsilon}{epsilon}-constrained method as proposed
+  in Poole and Allen (2019).  The \sQuote{jDE} and
+  \eqn{\varepsilon}{epsilon}-constrained mechanisms are applied in the same way
+  as in \code{\link{JDEoptim}}, but with \emph{synchronous} mode of
+  population update.  In contrast, the reinitialization in the current
   population triggered by already found solutions is done \emph{asynchronously}.
 
   Each line of trace output follows the format of:

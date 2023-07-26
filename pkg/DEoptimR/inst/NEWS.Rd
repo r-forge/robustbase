@@ -28,6 +28,6 @@
           of the jDE algorithm.
     \item Constraint handling based on biasing feasible over unfeasible
           solutions by a parameter-less variant of the
-          \eqn{\varepsilon}-constrained method.
+          \eqn{\varepsilon}{epsilon}-constrained method.
   }
 }
