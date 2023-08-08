@@ -365,7 +365,7 @@ NCDEoptim <- function(
     }
     stopifnot(NP >= 4,
               length(nbngbrsl) == 1, is.numeric(nbngbrsl), nbngbrsl >= 3,
-              length(nbngbrsu) == 1, is.numeric(nbngbrsu), nbngbrsu <= NP,
+              length(nbngbrsu) == 1, is.numeric(nbngbrsu), nbngbrsu <= NP - 1,
               nbngbrsl <= nbngbrsu)
     F <- if (use_jitter)
         (1 + jitter_factor*runif(d, -0.5, 0.5)) %o% runif(NP, Fl, Fu)
