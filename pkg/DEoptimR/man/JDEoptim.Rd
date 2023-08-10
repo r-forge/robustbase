@@ -22,8 +22,8 @@ JDEoptim(lower, upper, fn,
 }
 \arguments{
   \item{lower, upper}{numeric vectors of \emph{lower} and \emph{upper}
-    bounds, respectively, for the parameters to be optimized over.  Must
-    be finite (\code{\link{is.finite}}) as they bound the hyper-rectangle
+    bounds for the parameters to be optimized over.  Must be finite
+    (\code{\link{is.finite}}) as they bound the hyper-rectangle
     of the initial random population.}
 
   \item{fn}{(nonlinear) objective \code{\link{function}} to be
@@ -115,13 +115,13 @@ JDEoptim(lower, upper, fn,
     will contain the parameters in the final population and their
     respective \code{fn} values.  Defaults to \code{FALSE}.}
 
-  \item{...}{optional additional arguments passed to \code{fn()}
-    \emph{and} \code{constr()} if that is not \code{NULL}.}
+  \item{\dots}{optional additional arguments passed to \code{fn}
+    and \code{constr}.}
 }
 \details{
   \describe{
     \item{Overview:}{
-      The setting of the \emph{control parameters} of standard
+      The setting of the \emph{control parameters} of canonical
       Differential Evolution (DE) is crucial for the algorithm's performance.
       Unfortunately, when the generally recommended values for these parameters
       (see, \emph{e.g.}, Storn and Price, 1997) are unsuitable for use,
@@ -132,8 +132,8 @@ JDEoptim(lower, upper, fn,
 
       This implementation differs from the original description, most notably
       in the use of the \emph{DE/rand/1/either-or} mutation strategy
-      (Price \emph{et al.}, 2005), and combination of \emph{jitter with dither}
-      (Storn, 2008).
+      (Price \emph{et al.}, 2005), combination of \emph{jitter with dither}
+      (Storn, 2008), and the random initialization of \code{F} and \code{CR}.
 
       As done by jDE and its variants (Brest \emph{et al.}, 2021) each worse
       parent in the current population is \emph{immediately replaced}
@@ -190,12 +190,12 @@ JDEoptim(lower, upper, fn,
       nonlinear programming} problems using a small variation of the technique
       presented by Lampinen and Zelinka (1999).  Integer values are obtained by
       means of the \code{floor()} function \emph{only} for the evaluation
-      of the objective function.  This is because DE itself works with
-      continuous variables.  Additionally, each upper bound of the integer
-      variables should be added by \code{1}.
+      of the objective function.  DE itself still works with continuous
+      variables.  Additionally, each upper bound of the integer variables
+      should be added by \code{1}.
 
-      Notice that the final solution needs to be \emph{converted with
-      \code{floor()}} to obtain its \emph{integer} elements.
+      Notice that the final solution needs to be converted with \code{floor()}
+      to obtain its \emph{integer} elements.
     }
     \item{Stopping Criterion:}{
       The algorithm is stopped if

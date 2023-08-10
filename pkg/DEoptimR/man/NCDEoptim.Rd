@@ -22,7 +22,8 @@ NCDEoptim(lower, upper, fn,
           tau_nbngbrs = 0.1,
           jitter_factor = 0.001,
           maxiter = 2000,
-          add_to_init_pop = NULL, trace = FALSE, triter = 1,
+          add_to_init_pop = NULL,
+          trace = FALSE, triter = 1,
           ...)
 }
 \arguments{
