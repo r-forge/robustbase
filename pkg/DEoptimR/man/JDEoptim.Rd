@@ -189,10 +189,10 @@ JDEoptim(lower, upper, fn,
       Any DE variant is easily extended to deal with \emph{mixed integer
       nonlinear programming} problems using a small variation of the technique
       presented by Lampinen and Zelinka (1999).  Integer values are obtained by
-      means of the \code{floor()} function \emph{only} for the evaluation
-      of the objective function.  DE itself still works with continuous
-      variables.  Additionally, each upper bound of the integer variables
-      should be added by \code{1}.
+      means of the \code{floor()} function \emph{only} in the evaluation
+      of the objective function and constraints, whereas DE itself still uses
+      continuous variables.  Additionally, each upper bound of the integer
+      variables should be added by \code{1}.
 
       Notice that the final solution needs to be converted with \code{floor()}
       to obtain its \emph{integer} elements.
