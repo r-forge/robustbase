@@ -55,8 +55,8 @@ NCDEoptim <- function(
 
     # Check input parameters
     stopifnot(length(upper) == length(lower),
-              is.numeric(lower), is.finite(lower),
-              is.numeric(upper), is.finite(upper),
+              length(lower) > 0, is.numeric(lower), is.finite(lower),
+              length(upper) > 0, is.numeric(upper), is.finite(upper),
               lower <= upper,
               is.function(fn))
     if (!is.null(constr))
@@ -375,7 +375,7 @@ NCDEoptim <- function(
     pF <- runif(NP)
     nbngbrs <- runif(NP, nbngbrsl, nbngbrsu)
     fpop <- apply(pop, 2, fn1)
-    stopifnot(is.vector(fpop), !anyNA(fpop), !is.nan(fpop))
+    stopifnot(is.vector(fpop), !anyNA(fpop), !is.nan(fpop), !is.logical(fpop))
     pop_next <- pop
     F_next <- F
     CR_next <- CR
@@ -385,7 +385,7 @@ NCDEoptim <- function(
     if (!is.null(constr)) {
         hpop <- apply(pop, 2, constr1)
         stopifnot(is.matrix(hpop) || is.vector(hpop),
-                  !anyNA(hpop), !is.nan(hpop))
+                  !anyNA(hpop), !is.nan(hpop), !is.logical(hpop))
         if (is.vector(hpop)) dim(hpop) <- c(1, length(hpop))
         TAVpop <- apply( hpop, 2, function(x) sum(pmax(x, 0)) )
         mu <- median(TAVpop)

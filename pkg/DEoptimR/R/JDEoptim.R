@@ -53,8 +53,8 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
     # Check input parameters
     compare_to <- match.arg(compare_to)
     stopifnot(length(upper) == length(lower),
-              is.numeric(lower), is.finite(lower),
-              is.numeric(upper), is.finite(upper),
+              length(lower) > 0, is.numeric(lower), is.finite(lower),
+              length(upper) > 0, is.numeric(upper), is.finite(upper),
               lower <= upper,
               is.function(fn))
     if (!is.null(constr))
@@ -218,11 +218,11 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
     CR <- runif(NP)
     pF <- runif(NP)
     fpop <- apply(pop, 2, fn1)
-    stopifnot(is.vector(fpop), !anyNA(fpop), !is.nan(fpop))
+    stopifnot(is.vector(fpop), !anyNA(fpop), !is.nan(fpop), !is.logical(fpop))
     if (!is.null(constr)) {
         hpop <- apply(pop, 2, constr1)
         stopifnot(is.matrix(hpop) || is.vector(hpop),
-                  !anyNA(hpop), !is.nan(hpop))
+                  !anyNA(hpop), !is.nan(hpop), !is.logical(hpop))
         if (is.vector(hpop)) dim(hpop) <- c(1, length(hpop))
         TAVpop <- apply( hpop, 2, function(x) sum(pmax(x, 0)) )
         mu <- median(TAVpop)
