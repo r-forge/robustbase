@@ -73,7 +73,8 @@ NCDEoptim <- function(
               archive_size == as.integer(archive_size),
               archive_size >= 0,
               length(reinit_if_solu_in_arch) == 1,
-              is.logical(reinit_if_solu_in_arch))
+              is.logical(reinit_if_solu_in_arch),
+              !is.na(reinit_if_solu_in_arch))
     stopifnot(length(NP) == 1, NP == as.integer(NP), NP >= 0,
               length(Fl) == 1, is.numeric(Fl),
               length(Fu) == 1, is.numeric(Fu),
@@ -99,7 +100,7 @@ NCDEoptim <- function(
                   is.finite(add_to_init_pop),
                   add_to_init_pop >= lower,
                   add_to_init_pop <= upper)
-    stopifnot(length(trace) == 1, is.logical(trace),
+    stopifnot(length(trace) == 1, is.logical(trace), !is.na(trace),
               length(triter) == 1, triter == as.integer(triter), triter >= 1)
 
     check_archive <- if (reinit_if_solu_in_arch) {
