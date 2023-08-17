@@ -266,7 +266,7 @@ NCDEoptim <- function(
             TAVtrial <- sum( pmax(htrial, 0) )
             if (TAVtrial > mu) {
                 if (TAVtrial <= TAVpop[k]) { # trial and target are both
-                    pop_next[, k] <- trial   # unfeasible, the one with smaller
+                    pop_next[, k] <- trial   # infeasible, the one with smaller
                     hpop_next[, k] <- htrial # constraint violation is chosen
                     F_next[, k] <- Ftrial    # or trial vector when both are
                     CR_next[k] <- CRtrial    # solutions of equal quality
@@ -305,7 +305,7 @@ NCDEoptim <- function(
             htrial <- constr1(trial)
             TAVtrial <- sum( pmax(htrial, 0) )
             if (TAVtrial > mu) {
-                if (TAVtrial <= TAVpop[k]) { # trial and target both unfeasible
+                if (TAVtrial <= TAVpop[k]) { # trial and target both infeasible
                     pop_next[, k] <- trial
                     hpop_next[, k] <- htrial
                     F_next[, k] <- Ftrial

@@ -110,7 +110,7 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
             TAVtrial <- sum( pmax(htrial, 0) )
             if (TAVtrial > mu) {
                 if (TAVtrial <= TAVpop[i]) { # trial and target are both
-                    pop[, i] <- trial        # unfeasible, the one with smaller
+                    pop[, i] <- trial        # infeasible, the one with smaller
                     hpop[, i] <- htrial      # constraint violation is chosen
                     F[, i] <- Ftrial         # or trial vector when both are
                     CR[i] <- CRtrial         # solutions of equal quality
@@ -145,7 +145,7 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
             htrial <- constr1(trial)
             TAVtrial <- sum( pmax(htrial, 0) )
             if (TAVtrial > mu) {
-                if (TAVtrial <= TAVpop[i]) { # trial and target both unfeasible
+                if (TAVtrial <= TAVpop[i]) { # trial and target both infeasible
                     pop[, i] <- trial
                     hpop[, i] <- htrial
                     F[, i] <- Ftrial

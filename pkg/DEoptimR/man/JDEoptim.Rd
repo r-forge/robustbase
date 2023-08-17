@@ -32,7 +32,8 @@ JDEoptim(lower, upper, fn,
     the value of the function at that point.}
 
   \item{constr}{an optional \code{\link{function}} for specifying the
-    nonlinear constraints under which we want to minimize \code{fn}.
+    \emph{left hand size} of nonlinear constraints under which
+    we want to minimize \code{fn}.
     Nonlinear equalities should be given first and defined to equal zero
     (\eqn{h_j(X) = 0}), followed by nonlinear inequalities defined as
     lesser than zero (\eqn{g_i(X) \le 0}).
@@ -204,9 +205,10 @@ JDEoptim(lower, upper, fn,
       where the \dQuote{best} individual \eqn{X_\mathrm{best}}{X_best} is the
       \emph{feasible} solution with the lowest objective function value in the
       population and the total number of elements in the population,
-      \code{npop}, is \code{NP+NCOL(add_to_init_pop)}.  This is a variant of
-      the \emph{Diff} criterion studied by Zielinski and Laur (2008), which
-      was found to yield the best results.
+      \code{npop}, is \code{NP+NCOL(add_to_init_pop)}.
+      For \code{compare_to = "max"} this is the \emph{Diff} criterion
+      studied by Zielinski and Laur (2008) among several other alternatives,
+      which was found to yield the best results.
     }
   }
 }
