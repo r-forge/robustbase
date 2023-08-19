@@ -15,6 +15,7 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
     handle.bounds <- function(x, u) {
         # Check feasibility of bounds and enforce parameters limits
         # by a deterministic variant of bounce-back resetting
+        # (also known as midpoint target/base)
         # Price, KV, Storn, RM, and Lampinen, JA (2005)
         # Differential Evolution: A Practical Approach to Global Optimization.
         # Springer, p 206
