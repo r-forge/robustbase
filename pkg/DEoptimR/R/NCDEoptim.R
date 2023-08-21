@@ -33,10 +33,12 @@ NCDEoptim <- function(
         ignore <- runif(d) > CRtrial
         if (all(ignore))                  # ensure that trial gets at least
             ignore[sample(d, 1)] <- FALSE # one mutant parameter
+
         # Source for trial is the base vector plus weighted differential
         trial <- if (runif(1) <= pFtrial)
             X_base + Ftrial*(X_r1 - X_r2)
         else X_base + 0.5*(Ftrial + 1)*(X_r1 + X_r2 - 2*X_base)
+
         # or trial parameter comes from target vector X_i itself.
         trial[ignore] <- X_i[ignore]
         trial

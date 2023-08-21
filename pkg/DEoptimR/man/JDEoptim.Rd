@@ -164,7 +164,7 @@ JDEoptim(lower, upper, fn,
       reduction is not triggered in this last case.  This constitutes an
       original feature of the implementation.
 
-      The performance of the constraint handling technique is severely
+      The performance of any constraint handling technique is severely
       impaired by a small feasible region.  Therefore, equality constraints
       are particularly difficult to handle due to the tiny feasible region
       they define.  So, instead of explicitly including all
@@ -185,6 +185,8 @@ JDEoptim(lower, upper, fn,
       of \eqn{x_k}, respectively, must be provided in order to obtain an
       equivalent formulation of the problem.  For guidance and examples on
       applying this approach see Wu \emph{et al.} (2015).
+
+      Bound constraints are enforced by the \emph{midpoint base} approach.
     }
     \item{Discrete and Integer Variables:}{
       Any DE variant is easily extended to deal with \emph{mixed integer
