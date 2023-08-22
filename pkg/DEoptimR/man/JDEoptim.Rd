@@ -135,6 +135,9 @@ JDEoptim(lower, upper, fn,
       in the use of the \emph{DE/rand/1/either-or} mutation strategy
       (Price \emph{et al.}, 2005), combination of \emph{jitter with dither}
       (Storn, 2008), and the random initialization of \code{F} and \code{CR}.
+      The mutation operator brings an additional control parameter, the
+      mutation probability \eqn{p_F}{pF}, which is self-adapted in the
+      same manner as \code{CR}.
 
       As done by jDE and its variants (Brest \emph{et al.}, 2021) each worse
       parent in the current population is \emph{immediately replaced}
@@ -186,7 +189,8 @@ JDEoptim(lower, upper, fn,
       equivalent formulation of the problem.  For guidance and examples on
       applying this approach see Wu \emph{et al.} (2015).
 
-      Bound constraints are enforced by the \emph{midpoint base} approach.
+      Bound constraints are enforced by the \emph{midpoint base} approach
+      (see, \emph{e.g.}, Biedrzycki \emph{et al.}, 2019).
     }
     \item{Discrete and Integer Variables:}{
       Any DE variant is easily extended to deal with \emph{mixed integer
@@ -247,6 +251,11 @@ JDEoptim(lower, upper, fn,
   \emph{Computers and Chemical Engineering} \bold{30}, 989--1002.
   \doi{10.1016/j.compchemeng.2005.12.020}.
 
+  Biedrzycki, R., Arabas, J. and Jagodzinski, D. (2019)
+  Bound constraints handling in Differential Evolution: An experimental study.
+  \emph{Swarm and Evolutionary Computation} \bold{50}, 100453.
+  \doi{10.1016/j.swevo.2018.10.004}.
+
   Brest, J., Greiner, S., Boskovic, B., Mernik, M. and Zumer, V. (2006)
   Self-adapting control parameters in differential evolution: a
   comparative study on numerical benchmark problems.
@@ -305,10 +314,9 @@ JDEoptim(lower, upper, fn,
   \doi{10.1007/978-3-540-68830-3_4}.
 }
 \seealso{
-  Function \code{\link[DEoptim]{DEoptim}()} in the
-  \CRANpkg{DEoptim} package has many more options than
-  \code{JDEoptim()}, but does not allow constraints in the same
-  flexible manner.
+  Function \code{\link[DEoptim]{DEoptim}()} in the \CRANpkg{DEoptim} package
+  has many more options than \code{JDEoptim()}, but does not allow constraints
+  in the same flexible manner.
 }
 \examples{
 \donttest{
