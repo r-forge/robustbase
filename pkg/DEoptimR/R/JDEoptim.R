@@ -249,13 +249,14 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
         iteration <- iteration + 1
 
         for (i in popIndex) { # Start loop through population
+
             # Equalize the mean lifetime of all vectors
             # Price, KV, Storn, RM, and Lampinen, JA (2005)
             # Differential Evolution: A Practical Approach to
             # Global Optimization. Springer, p 284
             i <- ((iteration + i) %% NP) + 1
 
-            # Fi update
+            # Self-adjusting parameter control scheme
             # Combine jitter with dither
             # Storn, Rainer (2008).
             # Differential evolution research - trends and open questions.
@@ -266,9 +267,8 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
                     runif(1, Fl, Fu) * (1 + jitter_factor*runif(d, -0.5, 0.5))
                 else runif(1, Fl, Fu)
             } else F[, i]
-            # CRi update
+
             CRtrial <- if (runif(1) <= tau_CR) runif(1) else CR[i]
-            # pFi update
             pFtrial <- if (runif(1) <= tau_pF) runif(1) else pF[i]
 
             # DE/rand/1/either-or/bin

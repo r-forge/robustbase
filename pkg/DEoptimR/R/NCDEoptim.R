@@ -351,10 +351,10 @@ NCDEoptim <- function(
 
     if (!is.null(constr))
         constr1 <- if (meq > 0) {
-            equalIndex <- 1:meq
+            equal_index <- 1:meq
             function(par) {
                 h <- constr(par, ...)
-                h[equalIndex] <- abs(h[equalIndex]) - eps
+                h[equal_index] <- abs(h[equal_index]) - eps
                 h
             }
         } else function(par) constr(par, ...)
@@ -410,13 +410,14 @@ NCDEoptim <- function(
         eval(identification_radius)
 
         for (i in pop_index) { # Start loop through population
+
             # Equalize the mean lifetime of all vectors
             # Price, KV, Storn, RM, and Lampinen, JA (2005)
             # Differential Evolution: A Practical Approach to
             # Global Optimization. Springer, p 284
             i <- ((iteration + i) %% NP) + 1
 
-            # Fi update
+            # Self-adjusting parameter control scheme
             # Combine jitter with dither
             # Storn, Rainer (2008).
             # Differential evolution research - trends and open questions.
@@ -427,15 +428,15 @@ NCDEoptim <- function(
                     runif(1, Fl, Fu) * (1 + jitter_factor*runif(d, -0.5, 0.5))
                 else runif(1, Fl, Fu)
             } else F[, i]
-            # CRi update
+
             CRtrial <- if (runif(1) <= tau_CR)
                 runif(1, CRl, CRu)
             else CR[i]
-            # pFi update
+
             pFtrial <- if (runif(1) <= tau_pF)
                 runif(1)
             else pF[i]
-            # nbngbrsi update
+
             nbngbrstrial <- if (runif(1) <= tau_nbngbrs)
                 runif(1, nbngbrsl, nbngbrsu)
             else nbngbrs[i]
@@ -453,6 +454,7 @@ NCDEoptim <- function(
             X_r2 <- pop[, r[3L]]
 
             trial <- handle_bounds(perform_reproduction(), X_base)
+
             # Identify the most similar individual of the trial vector
             k <- which.min( sqrt(colSums((trial - pop)^2)) )
 
