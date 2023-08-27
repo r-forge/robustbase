@@ -52,7 +52,6 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
         }
     else which.min
 
-
     # Check input parameters
     compare_to <- match.arg(compare_to)
     stopifnot(length(upper) == length(lower),
@@ -215,6 +214,11 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
         NP <- ncol(pop)
     }
     stopifnot(NP >= 4)
+    # Combine jitter with dither
+    # Storn, Rainer (2008).
+    # Differential evolution research - trends and open questions.
+    # In: U. K. Chakraborty (Ed.), Advances in Differential Evolution,
+    # SCI 143, Springer-Verlag, pp 11-12
     F <- if (use.jitter)
         (1 + jitter_factor*runif(d, -0.5, 0.5)) %o% runif(NP, Fl, Fu)
     else matrix(runif(NP, Fl, Fu), nrow = 1)
@@ -257,12 +261,8 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
             i <- ((iteration + i) %% NP) + 1
 
             # Self-adjusting parameter control scheme
-            # Combine jitter with dither
-            # Storn, Rainer (2008).
-            # Differential evolution research - trends and open questions.
-            # In: U. K. Chakraborty (Ed.), Advances in Differential Evolution,
-            # SCI 143, Springer-Verlag, pp 11-12
             Ftrial <- if (runif(1) <= tau_F) {
+                # Combine jitter with dither
                 if (use.jitter)
                     runif(1, Fl, Fu) * (1 + jitter_factor*runif(d, -0.5, 0.5))
                 else runif(1, Fl, Fu)
