@@ -32,7 +32,7 @@ JDEoptim(lower, upper, fn,
     the value of the function at that point.}
 
   \item{constr}{an optional \code{\link{function}} for specifying the
-    \emph{left hand size} of nonlinear constraints under which
+    \emph{left hand side} of nonlinear constraints under which
     we want to minimize \code{fn}.
     Nonlinear equalities should be given first and defined to equal zero
     (\eqn{h_j(X) = 0}), followed by nonlinear inequalities defined as
