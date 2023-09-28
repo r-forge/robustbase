@@ -32,7 +32,7 @@ JDEoptim(lower, upper, fn,
     the value of the function at that point.}
 
   \item{constr}{an optional \code{\link{function}} for specifying the
-    \emph{left hand side} of nonlinear constraints under which
+    \emph{left-hand side} of nonlinear constraints under which
     we want to minimize \code{fn}.
     Nonlinear equalities should be given first and defined to equal zero
     (\eqn{h_j(X) = 0}), followed by nonlinear inequalities defined as
@@ -167,10 +167,10 @@ JDEoptim(lower, upper, fn,
       reduction is not triggered in this last case.  This constitutes an
       original feature of the implementation.
 
-      The performance of any constraint handling technique is severely
-      impaired by a small feasible region.  Therefore, equality constraints
-      are particularly difficult to handle due to the tiny feasible region
-      they define.  So, instead of explicitly including all
+      The performance of any constraint handling technique for metaheuristics
+      is severely impaired by a small feasible region.  Therefore, equality
+      constraints are particularly difficult to handle due to the tiny
+      feasible region they define.  So, instead of explicitly including all
       equality constraints in the formulation of the optimization problem,
       it might prove advantageous to eliminate some of them.
       This is done by expressing one variable \eqn{x_k} in terms of the
@@ -178,7 +178,7 @@ JDEoptim(lower, upper, fn,
       where \eqn{X = [x_1,\ldots,x_k,\ldots,x_d]} is the vector of solutions,
       thereby obtaining a relationship as
       \eqn{x_k = R_{k,j}([x_1,\ldots,x_{k-1},x_{k+1},\ldots,x_d])}.
-      But this means that both the variable \eqn{x_k} and the
+      In this way both the variable \eqn{x_k} and the
       equality constraint \eqn{h_j(X) = 0} can be removed altogether from the
       original optimization formulation, since the value of \eqn{x_k} can be
       calculated during the search process by the relationship \eqn{R_{k,j}}.
