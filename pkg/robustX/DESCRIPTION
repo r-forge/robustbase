@@ -10,6 +10,11 @@ Authors@R: c(person("Martin","Maechler", role=c("aut","cre"), email="maechler@st
          , person("Tobias", "Schoch", role="ctb", comment = "init.sel=\"V2\" for BACON; fix alpha")
 	 )
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
+URL: https://robustbase.R-forge.R-project.org/,
+     https://R-forge.R-project.org/R/?group_id=59,
+     https://R-forge.R-project.org/scm/viewvc.php/pkg/robustX/?root=robustbase,
+     svn://svn.r-forge.r-project.org/svnroot/robustbase/pkg/robustX
+BugReports: https://R-forge.R-project.org/tracker/?atid=302&group_id=59
 Description: Robustness -- 'eXperimental', 'eXtraneous', or 'eXtraordinary'
   Functionality for Robust Statistics.  Hence methods which are not well established,
   often related to methods in package 'robustbase'.  Amazingly, 'BACON()', originally by
