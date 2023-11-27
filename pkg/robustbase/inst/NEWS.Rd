@@ -7,7 +7,7 @@
   % --- 1.0-0  once we fix  adjOutlyingness() properly !
   %     =====
 
-\section{CHANGES in robustbase VERSION 0.99-1 (2023-11-27, svn r984)}{
+\section{CHANGES in robustbase VERSION 0.99-1 (2023-11-27, svn r985)}{
   \subsection{Misc}{
     \itemize{
       \item document the \code{...} argument(s) of \code{nlrob.control()}.
