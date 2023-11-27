@@ -316,8 +316,8 @@ double mc_C_d(const double z[], int n, const double eps[], int *iter, int scale)
 	    }
 	}
 	if(trace_lev)
-	    Rprintf("  not found [it=%d,  (nr,nl) = (%d,%d)],"
-		    " -> (knew-nl, j) = (%d,%d)\n",
+	    Rprintf("  not found [it=%d,  (nr,nl) = (%ld,%ld)],"
+		    " -> (knew-nl, j) = (%ld,%d)\n",
 		    it, nr, nl, knew-nl, j);
 	/* using rPsort(work, n,k), since we don't need work[] anymore:*/
 	rPsort(work, /* n = */ j, /* k = */ (int)(knew-nl-1));

@@ -4,14 +4,16 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
-\section{CHANGES in robustbase VERSION 0.99-1 (2023-10-11, svn r983)}{
   % --- 1.0-0  once we fix  adjOutlyingness() properly !
   %     =====
+
+\section{CHANGES in robustbase VERSION 0.99-1 (2023-11-27, svn r984)}{
   \subsection{Misc}{
     \itemize{
       \item document the \code{...} argument(s) of \code{nlrob.control()}.
       \item \file{DESCRIPTION}: more URLSs.
       \item \file{*.Rd} tweaks; avoiding other \verb{NOTE}s.
+      \item \file{src/lmrob.c,mc.c,monitor.c}: format \%lld etc
     }
   }
 }
