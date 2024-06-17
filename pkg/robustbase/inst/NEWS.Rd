@@ -7,7 +7,21 @@
   % --- 1.0-0  once we fix  adjOutlyingness() properly !
   %     =====
 
-\section{CHANGES in robustbase VERSION 0.99-2 (2023-01-27, svn r9..)}{
+\section{CHANGES in robustbase VERSION 0.99-3 (2024-06-17, svn r990)}{
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item .
+    }
+  }
+  \subsection{Misc}{
+    \itemize{
+      \item Again adapt \file{../vignettes/lmrob_simulation.Rnw} to
+      \pkg{ggplot2} changes (\code{ s/ fun.y / fun / }).
+    }
+  }
+}
+
+\section{CHANGES in robustbase VERSION 0.99-2 (2024-01-27, svn r989)}{
   \subsection{BUG FIXES}{
     \itemize{
       \item fix thinko bug introduced exact fit checking in 0.99-0; thanks
