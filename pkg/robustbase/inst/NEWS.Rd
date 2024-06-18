@@ -7,7 +7,7 @@
   % --- 1.0-0  once we fix  adjOutlyingness() properly !
   %     =====
 
-\section{CHANGES in robustbase VERSION 0.99-3 (2024-06-17, svn r990)}{
+\section{CHANGES in robustbase VERSION 0.99-3 (2024-06-18, svn r991)}{
   \subsection{BUG FIXES}{
     \itemize{
       \item .
@@ -17,6 +17,9 @@
     \itemize{
       \item Again adapt \file{../vignettes/lmrob_simulation.Rnw} to
       \pkg{ggplot2} changes (\code{ s/ fun.y / fun / }).
+
+      \item \file{tests/subsample.R} now shows "Matrix" info (as that gave
+      confusing error during Matrix / R-devel changes).
     }
   }
 }
