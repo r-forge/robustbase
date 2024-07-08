@@ -186,7 +186,7 @@ We compare the methods
   \T{estimating.functions.R}.
 \end{itemize}
 
-\subsection{$\psi$-functions}
+\subsection[Psi-Functions]{$\psi$-Functions}
 We compare \emph{bisquare}, \emph{optimal}, \emph{lqq} and \emph{Hampel}
 $\psi$-functions. They are illustrated in Fig.~\ref{fig:psi.functions}. The
 tuning constants used in the simulation are compiled in

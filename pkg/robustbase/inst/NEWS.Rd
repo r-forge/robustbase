@@ -7,6 +7,17 @@
   % --- 1.0-0  once we fix  adjOutlyingness() properly !
   %     =====
 
+\section{CHANGES in robustbase VERSION 0.99-3 (2024-07-08, svn r993)}{
+  \subsection{Misc}{
+    \itemize{
+      \item the same problem (LaTeX no more wanting math in section
+      titles), now for \file{lmrob_simulation.Rnw}.
+
+      \item (TODO): more ggplot2 warnings
+    }
+  }
+}
+
 \section{CHANGES in robustbase VERSION 0.99-3 (2024-07-01, svn r992)}{
   \subsection{Misc}{
     \itemize{
