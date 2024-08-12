@@ -7,13 +7,23 @@
   % --- 1.0-0  once we fix  adjOutlyingness() properly !
   %     =====
 
-\section{CHANGES in robustbase VERSION 0.99-3 (2024-07-08, svn r993)}{
+\section{CHANGES in robustbase VERSION 0.99-4 (2024-08-12, svn r995)}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item \code{lmrob.fit()} gets new option \code{bare.only} for some
+      speed up, in case a relatively \dQuote{bare} result is sufficient.
+    }
+  }
   \subsection{Misc}{
     \itemize{
       \item the same problem (LaTeX no more wanting math in section
       titles), now for \file{lmrob_simulation.Rnw}.
 
-      \item (TODO): more ggplot2 warnings
+      \item avoid some \pkg{ggplot2} warnings (about omitting obs.)
+
+      \item do not warn about skipping equilibration for p=1.
+
+      \item define \code{STRICT_R_HEADERS} now (src/*.[ch]).
     }
   }
 }

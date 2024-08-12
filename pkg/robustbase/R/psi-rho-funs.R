@@ -314,10 +314,10 @@ huberPsi <- psiFunc(rho =
                   psi  = function(x, k) pmin.int(k, pmax.int(-k, x)),
                   wgt  = function(x, k) pmin.int(1, k/abs(x)),
                   Dpsi = function(x, k) abs(x) <= k,
-                  Erho = function(k) {iP <- pnorm(k, lower=FALSE)
+                  Erho = function(k) {iP <- pnorm(k, lower.tail=FALSE)
                                       1/2 - iP + k*(dnorm(k) - k*iP)},
                   Epsi2= function(k) ifelse(k < 10,
-                  1 - 2*(k*dnorm(k) + (1-k*k)*pnorm(k, lower=FALSE)), 1),
+                  1 - 2*(k*dnorm(k) + (1-k*k)*pnorm(k, lower.tail=FALSE)), 1),
                   EDpsi= function(k) 2*pnorm(k) - 1,
                   name = "Huber",
                   ## the tuning pars and default:

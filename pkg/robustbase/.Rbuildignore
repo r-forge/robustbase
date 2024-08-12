@@ -1,3 +1,4 @@
+## -*-sh-*-  using reg.exp (==> no final .*)
 \.rsync
 DESCRIPTION_
 auto/
@@ -6,7 +7,7 @@ CRAN
 M1mac
 WAS[_-]
 [-.](out|txt|log|mail|eml|zip|not-yet)
-^[^/]*\.R?out$
+\.R?out$
 Done
 win-builder
 configure-hint-Kurt
