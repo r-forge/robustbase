@@ -7,7 +7,7 @@
   % --- 1.0-0  once we fix  adjOutlyingness() properly !
   %     =====
 
-\section{CHANGES in robustbase VERSION 0.99-4 (2024-08-12, svn r995)}{
+\section{CHANGES in robustbase VERSION 0.99-4 (2024-08-13, svn r996)}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item \code{lmrob.fit()} gets new option \code{bare.only} for some

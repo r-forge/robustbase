@@ -4,6 +4,7 @@
 ## Follow a similar idea as  nlsModel() {in "stats"} which returns
 ##  a list of functions sharing a common {non-small!} environment
 
+##                                              vvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 ## NOTA BENE:  Experiments etc are currently in ../misc/experi-psi-rho-funs.R
 ## ---------   (FIXME: move those to ../tests/psi-rho-etc.R and the vignette
 ## ../vignettes//psi_functions.Rnw  (and see ../inst/xtraR/plot-psiFun.R)
@@ -451,6 +452,6 @@ tukeyPsi <- c() ##########
 ###
 ## one "challenge" is the  a(b)  needed in  chi(x; a,b) = [x^2 -1 -a]_b^b
 ## for  V-optimal  M-Estimates of scale
-## --> but that's solved (!) in ./scale-chi-opt.R
-##                              ~~~~~~~~~~~~~~~~~
+## --> but that's solved (!) in ~/R/MM/STATISTICS/robust/scale-chi-opt.R & .../scale-chi-opt-Est.R
+##                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^       ^^^^^^^^^^^^^^^^^^^
 ## Then, I'd also want the optimal chi for s
