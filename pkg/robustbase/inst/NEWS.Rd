@@ -16,8 +16,8 @@
   }
   \subsection{Misc}{
     \itemize{
-      \item the same problem (LaTeX no more wanting math in section
-      titles), now for \file{lmrob_simulation.Rnw}.
+      \item fix another LaTeX no more wanting math in section
+      titles (same problem as 0.99-3), now for \file{lmrob_simulation.Rnw}.
 
       \item avoid some \pkg{ggplot2} warnings (about omitting obs.)
 
