@@ -7,7 +7,7 @@
   % --- 1.0-0  once we fix  adjOutlyingness() properly !
   %     =====
 
-\section{CHANGES in robustbase VERSION 0.99-4 (2024-08-16, svn 999)}{
+\section{CHANGES in robustbase VERSION 0.99-4 (2024-08-16, svn 1000)}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item \code{lmrob.fit()} gets new option \code{bare.only} for some
@@ -18,6 +18,7 @@
     \itemize{
       \item fix another LaTeX no more wanting math in section
       titles (same problem as 0.99-3), now for \file{lmrob_simulation.Rnw}.
+      Now also use \verb{\texorpdfstring} inside \verb{\title{}} of \file{psi_functions.Rnw}.
 
       \item avoid some \pkg{ggplot2} warnings (about omitting obs.)
 

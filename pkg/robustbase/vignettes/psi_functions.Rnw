@@ -52,7 +52,7 @@ source(system.file("xtraR/plot-psiFun.R", package = "robustbase", mustWork=TRUE)
 \setkeys{Gin}{width=0.9\textwidth}
 \setlength{\abovecaptionskip}{-5pt}
 
-\title{Definitions of $\psi$-Functions Available in Robustbase}
+\title{Definitions of \texorpdfstring{$\psi$}{psi}-Functions Available in Robustbase}
 \author{Manuel Koller and Martin M\"achler}
 \maketitle
 \tableofcontents
