@@ -101,8 +101,8 @@ Note that $\rho(\infty) = \rho(x_r) \equiv \rho(x) \ \forall \abs{x} >= x_r$.
 $\tilde\rho$ is a $\rho$-function as defined in
 \citet{MarRMY06} and has been called $\chi$ function in other contexts. For
 example, in package \pkg{robustbase}, \code{Mchi(x, *)} computes
-$\tilde\rho(x)$, whereas \code{Mpsi(x, *, deriv=-1)} (``(-1)-st
-derivative'' is the primitive or antiderivative)) computes $\rho(x)$,
+$\tilde\rho(x)$, whereas \code{Mpsi(x, *, deriv=-1)}
+(``(-1)-st derivative'' is the primitive or antiderivative) computes $\rho(x)$,
 both according to the above definitions.
 
 \textbf{Note:} An alternative slightly more general definition of
