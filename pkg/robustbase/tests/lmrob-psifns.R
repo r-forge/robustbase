@@ -6,7 +6,6 @@ source(system.file("xtraR/test-tools.R",  package = "robustbase")) # assert.EQ
 ## NB: Code to compute some of the constants/tuning parameters (e.g. in ../R/lmrob.MM.R ):
 ## --  MM's ~/R/MM/Pkg-ex/robustbase/lmrob-check-const.R and .../psi-tuning-hampel.R
 
-(doExtras <- robustbase:::doExtras())
 
 ### (1) Test the functions themselves --------------------------------
 if(!dev.interactive(orNone=TRUE)) pdf("rob-psifns.pdf")
@@ -115,20 +114,22 @@ lmrob.tauFC <- list(optimal = list(c = 1.060158, tfc = c(tfact = 0.94735878, tco
                     lqq     = list(c = c(-.5, 1.5, 0.95, NA),     tfc = c(tfact = 0.94736359, tcorr = -0.08594805), tol = 1.7e-5),
                     hampel  = list(c = c(1.5, 3.5, 8)* 0.9016085, tfc = c(tfact = 0.94739770, tcorr = -0.04103958), tol = 3.3e-5))
 lmrob.tau.fast.coefs <- robustbase:::lmrob.tau.fast.coefs
+lmrob.tau            <- robustbase:::lmrob.tau
 ## see (very small 7'th digit differences on M1mac):
 ## IGNORE_RDIFF_BEGIN
-rr <- sapply(names(lmrob.tauFC), function(nm) { L <- lmrob.tauFC[[nm]]
+(doExtras <- robustbase:::doExtras())
+rr <- sapply(names(lmrob.tauFC), function(nm) {
+    L <- lmrob.tauFC[[nm]]
     tfc <- lmrob.tau.fast.coefs(cc = L$c, psi = sub("_[0-9]*$", '', nm))
     ## workaround (for older robustbase:) names(tfc)[2] <- "tcorr"
     Dif <- all.equal(L$tfc, tfc, tolerance = 0)
     cat(nm,": 'true' vs lmrob.tau.fast.coefs()-computed: ", Dif, "\n")
-    stopifnot(all.equal(L$tfc, tfc, tol = 4 * L$tol)) # default tol 1.49e-8  is way too small
+    stopifnot(all.equal(L$tfc, tfc, tolerance = 4 * L$tol))
     if(doExtras) { ## compute "slow coefs"
         ## Signature:  lmrob.tau(obj, x=obj$x, control = obj$control, h, fast=TRUE)
         ##   h = hatvalues  {are made from 'obj' if missing}
-### TODO
-        if(FALSE) tau <- lmrob.tau(list(), x=, control=lmrob.control(psi = nm ), fast=FALSE)
-        ## .. and now ?
+### TODO --> Koller & Stahel (2014) --> Appendix (p. 2514) <--
+        ##  tau <- lmrob.tau(list(), x= ??, control=lmrob.control(psi = nm), h = ??, fast=FALSE)
     }
     c(tfc, rel.diff = as.numeric(sub(".*:", '', Dif)))
     })

@@ -7,10 +7,11 @@
   % --- 1.0-0  once we fix  adjOutlyingness() properly !
   %     =====
 
-\section{CHANGES in robustbase VERSION 0.99-4 (2024-09-03, svn 1003)}{
+\section{CHANGES in robustbase VERSION 0.99-4-1 (2024-09-24, svn 1004)}{
   \subsection{Misc}{
     \itemize{
-      \item small changes in \file{tests/lmrob-psifns.R} and \file{*.Rout.save}.
+      \item small changes in \file{tests/lmrob-psifns.R} and \file{*.Rout.save}, notably
+      avoiding small diffs on "M1mac" and "noLD" (\command{--disable-long-double}).
     }
   }
 }
