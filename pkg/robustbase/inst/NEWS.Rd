@@ -7,7 +7,7 @@
   % --- 1.0-0  once we fix  adjOutlyingness() properly !
   %     =====
 
-\section{CHANGES in robustbase VERSION 0.99-4-1 (2024-09-25, svn 1005)}{
+\section{CHANGES in robustbase VERSION 0.99-4-1 (2024-09-25, svn 1006)}{
   \subsection{Misc}{
     \itemize{
       \item small changes in \file{tests/lmrob-psifns.R} and \file{*.Rout.save}, notably

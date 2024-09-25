@@ -545,8 +545,8 @@ There were 14 warnings (use warnings() to see them)
 > cln <- function(vc) structure(vc, weights=NULL, eigen=NULL)
 > ## .vcov.avar1() is not recommended here, but also should work with singular / NA coef case:
 > ok0 <- !is.na(coef(rm0))
-> tools::assertWarning(verbose = TRUE, # on non-M1mac, there is a 2nd warning (not shown here!)
-+ vr0.NA<- vcov(rm0, cov=".vcov.avar1", complete=NA)) # "almost singular" warning
+> tools::assertWarning(verbose = TRUE, # on non-M1mac, there is a 2nd warning (not shown here!):
++ vr0.NA<- vcov(rm0, cov=".vcov.avar1", complete=NA))
 Asserted warning: X'WX is almost singular. Consider using cov = ".vcov.w"
 > vr0.T <- vcov(rm0, cov=".vcov.avar1", complete=TRUE)
 > vr0.F <- vcov(rm0, cov=".vcov.avar1", complete=FALSE)
