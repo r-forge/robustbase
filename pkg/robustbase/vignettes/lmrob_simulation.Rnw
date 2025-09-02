@@ -70,8 +70,10 @@ theme <- theme_bw(base_size = 10)
 theme$legend.key.size <- unit(1, "lines")# was 0.9 in pre-v.3 ggplot2
 theme$plot.margin <- unit(c(1/2, 1/8, 1/8, 1/8), "lines")# was (1/2, 0,0,0)
 theme_set(theme)
-## old and new ggplot2:
-stopifnot(is.list(theme_G <- theme$panel.grid.major %||% theme$panel.grid))
+##                 very old      and     new (in 2010)  ggplot2
+theme_G <- theme$panel.grid.major %||% theme$panel.grid
+stopifnot(is_theme_element(theme_G) ## ggplot2 4.0.0
+          || is.list(theme_G)) ## ggplot2 <= 3.y.z
 
 ## set default sizes for lines and points
 update_geom_defaults("point",  list(size = 4/3))
