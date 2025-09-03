@@ -7,7 +7,7 @@
   % --- 1.0-0  once we fix  adjOutlyingness() properly !
   %     =====
 
-\section{CHANGES in robustbase VERSION 0.99-6 (2025-09-02, svn 1010)}{
+\section{CHANGES in robustbase VERSION 0.99-6 (2025-09-03, svn 1011)}{
   \subsection{Misc}{
     \itemize{
       \item small change in vignette \file{lmrob_simulation.Rnw} such that

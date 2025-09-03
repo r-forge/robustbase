@@ -8,7 +8,23 @@
 \usepackage{amsmath}
 \usepackage{natbib}
 \usepackage[utf8]{inputenc}
-
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+  \definecolor{Blue}{rgb}{0,0,0.6}
+  \definecolor{Red}{rgb}{0.5,0,0}
+  \hypersetup{%
+    % hyperindex,%
+    colorlinks={true},%
+    % pagebackref,%
+    linktocpage,%
+    plainpages={false},%
+    linkcolor={Blue},%
+    citecolor={Blue},%
+    urlcolor={Red},%
+    pdfstartview={Fit},%
+    pdfview={XYZ null null null}%
+  }
 \newcommand{\makeright}[2]{\ifx#1\left\right#2\else#1#2\fi}
 \newcommand{\Norm}[2][\left]{\mathcal N   #1( #2 \makeright{#1}{)}}
 \newcommand{\norm}[1]   {\| #1 \|}
@@ -1469,6 +1485,17 @@ print(ggplot(rmb, aes(x, l, color=psi)) + geom_line() +
   simulation. Solid line: lower bound. Dashed line: upper bound.}
 \label{fig:max-asymptotic-bias}
 \end{figure}
+
+\section{Session Information}
+<<sessionInfo, results=tex>>=
+toLatex(sessionInfo())
+@
+%%
+<<pkg-version>>=
+unlist(packageDescription("robustbase")[c("Package", "Version", "Date")])
+<<finalizing, echo=FALSE>>=
+# options(op.orig)
+@
 
 \bibliographystyle{chicago}
 \bibliography{robustbase}

@@ -390,7 +390,7 @@ covMcd <- function(x,
 	if(length(dimn[[1]]))
 	    dimnames(x)[[1]] <- names(ans$mcd.wt)[ok]
 	else
-	    dimnames(x) <- list(seq(along = ok)[ok], NULL)
+	    dimnames(x) <- list(which(ok), NULL)
     }
     ans$X <- x
     ans$wt <- NULL
