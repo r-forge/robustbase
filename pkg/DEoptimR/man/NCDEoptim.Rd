@@ -208,7 +208,7 @@ set.seed(1234)
 # Warning: the examples are run using a very small number of
 # iterations to decrease execution time.
 
-# Bound-constrained optimization
+# Bound-constrained optimization --------------------
 
 #   Vincent function
 #
@@ -222,7 +222,7 @@ NCDEoptim(c(0.25, 0.25), c(10, 10),
           niche_radius = 0.2,
           maxiter = 200, trace = TRUE, triter = 20)
 
-# Nonlinear constrained optimization
+# Nonlinear constrained optimization --------------------
 
 #   Function F10 of Poole and Allen (2019)
 #

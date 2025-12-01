@@ -326,7 +326,7 @@ JDEoptim(lower, upper, fn,
 # Use a preset seed so test values are reproducible.
 set.seed(1234)
 
-# Bound-constrained optimization
+# Bound-constrained optimization --------------------
 
 #   Griewank function
 #
@@ -350,7 +350,7 @@ griewank <- function(x) {
 JDEoptim(rep(-600, 10), rep(600, 10), griewank,
          tol = 1e-7, trace = TRUE, triter = 50)
 
-# Nonlinear constrained optimization
+# Nonlinear constrained optimization --------------------
 
 #   0 <= x1 <= 34, 0 <= x2 <= 17, 100 <= x3 <= 300
 #   The global optimum is
@@ -411,7 +411,7 @@ JDEoptim(c( 1.1,  0.6,   0.0,   0.0),
          constr = pressure_vessel_A$con,
          tol = 1e-7, trace = TRUE, triter = 50)
 
-# Mixed integer nonlinear programming
+# Mixed integer nonlinear programming --------------------
 
 #   Designing a pressure vessel
 #   Case B: solved according to the original problem statements
