@@ -315,8 +315,8 @@ JDEoptim(lower, upper, fn,
 }
 \seealso{
   Function \code{\link[DEoptim]{DEoptim}()} in the \CRANpkg{DEoptim} package
-  has many more options than \code{JDEoptim()}, but does not allow constraints
-  in the same flexible manner.
+  implements both canonical DE and the JADE algorithm, but does not allow
+  constraints in the same flexible manner as \code{JDEoptim()}.
 }
 \examples{
 \donttest{
