@@ -36,7 +36,7 @@ JDEoptim(lower, upper, fn,
     we want to minimize \code{fn}.
     Nonlinear equalities should be given first and defined to equal zero
     (\eqn{h_j(X) = 0}), followed by nonlinear inequalities defined as
-    lesser than zero (\eqn{g_i(X) \le 0}).
+    lesser than or equal to zero (\eqn{g_i(X) \le 0}).
     This function takes the vector of parameters as its first argument
     and returns a real vector with the length of the total number of
     constraints.  It defaults to \code{NULL}, meaning that
@@ -352,6 +352,11 @@ JDEoptim(rep(-600, 10), rep(600, 10), griewank,
 
 # Nonlinear constrained optimization --------------------
 
+#   f(x) = 35*x[1]^0.6 + 35*x[2]^0.6
+#   subject to:
+#   h1(x) = 600*x[1] - 50*x[3] - x[1]*x[3] + 5000 = 0
+#   h2(x) = 600*x[2] + 50*x[3] - 15000 = 0
+#
 #   0 <= x1 <= 34, 0 <= x2 <= 17, 100 <= x3 <= 300
 #   The global optimum is
 #   (x1, x2, x3; f) = (0, 16.666667, 100; 189.311627).

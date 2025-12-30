@@ -38,7 +38,7 @@ NCDEoptim(lower, upper, fn,
   \item{constr}{a vector \code{\link{function}} specifying the
     \strong{left-hand side} of equality constraints defined to equal zero
     (\eqn{h_j(X_i) = 0,\; j = 1,\ldots,\mathrm{meq}}),
-    followed by inequality constraints defined as lesser than zero
+    followed by inequality constraints defined as lesser than or equal to zero
     (\eqn{g_j(X_i) \le 0,\; j = \mathrm{meq}+1,\ldots}).  This function takes
     \eqn{X_i} as its first argument and returns a numeric vector with the same
     length of the total number of constraints.  It defaults to \code{NULL},
