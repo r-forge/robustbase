@@ -371,7 +371,7 @@ fcn <-
     list(obj = function(x) {
              35*x[1]^0.6 + 35*x[2]^0.6
          },
-         eq = 2,
+         eq = 2,                   # two equality constraints
          con = function(x) {
              x1 <- x[1]; x3 <- x[3]
              c(600*x1 - 50*x3 - x1*x3 + 5000,
@@ -384,6 +384,13 @@ JDEoptim(c(0, 0, 100), c(34, 17, 300),
 
 #   Designing a pressure vessel
 #   Case A: all variables are treated as continuous
+#
+#   f(x) = 0.6224*x[1]*x[3]*x[4] + 1.7781*x[2]*x[3]^2 +
+#              3.1611*x[1]^2*x[4] + 19.84*x[1]^2*x[3]
+#   subject to:
+#   g1(x) = 0.0193*x[3] - x[1] <= 0
+#   g2(x) = 0.00954*x[3] - x[2] <= 0
+#   g3(x) = 750.0*1728.0 - pi*x[3]^2*x[4] - 4/3*pi*x[3]^3 <= 0
 #
 #   1.1 <= x1 <= 12.5*, 0.6 <= x2 <= 12.5*,
 #   0.0 <= x3 <= 240.0*, 0.0 <= x4 <= 240.0
@@ -401,7 +408,7 @@ pressure_vessel_A <-
     list(obj = function(x) {
              x1 <- x[1]; x2 <- x[2]; x3 <- x[3]; x4 <- x[4]
              0.6224*x1*x3*x4 + 1.7781*x2*x3^2 +
-             3.1611*x1^2*x4 + 19.84*x1^2*x3
+                 3.1611*x1^2*x4 + 19.84*x1^2*x3
          },
          con = function(x) {
              x1 <- x[1]; x2 <- x[2]; x3 <- x[3]; x4 <- x[4]
@@ -436,7 +443,7 @@ pressure_vessel_B <-
              x2 <- floor(x[2])*0.0625
              x3 <- x[3]; x4 <- x[4]
              0.6224*x1*x3*x4 + 1.7781*x2*x3^2 +
-             3.1611*x1^2*x4 + 19.84*x1^2*x3
+                 3.1611*x1^2*x4 + 19.84*x1^2*x3
          },
          con = function(x) {
              x1 <- floor(x[1])*0.0625
