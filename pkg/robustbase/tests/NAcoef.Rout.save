@@ -156,9 +156,6 @@ Largest model fitted by lmrob(), i.e. SM
   pseudoDf Test.Stat Df Pr(>chisq)
 1        6                        
 2       10      1.62  1        0.2
-Warning message:
-In seq.default(along = asgn) :
-  partial argument match of 'along' to 'along.with'
 > anova(rm1, rm0, test="Deviance")
 Robust Deviance Table
 
@@ -169,9 +166,6 @@ Largest model fitted by lmrob(), i.e. SM
   pseudoDf Test.Stat Df Pr(>chisq)
 1        6                        
 2       10       1.4  1       0.24
-Warning message:
-In seq.default(along = asgn) :
-  partial argument match of 'along' to 'along.with'
 > ## commands with single #:
 > ## they do (or might) not return sensible results for robust fits
 > ## and need to be checked again
@@ -237,17 +231,6 @@ In seq.default(along = asgn) :
 +           all.equal(unname(hv1), hat(rm1$qr), tol=1e-15),
 +           ## ditto :
 +           all.equal(hv1c <- hatvalues(rm1c), hatvals_lm(rm1c), tol=1e-15))
-Warning messages:
-1: In all.equal.numeric(hv1 <- hatvalues(rm1), .lmrob.hat(wqr = rm1$qr),  :
-  partial argument match of 'tol' to 'tolerance'
-2: In all.equal.numeric(hv1, hatvals_lm(rm1, infl.1), tol = 1e-15) :
-  partial argument match of 'tol' to 'tolerance'
-3: In all.equal.numeric(hat(cm1$qr), unname(hatvalues(cm1)), tol = 1e-15) :
-  partial argument match of 'tol' to 'tolerance'
-4: In all.equal.numeric(unname(hv1), hat(rm1$qr), tol = 1e-15) :
-  partial argument match of 'tol' to 'tolerance'
-5: In all.equal.numeric(hv1c <- hatvalues(rm1c), hatvals_lm(rm1c),  :
-  partial argument match of 'tol' to 'tolerance'
 > 
 > ## kappa() & labels() :
 > stopifnot(is.infinite(kr1 <- kappa(rm1)), kr1 == kappa(cm1), # = +Inf both
@@ -260,17 +243,6 @@ Warning messages:
 > stopifnot(all.equal(predict(rm1), predict(rm1c), tol=1e-15),
 +           all.equal(predict(rm1,  se.fit=TRUE, interval="confidence"),
 + 		    predict(rm1c, se.fit=TRUE, interval="confidence"), tol=4e-15)) # seen 1.3e-15 (ATLAS)
-Warning messages:
-1: In all.equal.numeric(predict(rm1), predict(rm1c), tol = 1e-15) :
-  partial argument match of 'tol' to 'tolerance'
-2: In all.equal.numeric(target[[i]], current[[i]], check.attributes = check.attributes,  :
-  partial argument match of 'tol' to 'tolerance'
-3: In all.equal.numeric(target[[i]], current[[i]], check.attributes = check.attributes,  :
-  partial argument match of 'tol' to 'tolerance'
-4: In all.equal.numeric(target[[i]], current[[i]], check.attributes = check.attributes,  :
-  partial argument match of 'tol' to 'tolerance'
-5: In all.equal.numeric(target[[i]], current[[i]], check.attributes = check.attributes,  :
-  partial argument match of 'tol' to 'tolerance'
 > predict(rm1, type="terms", se.fit=TRUE, interval="confidence")
 $fit
          x1        x2        x3          x4 x5    x1:x2
@@ -433,9 +405,6 @@ attr(,"weights")
 + 	  all.equal(rstudent (rm1), rstudent (cm1), tolerance = 0.06),
 + 	  identical(dimnames(rm1), dimnames(cm1)),
 + 	  all.equal(dummy.coef(rm1), dummy.coef(cm1), tolerance= .5)) ## check mostly structure
-Warning message:
-In all.equal.numeric(sqrt(diag(V1)), coef(summary(rm1))[, "Std. Error"],  :
-  partial argument match of 'tol' to 'tolerance'
 > 
 > ## other helper functions
 > stopifnot(identical(case.names(rm1), case.names(cm1)),
