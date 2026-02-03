@@ -1,9 +1,10 @@
-## test handing of NA coefficients / singular fits
+## Test handling of NA coefficients / singular fits
 ## also check:
 ## -- what would have to be done if class "lm" was added.
 ## -- general compatibility to class lm.
+
 require(robustbase)
-options(digits = 5)# -> higher chance of platform independence
+options(digits = 5, width = 111) -> op # -> higher chance of platform independence
 
 ## generate simple example data (almost as in ./weights.R )
 data <- expand.grid(x1=letters[1:3], x2=LETTERS[1:3], rep=1:3)
@@ -76,19 +77,24 @@ anova(rm1, rm0, test="Deviance")
 ## commands with single #:
 ## they do (or might) not return sensible results for robust fits
 ## and need to be checked again
-#cooks.distance(rm1)
-#deviance(rm1)
-#dfbeta(rm1)
-#dfbetas(rm1)
-#effects(rm1) ## fails
-#extractAIC(rm1)
-#influence(rm1)
-stopifnot(all.equal(hv1 <- hatvalues(rm1), .lmrob.hat(wqr=rm1$qr), tol=1e-15),
-          all.equal(hv1, stats:::hatvalues.lm(rm1), tol=1e-15),
+cooks.distance(rm1)
+deviance(rm1)
+dfbeta(rm1)
+dfbetas(rm1)
+if(FALSE)
+    effects(rm1) ## fails
+extractAIC(rm1)
+infl.1 <- influence(rm1)
+## checking robustbase:::.lmrob.hat() which uses qr(.)
+hatvals_lm <- stats:::hatvalues.lm # just to check that it's the same computations
+stopifnot(identical(infl.1, lm.influence(rm1)),
+          setequal(names(infl.1), c("hat", "coefficients", "sigma", "wt.res")),
+          all.equal(hv1 <- hatvalues(rm1), .lmrob.hat(wqr=rm1$qr), tol=1e-15),
+          all.equal(hv1,   hatvals_lm(rm1, infl.1), tol=1e-15),
           all.equal(hat(cm1$qr), unname(hatvalues(cm1)), tol=1e-15),
           all.equal(unname(hv1), hat(rm1$qr), tol=1e-15),
           ## ditto :
-          all.equal(hv1c <- hatvalues(rm1c), stats:::hatvalues.lm(rm1c), tol=1e-15))
+          all.equal(hv1c <- hatvalues(rm1c), hatvals_lm(rm1c), tol=1e-15))
 
 ## kappa() & labels() :
 stopifnot(is.infinite(kr1 <- kappa(rm1)), kr1 == kappa(cm1), # = +Inf both
@@ -101,11 +107,12 @@ stopifnot(all.equal(predict(rm1), predict(rm1c), tol=1e-15),
           all.equal(predict(rm1,  se.fit=TRUE, interval="confidence"),
 		    predict(rm1c, se.fit=TRUE, interval="confidence"), tol=4e-15)) # seen 1.3e-15 (ATLAS)
 predict(rm1, type="terms", se.fit=TRUE, interval="confidence")
-#proj(rm1) ## fails "FIXME"
+## proj(rm1) ## --> effects() [see FIXME above]: fails
 residuals(rm1)
-#rstandard(rm1)
-#rstudent(rm1)
-#simulate(rm1) ## just $weights needs to be changed to prior weights
+## the next two work via lm.influence() == infl.1
+stopifnot(identical(print(rstandard(rm1)), rstandard(rm1, infl.1)),
+          identical(print(rstudent (rm1)), rstudent (rm1, infl.1)))
+simulate(rm1)
 V1 <- vcov(rm1, complete=FALSE)
 ## but don't show the "eigen" part {vectors may flip sign}:
 attributes(V1) <- attributes(V1)[c("dim","dimnames", "weights")]; V1
@@ -152,3 +159,5 @@ stopifnot(all.equal(coef(m5), coef(cm5), tolerance = 0.01),
           all.equal(coef(sm6), coef(sc6), tolerance = 1e-14),
           identical(sm5$df, sc5$df),
           identical(sm6$df, sc6$df))
+
+options(op) # revert

@@ -7,6 +7,19 @@
   % --- 1.0-0  once we fix  adjOutlyingness() properly !
   %     =====
 
+\section{CHANGES in robustbase VERSION 0.99-7 (2026-02-03, svn 1012)}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item Our \code{weights()} methods for \code{lmrob} and \code{glmrob}
+      results now work for \code{weights(mod, type = "working")} which are
+      proportional to the \code{type = "robustness"} weights. % see ../man/weights.lmrob.Rd
+
+      This allows using the \dQuote{influence measures} from \pkg{stats},
+      e.g., \code{influence(<lmrob>)}; now tested somewhat. % ../tests/NAcoef.R
+    }
+  }
+}
+
 \section{CHANGES in robustbase VERSION 0.99-6 (2025-09-03, svn 1011)}{
   \subsection{Misc}{
     \itemize{

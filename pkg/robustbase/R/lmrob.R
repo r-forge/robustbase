@@ -627,15 +627,21 @@ vcov.lmrob <- function (object, cov = object$control$cov, complete = TRUE, ...) 
 
 sigma.lmrob <- function(object, ...) object$scale
 
-weights.lmrob <- function(object, type = c("prior", "robustness"), ...) {
+weights.lmrob <- function(object, type = c("prior", "robustness", "working"), ...) {
     type <- match.arg(type)
-    res <- if (type == "prior") {
-	## Issue warning only if called from toplevel. Otherwise the warning pop
-	## up at quite unexpected places, e.g., case.names().
-	if (is.null(object[["weights"]]) && identical(parent.frame(), .GlobalEnv))
-	    warning("No weights defined for this object. Use type=\"robustness\" argument to get robustness weights.")
-	object[["weights"]]
-    } else object[["rweights"]]
+    res <- switch(type,
+	"prior" = {
+	    ## Issue warning only if called from toplevel. Otherwise the warning pop
+	    ## up at quite unexpected places, e.g., case.names().#
+	    if (is.null(object[["weights"]]) && identical(parent.frame(), .GlobalEnv))
+		warning("No weights defined for this object. Use type=\"robustness\" argument to get robustness weights.")
+	    object[["weights"]]
+	},
+	"working" = ,
+	    object[["rweights"]] * if(is.null(w <- object[["weights"]])) 1 else w,
+	"robustness" =
+	    object[["rweights"]]
+	)
     if (is.null(object$na.action))
 	res
     else naresid(object$na.action, res)

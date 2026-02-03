@@ -257,6 +257,7 @@ lmrob.fit <- function(x, y, control, init=NULL, mf=NULL, bare.only=FALSE) {
     if (control$method == "MM") control$method <- "SM"
     ## Assumption:  if(is.null(init))  method = "S..."   else  method = "..."
     ## ---------    where "..." consists of letters {"M", "D"}
+    ## NB: Now, we are transforming `init` iteratively into the final fit:
     est <- if (is.null(init)) {
         ## --- initial S estimator
         if ((M1 <- substr(control$method,1,1)) != 'S') {

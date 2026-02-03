@@ -288,7 +288,7 @@ glmrobMqle <-
 	##No  Mn <- M; Mn[ok, ok] <- matQ  ; matQ  <- Mn
     }
 
-    w.r <- pmin(1, tcc/abs(residPS))
+    w.r <- pmin(1, tcc/abs(residPS)) # = \psi(r_i) / r_i
     names(mu) <- names(eta) <- names(residPS) # re-add after computation
     list(coefficients = theta, residuals = residP, # s.resid = residPS,
          fitted.values = mu,

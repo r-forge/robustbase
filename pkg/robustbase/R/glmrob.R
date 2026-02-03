@@ -116,8 +116,7 @@ function (formula, family, data, weights, subset,
     fit <- c(fit,
 	     list(call = call, formula = formula, terms = mt, data = data,
 		  offset = offset, control = control, method = method,
-		  prior.weights = if(is.null(weights)) rep.int(1, nrow(X))
-		  else weights,
+		  prior.weights = if(is.null(weights)) rep.int(1, nrow(X)) else weights,
 		  contrasts = attr(X, "contrasts"),
 		  xlevels = .getXlevels(mt, mf)))
     class(fit) <- c("glmrob", "glm")
@@ -240,15 +239,20 @@ print.summary.glmrob <-
     invisible(x)
 }
 
-weights.glmrob <- function(object, type = c("prior", "robustness"), ...) {
+weights.glmrob <- function(object, type = c("prior", "robustness", "working"), ...) {
     type <- match.arg(type)
-    w <- if (type == "prior") {
-	## Issue warning only if called from toplevel. Otherwise the warning pop
-	## up at quite unexpected places, e.g., case.names().
-	if (is.null(object[["weights"]]) && identical(parent.frame(), .GlobalEnv))
-	    warning("No weights defined for this object. Use type=\"robustness\" argument to get robustness weights.")
-	object[["weights"]]
-    } else object$w.r * object$w.x ## those also used summarizeRobWeights(x$w.r * x$w.x, ..)
+    w <- switch(type,
+	"prior" = {
+	    ## Issue warning only if called from toplevel. Otherwise the warning pop
+	    ## up at quite unexpected places, e.g., case.names().
+	    if (is.null(object[["weights"]]) && identical(parent.frame(), .GlobalEnv))
+		warning("No weights defined for this object. Use type=\"robustness\" argument to get robustness weights.")
+	    object[["weights"]]
+	},
+	"working" = , # (only once prior.wts are really applied !?)  object$prior.wts * object$w.r * object$w.x
+	"robustness" =
+	    object$w.r * object$w.x ## those also used summarizeRobWeights(x$w.r * x$w.x, ..)
+	)
     if (is.null(object$na.action)) w else naresid(object$na.action, w)
 }
 

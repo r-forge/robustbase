@@ -1,3 +1,4 @@
+
 \name{glmrob}
 \alias{glmrob}
 \title{Robust Fitting of Generalized Linear Models}
@@ -67,7 +68,8 @@ glmrob(formula, family, data, weights, subset, na.action,
     matrix and the centre is estimated by \code{\link[MASS]{cov.rob}}
     from the package \CRANpkg{MASS}.\cr
     Similarly,  if \code{"covMcd"}, robust weights are computed using
-    \code{\link{covMcd}}.  The default is \code{"none"}.
+    \code{\link{covMcd}}.  The default is \code{"none"} as suggested by the
+    original authors.
 
     If \code{weights.on.x} is a \code{\link{function}}, it is called
     with arguments \code{(X, intercept)} and must return an n-vector of

@@ -335,7 +335,7 @@ glmrobMT <- function(x,y, weights = NULL, start = NULL, offset = NULL,
     ## x  design   matrix with nrows and p columns.
     ## y respone  vector of length n
     ## cw tuning constant. Default value 2.1
-    ## iweigths indicator for weights penalizing high leverage points, iweights=1 indicates to use weights iweights=0
+    ## iweights indicator for weights penalizing high leverage points, iweights=1 indicates to use weights iweights=0
     ## indicate notto use way. Default value is iw=0, Our simulation study suggests not to use weights.
     ## nsubm Number of subsamples. Default calue nsubm=500
     ## OUTPUT
