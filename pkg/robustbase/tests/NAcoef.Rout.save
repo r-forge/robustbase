@@ -21,6 +21,7 @@ Type 'q()' to quit R.
 > ## also check:
 > ## -- what would have to be done if class "lm" was added.
 > ## -- general compatibility to class lm.
+> 
 > require(robustbase)
 Loading required package: robustbase
 > options(digits = 5, width = 111) -> op # -> higher chance of platform independence
