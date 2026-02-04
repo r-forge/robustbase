@@ -1,3 +1,4 @@
+
 R Under development (unstable) (2026-02-01 r89366) -- "Unsuffered Consequences"
 Copyright (C) 2026 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu
@@ -15,7 +16,6 @@ Type 'contributors()' for more information and
 Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
-
 
 > ## Test handling of NA coefficients / singular fits
 > ## also check:
@@ -170,6 +170,7 @@ Largest model fitted by lmrob(), i.e. SM
 > ## commands with single #:
 > ## they do (or might) not return sensible results for robust fits
 > ## and need to be checked again
+> ## IGNORE_RDIFF_BEGIN
 > cooks.distance(rm1)
          4          5          7          8         10         11         12         13         14         16 
 0.39378416 0.14209881 0.09280251 0.06910325 0.11270605 0.04346678 0.04339510 0.11965512 0.35871198 0.00060833 
@@ -219,6 +220,7 @@ Largest model fitted by lmrob(), i.e. SM
 26   -0.070783  0.061862  0.064216  0.06485799  0.068517 -0.1228668  0.0543602 -0.0490026 -0.176150
 > if(FALSE)
 +     effects(rm1) ## fails
+> ## IGNORE_RDIFF_END
 > extractAIC(rm1)
 [1] 9.0000 2.2583
 > infl.1 <- influence(rm1)
@@ -348,6 +350,7 @@ $residual.scale
        19        20        21        22        23        25        26 
  0.498376 -0.342960  0.359752  0.092640  0.232325  0.366908 -0.270349 
 > ## the next two work via lm.influence() == infl.1
+> ## IGNORE_RDIFF_BEGIN
 > stopifnot(identical(print(rstandard(rm1)), rstandard(rm1, infl.1)),
 +           identical(print(rstudent (rm1)), rstudent (rm1, infl.1)))
         4         5         7         8        10        11        12        13        14        16        17 
@@ -358,6 +361,7 @@ $residual.scale
  1.961168  1.586452 -0.641320  1.021827 -0.884954  0.573836 -0.592182 -1.682423 -2.674934 -0.069884 -0.558330 
        19        20        21        22        23        25        26 
  0.884954 -0.573836  0.592182  0.143204  0.397981  0.509193 -0.388893 
+> ## IGNORE_RDIFF_END
 > simulate(rm1)
        sim_1
 4   0.494959

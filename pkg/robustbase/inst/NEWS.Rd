@@ -7,7 +7,7 @@
   % --- 1.0-0  once we fix  adjOutlyingness() properly !
   %     =====
 
-\section{CHANGES in robustbase VERSION 0.99-7 (2026-02-04, svn 1018)}{
+\section{CHANGES in robustbase VERSION 0.99-7 (2026-02-04, svn 1019)}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item Our \code{weights()} methods for \code{lmrob} and \code{glmrob}

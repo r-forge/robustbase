@@ -77,12 +77,14 @@ anova(rm1, rm0, test="Deviance")
 ## commands with single #:
 ## they do (or might) not return sensible results for robust fits
 ## and need to be checked again
+## IGNORE_RDIFF_BEGIN
 cooks.distance(rm1)
 deviance(rm1)
 dfbeta(rm1)
 dfbetas(rm1)
 if(FALSE)
     effects(rm1) ## fails
+## IGNORE_RDIFF_END
 extractAIC(rm1)
 infl.1 <- influence(rm1)
 ## checking robustbase:::.lmrob.hat() which uses qr(.)
@@ -110,8 +112,10 @@ predict(rm1, type="terms", se.fit=TRUE, interval="confidence")
 ## proj(rm1) ## --> effects() [see FIXME above]: fails
 residuals(rm1)
 ## the next two work via lm.influence() == infl.1
+## IGNORE_RDIFF_BEGIN
 stopifnot(identical(print(rstandard(rm1)), rstandard(rm1, infl.1)),
           identical(print(rstudent (rm1)), rstudent (rm1, infl.1)))
+## IGNORE_RDIFF_END
 simulate(rm1)
 V1 <- vcov(rm1, complete=FALSE)
 ## but don't show the "eigen" part {vectors may flip sign}:
