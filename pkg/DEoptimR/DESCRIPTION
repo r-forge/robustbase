@@ -1,6 +1,6 @@
 Package: DEoptimR
-Version: 1.1-5
-Date: 2025-12-29
+Version: 1.2-0
+Date: 2026-02-18
 Title: Differential Evolution Optimization in Pure R
 Authors@R: c(
     person(c("Eduardo", "L. T."), "Conceicao",
@@ -23,6 +23,7 @@ Description: Differential Evolution (DE) stochastic heuristic algorithms for
     optimization and 'NCDE' by Qu et al. (2012) <doi:10.1109/TEVC.2011.2161873>
     for multimodal optimization (single-objective problems with
     multiple solutions).
-Imports: stats
+Imports: stats, methods
+Suggests: mirai (>= 2.6.0)
 Enhances: robustbase
 License: GPL (>= 2)

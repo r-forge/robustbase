@@ -26,6 +26,7 @@ S.time(bl_ <- NCDEoptim(-c(10, 10), c(10, 10),
                         bl,
                         niche_radius = 5,
                         maxiter = 100))
+
 # Only inequality constraints --------------------------------------------------
 
 #   Function F1

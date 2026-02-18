@@ -1,6 +1,13 @@
 \name{NEWS}
 \title{News for package \pkg{DEoptimR}}
 
+\section{Changes in DEoptimR version 1.2-0 (2026-00-00)}{
+  \itemize{
+    \item New \code{SPJDEoptim()} adds a simple parallel version of
+          \code{JDEoptim()}.
+  }
+}
+
 \section{Changes in DEoptimR version 1.1-4 (2025-07-27)}{
   \itemize{
     \item In \code{JDEoptim()}, the default value of \code{maxiter} is
