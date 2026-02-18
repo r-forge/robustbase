@@ -1,7 +1,7 @@
 \name{SPJDEoptim}
 \alias{SPJDEoptim}
 \title{
-  Simple Parallel Version of \code{\link{JDEoptim()}}
+  Simple Parallel Version of \code{\link[=JDEoptim]{JDEoptim()}}
 }
 \description{
   Parallel evaluation of the objective function and/or constraints for each
@@ -101,11 +101,12 @@ SPJDEoptim(lower, upper, fn,
 
   \item{fnscale}{a numeric, the typical magnitude of \code{fn} used in the
     \emph{stopping criterion}.  Defaults to \code{1}.  See \sQuote{Details} in
-    \code{\link{JDEoptim()}}.}
+    \code{\link[=JDEoptim]{JDEoptim()}}.}
 
   \item{compare_to}{a character string controlling which function should be
     applied when evaluating the \emph{stopping criterion}.  It defaults to
-    \code{"median"}.  See \sQuote{Details} in \code{\link{JDEoptim()}}.}
+    \code{"median"}.  See \sQuote{Details} in
+    \code{\link[=JDEoptim]{JDEoptim()}}.}
 
   \item{add_to_init_pop}{numeric vector of length \code{length(lower)} or
     column-wise \code{\link{matrix}} with \code{length(lower)} rows specifying
@@ -128,7 +129,7 @@ SPJDEoptim(lower, upper, fn,
   Storn and Price, 2025).  The algorithm has been parallelized simply by
   distributing the evaluation of the candidate solutions in the population over
   the available processors/cores with
-  \code{\link[mirai]{mirai_map()}} from package \pkg{mirai}.
+  \code{\link[=mirai_map]{mirai_map()}} from package \pkg{mirai}.
 
   It is important to note this approach and its implementation
   \strong{is not equivalent} to the purely sequential version
@@ -136,12 +137,13 @@ SPJDEoptim(lower, upper, fn,
   update of the current population is not possible anymore.  This in turn almost
   always has a \strong{deleterious effect} on the efficiency of DE.  For this
   reason although it can run \strong{without \pkg{mirai} installed}, for example
-  using \code{sequential_eval = "both"}, the use of \code{\link{JDEoptim()}} is
-  preferred over \code{SPJDEoptim()} in this case.
+  using \code{sequential_eval = "both"}, the use of
+  \code{\link[=JDEoptim]{JDEoptim()}} is preferred over \code{SPJDEoptim()}
+  in this case.
 
   Note that all support for the parallel computation is provided by package
   \CRANpkg{mirai} and controlled directly by end-users; in particular,
-  resources are declared with \code{\link[mirai]{mirai::daemons()}}
+  resources are declared with \code{\link[=daemons]{mirai::daemons()}}
   \strong{before invoking} \code{SPJDEoptim()}.
 }
 \value{
@@ -177,7 +179,8 @@ SPJDEoptim(lower, upper, fn,
 }
 \note{
   Additional arguments are passed to \code{fn} and \code{constr} through
-  \code{further_args} instead of \code{...} such as in \code{\link{JDEoptim()}}.
+  \code{further_args} instead of \code{...} such as in
+  \code{\link[=JDEoptim]{JDEoptim()}}.
 }
 \examples{
 \donttest{

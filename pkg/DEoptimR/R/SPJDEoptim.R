@@ -236,7 +236,7 @@ SPJDEoptim <- function(
             if (NCOL(pop) > 1L)
                 mirai::mirai_map(
                     lapply(seq_len(ncol(pop)), function(j) pop[, j]), fn1, ...
-                )[.stop, .flat]
+                )[mirai::.stop, mirai::.flat]
             else fn1(pop)
         }
     }
@@ -259,7 +259,7 @@ SPJDEoptim <- function(
                 matrix(
                     mirai::mirai_map(
                         lapply(seq_len(NP), function(j) pop[, j]), constr1, ...
-                    )[.stop, .flat],
+                    )[mirai::.stop, mirai::.flat],
                     ncol = NP
                 )
             }
