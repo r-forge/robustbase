@@ -129,7 +129,7 @@ SPJDEoptim(lower, upper, fn,
   Storn and Price, 2025).  The algorithm has been parallelized simply by
   distributing the evaluation of the candidate solutions in the population over
   the available processors/cores with
-  \code{\link[=mirai_map]{mirai_map()}} from package \pkg{mirai}.
+  \code{\link[mirai:mirai_map]{mirai_map()}} from package \pkg{mirai}.
 
   It is important to note this approach and its implementation
   \strong{is not equivalent} to the purely sequential version
@@ -143,7 +143,7 @@ SPJDEoptim(lower, upper, fn,
 
   Note that all support for the parallel computation is provided by package
   \CRANpkg{mirai} and controlled directly by end-users; in particular,
-  resources are declared with \code{\link[=daemons]{mirai::daemons()}}
+  resources are declared with \code{\link[mirai:daemons]{mirai::daemons()}}
   \strong{before invoking} \code{SPJDEoptim()}.
 }
 \value{
