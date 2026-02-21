@@ -2,6 +2,7 @@
 ## This is only to verify the improvements by MM, and hence *not* exported
 ##
 covNNC1 <- function(datamat, k = 12, pnoise = 0.05, emconv = 0.001, bound = 1.5,
+                    uniqEV = FALSE, ## <<- not in original; rather for stable comparision
                     extension = TRUE, devsm = 0.01)
 {
     ##
@@ -208,6 +209,17 @@ covNNC1 <- function(datamat, k = 12, pnoise = 0.05, emconv = 0.001, bound = 1.5,
         else {
             vv1 <- ev$vectors[, 1]
             vv2 <- ev$vectors[, 2]
+        }
+        if(uniqEV) {
+            ## Flip signs of E.vectors to "unique". This steps makes the EV decomposition "unique":
+            ## a sign flip of an eigen vector is "practically random"
+            ##' doflip(v) : TRUE iff there is a negative entry before any other non-0 entry
+            doflip <- function(v) {
+                v <- v[!is.na(v)]
+                any(N <- v < 0) && (!any(P <- v > 0) || which.max(N) < which.max(P))
+            }
+            if(doflip(vv1)) vv1 <- -vv1
+            if(doflip(vv2)) vv2 <- -vv2
         }
         ot <- acos(sum(vv1 * vv2)/(sum(vv1^2) * sum(vv2^2))^0.5)
         for(kk1 in 1:(ncho2)) {

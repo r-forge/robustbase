@@ -11,7 +11,8 @@
 }
 \usage{
 covNNC(X, k = min(12, n - 1), pnoise = 0.05, emconv = 0.001,
-       bound = 1.5, extension = TRUE, devsm = 0.01)
+       bound = 1.5, extension = TRUE, devsm = 0.01,
+       trace.lev = FALSE)
 }
 \arguments{
   \item{X}{matrix in which each row represents an observation or point
@@ -19,15 +20,19 @@ covNNC(X, k = min(12, n - 1), pnoise = 0.05, emconv = 0.001,
   \item{k}{desired number of nearest neighbors (default is 12)}
   \item{pnoise}{percent of added noise}
   \item{emconv}{convergence tolerance for EM}
-  \item{bound}{value used to identify surges in variance caused by
-               outliers wrongly included as signal points (\code{bound = 1.5}
-               means a 50 percent increase)}
+
+  \item{bound}{value used to identify surges in variance caused by outliers
+    wrongly included as signal points; \code{(1 + bound) *} is used always,
+    hence by default (\code{bound = 1.5}), we check for a 150 percent
+    increase.}
   \item{extension}{whether or not to continue after reaching the last
-                   chi-square distance.  The default is to continue,
-                  which is indicated by setting \code{extension = TRUE}.}
+    chi-square distance.  The default is to continue, indicated by
+    \code{extension = TRUE}.}
   \item{devsm}{when \code{extension = TRUE}, the algorithm stops if the
-      relative difference in variance is less than \code{devsm}.
-      (default is 0.01)}
+    relative difference in variance is less than \code{devsm}, default is 0.01.}
+  \item{trace.lev}{logical or integer indicating if (more or less verbose)
+    console output should trace algorithmic progress; default is \emph{no}
+    tracing.}
 }
 
 \value{
@@ -78,7 +83,9 @@ covNNC(X, k = min(12, n - 1), pnoise = 0.05, emconv = 0.001,
   Terms of use: GPL version 2 or newer.
 
   MM: Even though \code{covNNC()} is backed by a serious scientific
-  publication, I cannot recommend its use at all.
+  publication, I cannot recommend its use at all,
+  also for the reason of its numerical instability leading to somewhat
+  platform dependent results.
 }
 
 \examples{

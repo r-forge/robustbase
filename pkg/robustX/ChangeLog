@@ -1,3 +1,10 @@
+2026-02-20  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 1.2-8
+	* R/covNNC.R: add `trace.lev = 0` option.  Notably to my R-devel
+	arithmetic.c change which lead to an eigen vector sign-flip, which broke:
+	* tests/cov-ex.R: old covNNC() now differed from old covNNC1().
+
 2023-06-14  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 1.2-7

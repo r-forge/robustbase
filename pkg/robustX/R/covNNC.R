@@ -6,8 +6,8 @@
 
 ##- speed:    Mtovec, vectoM sped up; later eliminated
 ##            to do the *scaling* once for X, then for the n2 rows
-##- accuracy: Ddk(*, lambda1,*) & Ddk(*, lambda2, *) get very close to 0
-##            But we can  use q.Ddk() := Ddk(*, ..1) / Ddk(*, ..2)  with
+##- accuracy: dDk(*, lambda1,*) & dDk(*, lambda2, *) get very close to 0
+##            But we can  use q.dDk() := dDk(*, ..1) / dDk(*, ..2)  with
 ##            much more accurate formula.
 ## - Fix to make it work for d = ncol(X) = 1
 
@@ -16,7 +16,8 @@
 ## s/SplusNN/NNdist/
 
 covNNC <- function(X, k = min(12, n-1), pnoise = 0.05,
-                   emconv = 0.001, bound = 1.5, extension = TRUE, devsm = 0.01)
+                   emconv = 0.001, bound = 1.5, extension = TRUE, devsm = 0.01,
+                   trace.lev = FALSE)
 {
     ## Function to perform Nearest Neighbor Variance Estimation
     ## Wang and Raftery(2002), "Nearest neighbor variance estimation (NNVE):
@@ -62,7 +63,7 @@ covNNC <- function(X, k = min(12, n-1), pnoise = 0.05,
         ## MM:
         q.dDk <- function(x, lam1, lam2, k, d, alpha.d) {
             ## := dDk(x, lam1, k,d,alpha.d) /
-            ##    dDK(x, lam2, k,d,alpha.d)
+            ##    dDk(x, lam2, k,d,alpha.d)
             exp( - (lam1-lam2)*alpha.d * x^d + k * (log(lam1) - log(lam2)))
         }
         NNdist <- function(X, k)
@@ -107,6 +108,11 @@ covNNC <- function(X, k = min(12, n-1), pnoise = 0.05,
         p <- 0.5
         lambda1 <- k/(alpha.d * mean(k.dists[delta == 0L]^d))
         lambda2 <- k/(alpha.d * mean(k.dists[delta == 1L]^d))
+        if(trace.lev) { # or only (trace.lev >= 2)
+            cat(sprintf(" nclean.sub(X {%d x %d}, k = %d): alpha.d = %g, k.dists :\n",
+                        n, d, k, alpha.d))
+            print(k.dists)
+        }
         loglik.old <- 0
         loglik.new <- 1
         ##
@@ -134,14 +140,28 @@ covNNC <- function(X, k = min(12, n-1), pnoise = 0.05,
                               - (1 - p) * lambda2 * a.1d +
                                  delta    * k * log(lambda1 * alpha.d) +
                               (1 - delta) * k * log(lambda2 * alpha.d))
+            if(trace.lev >= 2) { # or only if(trace.lev >= 3)
+                cat(sprintf("  EM it=%d: loglik.new=%g; ll.delta=%e,\n", it, loglik.new,
+                            abs(loglik.new - loglik.old)/(1+abs(loglik.new))
+                            ))
+            }
+        }
+        if(trace.lev) {
+            if(trace.lev <= 1)# (did *not* trace above)
+                cat(sprintf(" After %d EM iter.: loglik=%g; ll.delta=%e; ",
+                            it, loglik.new, abs(loglik.new - loglik.old)/(1+abs(loglik.new))))
+            cat(sprintf(" lambda{1,2}= {%g,%g}; ", lambda1, lambda2))
         }
         ##
-        ## z will be the classifications. 1= in cluster. 0= in noise.
+        ## z := round(probs)  are the classifications: 1 = {in cluster}, 0 = {in noise}.
         ##
-
         probs <- 1 / (1 + q.dDk(k.dists, lambda2, lambda1,
                                 k = k, d = d, alpha.d = alpha.d))
+        if(trace.lev) {
+            cat(" --> z := round(probs):\n"); print(round(probs))
+        }
         mprob <- 1. - probs
+        ## using "soft" probability groups for (mu, Sigma) etc
         mu1 <- colSums(probs * X)/sum(probs)
         mu2 <- colSums(mprob * X)/sum(mprob)
         tpsig1 <- t(X) - mu1
@@ -157,7 +177,7 @@ covNNC <- function(X, k = min(12, n-1), pnoise = 0.05,
     }
     ##----- end of nclean.sub-----------------------------------------------
 
-    ##---begin{cov.nnve} ---{main}-----------------------------------------
+    ##---begin{covNNC} ---{main}-----------------------------------------
     ##
     X <- as.matrix(X)
     n <- nrow(X)
@@ -165,10 +185,10 @@ covNNC <- function(X, k = min(12, n-1), pnoise = 0.05,
     stopifnot(n >= 3, d >= 1)
 
     S.mean <- colMedians(X)
-    S.sd <- apply(X, 2, mad)
+    S.sd <- apply(X, 2, mad) # (FIXME: when we have median() already, can compute mad() more directly)
     my.scale <- function(x) {
-        sweep(sweep(x, 2, S.mean, check.margin = FALSE),
-              2, S.sd, "/", check.margin = FALSE)
+        sweep(sweep(x, 2L, S.mean, check.margin = FALSE),
+              2L, S.sd, `/`, check.margin = FALSE)
     }
     X. <- my.scale(X)
     ##
@@ -176,51 +196,69 @@ covNNC <- function(X, k = min(12, n-1), pnoise = 0.05,
     ##
     orgNNC <- nclean.sub(X, k, convergence = emconv, s.X = X.)
     nnoise <- min(c(sum(1 - orgNNC$z), round(pnoise * n)))
+    if(trace.lev)
+        cat("covNNC(); after nclean*(<orig>), --> nnoise=", nnoise, "\n")
     knnd <- orgNNC$kthNND
     ord <- (n + 1) - rank(knnd)
     muT <- orgNNC$mu1
-    SigT <- orgNNC$Sig1
-    SigT <- (SigT + t(SigT))/2.
     SigTN <- diag(orgNNC$sd1^2, d)
-    if(nnoise > 6) {
+    if(nnoise > 6) { ## FIXME: '6' is a tuning par, somewhat arbitrary ==> shd be arg!
         ncho <- nnoise
-        ncho1 <- floor(ncho/2)
-        ncho2 <- ncho - ncho1
+        ncho1 <- ncho %/% 2   # =  #{1st half}
+        ncho2 <- ncho - ncho1 # =  #{2nd half}
         cho <- (1:n)[ord <= ncho1]
         xcho <- X[cho, , drop=FALSE]
-        ev <- eigen(SigT)
+        SigT <- orgNNC$Sig1
+        SigT <- (SigT + t(SigT))/2. # ==> *is* symmetric:
+        ev <- eigen(SigT, symmetric=TRUE)
         evv <- ev$values
-        minv <- max((1:d)[evv > 1e-12])
+        minv <- max((1:d)[evv > 1e-12]) ## (FIXME: _another_ tuning par.)
+        if(trace.lev) cat(sprintf("nnoise= %d; ncho1= %d, minv = %d ", nnoise, ncho1, minv))
         if(minv > 2) {
-            vv1 <- ev$vectors[, (minv - 1)]
+            vv1 <- ev$vectors[, minv - 1L]
             vv2 <- ev$vectors[, minv]
         }
         else {
             vv1 <- ev$vectors[, 1]
             vv2 <- ev$vectors[, 2]
         }
+        ## Flip signs of E.vectors to "unique". This steps makes the EV decomposition "unique":
+        ## a sign flip of an eigen vector is "practically random"
+        ##' doflip(v) : TRUE iff there is a negative entry before any other non-0 entry
+        doflip <- function(v) {
+            v <- v[!is.na(v)]
+            any(N <- v < 0) && (!any(P <- v > 0) || which.max(N) < which.max(P))
+        }
+        if(doflip(vv1)) vv1 <- -vv1
+        if(doflip(vv2)) vv2 <- -vv2
+        if(trace.lev) print(cbind(vv1, vv2), digits=12)
         ot <- acos(sum(vv1 * vv2)/(sum(vv1^2) * sum(vv2^2))^0.5)
-        for(kk1 in 1:(ncho2)) {
+        if(trace.lev) cat(sprintf("ot = %.17g; extend xcho[,] by %d rows:\n", ot, ncho2))
+        for(kk1 in seq_len(ncho2)) { ## MM FIXME: do *not* rbind() but pre-alloc !!
             pseg <- kk1/(ncho2 + 1) * ot
+            if(trace.lev >= 2) cat(sprintf("k1=%2d: pseg=%20.17g; [sin(.),cos(.)] = [%.17g, %.17g]\n",
+                                           kk1, pseg, sin(pseg), cos(pseg)))
             xcho <- rbind(xcho, (sin(pseg) * vv1 +
                                  cos(pseg) * vv2 + muT))
         }
     }
     else {
-        nnoise <- 3
+        nnoise <- 3 ## "FIXME": must be <= 6, but otherwise "arbitrary"
         cho <- (1:n)[ord <= nnoise]
         xcho <- X[cho, , drop=FALSE]
     }
     n2 <- nrow(xcho)
     schox <- mahalanobis(xcho, muT, SigTN)
-    Nc <- matrix(rep(muT, each=n2), nrow = n2)
+    if(trace.lev) { cat("n2=",n2,"  Mahalanobis D^2:\n"); print(schox) }
+    Nc <-  matrix(rep(muT, each=n2), nrow = n2)# == matrix(rep(muT, each=n2), nrow = n2)
     Ndir <- (xcho - Nc)/(schox^0.5)
     ##
     ## initial set up
     ##
     ch1 <- qchisq(c(.01, .0001), d, lower.tail=FALSE)
-    Xa <- seq(ch1[1], ch1[2], length = 6)
+    Xa <- seq.int(ch1[1], ch1[2], length.out = 6) # 6 upper quantiles
     gap <- Xa[2] - Xa[1]
+    if(trace.lev) { cat("Xa: "); print(Xa); cat(" -> gap=",gap,"\n") }
     initv <- diag(orgNNC$Sig1)
     OldP <- orgNNC$probs
     SaveL <- list(orgNNC[c("mu1","Sig1")])
@@ -237,7 +275,10 @@ covNNC <- function(X, k = min(12, n-1), pnoise = 0.05,
     ##sda save the results corresponding to xa = qchisq(.99,d)
     stopv <- diag(updNNC$Sig1)
     time1 <- 2
-    ##
+    if(trace.lev) {
+        cat("initv:"); utils::str(initv); cat("  table( stopv =  <?< (1 + bnd)*initv ) :\n")
+        print(table(stopv < (1 + bound) * initv))
+    }
     ##
     while((time1 <= 6) && all(stopv < (1 + bound) * initv)) {
         xa <- Xa[time1]
@@ -245,17 +286,20 @@ covNNC <- function(X, k = min(12, n-1), pnoise = 0.05,
         X.N[n+ 1:n2,] <- Np
         sXN[n+ 1:n2,] <- my.scale(Np)
         updNNC <- nclean.sub(X.N, k, convergence = emconv, s.X = sXN)
-        SaveL <- c(SaveL, list(updNNC[c("mu1","Sig1")]))
+        SaveL <- c(SaveL, list(updNNC[c("mu1","Sig1")]))  ## MM _FIXME ??__ only need last 2, also!
         SaveP <- c(SaveP[2], list(updNNC$probs[1:n])) # always keep the last two
         time1 <- time1 + 1
         stopv <- diag(updNNC$Sig1)
-        NULL
+        if(trace.lev) {
+            cat("time1=",time1," table( stopv =  <?< (1 + bnd)*initv ) :\n")
+            print(table(stopv < (1 + bound) * initv))
+        }
     }
     ##
     ##   Procedure stop if the added noise cause a "surge" within the range
     ##
     nS <- length(SaveL)
-    if(all(stopv < (1 + bound) * initv)) {
+    if(all(stopv < (1 + bound) * initv)) { # "convergence" in 6-1 = 5 steps
         ans <- SaveL[[nS]]
         NewP <- SaveP[[2]]
         ##
@@ -264,6 +308,11 @@ covNNC <- function(X, k = min(12, n-1), pnoise = 0.05,
         if(extension) {
             Fstop <- FALSE
             tpv <- stopv
+            if(trace.lev) {
+                cat("extension loop:\n stopvtime1=",time1," table( stopv =  <?< (1 + bnd)*initv ) :\n")
+            print(table(stopv < (1 + bound) * initv))
+        }
+
             while(!Fstop && all(stopv < (1 + bound) * initv)) {
                 xa <- xa + gap
                 startv <- stopv
@@ -271,7 +320,7 @@ covNNC <- function(X, k = min(12, n-1), pnoise = 0.05,
                 X.N[n+ 1:n2,] <- Np
                 sXN[n+ 1:n2,] <- my.scale(Np)
                 updNNC <- nclean.sub(X.N, k, convergence = emconv, s.X = sXN)
-                SaveL <- c(SaveL, list(updNNC[c("mu1","Sig1")]))
+                SaveL <- c(SaveL,    list(updNNC[c("mu1","Sig1")])) ## MM _FIXME_ only need last 2!
                 SaveP <- c(SaveP[2], list(updNNC$probs[1:n])) # always keep the last two
                 ntpv <- diag(updNNC$Sig1)
                 stopv <- colMeans(rbind(startv * 2 - tpv, ntpv))
@@ -301,7 +350,7 @@ covNNC <- function(X, k = min(12, n-1), pnoise = 0.05,
          innc =
          list(cov = orgNNC$Sig1, mu = orgNNC$mu1, iter = orgNNC$iter,
               postprob = OldP, classification = round(OldP)))
-}
+} ## covNNC()
 
 cov.nnve <- function(datamat, k = 12, ...)
 {

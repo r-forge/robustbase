@@ -12,16 +12,10 @@ cat("doCheck (= have long double):", doCheck,"\n")
 
 if(!dev.interactive(orNone=TRUE)) pdf("cov-ex.pdf")
 
-covNN.1 <- robustX:::covNNC1  ## the original definition (2003)
-
-data(iris)
-system.time(cN1 <- covNN.1(iris[-5]))
-system.time(cN  <- covNNC (iris[-5]))# faster indeed
-
 ## report.and.stop.if.not.all.equal
 report.stopifnot.all.eq <- function(a,b, tol, ...) {
     call <- sys.call()
-    ae <- all.equal(a,b, tol=tol, ...)
+    ae <- all.equal(a,b, tolerance=tol, ...)
     call[[1]] <- quote(all.equal)
     if(!isTRUE(ae))
 	stop(sprintf("Not %s:\n%s\n\n", deparse(call),
@@ -50,15 +44,29 @@ summ.NN <- function(cNN, digits = 3) {
           incc.p= round(cNN$innc$postprob, digits))
 }
 
+
+## the original definition (2003)  "plus"  uniqEV
+covNN.1 <- function(X) robustX:::covNNC1(X, uniqEV=TRUE)
+
+
+data(iris)
+system.time(cN1 <- covNN.1(iris[-5]))
+system.time(cN  <- covNNC (iris[-5]))# faster indeed
+
+cN2  <- covNNC(iris[-5], trace.lev = 2)
+all.equal(cN, cN2, tolerance = 0)# TRUE ?
+stopifnot(all.equal(cN, cN2))
+## stopifnot(identical(cN, cN2))
+
 s1 <- summ.NN(cN1)
 ss <- summ.NN(cN)
 if(isTRUE(all.equal(ss, s1))) ss else cbind(ss, s1)
-
 
 try( # testing (tol=0 too small)
     chk.NN.new.old(cN, cN1, tol=0)
 )
 ## This used to fail when we use R's instead of BLAS matrix products:
+## 2026-01: now also "reliably fails" on Linux aa
 if(doCheck)
     chk.NN.new.old(cN, cN1, tol = 4e-15) # seen 1.1e-15 work
 
@@ -81,9 +89,9 @@ if(doCheck && ourBLAS) # did fail with ATLAS in R-devel 2023-1-1
     chk.NN.new.old(cNX, cNX1)
 
 stopifnot(exprs = {
-    all.equal(1900.4208,   kappa(cM $cov))# 1990.8.. then  1900.421
-    all.equal(4.485807117, kappa(cNX$cov))
-    all.equal(1.047781251, kappa(cov(X)))
+    all.equal(1900.4208,  print(kappa(cM $cov)))# 1990.8.. then  1900.421
+    all.equal(4.437255 ,  print(kappa(cNX$cov)), tolerance = 5e-3)# was 4.44858
+    all.equal(1.04778125, print(kappa(cov(X))))
 })
 
 ## ---- d = 1 :
@@ -101,7 +109,7 @@ covNNC(X1)$cov ## -- really not at all robust:
 
 (C.mcd <- covMcd(X1)$cov)
 Cm <- as.matrix(if(newRB) 4.8848 else 7.790004)
-all.equal(Cm, C.mcd, tol=0) # 6.633e-6
+all.equal(Cm, C.mcd, tolerance=0) # 6.633e-6
 stopifnot(all.equal(Cm, C.mcd, tol = 2e-5))
 
 
@@ -123,8 +131,9 @@ data(starsCYG, package = "robustbase")
 
 op <- options(warn = 2)# no warnings allowed
 str(B.ST <- with(starsCYG, BACON(x = log.Te, y = log.light)))
-(Bgood <- which(B.ST$subset))
-.Platform$r_arch
+Bgood <- which(B.ST$subset)
+cat("starsCYG - outliers (BACON):"); setdiff(seq_len(nrow(starsCYG)), Bgood)
+.Platform$r_arch # typical empty for Linux
 ## 32-bit <-> 64-bit different results {tested on Linux & Windows Server}
 is32 <- .Machine$sizeof.pointer == 4 ## <- should work for Linux/MacOS/Windows
 isMac <- Sys.info()[["sysname"]] == "Darwin"
@@ -166,7 +175,7 @@ cfT <- switch(Platf_arch # use lm(..., subset = sfsmisc::inverseWhich(Bgood))
 cf <- unname(coef(lmB))
 dput(signif(cf, 8))
 if(!is.null(cfT)) withAutoprint({
-    all.equal(cf, cfT, tol=0)# 64b: 6.4e-10
+    all.equal(cf, cfT, tolerance = 0)# 64b: 6.4e-10
     stopifnot(all.equal(cf, cfT))
 })
 
