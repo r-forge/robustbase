@@ -66,7 +66,8 @@ SPJDEoptim(lower, upper, fn,
   \item{further_args}{a list of any further arguments passed to
     \code{fn} and \code{constr}.  Defaults to an empty list.}
 
-  \item{NP}{an integer, the population size.  Defaults to \code{100}.}
+  \item{NP}{an integer, the population size.  Defaults to
+    \code{10*length(lower)}.}
 
   \item{Fl}{a numeric, the minimum value that the
     \emph{scaling factor} \code{F} could take.  It defaults to \code{0.1}.}

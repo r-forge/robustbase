@@ -355,7 +355,7 @@ SPJDEoptim <- function(
                                                          # through population
             # DE/rand/1/either-or/bin
             X_i <- pop[, i]
-            # Randomly pick 3 vectors all diferent from target vector
+            # Randomly pick 3 vectors all different from target vector
             r <- sample(pop_index[-i], 3)
             X_base <- pop[, r[1L]]
             X_r1 <- pop[, r[2L]]

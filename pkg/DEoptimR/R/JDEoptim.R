@@ -273,7 +273,7 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
 
             # DE/rand/1/either-or/bin
             X.i <- pop[, i]
-            # Randomly pick 3 vectors all diferent from target vector
+            # Randomly pick 3 vectors all different from target vector
             r <- sample(popIndex[-i], 3)
             X.base <- pop[, r[1L]]
             X.r1 <- pop[, r[2L]]
