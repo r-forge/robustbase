@@ -81,8 +81,8 @@ NCDEoptim <- function(
               length(Fl) == 1, is.numeric(Fl),
               length(Fu) == 1, is.numeric(Fu),
               Fl <= Fu,
-              length(CRl) == 1, is.numeric(CRl),
-              length(CRu) == 1, is.numeric(CRu),
+              length(CRl) == 1, is.numeric(CRl), CRl >= 0, CRl <= 1,
+              length(CRu) == 1, is.numeric(CRu), CRu >= 0,
               CRl <= CRu)
     stopifnot(length(tau_F) == 1, is.numeric(tau_F), tau_F >= 0, tau_F <= 1,
               length(tau_CR) == 1, is.numeric(tau_CR), tau_CR >= 0, tau_CR <= 1,

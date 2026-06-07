@@ -1,7 +1,7 @@
 \name{NEWS}
 \title{News for package \pkg{DEoptimR}}
 
-\section{Changes in DEoptimR version 1.2-0 (2026-00-00)}{
+\section{Changes in DEoptimR version 1.2-0 (2026-06-07)}{
   \itemize{
     \item New \code{SPJDEoptim()} adds a simple parallel version of
           \code{JDEoptim()}.
