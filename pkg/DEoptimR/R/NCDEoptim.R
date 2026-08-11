@@ -12,7 +12,7 @@ NCDEoptim <- function(
     trace = FALSE, triter = 1,
     ...) {
 
-#   Copyright 2023, Eduardo L. T. Conceicao
+#   Copyright 2023, 2026, Eduardo L. T. Conceicao
 #   Available under the GPL (>= 2)
 
     handle_bounds <- function(x, u) {
@@ -73,13 +73,13 @@ NCDEoptim <- function(
                   is.finite(niche_radius), niche_radius > 0)
     stopifnot(length(archive_size) == 1,
               archive_size == as.integer(archive_size),
-              archive_size >= 0,
+              archive_size >= 1,
               length(reinit_if_solu_in_arch) == 1,
               is.logical(reinit_if_solu_in_arch),
               !is.na(reinit_if_solu_in_arch))
     stopifnot(length(NP) == 1, NP == as.integer(NP), NP >= 0,
-              length(Fl) == 1, is.numeric(Fl),
-              length(Fu) == 1, is.numeric(Fu),
+              length(Fl) == 1, is.numeric(Fl), is.finite(Fl),
+              length(Fu) == 1, is.numeric(Fu), is.finite(Fu),
               Fl <= Fu,
               length(CRl) == 1, is.numeric(CRl), CRl >= 0, CRl <= 1,
               length(CRu) == 1, is.numeric(CRu), CRu >= 0,
@@ -316,7 +316,7 @@ NCDEoptim <- function(
                     nbngbrs_next[k] <- nbngbrstrial
                     TAVpop_next[k] <- TAVtrial
                 }
-            } else if (TAVpop[i] > mu) { # trial is feasible and target is not
+            } else if (TAVpop[k] > mu) { # trial is feasible and target is not
                 pop_next[, k] <- trial
                 fpop_next[k] <- fn1(trial)
                 hpop_next[, k] <- htrial

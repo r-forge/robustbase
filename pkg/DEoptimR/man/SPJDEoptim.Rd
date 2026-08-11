@@ -132,7 +132,7 @@ SPJDEoptim(lower, upper, fn,
   the available processors/cores with
   \code{\link[mirai:mirai_map]{mirai_map()}} from package \pkg{mirai}.
 
-  It is important to note this approach and its implementation
+  It is important to note that this approach and its implementation
   \strong{is not equivalent} to the purely sequential version
   \code{JDEoptim()}, the major reason being the fact that an asynchronous
   update of the current population is not possible anymore.  This in turn almost

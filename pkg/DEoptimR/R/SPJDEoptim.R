@@ -90,8 +90,8 @@ SPJDEoptim <- function(
     }
     stopifnot(
         length(NP) == 1, NP == as.integer(NP), NP >= 0,
-        length(Fl) == 1, is.numeric(Fl),
-        length(Fu) == 1, is.numeric(Fu),
+        length(Fl) == 1, is.numeric(Fl), is.finite(Fl),
+        length(Fu) == 1, is.numeric(Fu), is.finite(Fu),
         Fl <= Fu,
         length(CRl) == 1, is.numeric(CRl), CRl >= 0, CRl <= 1,
         length(CRu) == 1, is.numeric(CRu), CRu >= 0,

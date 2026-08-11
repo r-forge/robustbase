@@ -65,8 +65,8 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
                   is.numeric(eps), is.finite(eps), eps > 0,
                   length(eps) == 1 || length(eps) == meq)
     stopifnot(length(NP) == 1, NP == as.integer(NP), NP >= 0,
-              length(Fl) == 1, is.numeric(Fl),
-              length(Fu) == 1, is.numeric(Fu),
+              length(Fl) == 1, is.numeric(Fl), is.finite(Fl),
+              length(Fu) == 1, is.numeric(Fu), is.finite(Fu),
               Fl <= Fu)
     stopifnot(length(tau_F) == 1, is.numeric(tau_F), 0 <= tau_F, tau_F <= 1,
               length(tau_CR) == 1, is.numeric(tau_CR), 0 <= tau_CR, tau_CR <= 1,

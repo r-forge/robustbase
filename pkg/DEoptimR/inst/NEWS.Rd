@@ -1,6 +1,13 @@
 \name{NEWS}
 \title{News for package \pkg{DEoptimR}}
 
+\section{Changes in DEoptimR version 1.2-1 (2026-08-00)}{
+  \itemize{
+    \item Fixes a bug in \code{NCDEoptim()} when subsetting
+          \code{TAVpop} during constraint handling.
+  }
+}
+
 \section{Changes in DEoptimR version 1.2-0 (2026-06-07)}{
   \itemize{
     \item New \code{SPJDEoptim()} adds a simple parallel version of
