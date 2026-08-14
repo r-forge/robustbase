@@ -391,11 +391,13 @@ NCDEoptim <- function(
     nbngbrs_next <- nbngbrs
     fpop_next <- fpop
     if (!is.null(constr)) {
-        hpop <- apply(pop, 2, constr1)
+        hpop <- apply( pop, 2, function(par) constr(par, ...) )
         stopifnot(is.matrix(hpop) || is.vector(hpop),
                   !anyNA(hpop), !is.nan(hpop), !is.logical(hpop))
         if (is.vector(hpop)) dim(hpop) <- c(1, length(hpop))
         stopifnot(nrow(hpop) >= meq)
+        if (meq > 0)
+            hpop[equal_index, ] <- abs(hpop[equal_index, ]) - eps
         TAVpop <- apply( hpop, 2, function(x) sum(pmax(x, 0)) )
         mu <- median(TAVpop)
         hpop_next <- hpop
