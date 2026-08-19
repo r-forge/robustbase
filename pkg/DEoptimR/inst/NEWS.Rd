@@ -1,10 +1,10 @@
 \name{NEWS}
 \title{News for package \pkg{DEoptimR}}
 
-\section{Changes in DEoptimR version 1.2-1 (2026-08-00)}{
+\section{Changes in DEoptimR version 1.2-1 (2026-08-19)}{
   \itemize{
-    \item Fixes a bug in \code{NCDEoptim()} when subsetting
-          \code{TAVpop} during constraint handling.
+    \item Fixes a bug in \code{NCDEoptim()} when subsetting \code{TAVpop}
+          during constraint handling without equalities.
   }
 }
 
