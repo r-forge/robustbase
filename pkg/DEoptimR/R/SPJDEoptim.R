@@ -43,17 +43,6 @@ SPJDEoptim <- function(
         trial
     }
 
-    which_best <- if (!is.null(constr))
-        function(x) {
-            ind <- TAVpop <= mu
-            if (all(ind))
-                which.min(x)
-            else if (any(ind))
-                which(ind)[which.min(x[ind])]
-            else which.min(TAVpop)
-        }
-    else which.min
-
     mirai_enabled <- requireNamespace("mirai", quietly = TRUE)
 
     # Check input parameters
@@ -128,7 +117,21 @@ SPJDEoptim <- function(
         length(details) == 1, is.logical(details), !is.na(details)
     )
 
-    child <- if (is.null(constr)) { # Evaluate/select
+    has_NO_constraints <- is.null(constr)
+    has_constraints <- !has_NO_constraints
+
+    which_best <- if (has_constraints)
+        function(x) {
+            ind <- TAVpop <= mu
+            if (all(ind))
+                which.min(x)
+            else if (any(ind))
+                which(ind)[which.min(x[ind])]
+            else which.min(TAVpop)
+        }
+    else which.min
+
+    child <- if (has_NO_constraints) { # Evaluate/select
         expression({
             ftrial <- fn2(trial)
             i <- ftrial <= fpop
@@ -241,7 +244,7 @@ SPJDEoptim <- function(
         }
     }
 
-    if (!is.null(constr)) {
+    if (has_constraints) {
         constr1 <- if (meq > 0) {
             equal_index <- 1:meq
             function(par) {
@@ -299,7 +302,7 @@ SPJDEoptim <- function(
     Ftrial <- F
     CRtrial <- CR
     pFtrial <- pF
-    if (!is.null(constr)) {
+    if (has_constraints) {
         hpop <- constr2(pop)
         stopifnot(
             is.matrix(hpop),
@@ -320,7 +323,7 @@ SPJDEoptim <- function(
     pop_index <- 1:NP
     x_best_ind <- which_best(fpop)
     converge <- eval(conv)
-    rule <- if (!is.null(constr))
+    rule <- if (has_constraints)
         expression(converge >= tol || any(hpop[, x_best_ind] > 0))
     else expression(converge >= tol)
     convergence <- 0
@@ -372,7 +375,7 @@ SPJDEoptim <- function(
         if (trace && (iteration %% triter == 0))
             cat(iteration, ":", "<", converge, ">", "(", fpop[x_best_ind], ")",
                 pop[, x_best_ind],
-                if (!is.null(constr))
+                if (has_constraints)
                     paste("{", which(hpop[, x_best_ind] > 0), "}"),
                 fill = TRUE)
     }

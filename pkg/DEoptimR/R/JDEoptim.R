@@ -41,17 +41,6 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
         trial
     }
 
-    which.best <- if (!is.null(constr))
-        function(x) {
-            ind <- TAVpop <= mu
-            if (all(ind))
-                which.min(x)
-            else if (any(ind))
-                which(ind)[which.min(x[ind])]
-            else which.min(TAVpop)
-        }
-    else which.min
-
     # Check input parameters
     compare_to <- match.arg(compare_to)
     stopifnot(length(upper) == length(lower),
@@ -90,7 +79,21 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
               length(triter) == 1, triter == as.integer(triter), triter >= 1,
               length(details) == 1, is.logical(details), !is.na(details))
 
-    child <- if (is.null(constr)) { # Evaluate/select
+    has_NO_constraints <- is.null(constr)
+    has_constraints <- !has_NO_constraints
+
+    which.best <- if (has_constraints)
+        function(x) {
+            ind <- TAVpop <= mu
+            if (all(ind))
+                which.min(x)
+            else if (any(ind))
+                which(ind)[which.min(x[ind])]
+            else which.min(TAVpop)
+        }
+    else which.min
+
+    child <- if (has_NO_constraints) { # Evaluate/select
         expression({
             ftrial <- fn1(trial)
             if (ftrial <= fpop[i]) {
@@ -184,7 +187,7 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
 
     fn1 <- function(par) fn(par, ...)
 
-    if (!is.null(constr))
+    if (has_constraints)
         constr1 <-
             if (meq > 0) {
                 eqI <- 1:meq
@@ -226,7 +229,7 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
     pF <- runif(NP)
     fpop <- apply(pop, 2, fn1)
     stopifnot(is.vector(fpop), !anyNA(fpop), !is.nan(fpop), !is.logical(fpop))
-    if (!is.null(constr)) {
+    if (has_constraints) {
         hpop <- apply( pop, 2, function(par) constr(par, ...) )
         stopifnot(is.matrix(hpop) || is.vector(hpop),
                   !anyNA(hpop), !is.nan(hpop), !is.logical(hpop))
@@ -241,7 +244,7 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
     popIndex <- 1:NP
     x.best.ind <- which.best(fpop)
     converge <- eval(conv)
-    rule <- if (!is.null(constr))
+    rule <- if (has_constraints)
         expression(converge >= tol || any(hpop[, x.best.ind] > 0))
     else expression(converge >= tol)
     convergence <- 0
@@ -293,7 +296,7 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
         if (trace && (iteration %% triter == 0))
             cat(iteration, ":", "<", converge, ">", "(", fpop[x.best.ind], ")",
                 pop[, x.best.ind],
-                if (!is.null(constr))
+                if (has_constraints)
                     paste("{", which(hpop[, x.best.ind] > 0), "}"),
                 fill = TRUE)
     }

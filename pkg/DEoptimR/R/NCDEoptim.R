@@ -44,17 +44,6 @@ NCDEoptim <- function(
         trial
     }
 
-    which_best <- if (!is.null(constr))
-        function(x) {
-            ind <- TAVpop <= mu
-            if (all(ind))
-                which.min(x)
-            else if (any(ind))
-                which(ind)[which.min(x[ind])]
-            else which.min(TAVpop)
-        }
-    else which.min
-
     # Check input parameters
     stopifnot(length(upper) == length(lower),
               length(lower) > 0, is.numeric(lower), is.finite(lower),
@@ -104,6 +93,9 @@ NCDEoptim <- function(
                   add_to_init_pop <= upper)
     stopifnot(length(trace) == 1, is.logical(trace), !is.na(trace),
               length(triter) == 1, triter == as.integer(triter), triter >= 1)
+
+    has_NO_constraints <- is.null(constr)
+    has_constraints <- !has_NO_constraints
 
     check_archive <- if (reinit_if_solu_in_arch) {
         expression({
@@ -222,7 +214,7 @@ NCDEoptim <- function(
         })
     } else expression()
 
-    update_pop <- if (is.null(constr)) {
+    update_pop <- if (has_NO_constraints) {
         expression({
             pop <- pop_next
             fpop <- fpop_next
@@ -244,7 +236,18 @@ NCDEoptim <- function(
         })
     }
 
-    child <- if (is.null(constr)) { # Evaluate/select
+    which_best <- if (has_constraints)
+        function(x) {
+            ind <- TAVpop <= mu
+            if (all(ind))
+                which.min(x)
+            else if (any(ind))
+                which(ind)[which.min(x[ind])]
+            else which.min(TAVpop)
+        }
+    else which.min
+
+    child <- if (has_NO_constraints) { # Evaluate/select
         expression({
             ftrial <- fn1(trial)
             if (ftrial <= fpop[k]) {
@@ -348,7 +351,7 @@ NCDEoptim <- function(
 
     fn1 <- function(par) fn(par, ...)
 
-    if (!is.null(constr))
+    if (has_constraints)
         constr1 <- if (meq > 0) {
             equal_index <- 1:meq
             function(par) {
@@ -390,7 +393,7 @@ NCDEoptim <- function(
     pF_next <- pF
     nbngbrs_next <- nbngbrs
     fpop_next <- fpop
-    if (!is.null(constr)) {
+    if (has_constraints) {
         hpop <- apply( pop, 2, function(par) constr(par, ...) )
         stopifnot(is.matrix(hpop) || is.vector(hpop),
                   !anyNA(hpop), !is.nan(hpop), !is.logical(hpop))
@@ -405,7 +408,7 @@ NCDEoptim <- function(
     }
     S <- NULL
     R <- if (is.null(niche_radius)) Inf else niche_radius
-    best_fpop <- if (!is.null(constr)) Inf else min(fpop)
+    best_fpop <- if (has_constraints) Inf else min(fpop)
     x_ind_in_S <- 2:(d+1)
 
     pop_index <- 1:NP
@@ -472,7 +475,7 @@ NCDEoptim <- function(
             cat(iteration, ":", "<", R, ">",
                 "population>>",
                 "(", fpop[x_best_in_pop], ")", pop[, x_best_in_pop],
-                if (!is.null(constr))
+                if (has_constraints)
                     paste("{", which(hpop[, x_best_in_pop] > 0), "}"),
                 "archive>>", "[", ncol(S), "]",
                 "(", S[1, x_best_in_S], ")", S[x_ind_in_S, x_best_in_S],
@@ -485,10 +488,10 @@ NCDEoptim <- function(
         ord <- order(S[1, ])
         res$solution_arch <- unname(S[x_ind_in_S, ord, drop = FALSE])
         res$objective_arch <- unname(S[1, ord])
-        if (!is.null(constr))
+        if (has_constraints)
             res$constr_value_arch <- unname(S[-(1:(d+1)), ord, drop = FALSE])
     }
-    if (!is.null(constr)) {
+    if (has_constraints) {
         ord <- order(apply(hpop > 0, 2, any), fpop)
         res$constr_value_pop <- hpop[, ord, drop = FALSE]
     } else ord <- order(fpop)
