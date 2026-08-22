@@ -231,6 +231,7 @@ SPJDEoptim <- function(
     }
 
     fn1 <- function(par) do.call(fn, c(list(par), further_args))
+
     fn2 <- if (sequential_eval %in% c("objective", "both"))
         function(pop) if (NCOL(pop) > 1L) apply(pop, 2, fn1) else fn1(pop)
     else {
@@ -245,19 +246,12 @@ SPJDEoptim <- function(
     }
 
     if (has_constraints) {
-        constr1 <- if (meq > 0) {
-            equal_index <- 1:meq
-            function(par) {
-                h <- do.call(constr, c(list(par), further_args))
-                h[equal_index] <- abs(h[equal_index]) - eps
-                h
-            }
-        } else function(par) do.call(constr, c(list(par), further_args))
+        constr1 <- function(par) do.call(constr, c(list(par), further_args))
 
         constr2 <- if (sequential_eval %in% c("constraints", "both"))
             function(pop) matrix(apply(pop, 2, constr1), ncol = NP)
         else {
-        if (!mirai_enabled) stop("the mirai package is required")
+            if (!mirai_enabled) stop("the mirai package is required")
             function(pop) {
                 matrix(
                     mirai::mirai_map(
@@ -306,8 +300,18 @@ SPJDEoptim <- function(
         hpop <- constr2(pop)
         stopifnot(
             is.matrix(hpop),
-            !is.na(hpop), !is.nan(hpop), !is.logical(hpop)
+            !is.na(hpop), !is.nan(hpop), !is.logical(hpop),
+            nrow(hpop) >= meq
         )
+        if (meq > 0) {
+            equal_index <- 1:meq
+            constr1 <- function(par) {
+                h <- do.call(constr, c(list(par), further_args))
+                h[equal_index] <- abs(h[equal_index]) - eps
+                h
+            }
+            hpop[equal_index, ] <- abs(hpop[equal_index, ]) - eps
+        }
         TAVpop <- apply( hpop, 2, function(x) sum(pmax(x, 0)) )
         mu <- median(TAVpop)
         fpop <- rep_len(Inf, NP)
