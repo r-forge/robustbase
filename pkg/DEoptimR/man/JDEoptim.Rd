@@ -42,7 +42,7 @@ JDEoptim(lower, upper, fn,
     constraints.  It defaults to \code{NULL}, meaning that
     \emph{bound-constrained} minimization is used.}
 
-  \item{meq}{an optional positive integer specifying that the first
+  \item{meq}{an optional non-negative integer specifying that the first
     \code{meq} constraints are treated as \emph{equality} constraints,
     and all the remaining as \emph{inequality} constraints.  Defaults to
     \code{0} (inequality constraints only).}
@@ -53,7 +53,7 @@ JDEoptim(lower, upper, fn,
     of the form \eqn{|h_j(X)| - \epsilon \le 0}.  A scalar value is expanded
     to apply to all equality constraints.  Default is \code{1e-5}.}
 
-  \item{NP}{an optional positive integer giving the number of candidate
+  \item{NP}{an optional non-negative integer giving the number of candidate
     solutions in the randomly distributed initial population.  Defaults to
     \code{10*length(lower)}.}
 
