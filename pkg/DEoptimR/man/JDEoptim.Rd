@@ -83,7 +83,7 @@ JDEoptim(lower, upper, fn,
   \item{tol}{an optional positive scalar giving the tolerance for the
     stopping criterion.  Default is \code{1e-15}.}
 
-  \item{maxiter}{an optional positive integer specifying the maximum
+  \item{maxiter}{an optional non-negative integer specifying the maximum
     number of iterations that may be performed before the algorithm is halted.
     Defaults to \code{2000*length(lower)}.}
 
