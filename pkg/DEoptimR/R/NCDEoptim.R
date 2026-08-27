@@ -94,8 +94,9 @@ NCDEoptim <- function(
     stopifnot(length(trace) == 1, is.logical(trace), !is.na(trace),
               length(triter) == 1, triter == as.integer(triter), triter >= 1)
 
-    has_NO_constraints <- is.null(constr)
-    has_constraints <- !has_NO_constraints
+    has_only_bound_constraints <- is.null(constr)
+    has_constraints <- !has_only_bound_constraints
+    has_equality_constraints <- meq > 0
 
     check_archive <- if (reinit_if_solu_in_arch) {
         expression({
@@ -214,7 +215,7 @@ NCDEoptim <- function(
         })
     } else expression()
 
-    update_pop <- if (has_NO_constraints) {
+    update_pop <- if (has_only_bound_constraints) {
         expression({
             pop <- pop_next
             fpop <- fpop_next
@@ -247,7 +248,7 @@ NCDEoptim <- function(
         }
     else which.min
 
-    child <- if (has_NO_constraints) { # Evaluate/select
+    child <- if (has_only_bound_constraints) { # Evaluate/select
         expression({
             ftrial <- fn1(trial)
             if (ftrial <= fpop[k]) {
@@ -260,8 +261,8 @@ NCDEoptim <- function(
                 eval(check_archive)
             }
         })
-    } else if (meq > 0) { # equality constraints are present
-                          # alongside the inequalities
+    } else if (has_equality_constraints) { # equality constraints are present
+                                           # alongside the inequalities
         # Zhang, Haibo, and Rangaiah, G. P. (2012).
         # An efficient constraint handling method with integrated differential
         # evolution for numerical and engineering optimization.
@@ -305,7 +306,7 @@ NCDEoptim <- function(
                 }
             }
         })
-    } else {              # only inequality constraints are present
+    } else { # only inequality constraints are present
         expression({
             htrial <- constr1(trial)
             TAVtrial <- sum( pmax(htrial, 0) )
@@ -330,7 +331,7 @@ NCDEoptim <- function(
                 TAVpop_next[k] <- TAVtrial
                 FF <- sum(TAVpop <= mu)/NP
                 mu <- mu*(1 - FF/NP)
-            } else {                       # two feasible solutions
+            } else {                     # two feasible solutions
                 ftrial <- fn1(trial)
                 if (ftrial <= fpop[k]) {
                     pop_next[, k] <- trial
@@ -352,7 +353,7 @@ NCDEoptim <- function(
     fn1 <- function(par) fn(par, ...)
 
     if (has_constraints)
-        constr1 <- if (meq > 0) {
+        constr1 <- if (has_equality_constraints) {
             equal_index <- 1:meq
             function(par) {
                 h <- constr(par, ...)
@@ -399,7 +400,7 @@ NCDEoptim <- function(
                   !anyNA(hpop), !is.nan(hpop), !is.logical(hpop))
         if (is.vector(hpop)) dim(hpop) <- c(1, length(hpop))
         stopifnot(nrow(hpop) >= meq)
-        if (meq > 0)
+        if (has_equality_constraints)
             hpop[equal_index, ] <- abs(hpop[equal_index, ]) - eps
         TAVpop <- apply( hpop, 2, function(x) sum(pmax(x, 0)) )
         mu <- median(TAVpop)

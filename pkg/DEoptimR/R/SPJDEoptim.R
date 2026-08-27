@@ -117,8 +117,9 @@ SPJDEoptim <- function(
         length(details) == 1, is.logical(details), !is.na(details)
     )
 
-    has_NO_constraints <- is.null(constr)
-    has_constraints <- !has_NO_constraints
+    has_only_bound_constraints <- is.null(constr)
+    has_constraints <- !has_only_bound_constraints
+    has_equality_constraints <- meq > 0
 
     which_best <- if (has_constraints)
         function(x) {
@@ -131,7 +132,7 @@ SPJDEoptim <- function(
         }
     else which.min
 
-    child <- if (has_NO_constraints) { # Evaluate/select
+    child <- if (has_only_bound_constraints) { # Evaluate/select
         expression({
             ftrial <- fn2(trial)
             i <- ftrial <= fpop
@@ -141,8 +142,8 @@ SPJDEoptim <- function(
             CR[i] <- CRtrial[i]
             pF[i] <- pFtrial[i]
         })
-    } else if (meq > 0) { # equality constraints are present
-                          # alongside the inequalities
+    } else if (has_equality_constraints) { # equality constraints are present
+                                           # alongside the inequalities
         # Zhang, Haibo, and Rangaiah, G. P. (2012).
         # An efficient constraint handling method with integrated differential
         # evolution for numerical and engineering optimization.
@@ -186,7 +187,7 @@ SPJDEoptim <- function(
                 mu <- mu*(1 - FF/NP)^sum(i)
             }
         })
-    } else {              # only inequality constraints are present
+    } else { # only inequality constraints are present
         expression({
             htrial <- constr2(trial)
             TAVtrial <- colSums( pmax(htrial, 0) )
@@ -303,7 +304,7 @@ SPJDEoptim <- function(
             !is.na(hpop), !is.nan(hpop), !is.logical(hpop),
             nrow(hpop) >= meq
         )
-        if (meq > 0) {
+        if (has_equality_constraints) {
             equal_index <- 1:meq
             constr1 <- function(par) {
                 h <- do.call(constr, c(list(par), further_args))

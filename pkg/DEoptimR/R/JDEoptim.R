@@ -79,8 +79,9 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
               length(triter) == 1, triter == as.integer(triter), triter >= 1,
               length(details) == 1, is.logical(details), !is.na(details))
 
-    has_NO_constraints <- is.null(constr)
-    has_constraints <- !has_NO_constraints
+    has_only_bound_constraints <- is.null(constr)
+    has_constraints <- !has_only_bound_constraints
+    has_equality_constraints <- meq > 0
 
     which.best <- if (has_constraints)
         function(x) {
@@ -93,7 +94,7 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
         }
     else which.min
 
-    child <- if (has_NO_constraints) { # Evaluate/select
+    child <- if (has_only_bound_constraints) { # Evaluate/select
         expression({
             ftrial <- fn1(trial)
             if (ftrial <= fpop[i]) {
@@ -104,8 +105,8 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
                 pF[i] <- pFtrial
             }
         })
-    } else if (meq > 0) { # equality constraints are present
-                          # alongside the inequalities
+    } else if (has_equality_constraints) { # equality constraints are present
+                                           # alongside the inequalities
         # Zhang, Haibo, and Rangaiah, G. P. (2012).
         # An efficient constraint handling method with integrated differential
         # evolution for numerical and engineering optimization.
@@ -145,7 +146,7 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
                 }
             }
         })
-    } else {              # only inequality constraints are present
+    } else { # only inequality constraints are present
         expression({
             htrial <- constr1(trial)
             TAVtrial <- sum( pmax(htrial, 0) )
@@ -189,7 +190,7 @@ JDEoptim <- function(lower, upper, fn, constr = NULL, meq = 0, eps = 1e-5,
 
     if (has_constraints)
         constr1 <-
-            if (meq > 0) {
+            if (has_equality_constraints) {
                 eqI <- 1:meq
                 function(par) {
                     h <- constr(par, ...)
